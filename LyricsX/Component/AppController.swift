@@ -9,7 +9,7 @@ class AppController: NSObject {
     var lyricsManager: LyricsProvider
     private let player: PlayerHandle
 
-    @Published var currentLyrics: Lyrics? {
+    @Published private(set) var currentLyrics: Lyrics? {
         willSet {
             willChangeValue(forKey: "lyricsOffset")
             currentLineIndex = nil
