@@ -8,7 +8,7 @@ LyricsX is a macOS menu-bar application (`LSUIElement`) that automatically searc
 
 - **Platform**: macOS 11+ only
 - **Language**: Swift 5 (project setting), Swift 6.2 toolchain (Package.swift)
-- **Bundle ID**: `com.JH.LyricsX`
+- **Bundle ID**: `com.fabiogaliano.LyricsX`
 
 ## Build Commands
 

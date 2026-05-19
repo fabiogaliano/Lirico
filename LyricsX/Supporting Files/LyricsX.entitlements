@@ -2,23 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>com.apple.developer.icloud-container-identifiers</key>
-	<array>
-		<string>$(LX_ICLOUD_CONTAINER)</string>
-	</array>
-	<key>com.apple.developer.icloud-services</key>
-	<array>
-		<string>CloudDocuments</string>
-	</array>
-	<key>com.apple.developer.ubiquity-container-identifiers</key>
-	<array>
-		<string>$(LX_ICLOUD_CONTAINER)</string>
-	</array>
 	<key>com.apple.security.app-sandbox</key>
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>$(TeamIdentifierPrefix)group.$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+		<string>$(TeamIdentifierPrefix)group.$(LX_BUNDLE_ID_PREFIX).LyricsX</string>
 	</array>
 	<key>com.apple.security.assets.music.read-write</key>
 	<true/>
@@ -61,9 +49,9 @@
 	</array>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)com.JH.LyricsKit</string>
+		<string>$(AppIdentifierPrefix)com.fabiogaliano.LyricsKit</string>
 		<string>$(AppIdentifierPrefix)$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-		<string>$(AppIdentifierPrefix)com.JH.LyricsKit.SpotifyLoginManager</string>
+		<string>$(AppIdentifierPrefix)com.fabiogaliano.LyricsKit.SpotifyLoginManager</string>
 	</array>
 </dict>
 </plist>

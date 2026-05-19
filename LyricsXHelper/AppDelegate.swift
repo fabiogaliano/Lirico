@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  LyricsX - https://github.com/ddddxxx/LyricsX
+//  LyricsX - https://github.com/fabiogaliano/LyricsX
 //
 //  This Source Code Form is subject to the terms of the Mozilla Public
 //  License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -76,9 +76,9 @@ let playerBundleIdentifiers = [
 ]
 
 #if DEBUG
-let groupDefaults = UserDefaults(suiteName: "D5Q73692VW.group.dev.JH.LyricsX")!
+let groupDefaults = UserDefaults(suiteName: "83HYP96U74.group.dev.fabiogaliano.LyricsX")!
 #else
-let groupDefaults = UserDefaults(suiteName: "D5Q73692VW.group.com.JH.LyricsX")!
+let groupDefaults = UserDefaults(suiteName: "83HYP96U74.group.com.fabiogaliano.LyricsX")!
 #endif
 
 // Preference

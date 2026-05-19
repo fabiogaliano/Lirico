@@ -56,13 +56,13 @@ class TouchBarLyricsController: TouchBarSystemModalController {
 }
 
 extension NSTouchBarItem.Identifier {
-    fileprivate static let lyrics = NSTouchBarItem.Identifier("ddddxxx.LyricsX.touchBar.lyrics")
-    fileprivate static let currentArtwork = NSTouchBarItem.Identifier("ddddxxx.LyricsX.touchBar.currentArtwork")
-    fileprivate static let playbackControl = NSTouchBarItem.Identifier("ddddxxx.LyricsX.touchBar.playbackControl")
+    fileprivate static let lyrics = NSTouchBarItem.Identifier("com.fabiogaliano.LyricsX.touchBar.lyrics")
+    fileprivate static let currentArtwork = NSTouchBarItem.Identifier("com.fabiogaliano.LyricsX.touchBar.currentArtwork")
+    fileprivate static let playbackControl = NSTouchBarItem.Identifier("com.fabiogaliano.LyricsX.touchBar.playbackControl")
 
-    fileprivate static let systemTrayItem = NSTouchBarItem.Identifier("ddddxxx.LyricsX.touchBar.systemTrayItem")
+    fileprivate static let systemTrayItem = NSTouchBarItem.Identifier("com.fabiogaliano.LyricsX.touchBar.systemTrayItem")
 }
 
 extension NSTouchBar.CustomizationIdentifier {
-    static let main = NSTouchBar.CustomizationIdentifier("ddddxxx.LyricsX.touchBar.customization.main")
+    static let main = NSTouchBar.CustomizationIdentifier("com.fabiogaliano.LyricsX.touchBar.customization.main")
 }
