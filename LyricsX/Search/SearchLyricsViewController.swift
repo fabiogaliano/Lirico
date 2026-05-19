@@ -240,34 +240,10 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
 //            }
 //        }
 
-        // Use URLSession for asynchronous network requests to avoid blocking threads.
-        // This is the recommended way to fetch remote data.
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            // This completion handler is executed on a background thread
-            // once the network request is complete.
-
-            // 1. Check for errors and ensure we received valid data.
-            guard let data = data, error == nil else {
-                print("Failed to download image data: \(error?.localizedDescription ?? "Unknown error")")
-                return
-            }
-
-            // 2. Create the image from the downloaded data.
-            // This is now very fast because the data is already in memory.
-            guard let image = NSImage(data: data) else {
-                print("Failed to create image from data.")
-                return
-            }
-
-            // 3. The completion handler is already on a background thread,
-            // so it's safe to update the cache here.
+        fetchArtwork(url: url) { [weak self] image in
+            guard let self, let image else { return }
             self.imageCache.setObject(image, forKey: url as NSURL)
-
-            // 4. Switch back to the main thread to perform any UI updates.
-            DispatchQueue.main.async {
-                self.updateImage()
-            }
-
-        }.resume() // IMPORTANT: Don't forget to start the task!
+            self.updateImage()
+        }
     }
 }
