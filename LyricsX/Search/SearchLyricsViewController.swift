@@ -100,11 +100,7 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
         SearchBlocklist.unblock(album: track.album ?? "")
 
         let lrc = searchResult[index]
-        lrc.associateWithTrack(track)
-        AppController.shared.currentLyrics = lrc
-        if defaults[.writeToiTunesAutomatically] {
-            AppController.shared.writeToiTunes(overwrite: true)
-        }
+        AppController.shared.select(lrc, writeToiTunesIfAuto: true)
     }
 
     // MARK: - LyricsSourceDelegate

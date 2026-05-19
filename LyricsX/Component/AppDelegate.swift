@@ -233,14 +233,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             return
         }
         SearchBlocklist.block(track: track)
-        if defaults[.writeToiTunesAutomatically] {
-            track.setLyrics("")
-        }
-        if let url = AppController.shared.currentLyrics?.metadata.localURL {
-            try? FileManager.default.removeItem(at: url)
-        }
-        AppController.shared.currentLyrics = nil
-        AppController.shared.searchTask?.cancel()
+        AppController.shared.clear(deleteOnDisk: true)
     }
 
     @IBAction func doNotSearchLyricsForThisAlbum(_ sender: Any?) {
@@ -249,13 +242,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             return
         }
         SearchBlocklist.block(album: album)
-        if defaults[.writeToiTunesAutomatically] {
-            track.setLyrics("")
-        }
-        if let url = AppController.shared.currentLyrics?.metadata.localURL {
-            try? FileManager.default.removeItem(at: url)
-        }
-        AppController.shared.currentLyrics = nil
+        AppController.shared.clear(deleteOnDisk: true)
     }
 
     func registerUserDefaults() {
