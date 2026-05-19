@@ -147,64 +147,14 @@ class AppController: NSObject {
             return
         }
 
-        var candidateLyricsURL: [(URL, Bool, Bool)] = [] // (fileURL, isSecurityScoped, needsSearching)
-
-        if defaults[.loadLyricsBesideTrack] {
-            if let embeddedLyrics = track.lyrics, !embeddedLyrics.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                if let lyrics = Lyrics(embeddedLyrics) {
-                    if lyrics.metadata.title == nil || lyrics.metadata.title?.isEmpty == true {
-                        lyrics.metadata.title = title
-                    }
-                    if lyrics.metadata.artist == nil || lyrics.metadata.artist?.isEmpty == true {
-                        lyrics.metadata.artist = artist
-                    }
-                    LyricsPreparer.prepare(lyrics)
-                    currentLyrics = lyrics
-                    return
-                }
-            }
-            if let fileName = track.localFileURL?.deletingPathExtension() {
-                candidateLyricsURL += [
-                    (fileName.appendingPathExtension("lrcx"), false, false),
-                    (fileName.appendingPathExtension("lrc"), false, false),
-                ]
-            }
-        }
-
-        let (url, security) = defaults.lyricsSavingPath()
-        let titleForReading = title.replacingOccurrences(of: "/", with: ":")
-        let artistForReading = artist.replacingOccurrences(of: "/", with: ":")
-        let fileName = url.appendingPathComponent("\(titleForReading) - \(artistForReading)")
-        candidateLyricsURL += [
-            (fileName.appendingPathExtension("lrcx"), security, false),
-            (fileName.appendingPathExtension("lrc"), security, true),
-        ]
-
-        for (url, security, needsSearching) in candidateLyricsURL {
-            if security {
-                guard url.startAccessingSecurityScopedResource() else {
-                    continue
-                }
-            }
-            defer {
-                if security {
-                    url.stopAccessingSecurityScopedResource()
-                }
-            }
-
-            if let lrcContents = try? String(contentsOf: url, encoding: String.Encoding.utf8),
-               let lyrics = Lyrics(lrcContents) {
-                lyrics.metadata.localURL = url
-                lyrics.metadata.title = title
-                lyrics.metadata.artist = artist
-                LyricsPreparer.prepare(lyrics)
-                currentLyrics = lyrics
-                if needsSearching {
-                    break
-                } else {
-                    return
-                }
-            }
+        switch LocalLyricsLoader.load(track: track, title: title, artist: artist) {
+        case .found(let lyrics):
+            currentLyrics = lyrics
+            return
+        case .foundPartial(let lyrics):
+            currentLyrics = lyrics
+        case .none:
+            break
         }
 
         if let album = track.album, defaults[.noSearchingAlbumNames].contains(album) {
