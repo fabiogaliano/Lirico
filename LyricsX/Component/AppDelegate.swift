@@ -38,9 +38,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         registerUserDefaults()
 
+        // Order matters: AppController.init subscribes to PlaybackClock.shared.currentLineIndex,
+        // so PlaybackClock must be assigned first.
+        PlaybackClock.shared = PlaybackClock(player: playerHandle)
         AppController.shared = AppController(player: playerHandle)
         let controller = AppController.shared!
-        _ = PlaybackClock.shared
         _ = LyricsSelector.shared
 
         karaokeLyricsWC = KaraokeLyricsWindowController()

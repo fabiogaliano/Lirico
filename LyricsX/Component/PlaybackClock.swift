@@ -18,15 +18,15 @@ typealias LyricsPosition = TimeInterval
 /// The self-scheduling loop (re-fire at next line boundary) is owned here, matching the
 /// previous behaviour of `AppController.scheduleCurrentLineCheck`.
 final class PlaybackClock {
-    static let shared = PlaybackClock()
+    static var shared: PlaybackClock!
 
     // MARK: - Public interface
 
     /// Offset-corrected playback position in the lyrics file coordinate space.
     /// Computed live on every read so that callers see the same wall-clock-interpolated value
-    /// they would have got from `selectedPlayer.playbackTime` directly.
+    /// they would have got from the player's `playbackTime` directly.
     var adjustedPlaybackTime: TimeInterval {
-        let playbackTime = MusicPlayers.Selected.shared.playbackState.time
+        let playbackTime = player.playbackState.time
         let delay = AppController.shared.currentLyrics?.adjustedTimeDelay ?? 0
         return playbackTime + delay
     }
@@ -39,6 +39,7 @@ final class PlaybackClock {
 
     // MARK: - Private state
 
+    private let player: PlayerHandle
     private let currentLineIndexSubject = CurrentValueSubject<Int?, Never>(nil)
     private var lineCheckSchedule: Cancellable?
     private var cancelBag = Set<AnyCancellable>()
@@ -46,8 +47,9 @@ final class PlaybackClock {
     // The lyrics-change trigger is driven by `AppController.currentLyrics.didSet` calling
     // `scheduleCurrentLineCheck()` → `tick()`. Subscribing to `$currentLyrics` here too would
     // double-tick on every change with no benefit.
-    private init() {
-        selectedPlayer.playbackStateWillChange
+    init(player: PlayerHandle) {
+        self.player = player
+        player.playbackStateWillChange
             .signal()
             .receive(on: DispatchQueue.lyricsDisplay)
             .sink { [unowned self] in self.tick() }
@@ -62,7 +64,7 @@ final class PlaybackClock {
 
         guard let lyrics = AppController.shared.currentLyrics else { return }
 
-        let playbackState = MusicPlayers.Selected.shared.playbackState
+        let playbackState = player.playbackState
         let playbackTime = playbackState.time
         let delay = lyrics.adjustedTimeDelay
 
