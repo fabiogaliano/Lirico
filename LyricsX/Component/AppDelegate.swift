@@ -18,6 +18,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
     private lazy var updateController = SPUStandardUpdaterController(updaterDelegate: nil, userDriverDelegate: self)
 
+    // TODO: Flip to true once SUPublicEDKey is generated and pasted into Info.plist.
+    private let isSparkleEnabled = false
+
     var firstLaunchForShouldHanlderReopen: Bool = true
 
     var karaokeLyricsWC: KaraokeLyricsWindowController?
@@ -65,7 +68,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             groupDefaults.bind(NSBindingName(sharedKey.key), withDefaultName: sharedKey)
         }
 
-        updateController.updater.checkForUpdatesInBackground()
+        if isSparkleEnabled {
+            updateController.updater.checkForUpdatesInBackground()
+        }
 
         observeDefaults(key: .touchBarLyricsEnabled, options: [.new, .initial]) { _, change in
             if change.newValue, TouchBarLyricsController.shared == nil {
@@ -176,6 +181,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     @IBAction func checkUpdateAction(_ sender: Any) {
+        guard isSparkleEnabled else { return }
         updateController.checkForUpdates(sender)
     }
 

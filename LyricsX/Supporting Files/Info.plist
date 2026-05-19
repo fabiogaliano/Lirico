@@ -34,7 +34,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.8.0</string>
 	<key>CFBundleVersion</key>
-	<string>2912</string>
+	<string>2913</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationCategoryType</key>
@@ -44,7 +44,7 @@
 	<key>LSUIElement</key>
 	<true/>
 	<key>LX_BUILD_TIME</key>
-	<integer>1779167108</integer>
+	<integer>1779168722</integer>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>
@@ -142,7 +142,6 @@
 	<true/>
 	<key>SUFeedURL</key>
 	<string>https://fabiogaliano.github.io/LyricsX/appcast.xml</string>
-	<!-- TODO: Generate a Sparkle EdDSA keypair with `generate_keys` (from the Sparkle release tarball) and paste the public key below. Until this is set, Sparkle cannot verify updates (fail-closed). -->
 	<key>SUPublicEDKey</key>
 	<string></string>
 </dict>

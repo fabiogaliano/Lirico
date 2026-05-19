@@ -3,3 +3,5 @@ Product
 xcuserdata
 project.xcworkspace
 .claude
+.derivedData/
+.pi/
