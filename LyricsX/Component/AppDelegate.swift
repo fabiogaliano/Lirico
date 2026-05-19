@@ -254,12 +254,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             defaults.register(defaults: dict)
         }
         defaults.register(defaults: [
-            .desktopLyricsColor: #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1),
-            .desktopLyricsProgressColor: #colorLiteral(red: 0.1985405816, green: 1, blue: 0.8664234302, alpha: 1),
-            .desktopLyricsShadowColor: #colorLiteral(red: 0, green: 1, blue: 0.8333333333, alpha: 1),
-            .desktopLyricsBackgroundColor: #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.6041579279),
-            .lyricsWindowTextColor: #colorLiteral(red: 0.7540688515, green: 0.7540867925, blue: 0.7540771365, alpha: 1),
-            .lyricsWindowHighlightColor: #colorLiteral(red: 0.8866666667, green: 1, blue: 0.8, alpha: 1),
+            .desktopLyricsColor: NSColor.white,
+            .desktopLyricsProgressColor: NSColor.controlAccentColor,
+            .desktopLyricsShadowColor: #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.55),
+            .desktopLyricsBackgroundColor: #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.85),
+            .lyricsWindowTextColor: #colorLiteral(red: 0.6, green: 0.6, blue: 0.6, alpha: 1),
+            .lyricsWindowHighlightColor: NSColor.controlAccentColor,
             .preferBilingualLyrics: isZh,
             .chineseConversionIndex: isHant ? 2 : 0,
             .desktopLyricsXPositionFactor: 0.5,

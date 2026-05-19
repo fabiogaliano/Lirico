@@ -4,6 +4,10 @@
 <dict>
 	<key>DesktopLyricsEnabled</key>
 	<true/>
+	<key>DesktopLyricsDraggable</key>
+	<true/>
+	<key>PreferredPlayerIndex</key>
+	<integer>1</integer>
 	<key>HideLyricsWhenMousePassingBy</key>
 	<true/>
 	<key>DisableLyricsWhenPaused</key>
@@ -17,13 +21,13 @@
 	<key>DesktopLyricsEnableFurigana</key>
 	<false/>
 	<key>DesktopLyricsFontName</key>
-	<string>Optima-Regular</string>
+	<string>SFProDisplay-Semibold</string>
 	<key>DesktopLyricsFontSize</key>
-	<integer>24</integer>
+	<integer>22</integer>
 	<key>LyricsWindowFontName</key>
-	<string>Helvetica</string>
+	<string>SFProText-Regular</string>
 	<key>LyricsWindowFontSize</key>
-	<string>13</string>
+	<string>15</string>
 	<key>LyricsFilterEnabled</key>
 	<true/>
 	<key>LyricsSmartFilterEnabled</key>

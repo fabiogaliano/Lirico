@@ -6,7 +6,7 @@ import OpenCC
 class TouchBarLyricsItem: NSCustomTouchBarItem {
     private var lyricsTextField = KaraokeLabel(labelWithString: "")
 
-    @objc dynamic var progressColor = #colorLiteral(red: 0, green: 1, blue: 0.8333333333, alpha: 1)
+    @objc dynamic var progressColor = #colorLiteral(red: 0.039, green: 0.518, blue: 1, alpha: 1)
 
     private var cancelBag = Set<AnyCancellable>()
 

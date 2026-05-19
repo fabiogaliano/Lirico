@@ -18,7 +18,7 @@ class ScrollLyricsView: NSScrollView {
 
     var fadeStripWidth: CGFloat = 24
 
-    @objc dynamic var textColor = #colorLiteral(red: 0.7540688515, green: 0.7540867925, blue: 0.7540771365, alpha: 1) {
+    @objc dynamic var textColor = #colorLiteral(red: 0.6, green: 0.6, blue: 0.6, alpha: 1) {
         didSet {
             DispatchQueue.main.async {
                 let range = self.textView.string.fullRange
@@ -30,7 +30,7 @@ class ScrollLyricsView: NSScrollView {
         }
     }
 
-    @objc dynamic var highlightColor = #colorLiteral(red: 0.8866666667, green: 1, blue: 0.8, alpha: 1) {
+    @objc dynamic var highlightColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1) {
         didSet {
             guard let highlightedRange = self.highlightedRange else { return }
             DispatchQueue.main.async {
@@ -39,11 +39,11 @@ class ScrollLyricsView: NSScrollView {
         }
     }
 
-    @objc dynamic var fontName = "Helvetica" {
+    @objc dynamic var fontName = "SFProText-Regular" {
         didSet { updateFont() }
     }
 
-    @objc dynamic var fontSize: CGFloat = 12 {
+    @objc dynamic var fontSize: CGFloat = 15 {
         didSet { updateFont() }
     }
 

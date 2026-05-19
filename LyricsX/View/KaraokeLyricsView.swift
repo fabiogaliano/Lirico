@@ -17,11 +17,11 @@ class KaraokeLyricsView: NSView {
     @objc dynamic var drawFurigana = false
     @objc dynamic var drawRomajin = false
 
-    @objc dynamic var font = NSFont.labelFont(ofSize: 24) { didSet { updateFontSize() } }
-    @objc dynamic var textColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
-    @objc dynamic var shadowColor = #colorLiteral(red: 0, green: 1, blue: 0.8333333333, alpha: 1)
-    @objc dynamic var progressColor = #colorLiteral(red: 0, green: 1, blue: 0.8333333333, alpha: 1)
-    @objc dynamic var backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.6018835616) {
+    @objc dynamic var font = NSFont.systemFont(ofSize: 22, weight: .semibold) { didSet { updateFontSize() } }
+    @objc dynamic var textColor: NSColor = .white
+    @objc dynamic var shadowColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.55)
+    @objc dynamic var progressColor: NSColor = .controlAccentColor
+    @objc dynamic var backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.85) {
         didSet {
             backgroundView.layer?.backgroundColor = backgroundColor.cgColor
         }
@@ -40,7 +40,8 @@ class KaraokeLyricsView: NSView {
         self.stackView = NSStackView(frame: frameRect)
         stackView.orientation = .vertical
         stackView.autoresizingMask = [.width, .height]
-        self.backgroundView = NSView() // NSVisualEffectView(frame: frameRect)
+
+        self.backgroundView = NSView()
         backgroundView.autoresizingMask = [.width, .height]
         backgroundView.wantsLayer = true
         super.init(frame: frameRect)
@@ -48,6 +49,8 @@ class KaraokeLyricsView: NSView {
         addSubview(backgroundView)
         backgroundView.addSubview(stackView)
         backgroundView.layer?.cornerRadius = 12
+        backgroundView.layer?.borderWidth = 0.5
+        backgroundView.layer?.borderColor = NSColor.white.withAlphaComponent(0.12).cgColor
     }
 
     @available(*, unavailable)
@@ -56,16 +59,16 @@ class KaraokeLyricsView: NSView {
     }
 
     private func updateFontSize() {
-        var insetX = font.pointSize
-        var insetY = insetX / 3
+        var insetX = font.pointSize * 0.7
+        var insetY = font.pointSize * 0.35
         if isVertical {
             (insetX, insetY) = (insetY, insetX)
         }
         stackView.snp.remakeConstraints {
             $0.edges.equalToSuperview().inset(NSEdgeInsets(top: insetY, left: insetX, bottom: insetY, right: insetX))
         }
-        stackView.spacing = font.pointSize / 3
-        backgroundView.layer?.cornerRadius = font.pointSize / 2
+        stackView.spacing = font.pointSize * 0.25
+        backgroundView.layer?.cornerRadius = font.pointSize * 0.55
     }
 
     private func lyricsLabel(_ content: String) -> KaraokeLabel {
@@ -197,9 +200,9 @@ extension NSTextField {
         set {
             shadow = newValue.map { color in
                 NSShadow().then {
-                    $0.shadowBlurRadius = 3
+                    $0.shadowBlurRadius = 8
                     $0.shadowColor = color
-                    $0.shadowOffset = .zero
+                    $0.shadowOffset = NSSize(width: 0, height: -1)
                 }
             }
         }
