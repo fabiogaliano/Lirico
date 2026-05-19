@@ -103,7 +103,8 @@ class AppController: NSObject {
             // For plain LRC export, preserve the legacy LRC formatting but still respect
             // the Chinese conversion setting for consistency with the non-plain branch.
             var legacy = currentLyrics.legacyDescription
-            if let converter = ChineseConverter.shared {
+            if let converter = ChineseConverter.shared,
+               currentLyrics.metadata.language?.hasPrefix("zh") == true {
                 legacy = converter.convert(legacy)
             }
             // Note: translations are intentionally not appended for plain LRC export,
