@@ -67,6 +67,7 @@
 		E9FA2B0E2E9000000007AA0E /* AlphaColorWell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B0D2E9000000007AA0D /* AlphaColorWell.swift */; };
 		E9FA2B102E9000000008BB10 /* FilterKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B0F2E9000000008BB0F /* FilterKey.swift */; };
 		E9FA2B122E9000000009CC12 /* ArtworkFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B112E9000000009CC11 /* ArtworkFetcher.swift */; };
+		E9FA2B142E900000000ADD14 /* PlayerHandle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B132E900000000ADD13 /* PlayerHandle.swift */; };
 		BBC1D35F1E499A6D002538A2 /* Global.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC1D35E1E499A6D002538A2 /* Global.swift */; };
 		BBC1D5801E4AE3B9008869EC /* MenuBarLyricsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC1D57F1E4AE3B9008869EC /* MenuBarLyricsController.swift */; };
 		BBC1D5911E4C80FC008869EC /* PreferenceDisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC1D5901E4C80FC008869EC /* PreferenceDisplayViewController.swift */; };
@@ -165,6 +166,7 @@
 		E9FA2B0D2E9000000007AA0D /* AlphaColorWell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphaColorWell.swift; sourceTree = "<group>"; };
 		E9FA2B0F2E9000000008BB0F /* FilterKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterKey.swift; sourceTree = "<group>"; };
 		E9FA2B112E9000000009CC11 /* ArtworkFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtworkFetcher.swift; sourceTree = "<group>"; };
+		E9FA2B132E900000000ADD13 /* PlayerHandle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerHandle.swift; sourceTree = "<group>"; };
 		BBC1D35E1E499A6D002538A2 /* Global.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Global.swift; sourceTree = "<group>"; };
 		BBC1D57F1E4AE3B9008869EC /* MenuBarLyricsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuBarLyricsController.swift; sourceTree = "<group>"; };
 		BBC1D5901E4C80FC008869EC /* PreferenceDisplayViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferenceDisplayViewController.swift; sourceTree = "<group>"; };
@@ -383,6 +385,7 @@
 				E9FA2B072E9000000004DD07 /* LyricsSelector.swift */,
 				E9FA2B092E9000000005EE09 /* LocalLyricsLoader.swift */,
 				E9FA2B0B2E9000000006FF0B /* SearchBlocklist.swift */,
+				E9FA2B132E900000000ADD13 /* PlayerHandle.swift */,
 				BB947DFA23B4C60000C43BF2 /* SelectedPlayer.swift */,
 				BB03C8881FDF6FC000FBE0DA /* ChineseConverter+Singleton.swift */,
 				BB458C62201C5F4500740C3B /* LyricsMetadata+Extension.swift */,
@@ -732,6 +735,7 @@
 				E9FA2B0E2E9000000007AA0E /* AlphaColorWell.swift in Sources */,
 				E9FA2B102E9000000008BB10 /* FilterKey.swift in Sources */,
 				E9FA2B122E9000000009CC12 /* ArtworkFetcher.swift in Sources */,
+				E9FA2B142E900000000ADD14 /* PlayerHandle.swift in Sources */,
 				BB0B296A1E7FBA2D00B1D6C9 /* PreferenceFilterViewController.swift in Sources */,
 				0F07BAF52E8A8B2900085912 /* PreferenceSourceViewController.swift in Sources */,
 				BB89089E21ED69410078F522 /* Lyrics+Language.swift in Sources */,
