@@ -99,6 +99,41 @@ class AppController: NSObject {
         LyricsPersister.writeToiTunes(currentLyrics, player: player, overwrite: overwrite)
     }
 
+    // MARK: - Commands
+
+    /// Adopt `lyrics` as the active selection. When `writeToiTunesIfAuto` is
+    /// true and the user has the auto-export preference enabled, push the
+    /// lyrics into Apple Music as a side effect (overwriting existing track
+    /// lyrics). The track association is read fresh from the player so that
+    /// late-arriving callers stay correct.
+    func select(_ lyrics: Lyrics, writeToiTunesIfAuto: Bool = false) {
+        if let track = player.currentTrack {
+            lyrics.associateWithTrack(track)
+        }
+        currentLyrics = lyrics
+        if writeToiTunesIfAuto, defaults[.writeToiTunesAutomatically] {
+            writeToiTunes(overwrite: true)
+        }
+    }
+
+    /// Drop the active lyrics. `deleteOnDisk` covers the "user explicitly
+    /// rejected this match" path (wrong lyrics / blocked album): the cached
+    /// file is removed, and — when auto-export is on — Apple Music's lyrics
+    /// field is cleared so the rejection sticks across restarts. The in-flight
+    /// search is always cancelled.
+    func clear(deleteOnDisk: Bool = false) {
+        if deleteOnDisk {
+            if defaults[.writeToiTunesAutomatically], let track = player.currentTrack {
+                track.setLyrics("")
+            }
+            if let url = currentLyrics?.metadata.localURL {
+                try? FileManager.default.removeItem(at: url)
+            }
+        }
+        currentLyrics = nil
+        searchTask?.cancel()
+    }
+
     func currentTrackChanged() {
         if currentLyrics?.metadata.needsPersist == true {
             currentLyrics?.persist()
