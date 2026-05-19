@@ -67,7 +67,7 @@ class ScrollLyricsView: NSScrollView {
                 line: line,
                 lyricsLanguage: lyrics.metadata.language,
                 translationLanguageCode: languageCode,
-                convert: .translation
+                convert: .all
             )
             var lineStr = mainContent
             if let trans = renderedTrans, defaults[.preferBilingualLyrics] {
