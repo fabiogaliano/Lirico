@@ -26,7 +26,6 @@ let defaults = UserDefaults.standard
 let groupDefaults = UserDefaults(suiteName: lyricsXGroupIdentifier)!
 let defaultNC = NotificationCenter.default
 let workspaceNC = NSWorkspace.shared.notificationCenter
-let selectedPlayer = MusicPlayers.Selected.shared
 
 let isInSandbox = ProcessInfo.processInfo.environment["APP_SANDBOX_CONTAINER_ID"] != nil
 let isFromMacAppStore = (try? Bundle.main.appStoreReceiptURL?.checkResourceIsReachable()) == true
