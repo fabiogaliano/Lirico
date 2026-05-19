@@ -21,6 +21,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     // TODO: Flip to true once SUPublicEDKey is generated and pasted into Info.plist.
     private let isSparkleEnabled = false
 
+    // lazy so MusicPlayers.Selected.init() (which reads UserDefaults) runs after
+    // applicationDidFinishLaunching has registered the defaults.
+    private lazy var playerHandle: PlayerHandle = MusicPlayers.Selected.shared
+
     var firstLaunchForShouldHanlderReopen: Bool = true
 
     var karaokeLyricsWC: KaraokeLyricsWindowController?
@@ -34,7 +38,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         registerUserDefaults()
 
-        let controller = AppController.shared
+        AppController.shared = AppController(player: playerHandle)
+        let controller = AppController.shared!
         _ = PlaybackClock.shared
         _ = LyricsSelector.shared
 

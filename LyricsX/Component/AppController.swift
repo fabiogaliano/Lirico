@@ -6,9 +6,10 @@ import MusicPlayer
 import LyricsXFoundation
 
 class AppController: NSObject {
-    static let shared = AppController()
+    static var shared: AppController!
 
     var lyricsManager: LyricsProvider
+    private let player: PlayerHandle
 
     @Published var currentLyrics: Lyrics? {
         willSet {
@@ -39,10 +40,11 @@ class AppController: NSObject {
         }
     }
 
-    private override init() {
+    init(player: PlayerHandle) {
         self.lyricsManager = LyricsProviders.Group()
+        self.player = player
         super.init()
-        selectedPlayer.currentTrackWillChange
+        player.currentTrackWillChange
             .signal()
             .receive(on: DispatchQueue.lyricsDisplay)
             .invoke(AppController.currentTrackChanged, weaklyOn: self)
@@ -56,7 +58,7 @@ class AppController: NSObject {
             .sink { notification in
                 guard let application = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }
                 let bundleID = application.bundleIdentifier
-                if defaults[.launchAndQuitWithPlayer], (selectedPlayer.designatedPlayer as? MusicPlayers.Scriptable)?.playerBundleID == bundleID {
+                if defaults[.launchAndQuitWithPlayer], player.designatedPlayerBundleID == bundleID {
                     NSApplication.shared.terminate(self)
                 }
             }.store(in: &cancelBag)
@@ -95,9 +97,9 @@ class AppController: NSObject {
     }
 
     func writeToiTunes(overwrite: Bool) {
-        guard selectedPlayer.name == .appleMusic,
+        guard player.name == .appleMusic,
               let currentLyrics = currentLyrics,
-              let sbTrack = selectedPlayer.currentTrack?.originalTrack,
+              let sbTrack = player.currentTrack?.originalTrack,
               overwrite || (sbTrack.value(forKey: "lyrics") as! String?)?.isEmpty != false else {
             return
         }
@@ -146,7 +148,7 @@ class AppController: NSObject {
         currentLyrics = nil
         currentLineIndex = nil
         searchTask?.cancel()
-        guard let track = selectedPlayer.currentTrack else {
+        guard let track = player.currentTrack else {
             return
         }
         // FIXME: deal with optional value
@@ -208,7 +210,7 @@ class AppController: NSObject {
     func lyricsReceived(lyrics: Lyrics) {
         guard let req = searchRequest,
               lyrics.metadata.request == req,
-              let track = selectedPlayer.currentTrack else {
+              let track = player.currentTrack else {
             return
         }
         if defaults[.strictSearchEnabled], !lyrics.isMatched() {
@@ -235,7 +237,7 @@ extension AppController {
             let error = NSError(domain: lyricsXErrorDomain, code: 0, userInfo: errorInfo)
             throw error
         }
-        guard let track = selectedPlayer.currentTrack else {
+        guard let track = player.currentTrack else {
             let errorInfo = [
                 NSLocalizedDescriptionKey: "No music playing",
                 NSLocalizedRecoverySuggestionErrorKey: "Play a music and try again.",
