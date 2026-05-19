@@ -51,6 +51,8 @@ class KaraokeLyricsView: NSView {
         backgroundView.layer?.cornerRadius = 12
         backgroundView.layer?.borderWidth = 0.5
         backgroundView.layer?.borderColor = NSColor.white.withAlphaComponent(0.12).cgColor
+        // didSet doesn't fire for the init value, so without this the layer stays clear and the transparent window passes margin clicks through (only glyph clicks drag).
+        backgroundView.layer?.backgroundColor = backgroundColor.cgColor
     }
 
     @available(*, unavailable)
