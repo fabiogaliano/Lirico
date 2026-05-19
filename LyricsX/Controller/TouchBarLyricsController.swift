@@ -6,7 +6,13 @@ import OpenCC
 class TouchBarLyricsController: TouchBarSystemModalController {
     static var shared: TouchBarLyricsController?
 
+    private let player: PlayerHandle
     private var lyricsItem = TouchBarLyricsItem(identifier: .lyrics)
+
+    init(player: PlayerHandle) {
+        self.player = player
+        super.init()
+    }
 
     override func touchBarDidLoad() {
         touchBar?.defaultItemIdentifiers = [.currentArtwork, .fixedSpaceSmall, .playbackControl, .fixedSpaceSmall, .lyrics, .flexibleSpace, .otherItemsProxy]
@@ -43,12 +49,16 @@ class TouchBarLyricsController: TouchBarSystemModalController {
             return lyricsItem
         case .playbackControl:
             let item = NSCustomTouchBarItem(identifier: identifier)
-            item.viewController = TouchBarPlaybackControlViewController()
+            let playbackVC = TouchBarPlaybackControlViewController()
+            playbackVC.player = player
+            item.viewController = playbackVC
             item.customizationLabel = "Playback Control"
             return item
         case .currentArtwork:
             let item = NSCustomTouchBarItem(identifier: identifier)
-            item.viewController = TouchBarArtworkViewController()
+            let artworkVC = TouchBarArtworkViewController()
+            artworkVC.player = player
+            item.viewController = artworkVC
             item.customizationLabel = "Artwork"
             return item
         default:

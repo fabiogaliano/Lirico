@@ -29,9 +29,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
     var karaokeLyricsWC: KaraokeLyricsWindowController?
 
-    lazy var searchLyricsWC: SearchLyricsWindowController = .init()
+    lazy var searchLyricsWC = SearchLyricsWindowController(player: playerHandle)
 
-    lazy var lyricsHUD: LyricsHUDWindowController = .create()
+    lazy var lyricsHUD: LyricsHUDWindowController = {
+        let wc = LyricsHUDWindowController.create()
+        (wc.contentViewController as? LyricsHUDViewController)?.player = playerHandle
+        return wc
+    }()
 
     lazy var preferencesWindowController: PreferenceWindowController = .create()
 
@@ -82,9 +86,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             updateController.updater.checkForUpdatesInBackground()
         }
 
-        observeDefaults(key: .touchBarLyricsEnabled, options: [.new, .initial]) { _, change in
+        observeDefaults(key: .touchBarLyricsEnabled, options: [.new, .initial]) { [self] _, change in
             if change.newValue, TouchBarLyricsController.shared == nil {
-                TouchBarLyricsController.shared = TouchBarLyricsController()
+                TouchBarLyricsController.shared = TouchBarLyricsController(player: playerHandle)
             } else if !change.newValue, TouchBarLyricsController.shared != nil {
                 TouchBarLyricsController.shared = nil
             }

@@ -3,6 +3,8 @@ import MusicPlayer
 import Combine
 
 class TouchBarPlaybackControlViewController: NSViewController {
+    var player: PlayerHandle!
+
     private weak var segmentedControl: NSSegmentedControl!
 
     private var cancelBag = Set<AnyCancellable>()
@@ -23,11 +25,11 @@ class TouchBarPlaybackControlViewController: NSViewController {
         view = seg
         segmentedControl = seg
 
-        selectedPlayer.playbackStateWillChange
+        player.playbackStateWillChange
             .receive(on: DispatchQueue.main)
             .invoke(TouchBarPlaybackControlViewController.updatePlayPauseIcon, weaklyOn: self)
             .store(in: &cancelBag)
-        updatePlayPauseIcon(state: selectedPlayer.playbackState)
+        updatePlayPauseIcon(state: player.playbackState)
     }
 
     func updatePlayPauseIcon(state: PlaybackState) {
@@ -47,18 +49,18 @@ class TouchBarPlaybackControlViewController: NSViewController {
     }
 
     @IBAction func rewindAction(_ sender: Any?) {
-        if selectedPlayer.playbackTime > 5 {
-            selectedPlayer.playbackTime = 0
+        if player.playbackTime > 5 {
+            player.playbackTime = 0
         } else {
-            selectedPlayer.skipToPreviousItem()
+            player.skipToPreviousItem()
         }
     }
 
     @IBAction func playPauseAction(_ sender: Any?) {
-        selectedPlayer.playPause()
+        player.playPause()
     }
 
     @IBAction func fastForwardAction(_ sender: Any?) {
-        selectedPlayer.skipToNextItem()
+        player.skipToNextItem()
     }
 }

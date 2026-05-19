@@ -4,6 +4,8 @@ import MusicPlayer
 import UIFoundation
 
 class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTableViewDataSource, NSTextFieldDelegate, StoryboardViewController {
+    var player: PlayerHandle!
+
     var imageCache = NSCache<NSURL, NSImage>()
 
     @objc dynamic var searchArtist = ""
@@ -41,7 +43,7 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
     }
 
     func reloadKeyword() {
-        guard let track = selectedPlayer.currentTrack else {
+        guard let track = player.currentTrack else {
             searchTask?.cancel()
             searchResult = []
             searchArtist = ""
@@ -66,7 +68,7 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
         artworkView.image = #imageLiteral(resourceName: "missing_artwork")
         lyricsPreviewTextView.string = " "
 
-        let track = selectedPlayer.currentTrack
+        let track = player.currentTrack
         let duration = track?.duration ?? 0
         let req = LyricsSearchRequest(searchTerm: .info(title: searchTitle, artist: searchArtist), duration: duration, limit: 8)
         searchRequest = req
@@ -91,7 +93,7 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
             return
         }
 
-        guard let track = selectedPlayer.currentTrack else {
+        guard let track = player.currentTrack else {
             return
         }
         SearchBlocklist.unblock(track: track)

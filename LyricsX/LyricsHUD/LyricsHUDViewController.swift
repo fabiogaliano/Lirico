@@ -4,6 +4,8 @@ import GenericID
 import MusicPlayer
 
 class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsViewDelegate, DragNDropDelegate {
+    var player: PlayerHandle!
+
     @IBOutlet var dragNDropView: DragNDropView!
     @IBOutlet var lyricsScrollView: ScrollLyricsView!
     @IBOutlet var noLyricsLabel: NSTextField!
@@ -111,7 +113,7 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
 
     func doubleClickLyricsLine(at position: TimeInterval) {
         let rawTime = AppController.shared.currentLyrics?.playbackTime(from: position) ?? position
-        selectedPlayer.playbackTime = rawTime
+        player.playbackTime = rawTime
         isTracking = true
     }
 

@@ -3,6 +3,8 @@ import Combine
 import MusicPlayer
 
 class TouchBarArtworkViewController: NSViewController {
+    var player: PlayerHandle!
+
     let artworkView = NSImageView()
 
     private var cancelBag = Set<AnyCancellable>()
@@ -12,7 +14,7 @@ class TouchBarArtworkViewController: NSViewController {
     }
 
     override func viewDidLoad() {
-        selectedPlayer.currentTrackWillChange
+        player.currentTrackWillChange
             .signal()
             .receive(on: DispatchQueue.main)
             .invoke(TouchBarArtworkViewController.updateArtworkImage, weaklyOn: self)
@@ -21,7 +23,7 @@ class TouchBarArtworkViewController: NSViewController {
     }
 
     func updateArtworkImage() {
-        if let image = selectedPlayer.currentTrack?.artwork ?? selectedPlayer.name?.icon {
+        if let image = player.currentTrack?.artwork ?? player.name?.icon {
             let size = CGSize(width: 30, height: 30)
             artworkView.image = NSImage(size: size, flipped: false) { rect in
                 image.draw(in: rect)
