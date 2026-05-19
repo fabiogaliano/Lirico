@@ -3,7 +3,6 @@ import Combine
 import GenericID
 import LyricsXFoundation
 import MusicPlayer
-import OpenCC
 import SwiftCF
 import AccessibilityExt
 import OSLog
@@ -80,10 +79,12 @@ class MenuBarLyricsController {
             return
         }
         let currentLine = lyrics.lines[index]
-        var newScreenLyrics = currentLine.content
-        if let converter = ChineseConverter.shared, lyrics.metadata.language?.hasPrefix("zh") == true {
-            newScreenLyrics = converter.convert(newScreenLyrics)
-        }
+        let (newScreenLyrics, _) = LineRenderer.render(
+            line: currentLine,
+            lyricsLanguage: lyrics.metadata.language,
+            translationLanguageCode: nil,
+            convert: .mainLine
+        )
         if newScreenLyrics == screenLyrics.lyrics {
             return
         }

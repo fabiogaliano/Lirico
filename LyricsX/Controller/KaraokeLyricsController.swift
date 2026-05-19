@@ -3,7 +3,6 @@ import Combine
 import GenericID
 import LyricsXFoundation
 import MusicPlayer
-import OpenCC
 import SnapKit
 import SwiftCF
 import CoreGraphicsExt
@@ -123,29 +122,31 @@ class KaraokeLyricsWindowController: NSWindowController {
 
         let languageCode = lyrics.metadata.translationLanguages.first
 
-        var firstLine = lrc.content
+        // Render main line with conversion applied to main content only; translation is handled
+        // separately below because the second display slot can show either a translation or the
+        // next lyric line, each requiring independent conversion logic.
+        let (firstLine, renderedTranslation) = LineRenderer.render(
+            line: lrc,
+            lyricsLanguage: lyrics.metadata.language,
+            translationLanguageCode: languageCode,
+            convert: [.mainLine, .translation]
+        )
+
         var secondLine: String
-        var secondLineIsTranslation = false
         if defaults[.desktopLyricsOneLineMode] {
             secondLine = ""
-        } else if defaults[.preferBilingualLyrics],
-                  let translation = lrc.attachments[.translation(languageCode: languageCode)] {
+        } else if defaults[.preferBilingualLyrics], let translation = renderedTranslation {
             secondLine = translation
-            secondLineIsTranslation = true
+        } else if let next = next {
+            let (nextContent, _) = LineRenderer.render(
+                line: next,
+                lyricsLanguage: lyrics.metadata.language,
+                translationLanguageCode: nil,
+                convert: .mainLine
+            )
+            secondLine = nextContent
         } else {
-            secondLine = next?.content ?? ""
-        }
-
-        if let converter = ChineseConverter.shared {
-            if lyrics.metadata.language?.hasPrefix("zh") == true {
-                firstLine = converter.convert(firstLine)
-                if !secondLineIsTranslation {
-                    secondLine = converter.convert(secondLine)
-                }
-            }
-            if languageCode?.hasPrefix("zh") == true {
-                secondLine = converter.convert(secondLine)
-            }
+            secondLine = ""
         }
 
         DispatchQueue.main.async {

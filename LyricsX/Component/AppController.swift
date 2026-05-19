@@ -159,8 +159,7 @@ class AppController: NSObject {
                     if lyrics.metadata.artist == nil || lyrics.metadata.artist?.isEmpty == true {
                         lyrics.metadata.artist = artist
                     }
-                    lyrics.filtrate()
-                    lyrics.recognizeLanguage()
+                    LyricsPreparer.prepare(lyrics)
                     currentLyrics = lyrics
                     return
                 }
@@ -199,8 +198,7 @@ class AppController: NSObject {
                 lyrics.metadata.localURL = url
                 lyrics.metadata.title = title
                 lyrics.metadata.artist = artist
-                lyrics.filtrate()
-                lyrics.recognizeLanguage()
+                LyricsPreparer.prepare(lyrics)
                 currentLyrics = lyrics
                 if needsSearching {
                     break
@@ -273,8 +271,7 @@ class AppController: NSObject {
         }
 
         lyrics.associateWithTrack(track)
-        lyrics.filtrate()
-        lyrics.recognizeLanguage()
+        LyricsPreparer.prepare(lyrics)
         lyrics.metadata.needsPersist = true
         currentLyrics = lyrics
     }
@@ -300,8 +297,7 @@ extension AppController {
         }
         lrc.metadata.title = track.title
         lrc.metadata.artist = track.artist
-        lrc.filtrate()
-        lrc.recognizeLanguage()
+        LyricsPreparer.prepare(lrc)
         lrc.metadata.needsPersist = true
         currentLyrics = lrc
         if let index = defaults[.noSearchingTrackIds].firstIndex(of: track.id) {
