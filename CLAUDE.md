@@ -59,7 +59,7 @@ Hybrid Xcode project + Swift Package Manager. The Xcode project (`LyricsX.xcodep
 
 The app uses a **Combine-driven reactive architecture** with shared singletons:
 
-- **`Component/`** — Core singletons: `AppController` (central lyrics search/management hub), `AppDelegate`, `SelectedPlayer` (player adapter). `AppController` listens for track changes via Combine publishers, runs async lyrics searches (`AsyncSequence`), and distributes results to display layers.
+- **`Component/`** — Core singletons: `LyricsSession` (central lyrics state + search/management hub), `AppDelegate`, `PlaybackClock` (line-index publisher), `PlayerHandle` (player adapter). `LyricsSession` listens for track changes via Combine publishers, runs async lyrics searches (`AsyncSequence`), and exposes `currentLyrics` as a read-only publisher. Mutations flow through `select()` / `clear()` / `importLyrics()` commands. Apple-Music export lives in the pure `LyricsPersister` namespace.
 - **`Controller/`** — Display controllers: `KaraokeLyricsController` (desktop karaoke overlay), `MenuBarLyricsController` (menu bar text), `TouchBarLyricsController`
 - **`LyricsHUD/`** — Floating lyrics panel (`LyricsHUDViewController`)
 - **`Preferences/`** — Preference pane ViewControllers (General, Display, Filter, Shortcut, Source, Lab)
@@ -68,10 +68,11 @@ The app uses a **Combine-driven reactive architecture** with shared singletons:
 
 ### Data Flow
 
-1. `MusicPlayers.Selected.shared` publishes current track/playback state
-2. `AppController.shared` subscribes, triggers async lyrics search on track change
-3. Found lyrics stored as `@Published var currentLyrics`
-4. Display controllers (`KaraokeLyricsController`, `MenuBarLyricsController`, etc.) subscribe to lyrics + playback position to render synchronized output
+1. `MusicPlayers.Selected.shared` publishes current track/playback state (wrapped in `PlayerHandle` and constructor-injected; no module-level player global)
+2. `LyricsSession.shared` subscribes, triggers async lyrics search on track change
+3. Found lyrics stored as `@Published private(set) var currentLyrics` — written only by the session, never from outside
+4. `LyricsSession.currentLyrics.didSet` pushes the lyrics into `PlaybackClock`, which emits the active line index; the session mirrors that into `@Published currentLineIndex`
+5. Display controllers (`KaraokeLyricsController`, `MenuBarLyricsController`, etc.) subscribe to lyrics + playback position to render synchronized output
 
 ### Localization
 
