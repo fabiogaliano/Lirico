@@ -22,8 +22,8 @@ class TouchBarLyricsItem: NSCustomTouchBarItem {
     func commonInit() {
         view = lyricsTextField
         customizationLabel = "Lyrics"
-        AppController.shared.$currentLyrics
-            .combineLatest(AppController.shared.$currentLineIndex)
+        LyricsSession.shared.$currentLyrics
+            .combineLatest(LyricsSession.shared.$currentLineIndex)
             .receive(on: DispatchQueue.lyricsDisplay)
             .invoke(TouchBarLyricsItem.handleLyricsDisplay, weaklyOn: self)
             .store(in: &cancelBag)

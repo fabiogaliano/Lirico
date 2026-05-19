@@ -6,7 +6,7 @@ import MusicPlayer
 /// Backed by `defaults[.noSearchingTrackIds]` and `defaults[.noSearchingAlbumNames]`. Centralising
 /// the mutation surface keeps the four un-block sites from having to copy the same find-and-remove
 /// dance, and gives the blocklist concept a real noun in the codebase instead of leaving it as a
-/// UserDefaults key pattern strewn across AppController, AppDelegate, and SearchLyricsViewController.
+/// UserDefaults key pattern strewn across LyricsSession, AppDelegate, and SearchLyricsViewController.
 enum SearchBlocklist {
 
     // MARK: - Query

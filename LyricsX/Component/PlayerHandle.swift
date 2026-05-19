@@ -9,7 +9,7 @@ import MusicPlayer
 /// the app in one place and (b) eliminate the module-level `selectedPlayer` global.
 ///
 /// `MusicPlayers.Selected` already satisfies every member except `designatedPlayerBundleID`,
-/// which hides the `as? MusicPlayers.Scriptable` cast that AppController used to do inline.
+/// which hides the `as? MusicPlayers.Scriptable` cast that LyricsSession used to do inline.
 protocol PlayerHandle: AnyObject {
     var name: MusicPlayerName? { get }
     var currentTrack: MusicTrack? { get }

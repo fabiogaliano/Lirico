@@ -17,7 +17,7 @@ let availableLyricsSources: [String] = LyricsProviders.Service.allCases.map(\.di
 ///
 /// - **Collection-window state**: `LyricsCollector` encapsulates the per-search accumulation
 ///   state (accept-first, then keep collecting for a bounded window) so the loop in
-///   `AppController.currentTrackChanged` no longer holds raw `Bool`/`Date` locals.
+///   `LyricsSession.currentTrackChanged` no longer holds raw `Bool`/`Date` locals.
 final class LyricsSelector {
     static let shared = LyricsSelector()
 
@@ -80,7 +80,7 @@ final class LyricsSelector {
 // MARK: - LyricsCollector
 
 /// Encapsulates the "accept first immediately, then keep collecting for a bounded window" logic
-/// that governs which incoming lyrics the streaming loop in `AppController` should act on.
+/// that governs which incoming lyrics the streaming loop in `LyricsSession` should act on.
 ///
 /// Create one collector per search via `LyricsSelector.shared.makeCollector(window:)`.
 /// For each arriving `Lyrics`, call `nextDecision()`. When the `.accept` decision causes
@@ -108,7 +108,7 @@ struct LyricsCollector {
     }
 
     /// Call this after an `.accept` decision causes `lyricsReceived` to update
-    /// `AppController.currentLyrics`. Starts the collection window on first call;
+    /// `LyricsSession.currentLyrics`. Starts the collection window on first call;
     /// subsequent calls are no-ops so the window measures from the first acceptance.
     mutating func notifyAccepted() {
         if collectionStart == nil {

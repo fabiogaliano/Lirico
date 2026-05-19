@@ -3,8 +3,8 @@ import Combine
 import MusicPlayer
 import LyricsXFoundation
 
-class AppController: NSObject {
-    static var shared: AppController!
+class LyricsSession: NSObject {
+    static var shared: LyricsSession!
 
     var lyricsManager: LyricsProvider
     private let player: PlayerHandle
@@ -45,7 +45,7 @@ class AppController: NSObject {
         player.currentTrackWillChange
             .signal()
             .receive(on: DispatchQueue.lyricsDisplay)
-            .invoke(AppController.currentTrackChanged, weaklyOn: self)
+            .invoke(LyricsSession.currentTrackChanged, weaklyOn: self)
             .store(in: &cancelBag)
 
         PlaybackClock.shared.dedupTarget = { [weak self] in self?.currentLineIndex }
@@ -62,7 +62,7 @@ class AppController: NSObject {
                 }
             }.store(in: &cancelBag)
         // Defer the initial sync: setting currentLyrics here would re-enter
-        // AppController.shared via PlaybackClock.tick() while dispatch_once is
+        // LyricsSession.shared via PlaybackClock.tick() while dispatch_once is
         // still in flight, which libdispatch traps as recursive locking.
         DispatchQueue.main.async { [weak self] in
             self?.currentTrackChanged()
@@ -221,7 +221,7 @@ class AppController: NSObject {
     }
 }
 
-extension AppController {
+extension LyricsSession {
     func importLyrics(_ lyricsString: String) throws {
         guard let lrc = Lyrics(lyricsString) else {
             let errorInfo = [

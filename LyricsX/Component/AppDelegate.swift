@@ -42,11 +42,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         registerUserDefaults()
 
-        // Order matters: AppController.init subscribes to PlaybackClock.shared.currentLineIndex,
+        // Order matters: LyricsSession.init subscribes to PlaybackClock.shared.currentLineIndex,
         // so PlaybackClock must be assigned first.
         PlaybackClock.shared = PlaybackClock(player: playerHandle)
-        AppController.shared = AppController(player: playerHandle)
-        let controller = AppController.shared!
+        LyricsSession.shared = LyricsSession(player: playerHandle)
+        let controller = LyricsSession.shared!
         _ = LyricsSelector.shared
 
         karaokeLyricsWC = KaraokeLyricsWindowController(player: playerHandle)
@@ -59,14 +59,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         lyricsOffsetStepper.bind(
             .value,
             to: controller,
-            withKeyPath: #keyPath(AppController.lyricsOffset),
+            withKeyPath: #keyPath(LyricsSession.lyricsOffset),
             options: [.continuouslyUpdatesValue: true]
         )
 
         lyricsOffsetTextField.bind(
             .value,
             to: controller,
-            withKeyPath: #keyPath(AppController.lyricsOffset),
+            withKeyPath: #keyPath(LyricsSession.lyricsOffset),
             options: [.continuouslyUpdatesValue: true]
         )
 
@@ -109,8 +109,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
-        if AppController.shared.currentLyrics?.metadata.needsPersist == true {
-            AppController.shared.currentLyrics?.persist()
+        if LyricsSession.shared.currentLyrics?.metadata.needsPersist == true {
+            LyricsSession.shared.currentLyrics?.persist()
         }
         if defaults[.launchAndQuitWithPlayer] {
             let url = Bundle.main.bundleURL
@@ -145,7 +145,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         switch menuItem.action {
         case #selector(writeToiTunes(_:))?:
-            return playerHandle.name == .appleMusic && AppController.shared.currentLyrics != nil
+            return playerHandle.name == .appleMusic && LyricsSession.shared.currentLyrics != nil
         case #selector(searchLyrics(_:))?:
             return playerHandle.currentTrack != nil
         default:
@@ -154,7 +154,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     func menuNeedsUpdate(_ menu: NSMenu) {
-        menu.item(withTag: 202)?.isEnabled = AppController.shared.currentLyrics != nil
+        menu.item(withTag: 202)?.isEnabled = LyricsSession.shared.currentLyrics != nil
     }
 
     // MARK: - Menubar Action
@@ -200,15 +200,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     @IBAction func increaseOffset(_ sender: Any?) {
-        AppController.shared.lyricsOffset += 100
+        LyricsSession.shared.lyricsOffset += 100
     }
 
     @IBAction func decreaseOffset(_ sender: Any?) {
-        AppController.shared.lyricsOffset -= 100
+        LyricsSession.shared.lyricsOffset -= 100
     }
 
     @IBAction func showCurrentLyricsInFinder(_ sender: Any?) {
-        guard let lyrics = AppController.shared.currentLyrics else {
+        guard let lyrics = LyricsSession.shared.currentLyrics else {
             return
         }
         if lyrics.metadata.needsPersist {
@@ -220,7 +220,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     @IBAction func writeToiTunes(_ sender: Any?) {
-        AppController.shared.writeToiTunes(overwrite: true)
+        LyricsSession.shared.writeToiTunes(overwrite: true)
     }
 
     @IBAction func searchLyrics(_ sender: Any?) {
@@ -233,7 +233,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             return
         }
         SearchBlocklist.block(track: track)
-        AppController.shared.clear(deleteOnDisk: true)
+        LyricsSession.shared.clear(deleteOnDisk: true)
     }
 
     @IBAction func doNotSearchLyricsForThisAlbum(_ sender: Any?) {
@@ -242,7 +242,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             return
         }
         SearchBlocklist.block(album: album)
-        AppController.shared.clear(deleteOnDisk: true)
+        LyricsSession.shared.clear(deleteOnDisk: true)
     }
 
     func registerUserDefaults() {

@@ -29,7 +29,7 @@ class PreferenceLabViewController: PreferenceViewController {
         
         // Update lyrics manager when token changes
         Task { @MainActor in
-            try await AppController.shared.updateLyricsManager()
+            try await LyricsSession.shared.updateLyricsManager()
         }
     }
 

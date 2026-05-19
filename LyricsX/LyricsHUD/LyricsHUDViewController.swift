@@ -42,7 +42,7 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
 
         dragNDropView.dragDelegate = self
         lyricsScrollView.delegate = self
-        lyricsScrollView.setupTextContents(lyrics: AppController.shared.currentLyrics)
+        lyricsScrollView.setupTextContents(lyrics: LyricsSession.shared.currentLyrics)
 
         lyricsScrollView.bind(\.fontName, withDefaultName: .lyricsWindowFontName)
         lyricsScrollView.bind(\.fontSize, withUnmatchedDefaultName: .lyricsWindowFontSize)
@@ -56,12 +56,12 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
             self.displayLyrics(animation: false)
         }
 
-        AppController.shared.$currentLyrics
+        LyricsSession.shared.$currentLyrics
             .signal()
             .receive(on: DispatchQueue.main)
             .invoke(LyricsHUDViewController.lyricsChanged, weaklyOn: self)
             .store(in: &cancelBag)
-        AppController.shared.$currentLineIndex
+        LyricsSession.shared.$currentLineIndex
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] _ in
                 self.displayLyrics()
@@ -76,7 +76,7 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
     }
 
     override func viewWillAppear() {
-        noLyricsLabel.isHidden = AppController.shared.currentLyrics != nil
+        noLyricsLabel.isHidden = LyricsSession.shared.currentLyrics != nil
         displayLyrics(animation: false)
     }
 
@@ -84,7 +84,7 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
 
     private func lyricsChanged() {
         DispatchQueue.main.async {
-            let newLyrics = AppController.shared.currentLyrics
+            let newLyrics = LyricsSession.shared.currentLyrics
             self.lyricsScrollView.setupTextContents(lyrics: newLyrics)
             self.noLyricsLabel.isHidden = newLyrics != nil
             self.displayLyrics(animation: false)
@@ -112,7 +112,7 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
     // MARK: ScrollLyricsViewDelegate
 
     func doubleClickLyricsLine(at position: TimeInterval) {
-        let rawTime = AppController.shared.currentLyrics?.playbackTime(from: position) ?? position
+        let rawTime = LyricsSession.shared.currentLyrics?.playbackTime(from: position) ?? position
         player.playbackTime = rawTime
         isTracking = true
     }
@@ -135,7 +135,7 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
 
     func dragFinished(content: String) {
         do {
-            try AppController.shared.importLyrics(content)
+            try LyricsSession.shared.importLyrics(content)
         } catch {
             let alert = NSAlert(error: error)
             alert.beginSheetModal(for: view.window!)

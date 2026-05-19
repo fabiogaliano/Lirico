@@ -15,7 +15,7 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
         }
     }
 
-    var lyricsManager: LyricsProvider { AppController.shared.lyricsManager }
+    var lyricsManager: LyricsProvider { LyricsSession.shared.lyricsManager }
     var searchRequest: LyricsSearchRequest?
     var searchTask: Task<Void, Never>?
     var searchResult: [Lyrics] = []
@@ -100,7 +100,7 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
         SearchBlocklist.unblock(album: track.album ?? "")
 
         let lrc = searchResult[index]
-        AppController.shared.select(lrc, writeToiTunesIfAuto: true)
+        LyricsSession.shared.select(lrc, writeToiTunesIfAuto: true)
     }
 
     // MARK: - LyricsSourceDelegate

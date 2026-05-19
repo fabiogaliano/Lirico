@@ -100,7 +100,7 @@ private extension LocalLyricsLoader {
             return nil
         }
         // File-based sources always overwrite title and artist, unlike embedded which preserves
-        // existing metadata values. This asymmetry matches the original AppController behaviour.
+        // existing metadata values. This asymmetry matches the original LyricsSession behaviour.
         lyrics.metadata.localURL = url
         lyrics.metadata.title = title
         lyrics.metadata.artist = artist

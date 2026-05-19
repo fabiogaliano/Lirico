@@ -55,8 +55,8 @@ class MenuBarLyricsController {
         if !defaults[.hideMenuBarItems] {
             updateStatusItems()
         }
-        AppController.shared.$currentLyrics
-            .combineLatest(AppController.shared.$currentLineIndex)
+        LyricsSession.shared.$currentLyrics
+            .combineLatest(LyricsSession.shared.$currentLineIndex)
             .receive(on: DispatchQueue.lyricsDisplay)
             .invoke(MenuBarLyricsController.handleLyricsDisplay, weaklyOn: self)
             .store(in: &cancelBag)

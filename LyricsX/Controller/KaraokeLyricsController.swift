@@ -37,12 +37,12 @@ class KaraokeLyricsWindowController: NSWindowController {
         lyricsView.displayLrc("LyricsX")
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             self.lyricsView.displayLrc("")
-            AppController.shared.$currentLyrics
+            LyricsSession.shared.$currentLyrics
                 .signal()
                 .receive(on: DispatchQueue.lyricsDisplay)
                 .invoke(KaraokeLyricsWindowController.handleLyricsDisplay, weaklyOn: self)
                 .store(in: &self.cancelBag)
-            AppController.shared.$currentLineIndex
+            LyricsSession.shared.$currentLineIndex
                 .signal()
                 .receive(on: DispatchQueue.lyricsDisplay)
                 .invoke(KaraokeLyricsWindowController.handleLyricsDisplay, weaklyOn: self)
@@ -112,8 +112,8 @@ class KaraokeLyricsWindowController: NSWindowController {
     @objc private func handleLyricsDisplay() {
         guard defaults[.desktopLyricsEnabled],
               !defaults[.disableLyricsWhenPaused] || player.playbackState.isPlaying,
-              let lyrics = AppController.shared.currentLyrics,
-              let index = AppController.shared.currentLineIndex else {
+              let lyrics = LyricsSession.shared.currentLyrics,
+              let index = LyricsSession.shared.currentLineIndex else {
             DispatchQueue.main.async {
                 self.lyricsView.displayLrc("", secondLine: "")
             }
