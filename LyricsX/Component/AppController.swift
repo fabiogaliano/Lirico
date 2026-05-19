@@ -1,7 +1,5 @@
 import AppKit
 import Combine
-import Regex
-import OpenCC
 import MusicPlayer
 import LyricsXFoundation
 
@@ -97,48 +95,8 @@ class AppController: NSObject {
     }
 
     func writeToiTunes(overwrite: Bool) {
-        guard player.name == .appleMusic,
-              let currentLyrics = currentLyrics,
-              let sbTrack = player.currentTrack?.originalTrack,
-              overwrite || (sbTrack.value(forKey: "lyrics") as! String?)?.isEmpty != false else {
-            return
-        }
-
-        let content: String
-        if defaults[.writeiTunesConvertToPlainLRC] {
-            // For plain LRC export, preserve the legacy LRC formatting but still respect
-            // the Chinese conversion setting for consistency with the non-plain branch.
-            var legacy = currentLyrics.legacyDescription
-            if let converter = ChineseConverter.shared,
-               currentLyrics.metadata.language?.hasPrefix("zh") == true {
-                legacy = converter.convert(legacy)
-            }
-            // Note: translations are intentionally not appended for plain LRC export,
-            // even when `writeiTunesWithTranslation` is enabled, to keep the legacy
-            // LRC output single-line per timestamp.
-            content = legacy
-        } else {
-            // TODO: tagged translation
-            let translationCode = defaults[.writeiTunesWithTranslation]
-                ? currentLyrics.metadata.translationLanguages.first
-                : nil
-            content = currentLyrics.lines.map { line -> String in
-                let (main, translation) = LineRenderer.render(
-                    line: line,
-                    lyricsLanguage: currentLyrics.metadata.language,
-                    translationLanguageCode: translationCode,
-                    convert: .all
-                )
-                if let translation {
-                    return main + "\n" + translation
-                }
-                return main
-            }.joined(separator: "\n")
-        }
-        // swiftlint:disable:next force_try
-        let regex = Regex(#"\n{3,}"#)
-        let replaced = content.replacingMatches(of: regex, with: "\n\n")
-        sbTrack.setValue(replaced, forKey: "lyrics")
+        guard let currentLyrics else { return }
+        LyricsPersister.writeToiTunes(currentLyrics, player: player, overwrite: overwrite)
     }
 
     func currentTrackChanged() {
