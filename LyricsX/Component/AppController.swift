@@ -47,11 +47,6 @@ class AppController: NSObject {
             .receive(on: DispatchQueue.lyricsDisplay)
             .invoke(AppController.currentTrackChanged, weaklyOn: self)
             .store(in: &cancelBag)
-        selectedPlayer.playbackStateWillChange
-            .signal()
-            .receive(on: DispatchQueue.lyricsDisplay)
-            .invoke(AppController.scheduleCurrentLineCheck, weaklyOn: self)
-            .store(in: &cancelBag)
 
         workspaceNC.publisher(for: NSWorkspace.didTerminateApplicationNotification, object: nil)
             .sink { notification in
@@ -86,26 +81,8 @@ class AppController: NSObject {
         lyricsManager = LyricsProviders.Group(providers: providers)
     }
 
-    var currentLineCheckSchedule: Cancellable?
-
     func scheduleCurrentLineCheck() {
-        currentLineCheckSchedule?.cancel()
-        guard let lyrics = currentLyrics else {
-            return
-        }
-        let playbackState = MusicPlayers.Selected.shared.playbackState
-        let playbackTime = playbackState.time
-        let (index, next) = lyrics[playbackTime + lyrics.adjustedTimeDelay]
-        if currentLineIndex != index {
-            currentLineIndex = index
-        }
-        if let next = next, playbackState.isPlaying {
-            let dt = lyrics.lines[next].position - playbackTime - lyrics.adjustedTimeDelay
-            let q = DispatchQueue.lyricsDisplay
-            currentLineCheckSchedule = q.schedule(after: q.now.advanced(by: .seconds(dt)), interval: .seconds(42), tolerance: .milliseconds(20)) { [unowned self] in
-                self.scheduleCurrentLineCheck()
-            }
-        }
+        PlaybackClock.shared.tick()
     }
 
     func writeToiTunes(overwrite: Bool) {
