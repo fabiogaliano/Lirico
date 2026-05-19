@@ -56,7 +56,12 @@ class AppController: NSObject {
                     NSApplication.shared.terminate(self)
                 }
             }.store(in: &cancelBag)
-        currentTrackChanged()
+        // Defer the initial sync: setting currentLyrics here would re-enter
+        // AppController.shared via PlaybackClock.tick() while dispatch_once is
+        // still in flight, which libdispatch traps as recursive locking.
+        DispatchQueue.main.async { [weak self] in
+            self?.currentTrackChanged()
+        }
 
         Task {
             try await updateLyricsManager()
