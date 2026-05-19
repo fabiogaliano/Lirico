@@ -1,7 +1,10 @@
+// Vendored from CombineX (https://github.com/cx-org/CombineX).
+// Do not modify — keep in sync with upstream.
+
 import Combine
 
 extension Publisher {
-    
+
     /// Ignores upstream error and complete normally.
     public func ignoreError() -> Publishers.IgnoreError<Self> {
         return .init(upstream: self)

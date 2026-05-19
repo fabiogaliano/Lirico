@@ -1,7 +1,10 @@
+// Vendored from CombineX (https://github.com/cx-org/CombineX).
+// Do not modify — keep in sync with upstream.
+
 import Combine
 
 extension Publisher {
-    
+
     /// Emits a signal (`Void()`) whenever upstream publisher produce an element.
     public func signal() -> Publishers.Signal<Self> {
         return .init(upstream: self)

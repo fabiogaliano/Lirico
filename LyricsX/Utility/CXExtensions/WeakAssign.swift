@@ -1,8 +1,11 @@
+// Vendored from CombineX (https://github.com/cx-org/CombineX).
+// Do not modify — keep in sync with upstream.
+
 import Combine
 import Foundation
 
 extension Publisher where Failure == Never {
-    
+
     /// Assigns a publisher’s output to a property of an object. The object is
     /// weakly captured.
     public func assign<Root: AnyObject>(to keyPath: ReferenceWritableKeyPath<Root, Output>, weaklyOn object: Root) -> AnyCancellable {

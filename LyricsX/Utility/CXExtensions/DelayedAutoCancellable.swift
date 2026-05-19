@@ -1,7 +1,10 @@
+// Vendored from CombineX (https://github.com/cx-org/CombineX).
+// Do not modify — keep in sync with upstream.
+
 import Combine
 
 extension Cancellable {
-    
+
     /// Automatically cancel itself after specified delay.
     public func cancel<S: Scheduler>(after interval: S.SchedulerTimeType.Stride, tolerance: S.SchedulerTimeType.Stride? = nil, scheduler: S, options: S.SchedulerOptions? = nil) -> DelayedAutoCancellable {
         return DelayedAutoCancellable(cancel: self.cancel, after: interval, tolerance: tolerance, scheduler: scheduler, options: options)

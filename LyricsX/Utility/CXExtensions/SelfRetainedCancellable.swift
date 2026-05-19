@@ -1,7 +1,10 @@
+// Vendored from CombineX (https://github.com/cx-org/CombineX).
+// Do not modify — keep in sync with upstream.
+
 import Combine
 
 extension Publisher {
-    
+
     @discardableResult
     public func selfRetained(subscribing: (AnyPublisher<Output, Failure>) -> AnyCancellable) -> AnyCancellable {
         var retainCycle: AnyCancellable?

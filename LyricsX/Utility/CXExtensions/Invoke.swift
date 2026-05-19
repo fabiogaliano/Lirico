@@ -1,8 +1,11 @@
+// Vendored from CombineX (https://github.com/cx-org/CombineX).
+// Do not modify — keep in sync with upstream.
+
 import Combine
 import Foundation
 
 extension Publisher where Failure == Never {
-    
+
     /// Invokes method on an object with a publisher's output.
     public func invoke<Target: AnyObject>(_ method: @escaping (Target) -> (Output) -> Void, on object: Target) -> AnyCancellable {
         let invoke = Subscribers.Invoke(object: object, method: method)
