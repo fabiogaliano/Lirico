@@ -12,9 +12,12 @@ class KaraokeLyricsWindowController: NSWindowController {
 
     private var lyricsView = KaraokeLyricsView(frame: .zero)
 
+    private let player: PlayerHandle
+
     private var cancelBag = Set<AnyCancellable>()
 
-    init() {
+    init(player: PlayerHandle) {
+        self.player = player
         let window = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: true)
         window.backgroundColor = .clear
         window.hasShadow = false
@@ -44,7 +47,7 @@ class KaraokeLyricsWindowController: NSWindowController {
                 .receive(on: DispatchQueue.lyricsDisplay)
                 .invoke(KaraokeLyricsWindowController.handleLyricsDisplay, weaklyOn: self)
                 .store(in: &self.cancelBag)
-            selectedPlayer.playbackStateWillChange
+            self.player.playbackStateWillChange
                 .signal()
                 .receive(on: DispatchQueue.lyricsDisplay)
                 .invoke(KaraokeLyricsWindowController.handleLyricsDisplay, weaklyOn: self)
@@ -108,7 +111,7 @@ class KaraokeLyricsWindowController: NSWindowController {
 
     @objc private func handleLyricsDisplay() {
         guard defaults[.desktopLyricsEnabled],
-              !defaults[.disableLyricsWhenPaused] || selectedPlayer.playbackState.isPlaying,
+              !defaults[.disableLyricsWhenPaused] || player.playbackState.isPlaying,
               let lyrics = AppController.shared.currentLyrics,
               let index = AppController.shared.currentLineIndex else {
             DispatchQueue.main.async {
@@ -156,7 +159,7 @@ class KaraokeLyricsWindowController: NSWindowController {
                 let adjustedPos = PlaybackClock.shared.adjustedPlaybackTime
                 let progress = timetag.tags.map { ($0.time + lrc.position - adjustedPos, $0.index) }
                 upperTextField.setProgressAnimation(color: self.lyricsView.progressColor, progress: progress)
-                if !selectedPlayer.playbackState.isPlaying {
+                if !self.player.playbackState.isPlaying {
                     upperTextField.pauseProgressAnimation()
                 }
             }

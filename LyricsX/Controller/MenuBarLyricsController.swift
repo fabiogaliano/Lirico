@@ -11,6 +11,8 @@ class MenuBarLyricsController {
 
     static let shared = MenuBarLyricsController()
 
+    var player: PlayerHandle!
+
     var statusBarMenu: NSMenu? {
         didSet {
             setupStatusItemMenu()
@@ -70,7 +72,7 @@ class MenuBarLyricsController {
     }
 
     private func handleLyricsDisplay(event: (lyrics: Lyrics?, index: Int?)) {
-        guard !defaults[.disableLyricsWhenPaused] || selectedPlayer.playbackState.isPlaying,
+        guard !defaults[.disableLyricsWhenPaused] || player.playbackState.isPlaying,
               let lyrics = event.lyrics,
               let index = event.index else {
 //            screenLyrics = (MenuBarLyricsController.defaultLyric, 2)

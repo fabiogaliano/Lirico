@@ -45,9 +45,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         let controller = AppController.shared!
         _ = LyricsSelector.shared
 
-        karaokeLyricsWC = KaraokeLyricsWindowController()
+        karaokeLyricsWC = KaraokeLyricsWindowController(player: playerHandle)
         karaokeLyricsWC?.showWindow(nil)
 
+        MenuBarLyricsController.shared.player = playerHandle
         MenuBarLyricsController.shared.statusBarMenu = statusBarMenu
         statusBarMenu.delegate = self
 
