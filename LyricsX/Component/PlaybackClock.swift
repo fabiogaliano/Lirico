@@ -10,13 +10,16 @@ typealias LyricsPosition = TimeInterval
 /// PlaybackClock centralises the single concept "given current lyrics + playback state,
 /// which line is active and where are we inside it?"
 ///
-/// It exposes the current active line index as a publisher (`currentLineIndex`);
-/// `AppController` subscribes and mirrors the value into its own `@Published var currentLineIndex`.
-/// It also exposes `adjustedPlaybackTime` so that display layers (HUD scroll view, karaoke
-/// timetags) can read the offset-corrected position without recomputing it themselves.
+/// It exposes the current active line index as a publisher (`currentLineIndex`); the
+/// lyrics session subscribes and mirrors the value into its own `@Published
+/// currentLineIndex`. It also exposes `adjustedPlaybackTime` so that display layers
+/// (HUD scroll view, karaoke timetags) can read the offset-corrected position without
+/// recomputing it themselves.
 ///
-/// The self-scheduling loop (re-fire at next line boundary) is owned here, matching the
-/// previous behaviour of `AppController.scheduleCurrentLineCheck`.
+/// The clock is a publisher: lyrics are pushed in via `setLyrics(_:)`, and a dedup
+/// hook (`dedupTarget`) lets the session report what value it has already mirrored so
+/// duplicate emissions can be suppressed. The clock holds no reference to the session
+/// type.
 final class PlaybackClock {
     static var shared: PlaybackClock!
 
@@ -27,7 +30,7 @@ final class PlaybackClock {
     /// they would have got from the player's `playbackTime` directly.
     var adjustedPlaybackTime: TimeInterval {
         let playbackTime = player.playbackState.time
-        let delay = AppController.shared.currentLyrics?.adjustedTimeDelay ?? 0
+        let delay = lyrics?.adjustedTimeDelay ?? 0
         return playbackTime + delay
     }
 
@@ -37,16 +40,26 @@ final class PlaybackClock {
         currentLineIndexSubject.eraseToAnyPublisher()
     }
 
+    /// Replace the lyrics the clock is computing against and re-tick. Called by the
+    /// lyrics session from its `currentLyrics.didSet`.
+    func setLyrics(_ lyrics: Lyrics?) {
+        self.lyrics = lyrics
+        tick()
+    }
+
+    /// Returns the index the subscriber has already mirrored, so the clock can skip
+    /// re-emitting an unchanged value. Defaults to `{ nil }`, which lets the first
+    /// tick after construction always emit.
+    var dedupTarget: () -> Int? = { nil }
+
     // MARK: - Private state
 
     private let player: PlayerHandle
+    private var lyrics: Lyrics?
     private let currentLineIndexSubject = CurrentValueSubject<Int?, Never>(nil)
     private var lineCheckSchedule: Cancellable?
     private var cancelBag = Set<AnyCancellable>()
 
-    // The lyrics-change trigger is driven by `AppController.currentLyrics.didSet` calling
-    // `scheduleCurrentLineCheck()` → `tick()`. Subscribing to `$currentLyrics` here too would
-    // double-tick on every change with no benefit.
     init(player: PlayerHandle) {
         self.player = player
         player.playbackStateWillChange
@@ -62,14 +75,14 @@ final class PlaybackClock {
     func tick() {
         lineCheckSchedule?.cancel()
 
-        guard let lyrics = AppController.shared.currentLyrics else { return }
+        guard let lyrics else { return }
 
         let playbackState = player.playbackState
         let playbackTime = playbackState.time
         let delay = lyrics.adjustedTimeDelay
 
         let (index, next) = lyrics[playbackTime + delay]
-        if AppController.shared.currentLineIndex != index {
+        if dedupTarget() != index {
             currentLineIndexSubject.send(index)
         }
 

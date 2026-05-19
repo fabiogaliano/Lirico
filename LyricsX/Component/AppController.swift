@@ -16,7 +16,7 @@ class AppController: NSObject {
         }
         didSet {
             didChangeValue(forKey: "lyricsOffset")
-            scheduleCurrentLineCheck()
+            PlaybackClock.shared.setLyrics(currentLyrics)
         }
     }
 
@@ -48,6 +48,7 @@ class AppController: NSObject {
             .invoke(AppController.currentTrackChanged, weaklyOn: self)
             .store(in: &cancelBag)
 
+        PlaybackClock.shared.dedupTarget = { [weak self] in self?.currentLineIndex }
         PlaybackClock.shared.currentLineIndex
             .sink { [weak self] index in self?.currentLineIndex = index }
             .store(in: &cancelBag)
