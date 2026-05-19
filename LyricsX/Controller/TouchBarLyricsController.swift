@@ -14,7 +14,9 @@ class TouchBarLyricsController: TouchBarSystemModalController {
         touchBar?.customizationAllowedItemIdentifiers = [.currentArtwork, .playbackControl, .lyrics, .fixedSpaceSmall, .fixedSpaceLarge, .flexibleSpace, .otherItemsProxy]
 
         systemTrayItem = NSCustomTouchBarItem(identifier: .systemTrayItem)
-        systemTrayItem?.view = NSButton(image: #imageLiteral(resourceName: "status_bar_icon"), target: self, action: #selector(present))
+        let trayImage = NSImage(systemSymbolName: "music.note", accessibilityDescription: "LyricsX") ?? NSImage()
+        trayImage.isTemplate = true
+        systemTrayItem?.view = NSButton(image: trayImage, target: self, action: #selector(present))
 
         lyricsItem.bind(\.progressColor, withUnmatchedDefaultName: .desktopLyricsProgressColor)
 

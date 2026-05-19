@@ -27,7 +27,7 @@ class FontSelectTextField: NSTextField, NSWindowDelegate {
             btn.setButtonType(.momentaryPushIn)
             btn.isBordered = false
             btn.imagePosition = .imageOnly
-            btn.image = #imageLiteral(resourceName: "font_panel")
+            btn.image = NSImage(systemSymbolName: "textformat", accessibilityDescription: "Choose font")
             btn.target = self
             btn.action = #selector(showFontPanel)
         }

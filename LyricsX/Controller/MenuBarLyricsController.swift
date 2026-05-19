@@ -22,7 +22,13 @@ class MenuBarLyricsController {
 
     private var iconStatusItem: NSStatusItem?
     private var lyricStatusItem: NSStatusItem?
-    private var buttonImage = #imageLiteral(resourceName: "status_bar_icon")
+    private var buttonImage: NSImage = {
+        let config = NSImage.SymbolConfiguration(pointSize: 14, weight: .medium)
+        let image = NSImage(systemSymbolName: "music.note", accessibilityDescription: "LyricsX")?
+            .withSymbolConfiguration(config) ?? NSImage()
+        image.isTemplate = true
+        return image
+    }()
     private var buttonlength: CGFloat = 30
 
     private let marqueeLabel = MarqueeLabel(frame: .init(x: 0, y: 0, width: 183, height: 22))
