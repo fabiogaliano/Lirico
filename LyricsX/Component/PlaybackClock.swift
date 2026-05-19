@@ -10,9 +10,10 @@ typealias LyricsPosition = TimeInterval
 /// PlaybackClock centralises the single concept "given current lyrics + playback state,
 /// which line is active and where are we inside it?"
 ///
-/// It drives `AppController.currentLineIndex` and exposes `adjustedPlaybackTime` so that
-/// display layers (HUD scroll view, karaoke timetags) can read the offset-corrected position
-/// without recomputing it themselves.
+/// It exposes the current active line index as a publisher (`currentLineIndex`);
+/// `AppController` subscribes and mirrors the value into its own `@Published var currentLineIndex`.
+/// It also exposes `adjustedPlaybackTime` so that display layers (HUD scroll view, karaoke
+/// timetags) can read the offset-corrected position without recomputing it themselves.
 ///
 /// The self-scheduling loop (re-fire at next line boundary) is owned here, matching the
 /// previous behaviour of `AppController.scheduleCurrentLineCheck`.
@@ -30,8 +31,15 @@ final class PlaybackClock {
         return playbackTime + delay
     }
 
+    /// Emits the current active line index whenever it changes.
+    /// `nil` means there is no current line (no lyrics loaded, before-first-line, etc.).
+    var currentLineIndex: AnyPublisher<Int?, Never> {
+        currentLineIndexSubject.eraseToAnyPublisher()
+    }
+
     // MARK: - Private state
 
+    private let currentLineIndexSubject = CurrentValueSubject<Int?, Never>(nil)
     private var lineCheckSchedule: Cancellable?
     private var cancelBag = Set<AnyCancellable>()
 
@@ -60,7 +68,7 @@ final class PlaybackClock {
 
         let (index, next) = lyrics[playbackTime + delay]
         if AppController.shared.currentLineIndex != index {
-            AppController.shared.currentLineIndex = index
+            currentLineIndexSubject.send(index)
         }
 
         guard let next = next, playbackState.isPlaying else { return }

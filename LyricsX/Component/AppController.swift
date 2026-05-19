@@ -48,6 +48,10 @@ class AppController: NSObject {
             .invoke(AppController.currentTrackChanged, weaklyOn: self)
             .store(in: &cancelBag)
 
+        PlaybackClock.shared.currentLineIndex
+            .sink { [weak self] index in self?.currentLineIndex = index }
+            .store(in: &cancelBag)
+
         workspaceNC.publisher(for: NSWorkspace.didTerminateApplicationNotification, object: nil)
             .sink { notification in
                 guard let application = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }
