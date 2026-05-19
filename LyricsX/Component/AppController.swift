@@ -143,7 +143,7 @@ class AppController: NSObject {
         let title = track.title ?? ""
         let artist = track.artist ?? ""
 
-        guard !defaults[.noSearchingTrackIds].contains(track.id) else {
+        guard !SearchBlocklist.isBlocked(track: track) else {
             return
         }
 
@@ -157,7 +157,7 @@ class AppController: NSObject {
             break
         }
 
-        if let album = track.album, defaults[.noSearchingAlbumNames].contains(album) {
+        if let album = track.album, SearchBlocklist.isBlocked(album: album) {
             return
         }
 
@@ -238,11 +238,7 @@ extension AppController {
         LyricsPreparer.prepare(lrc)
         lrc.metadata.needsPersist = true
         currentLyrics = lrc
-        if let index = defaults[.noSearchingTrackIds].firstIndex(of: track.id) {
-            defaults[.noSearchingTrackIds].remove(at: index)
-        }
-        if let index = defaults[.noSearchingAlbumNames].firstIndex(of: track.album ?? "") {
-            defaults[.noSearchingAlbumNames].remove(at: index)
-        }
+        SearchBlocklist.unblock(track: track)
+        SearchBlocklist.unblock(album: track.album ?? "")
     }
 }

@@ -94,12 +94,8 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
         guard let track = selectedPlayer.currentTrack else {
             return
         }
-        if let index = defaults[.noSearchingTrackIds].firstIndex(of: track.id) {
-            defaults[.noSearchingTrackIds].remove(at: index)
-        }
-        if let index = defaults[.noSearchingAlbumNames].firstIndex(of: track.album ?? "") {
-            defaults[.noSearchingAlbumNames].remove(at: index)
-        }
+        SearchBlocklist.unblock(track: track)
+        SearchBlocklist.unblock(album: track.album ?? "")
 
         let lrc = searchResult[index]
         lrc.associateWithTrack(track)

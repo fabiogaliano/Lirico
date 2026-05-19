@@ -220,7 +220,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         guard let track = selectedPlayer.currentTrack else {
             return
         }
-        defaults[.noSearchingTrackIds].append(track.id)
+        SearchBlocklist.block(track: track)
         if defaults[.writeToiTunesAutomatically] {
             track.setLyrics("")
         }
@@ -236,7 +236,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
               let album = track.album else {
             return
         }
-        defaults[.noSearchingAlbumNames].append(album)
+        SearchBlocklist.block(album: album)
         if defaults[.writeToiTunesAutomatically] {
             track.setLyrics("")
         }
