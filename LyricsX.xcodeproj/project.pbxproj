@@ -64,6 +64,7 @@
 		E9FA2B082E9000000004DD08 /* LyricsSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B072E9000000004DD07 /* LyricsSelector.swift */; };
 		E9FA2B0A2E9000000005EE0A /* LocalLyricsLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B092E9000000005EE09 /* LocalLyricsLoader.swift */; };
 		E9FA2B0C2E9000000006FF0C /* SearchBlocklist.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B0B2E9000000006FF0B /* SearchBlocklist.swift */; };
+		E9FA2B0E2E9000000007AA0E /* AlphaColorWell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B0D2E9000000007AA0D /* AlphaColorWell.swift */; };
 		BBC1D35F1E499A6D002538A2 /* Global.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC1D35E1E499A6D002538A2 /* Global.swift */; };
 		BBC1D5801E4AE3B9008869EC /* MenuBarLyricsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC1D57F1E4AE3B9008869EC /* MenuBarLyricsController.swift */; };
 		BBC1D5911E4C80FC008869EC /* PreferenceDisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC1D5901E4C80FC008869EC /* PreferenceDisplayViewController.swift */; };
@@ -159,6 +160,7 @@
 		E9FA2B072E9000000004DD07 /* LyricsSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsSelector.swift; sourceTree = "<group>"; };
 		E9FA2B092E9000000005EE09 /* LocalLyricsLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLyricsLoader.swift; sourceTree = "<group>"; };
 		E9FA2B0B2E9000000006FF0B /* SearchBlocklist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBlocklist.swift; sourceTree = "<group>"; };
+		E9FA2B0D2E9000000007AA0D /* AlphaColorWell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphaColorWell.swift; sourceTree = "<group>"; };
 		BBC1D35E1E499A6D002538A2 /* Global.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Global.swift; sourceTree = "<group>"; };
 		BBC1D57F1E4AE3B9008869EC /* MenuBarLyricsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuBarLyricsController.swift; sourceTree = "<group>"; };
 		BBC1D5901E4C80FC008869EC /* PreferenceDisplayViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferenceDisplayViewController.swift; sourceTree = "<group>"; };
@@ -330,6 +332,7 @@
 				E91F76EA21211B8D00755698 /* PreferenceViewController.swift */,
 				BBC7C5541E6AE28600E3EC4F /* PreferenceGeneralViewController.swift */,
 				BBC1D5901E4C80FC008869EC /* PreferenceDisplayViewController.swift */,
+				E9FA2B0D2E9000000007AA0D /* AlphaColorWell.swift */,
 				BB4919351F00CD800054EA09 /* PreferenceShortcutViewController.swift */,
 				BB0B29691E7FBA2D00B1D6C9 /* PreferenceFilterViewController.swift */,
 				BB72784920996DE900231C63 /* PreferenceLabViewController.swift */,
@@ -720,6 +723,7 @@
 				E9FA2B082E9000000004DD08 /* LyricsSelector.swift in Sources */,
 				E9FA2B0A2E9000000005EE0A /* LocalLyricsLoader.swift in Sources */,
 				E9FA2B0C2E9000000006FF0C /* SearchBlocklist.swift in Sources */,
+				E9FA2B0E2E9000000007AA0E /* AlphaColorWell.swift in Sources */,
 				BB0B296A1E7FBA2D00B1D6C9 /* PreferenceFilterViewController.swift in Sources */,
 				0F07BAF52E8A8B2900085912 /* PreferenceSourceViewController.swift in Sources */,
 				BB89089E21ED69410078F522 /* Lyrics+Language.swift in Sources */,
