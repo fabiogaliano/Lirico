@@ -106,22 +106,21 @@ class AppController: NSObject {
             // LRC output single-line per timestamp.
             content = legacy
         } else {
+            // TODO: tagged translation
+            let translationCode = defaults[.writeiTunesWithTranslation]
+                ? currentLyrics.metadata.translationLanguages.first
+                : nil
             content = currentLyrics.lines.map { line -> String in
-                var content = line.content
-                if let converter = ChineseConverter.shared {
-                    content = converter.convert(content)
+                let (main, translation) = LineRenderer.render(
+                    line: line,
+                    lyricsLanguage: currentLyrics.metadata.language,
+                    translationLanguageCode: translationCode,
+                    convert: .all
+                )
+                if let translation {
+                    return main + "\n" + translation
                 }
-                if defaults[.writeiTunesWithTranslation] {
-                    // TODO: tagged translation
-                    let code = currentLyrics.metadata.translationLanguages.first
-                    if var translation = line.attachments[.translation(languageCode: code)] {
-                        if let converter = ChineseConverter.shared {
-                            translation = converter.convert(translation)
-                        }
-                        content += "\n" + translation
-                    }
-                }
-                return content
+                return main
             }.joined(separator: "\n")
         }
         // swiftlint:disable:next force_try
