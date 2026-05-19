@@ -3,8 +3,6 @@ import Combine
 import GenericID
 import LyricsXFoundation
 import MusicPlayer
-import SwiftCF
-import AccessibilityExt
 import OSLog
 import MarqueeLabel
 
@@ -174,30 +172,6 @@ class MenuBarLyricsController {
         } else {
             iconStatusItem?.menu = statusBarMenu
         }
-    }
-}
-
-// MARK: - Status Item Visibility
-
-extension NSStatusItem {
-    fileprivate var isVisibe: Bool {
-        guard let buttonFrame = button?.frame,
-              let frame = button?.window?.convertToScreen(buttonFrame) else {
-            return false
-        }
-
-        let point = CGPoint(x: frame.midX, y: frame.midY)
-        guard let screen = NSScreen.screens.first(where: { $0.frame.contains(point) }) else {
-            return false
-        }
-        let carbonPoint = CGPoint(x: point.x, y: screen.frame.height - point.y - 1)
-
-        guard let element = try? AXUIElement.systemWide().element(at: carbonPoint),
-              let pid = try? element.pid() else {
-            return false
-        }
-
-        return getpid() == pid
     }
 }
 
