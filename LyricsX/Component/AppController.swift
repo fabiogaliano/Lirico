@@ -217,30 +217,19 @@ class AppController: NSObject {
         searchRequest = request
         searchTask = Task { @MainActor in
             do {
-                // Accept the first arrived lyrics immediately,
-                // but keep collecting for a short window to allow higher-priority providers,
-                // which might be slower, to replace it.
-                let window = defaults[.lyricsPriorityWindow] ?? 5 // seconds
-                var firstReceived = false
-                var collectionStart: Date?
+                let window = defaults[.lyricsPriorityWindow] ?? 5
+                var collector = LyricsSelector.shared.makeCollector(window: window)
 
-                for try await lyrics in lyricsManager.lyrics(for: request) {
-                    if !firstReceived {
+                search: for try await lyrics in lyricsManager.lyrics(for: request) {
+                    switch collector.nextDecision() {
+                    case .accept:
+                        let before = currentLyrics
                         lyricsReceived(lyrics: lyrics)
-                        if let current = currentLyrics, current === lyrics {
-                            firstReceived = true
-                            collectionStart = Date()
+                        if currentLyrics !== before {
+                            collector.notifyAccepted()
                         }
-                        continue
-                    }
-
-                    if let start = collectionStart,
-                       Date().timeIntervalSince(start) <= window {
-                        lyricsReceived(lyrics: lyrics)
-                        continue
-                    } else {
-                        // window expired
-                        break
+                    case .stop:
+                        break search
                     }
                 }
 
@@ -266,7 +255,7 @@ class AppController: NSObject {
         if defaults[.strictSearchEnabled], !lyrics.isMatched() {
             return
         }
-        if let current = currentLyrics, !lyricsHasHigherPriority(lyrics, over: current) {
+        if !LyricsSelector.shared.hasHigherPriority(lyrics, over: currentLyrics) {
             return
         }
 

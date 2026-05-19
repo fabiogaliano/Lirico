@@ -36,6 +36,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
         let controller = AppController.shared
         _ = PlaybackClock.shared
+        _ = LyricsSelector.shared
 
         karaokeLyricsWC = KaraokeLyricsWindowController()
         karaokeLyricsWC?.showWindow(nil)

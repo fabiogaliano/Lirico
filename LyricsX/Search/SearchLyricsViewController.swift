@@ -117,7 +117,7 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
         }
         LyricsPreparer.prepare(lyrics)
         lyrics.metadata.needsPersist = true
-        if let idx = searchResult.firstIndex(where: { lyricsHasHigherPriority(lyrics, over: $0) }) {
+        if let idx = searchResult.firstIndex(where: { LyricsSelector.shared.hasHigherPriority(lyrics, over: $0) }) {
             searchResult.insert(lyrics, at: idx)
         } else {
             searchResult.append(lyrics)

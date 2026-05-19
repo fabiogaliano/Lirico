@@ -5,22 +5,15 @@ class PreferenceSourceViewController: PreferenceViewController {
     @IBOutlet var enableSourcePriorityButton: NSButton!
     @IBOutlet var sourceTableView: NSTableView!
 
-    private var availableSources: [String] = []
     private var sourcePriorityOrder: [String] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        availableSources = LyricsProviders.Service.allCases.map(\.displayName)
+        LyricsSelector.shared.normalize(against: availableLyricsSources)
 
         enableSourcePriorityButton.state = defaults[.lyricsSourcePriorityEnabled] ? .on : .off
-        sourcePriorityOrder = defaults[.lyricsSourcePriorityOrder] ?? availableSources
-        for source in availableSources {
-            if !sourcePriorityOrder.contains(source) {
-                sourcePriorityOrder.append(source)
-            }
-        }
-        sourcePriorityOrder = sourcePriorityOrder.filter { availableSources.contains($0) }
+        sourcePriorityOrder = defaults[.lyricsSourcePriorityOrder] ?? []
 
         sourceTableView.delegate = self
         sourceTableView.dataSource = self
@@ -42,6 +35,7 @@ class PreferenceSourceViewController: PreferenceViewController {
 
     private func savePriorityOrder() {
         defaults[.lyricsSourcePriorityOrder] = sourcePriorityOrder
+        LyricsSelector.shared.normalize(against: availableLyricsSources)
     }
 }
 

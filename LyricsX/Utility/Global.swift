@@ -167,25 +167,4 @@ extension UserDefaults.DefaultsKeys {
     static let lyricsPriorityWindow = Key<Double>("LyricsPriorityWindow")
 }
 
-// MARK: - Lyrics Priority
-
-func lyricsHasHigherPriority(_ new: Lyrics, over existing: Lyrics) -> Bool {
-    if defaults[.lyricsSourcePriorityEnabled] {
-        let sourceOrder = defaults[.lyricsSourcePriorityOrder] ?? []
-        let normalizedOrder = sourceOrder.map { $0.lowercased() }
-
-        let existingSource = (existing.metadata.service ?? "").lowercased()
-        let newSource = (new.metadata.service ?? "").lowercased()
-
-        let existingIndex = normalizedOrder.firstIndex(of: existingSource) ?? Int.max
-        let newIndex = normalizedOrder.firstIndex(of: newSource) ?? Int.max
-
-        if existingIndex != newIndex {
-            return newIndex < existingIndex
-        }
-    }
-
-    return new.quality > existing.quality
-}
-
 extension CGFloat: @retroactive DefaultConstructible {}
