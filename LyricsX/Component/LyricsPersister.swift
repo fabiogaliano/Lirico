@@ -22,19 +22,15 @@ enum LyricsPersister {
         return "\(title) - \(artist).lrcx"
     }
 
-    /// Resolve the directory where local lyrics should be written, along with
-    /// whether the directory requires security-scoped access. Mirrors the
-    /// equivalent helper used by `LocalLyricsLoader`.
-    static func localSavingDirectory() -> (url: URL, security: Bool) {
-        return defaults.lyricsSavingPath()
-    }
-
-    /// Write `lyrics` to disk under `localSavingDirectory()`. On success the
-    /// lyrics' `metadata.localURL` is updated to the freshly written file and
+    /// Write `lyrics` to disk in `directory`. On success the lyrics'
+    /// `metadata.localURL` is updated to the freshly written file and
     /// `metadata.needsPersist` is cleared. Failures (no fileName, unwritable
     /// directory, …) are logged and silently swallowed.
-    static func saveToDisk(_ lyrics: Lyrics) {
-        let (url, security) = localSavingDirectory()
+    ///
+    /// The directory tuple is resolved by `PersistenceSettings`. Passing it in
+    /// rather than reading defaults here keeps this namespace defaults-free.
+    static func saveToDisk(_ lyrics: Lyrics, to directory: (url: URL, security: Bool)) {
+        let (url, security) = directory
         if security {
             guard url.startAccessingSecurityScopedResource() else {
                 return

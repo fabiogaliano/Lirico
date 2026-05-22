@@ -8,6 +8,7 @@ class LyricsSession: NSObject {
 
     var lyricsManager: LyricsProvider
     private let player: PlayerHandle
+    private let persistenceSettings: PersistenceSettings
 
     /// Resolver for the per-surface `LyricsDisplaySnapshot`. Owned by the
     /// session so consumers reach one well-known place for display state.
@@ -42,10 +43,15 @@ class LyricsSession: NSObject {
         }
     }
 
-    init(player: PlayerHandle) {
+    init(
+        player: PlayerHandle,
+        displaySettings: DisplaySettings = DisplaySettings(),
+        persistenceSettings: PersistenceSettings = PersistenceSettings()
+    ) {
         self.lyricsManager = LyricsProviders.Group()
         self.player = player
-        self.displayCoordinator = LyricsDisplayCoordinator(player: player)
+        self.persistenceSettings = persistenceSettings
+        self.displayCoordinator = LyricsDisplayCoordinator(player: player, settings: displaySettings)
         super.init()
         displayCoordinator.observe(
             lyrics: $currentLyrics,
@@ -127,7 +133,7 @@ class LyricsSession: NSObject {
     func persistCurrentLyricsIfNeeded(reason: PersistReason) {
         _ = reason
         guard let lyrics = currentLyrics, lyrics.metadata.needsPersist else { return }
-        LyricsPersister.saveToDisk(lyrics)
+        LyricsPersister.saveToDisk(lyrics, to: persistenceSettings.localSavingDirectory())
     }
 
     /// Persist (if dirty) and reveal the current lyrics file in Finder. Returns

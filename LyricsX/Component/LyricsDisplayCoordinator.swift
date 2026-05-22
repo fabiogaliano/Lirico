@@ -19,12 +19,14 @@ final class LyricsDisplayCoordinator {
     @Published private(set) var snapshot: LyricsDisplaySnapshot = .empty
 
     private let player: PlayerHandle
+    private let settings: DisplaySettings
     private var currentLyrics: Lyrics?
     private var currentIndex: Int?
     private var cancelBag = Set<AnyCancellable>()
 
-    init(player: PlayerHandle) {
+    init(player: PlayerHandle, settings: DisplaySettings = DisplaySettings()) {
         self.player = player
+        self.settings = settings
     }
 
     /// Wire the coordinator to the session's projected publishers. Called once
@@ -58,7 +60,7 @@ final class LyricsDisplayCoordinator {
             }
             .store(in: &cancelBag)
 
-        defaults.publisher(for: [.disableLyricsWhenPaused])
+        settings.disableLyricsWhenPausedPublisher()
             .receive(on: DispatchQueue.lyricsDisplay)
             .sink { [weak self] in
                 self?.recompute()
@@ -74,7 +76,7 @@ final class LyricsDisplayCoordinator {
     }
 
     private func resolveSnapshot() -> LyricsDisplaySnapshot {
-        let isPausedAndHidden = defaults[.disableLyricsWhenPaused] && !player.playbackState.isPlaying
+        let isPausedAndHidden = settings.disableLyricsWhenPaused && !player.playbackState.isPlaying
 
         guard let lyrics = currentLyrics,
               let index = currentIndex,
