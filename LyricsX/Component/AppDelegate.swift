@@ -21,9 +21,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     // TODO: Flip to true once SUPublicEDKey is generated and pasted into Info.plist.
     private let isSparkleEnabled = false
 
-    // lazy so MusicPlayers.Selected.init() (which reads UserDefaults) runs after
-    // applicationDidFinishLaunching has registered the defaults.
-    private lazy var playerHandle: PlayerHandle = MusicPlayers.Selected.shared
+    /// Constructed in `applicationDidFinishLaunching` after defaults registration
+    /// so that `MusicPlayers.Selected.init()` (which reads `UserDefaults`) sees
+    /// the registered values. The container builds player → clock → session in a
+    /// fixed order, replacing the previous "PlaybackClock first, then session"
+    /// comment with type-level wiring.
+    private var container: AppContainer!
+    private var playerHandle: PlayerHandle { container.player }
 
     var firstLaunchForShouldHanlderReopen: Bool = true
 
@@ -42,11 +46,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         registerUserDefaults()
 
-        // Order matters: LyricsSession.init subscribes to PlaybackClock.shared.currentLineIndex,
-        // so PlaybackClock must be assigned first.
-        PlaybackClock.shared = PlaybackClock(player: playerHandle)
-        LyricsSession.shared = LyricsSession(player: playerHandle)
-        let controller = LyricsSession.shared!
+        let container = AppContainer()
+        self.container = container
+        // Bridge the legacy `static var shared` holders until consumers are
+        // migrated to receive their dependencies explicitly (commit boundaries
+        // B and C remove them).
+        PlaybackClock.shared = container.playbackClock
+        LyricsSession.shared = container.session
+        let controller = container.session
         _ = LyricsSelector.shared
 
         karaokeLyricsWC = KaraokeLyricsWindowController(player: playerHandle)

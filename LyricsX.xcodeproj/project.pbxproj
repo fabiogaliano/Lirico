@@ -59,6 +59,7 @@
 		BBB9AAE31E57EE880078F91A /* SearchLyricsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB9AAE21E57EE880078F91A /* SearchLyricsViewController.swift */; };
 		BBC1D35B1E485BA7002538A2 /* LyricsSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC1D35A1E485BA7002538A2 /* LyricsSession.swift */; };
 		E9FA2B022E9000000001AA02 /* PlaybackClock.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B012E9000000001AA01 /* PlaybackClock.swift */; };
+		E9FA2C002F0000000001AC00 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2BFF2F0000000001AC01 /* AppContainer.swift */; };
 		E9FA2B042E9000000002BB04 /* LyricsPreparer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B032E9000000002BB03 /* LyricsPreparer.swift */; };
 		E9FA2B062E9000000003CC06 /* LineRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B052E9000000003CC05 /* LineRenderer.swift */; };
 		E9FA2B082E9000000004DD08 /* LyricsSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B072E9000000004DD07 /* LyricsSelector.swift */; };
@@ -163,6 +164,7 @@
 		BBB9AAE21E57EE880078F91A /* SearchLyricsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchLyricsViewController.swift; sourceTree = "<group>"; };
 		BBC1D35A1E485BA7002538A2 /* LyricsSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LyricsSession.swift; sourceTree = "<group>"; };
 		E9FA2B012E9000000001AA01 /* PlaybackClock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackClock.swift; sourceTree = "<group>"; };
+		E9FA2BFF2F0000000001AC01 /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
 		E9FA2B032E9000000002BB03 /* LyricsPreparer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsPreparer.swift; sourceTree = "<group>"; };
 		E9FA2B052E9000000003CC05 /* LineRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineRenderer.swift; sourceTree = "<group>"; };
 		E9FA2B072E9000000004DD07 /* LyricsSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsSelector.swift; sourceTree = "<group>"; };
@@ -388,6 +390,7 @@
 			isa = PBXGroup;
 			children = (
 				BB4141AD1E458BA800A51775 /* AppDelegate.swift */,
+				E9FA2BFF2F0000000001AC01 /* AppContainer.swift */,
 				BBC1D35A1E485BA7002538A2 /* LyricsSession.swift */,
 				E9FA2B012E9000000001AA01 /* PlaybackClock.swift */,
 				E9FA2B032E9000000002BB03 /* LyricsPreparer.swift */,
@@ -742,6 +745,7 @@
 				BBE2A79824041E36004A7E93 /* CombineExtension.swift in Sources */,
 				BBC1D35B1E485BA7002538A2 /* LyricsSession.swift in Sources */,
 				E9FA2B022E9000000001AA02 /* PlaybackClock.swift in Sources */,
+				E9FA2C002F0000000001AC00 /* AppContainer.swift in Sources */,
 				E9FA2B042E9000000002BB04 /* LyricsPreparer.swift in Sources */,
 				E9FA2B062E9000000003CC06 /* LineRenderer.swift in Sources */,
 				E9FA2B082E9000000004DD08 /* LyricsSelector.swift in Sources */,

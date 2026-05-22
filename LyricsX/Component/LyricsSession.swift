@@ -8,6 +8,7 @@ class LyricsSession: NSObject {
 
     var lyricsManager: LyricsProvider
     private let player: PlayerHandle
+    private let clock: PlaybackClock
     private let persistenceSettings: PersistenceSettings
 
     /// Resolver for the per-surface `LyricsDisplaySnapshot`. Owned by the
@@ -21,7 +22,7 @@ class LyricsSession: NSObject {
         }
         didSet {
             didChangeValue(forKey: "lyricsOffset")
-            PlaybackClock.shared.setLyrics(currentLyrics)
+            clock.setLyrics(currentLyrics)
         }
     }
 
@@ -45,11 +46,13 @@ class LyricsSession: NSObject {
 
     init(
         player: PlayerHandle,
+        clock: PlaybackClock,
         displaySettings: DisplaySettings = DisplaySettings(),
         persistenceSettings: PersistenceSettings = PersistenceSettings()
     ) {
         self.lyricsManager = LyricsProviders.Group()
         self.player = player
+        self.clock = clock
         self.persistenceSettings = persistenceSettings
         self.displayCoordinator = LyricsDisplayCoordinator(player: player, settings: displaySettings)
         super.init()
@@ -63,8 +66,8 @@ class LyricsSession: NSObject {
             .invoke(LyricsSession.currentTrackChanged, weaklyOn: self)
             .store(in: &cancelBag)
 
-        PlaybackClock.shared.dedupTarget = { [weak self] in self?.currentLineIndex }
-        PlaybackClock.shared.currentLineIndex
+        clock.dedupTarget = { [weak self] in self?.currentLineIndex }
+        clock.currentLineIndex
             .sink { [weak self] index in self?.currentLineIndex = index }
             .store(in: &cancelBag)
 
@@ -107,7 +110,7 @@ class LyricsSession: NSObject {
     }
 
     func scheduleCurrentLineCheck() {
-        PlaybackClock.shared.tick()
+        clock.tick()
     }
 
     func writeToiTunes(overwrite: Bool) {
