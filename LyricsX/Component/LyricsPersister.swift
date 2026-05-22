@@ -12,14 +12,22 @@ import Regex
 /// pattern used by `LyricsPreparer` / `LocalLyricsLoader`: a small `enum`
 /// namespace of pure static functions.
 enum LyricsPersister {
+    /// Shared base name `"Title - Artist"` used by both the saving-path loader and the writer.
+    /// Slashes are replaced with colons so the composed name can't escape into a subdirectory.
+    static func baseName(title: String, artist: String) -> String {
+        let safeTitle = title.replacingOccurrences(of: "/", with: ":")
+        let safeArtist = artist.replacingOccurrences(of: "/", with: ":")
+        return "\(safeTitle) - \(safeArtist)"
+    }
+
     /// Filename `Title - Artist.lrcx` used by both the saving-path loader and the writer.
     /// Returns nil when title or artist is missing — the caller treats this as "skip persist".
     static func fileName(for lyrics: Lyrics) -> String? {
-        guard let title = lyrics.metadata.title?.replacingOccurrences(of: "/", with: ":"),
-              let artist = lyrics.metadata.artist?.replacingOccurrences(of: "/", with: ":") else {
+        guard let title = lyrics.metadata.title,
+              let artist = lyrics.metadata.artist else {
             return nil
         }
-        return "\(title) - \(artist).lrcx"
+        return baseName(title: title, artist: artist) + ".lrcx"
     }
 
     /// Write `lyrics` to disk in `directory`. On success the lyrics'

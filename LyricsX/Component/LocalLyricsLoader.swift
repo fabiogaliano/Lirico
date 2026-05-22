@@ -88,10 +88,7 @@ private extension LocalLyricsLoader {
             }
         }
 
-        // Replace slashes so the composed filename doesn't create unintended subdirectories.
-        let safeTitle = title.replacingOccurrences(of: "/", with: ":")
-        let safeArtist = artist.replacingOccurrences(of: "/", with: ":")
-        let base = savingDir.appendingPathComponent("\(safeTitle) - \(safeArtist)")
+        let base = savingDir.appendingPathComponent(LyricsPersister.baseName(title: title, artist: artist))
 
         if let lyrics = parseLyricsFile(at: base.appendingPathExtension("lrcx"), title: title, artist: artist) {
             return .found(lyrics)
