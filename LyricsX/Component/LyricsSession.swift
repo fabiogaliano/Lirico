@@ -109,6 +109,43 @@ class LyricsSession: NSObject {
         LyricsPersister.writeToiTunes(currentLyrics, player: player, overwrite: overwrite)
     }
 
+    // MARK: - Persistence policy
+
+    /// Why a persistence flush is being requested. Currently informational —
+    /// every reason flushes when `needsPersist` is true. The enum exists so
+    /// the call sites read like documentation and so a future policy
+    /// (e.g. throttle on `offsetEdit`) has somewhere to live.
+    enum PersistReason {
+        case trackChange
+        case applicationTermination
+        case revealInFinder
+    }
+
+    /// Flush the current lyrics to disk when they've been marked dirty
+    /// (`metadata.needsPersist == true`). This is the only place in the app
+    /// that should drive a disk write — everywhere else asks the session.
+    func persistCurrentLyricsIfNeeded(reason: PersistReason) {
+        _ = reason
+        guard let lyrics = currentLyrics, lyrics.metadata.needsPersist else { return }
+        LyricsPersister.saveToDisk(lyrics)
+    }
+
+    /// Persist (if dirty) and reveal the current lyrics file in Finder. Returns
+    /// silently if there is no current lyrics or it has no resolvable URL after
+    /// the write attempt.
+    func revealCurrentLyricsInFinder() {
+        persistCurrentLyricsIfNeeded(reason: .revealInFinder)
+        guard let url = currentLyrics?.metadata.localURL else { return }
+        NSWorkspace.shared.activateFileViewerSelecting([url])
+    }
+
+    /// Last-chance flush before the app exits. Called from
+    /// `AppDelegate.applicationWillTerminate` so the terminate path doesn't
+    /// have to know about the `needsPersist` flag.
+    func prepareForTermination() {
+        persistCurrentLyricsIfNeeded(reason: .applicationTermination)
+    }
+
     // MARK: - Commands
 
     /// Adopt `lyrics` as the active selection. When `writeToiTunesIfAuto` is
@@ -145,9 +182,7 @@ class LyricsSession: NSObject {
     }
 
     func currentTrackChanged() {
-        if currentLyrics?.metadata.needsPersist == true {
-            currentLyrics?.persist()
-        }
+        persistCurrentLyricsIfNeeded(reason: .trackChange)
         currentLyrics = nil
         currentLineIndex = nil
         searchTask?.cancel()

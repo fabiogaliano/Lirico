@@ -109,9 +109,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
-        if LyricsSession.shared.currentLyrics?.metadata.needsPersist == true {
-            LyricsSession.shared.currentLyrics?.persist()
-        }
+        LyricsSession.shared.prepareForTermination()
         if defaults[.launchAndQuitWithPlayer] {
             let url = Bundle.main.bundleURL
                 .appendingPathComponent("Contents/Library/LoginItems/LyricsXHelper.app")
@@ -208,15 +206,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     @IBAction func showCurrentLyricsInFinder(_ sender: Any?) {
-        guard let lyrics = LyricsSession.shared.currentLyrics else {
-            return
-        }
-        if lyrics.metadata.needsPersist {
-            lyrics.persist()
-        }
-        if let url = lyrics.metadata.localURL {
-            NSWorkspace.shared.activateFileViewerSelecting([url])
-        }
+        LyricsSession.shared.revealCurrentLyricsInFinder()
     }
 
     @IBAction func writeToiTunes(_ sender: Any?) {

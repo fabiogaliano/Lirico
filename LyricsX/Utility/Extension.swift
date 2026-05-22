@@ -127,54 +127,6 @@ extension Lyrics {
         metadata.title = track.title
         metadata.artist = track.artist
     }
-
-    var fileName: String? {
-        guard let title = metadata.title?.replacingOccurrences(of: "/", with: ":"),
-              let artist = metadata.artist?.replacingOccurrences(of: "/", with: ":") else {
-            return nil
-        }
-        return "\(title) - \(artist).lrcx"
-    }
-
-    func persist() {
-        let (url, security) = defaults.lyricsSavingPath()
-        if security {
-            guard url.startAccessingSecurityScopedResource() else {
-                return
-            }
-        }
-        defer {
-            if security {
-                url.stopAccessingSecurityScopedResource()
-            }
-        }
-        let fileManager = FileManager.default
-
-        do {
-            var isDir: ObjCBool = false
-            if fileManager.fileExists(atPath: url.path, isDirectory: &isDir) {
-                if !isDir.boolValue {
-                    return
-                }
-            } else {
-                try fileManager.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
-            }
-
-            guard let lrcFileURL = fileName.map(url.appendingPathComponent) else {
-                return
-            }
-
-            if fileManager.fileExists(atPath: lrcFileURL.path) {
-                try fileManager.removeItem(at: lrcFileURL)
-            }
-            try description.write(to: lrcFileURL, atomically: true, encoding: .utf8)
-            metadata.localURL = lrcFileURL
-            metadata.needsPersist = false
-        } catch {
-            log(error.localizedDescription)
-            return
-        }
-    }
 }
 
 extension NSPredicate {

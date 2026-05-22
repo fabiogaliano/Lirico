@@ -4,13 +4,75 @@ import MusicPlayer
 import OpenCC
 import Regex
 
-/// Writes lyrics into the currently playing Apple Music track via its scripting bridge.
+/// Writes lyrics to the user's local disk (saving-path directory) and to the
+/// currently playing Apple Music track via its scripting bridge.
 ///
 /// Pulled out of the lyrics-management hub so that the session type owns
 /// state, not Apple-Music-specific formatting + scripting glue. Mirrors the
 /// pattern used by `LyricsPreparer` / `LocalLyricsLoader`: a small `enum`
 /// namespace of pure static functions.
 enum LyricsPersister {
+    /// Filename `Title - Artist.lrcx` used by both the saving-path loader and the writer.
+    /// Returns nil when title or artist is missing — the caller treats this as "skip persist".
+    static func fileName(for lyrics: Lyrics) -> String? {
+        guard let title = lyrics.metadata.title?.replacingOccurrences(of: "/", with: ":"),
+              let artist = lyrics.metadata.artist?.replacingOccurrences(of: "/", with: ":") else {
+            return nil
+        }
+        return "\(title) - \(artist).lrcx"
+    }
+
+    /// Resolve the directory where local lyrics should be written, along with
+    /// whether the directory requires security-scoped access. Mirrors the
+    /// equivalent helper used by `LocalLyricsLoader`.
+    static func localSavingDirectory() -> (url: URL, security: Bool) {
+        return defaults.lyricsSavingPath()
+    }
+
+    /// Write `lyrics` to disk under `localSavingDirectory()`. On success the
+    /// lyrics' `metadata.localURL` is updated to the freshly written file and
+    /// `metadata.needsPersist` is cleared. Failures (no fileName, unwritable
+    /// directory, …) are logged and silently swallowed.
+    static func saveToDisk(_ lyrics: Lyrics) {
+        let (url, security) = localSavingDirectory()
+        if security {
+            guard url.startAccessingSecurityScopedResource() else {
+                return
+            }
+        }
+        defer {
+            if security {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+        let fileManager = FileManager.default
+
+        do {
+            var isDir: ObjCBool = false
+            if fileManager.fileExists(atPath: url.path, isDirectory: &isDir) {
+                if !isDir.boolValue {
+                    return
+                }
+            } else {
+                try fileManager.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
+            }
+
+            guard let lrcFileURL = fileName(for: lyrics).map(url.appendingPathComponent) else {
+                return
+            }
+
+            if fileManager.fileExists(atPath: lrcFileURL.path) {
+                try fileManager.removeItem(at: lrcFileURL)
+            }
+            try lyrics.description.write(to: lrcFileURL, atomically: true, encoding: .utf8)
+            lyrics.metadata.localURL = lrcFileURL
+            lyrics.metadata.needsPersist = false
+        } catch {
+            log(error.localizedDescription)
+            return
+        }
+    }
+
     /// Write `lyrics` to the currently playing Apple Music track.
     /// No-op if the player isn't Apple Music or there's no scriptable track.
     /// When `overwrite` is false, existing non-empty lyrics on the track are preserved.
