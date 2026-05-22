@@ -452,12 +452,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = BB4141B91E458BA900A51775 /* Build configuration list for PBXNativeTarget "LyricsX" */;
 			buildPhases = (
-				BB0A3AE02280312A006C2E52 /* Update Build Time */,
 				BB4141A61E458BA800A51775 /* Sources */,
 				BB4141A71E458BA800A51775 /* Frameworks */,
 				BB4141A81E458BA800A51775 /* Resources */,
 				BB60F3111E889FC000BA1FD2 /* Copy Helper */,
 				E967A20D2D2AD6F800982E06 /* Copy “Launch at Login Helper” */,
+				BB0A3AE02280312A006C2E52 /* Update Build Time */,
 				BBC1D5811E4AFE64008869EC /* Bump Build */,
 			);
 			buildRules = (
@@ -641,7 +641,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/usr/libexec/PlistBuddy -c \"Set :LX_BUILD_TIME $(date +\"%s\")\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\n";
+			shellScript = "# Writes LX_BUILD_TIME into the built bundle's Info.plist rather than the\n# tracked source plist, so the source file stays clean across builds.\n# Runs after the Resources phase so ${TARGET_BUILD_DIR}/${INFOPLIST_PATH} exists.\n/usr/libexec/PlistBuddy -c \"Set :LX_BUILD_TIME $(date +\"%s\")\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n";
 		};
 		BB30651420878623008A9AC8 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -669,7 +669,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "buildNumber=$(/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\")\nbuildNumber=$(($buildNumber + 1))\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\n";
+			shellScript = "# Derives CFBundleVersion from the git commit count plus a fixed offset and\n# writes the result into the built bundle's Info.plist. The tracked source\n# plist is never modified, eliminating the build-time diff noise that the\n# previous in-place bump produced.\n#\n# The offset (1304) reconciles the commit count at the time of this change\n# (1643) with the last in-place-bumped CFBundleVersion (2947), so future\n# commits keep producing monotonically increasing build numbers without a\n# regression jump that the App Store would reject on archive.\nset -euo pipefail\ncommitCount=$(git -C \"${SRCROOT}\" rev-list --count HEAD)\nbuildNumber=$((commitCount + 1304))\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n";
 		};
 		E967A20D2D2AD6F800982E06 /* Copy “Launch at Login Helper” */ = {
 			isa = PBXShellScriptBuildPhase;
