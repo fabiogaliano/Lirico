@@ -22,36 +22,26 @@ class TouchBarLyricsItem: NSCustomTouchBarItem {
     func commonInit() {
         view = lyricsTextField
         customizationLabel = "Lyrics"
-        LyricsSession.shared.$currentLyrics
-            .combineLatest(LyricsSession.shared.$currentLineIndex)
-            .receive(on: DispatchQueue.lyricsDisplay)
-            .invoke(TouchBarLyricsItem.handleLyricsDisplay, weaklyOn: self)
+        LyricsSession.shared.displayCoordinator.$snapshot
+            .sink { [weak self] snapshot in
+                self?.render(snapshot)
+            }
             .store(in: &cancelBag)
     }
 
-    private func handleLyricsDisplay(event: (lyrics: Lyrics?, index: Int?)) {
-        guard let lyrics = event.lyrics,
-              let index = event.index else {
-            DispatchQueue.main.async {
-                self.lyricsTextField.stringValue = ""
-                self.lyricsTextField.removeProgressAnimation()
-            }
+    // Touch Bar historically ignores `disableLyricsWhenPaused`, so we look only
+    // at `snapshot.line` here instead of `snapshot.isLive`.
+    private func render(_ snapshot: LyricsDisplaySnapshot) {
+        guard let line = snapshot.line else {
+            lyricsTextField.stringValue = ""
+            lyricsTextField.removeProgressAnimation()
             return
         }
-        let line = lyrics.lines[index]
-        let (lyricsContent, _) = LineRenderer.render(
-            line: line,
-            lyricsLanguage: lyrics.metadata.language,
-            translationLanguageCode: nil,
-            convert: .mainLine
-        )
-        DispatchQueue.main.async {
-            self.lyricsTextField.stringValue = lyricsContent
-            if let timetag = line.attachments.timetag {
-                let adjustedPos = PlaybackClock.shared.adjustedPlaybackTime
-                let progress = timetag.tags.map { ($0.time + line.position - adjustedPos, $0.index) }
-                self.lyricsTextField.setProgressAnimation(color: self.progressColor, progress: progress)
-            }
+        lyricsTextField.stringValue = line.primaryText
+        if let timetag = line.line.attachments.timetag {
+            let adjustedPos = PlaybackClock.shared.adjustedPlaybackTime
+            let progress = timetag.tags.map { ($0.time + line.line.position - adjustedPos, $0.index) }
+            lyricsTextField.setProgressAnimation(color: progressColor, progress: progress)
         }
     }
 }

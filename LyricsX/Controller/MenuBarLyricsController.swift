@@ -56,10 +56,10 @@ class MenuBarLyricsController {
         if !defaults[.hideMenuBarItems] {
             updateStatusItems()
         }
-        LyricsSession.shared.$currentLyrics
-            .combineLatest(LyricsSession.shared.$currentLineIndex)
-            .receive(on: DispatchQueue.lyricsDisplay)
-            .invoke(MenuBarLyricsController.handleLyricsDisplay, weaklyOn: self)
+        LyricsSession.shared.displayCoordinator.$snapshot
+            .sink { [weak self] snapshot in
+                self?.handle(snapshot: snapshot)
+            }
             .store(in: &cancelBag)
         workspaceNC
             .publisher(for: NSWorkspace.didActivateApplicationNotification)
@@ -72,32 +72,13 @@ class MenuBarLyricsController {
             .store(in: &cancelBag)
     }
 
-    private func handleLyricsDisplay(event: (lyrics: Lyrics?, index: Int?)) {
-        guard !defaults[.disableLyricsWhenPaused] || player.playbackState.isPlaying,
-              let lyrics = event.lyrics,
-              let index = event.index else {
-//            screenLyrics = (MenuBarLyricsController.defaultLyric, 2)
-            return
-        }
-        let currentLine = lyrics.lines[index]
-        let (newScreenLyrics, _) = LineRenderer.render(
-            line: currentLine,
-            lyricsLanguage: lyrics.metadata.language,
-            translationLanguageCode: nil,
-            convert: .mainLine
-        )
-        if newScreenLyrics == screenLyrics.lyrics {
-            return
-        }
-        let lineDisplayTime: TimeInterval
-        if let duration = currentLine.attachments.timetag?.duration {
-            lineDisplayTime = duration
-        } else if let nextLine = lyrics.lines[safe: index + 1] {
-            lineDisplayTime = nextLine.position - currentLine.position
-        } else {
-            lineDisplayTime = 2
-        }
-        screenLyrics = (newScreenLyrics, lineDisplayTime)
+    // Preserves the long-standing menu-bar behavior of NOT clearing the
+    // marquee on `.empty` / `.paused` snapshots — the last seen line keeps
+    // cycling until a fresh active line replaces it.
+    private func handle(snapshot: LyricsDisplaySnapshot) {
+        guard snapshot.isLive, let line = snapshot.line else { return }
+        if line.primaryText == screenLyrics.lyrics { return }
+        screenLyrics = (line.primaryText, line.duration)
     }
 
     @objc private func updateStatusItems() {
@@ -189,12 +170,3 @@ extension String {
     }
 }
 
-extension Array {
-    subscript(safe safeIndex: Int) -> Element? {
-        if safeIndex >= 0, safeIndex < count {
-            return self[safeIndex]
-        } else {
-            return nil
-        }
-    }
-}

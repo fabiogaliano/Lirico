@@ -9,6 +9,10 @@ class LyricsSession: NSObject {
     var lyricsManager: LyricsProvider
     private let player: PlayerHandle
 
+    /// Resolver for the per-surface `LyricsDisplaySnapshot`. Owned by the
+    /// session so consumers reach one well-known place for display state.
+    let displayCoordinator: LyricsDisplayCoordinator
+
     @Published private(set) var currentLyrics: Lyrics? {
         willSet {
             willChangeValue(forKey: "lyricsOffset")
@@ -41,7 +45,12 @@ class LyricsSession: NSObject {
     init(player: PlayerHandle) {
         self.lyricsManager = LyricsProviders.Group()
         self.player = player
+        self.displayCoordinator = LyricsDisplayCoordinator(player: player)
         super.init()
+        displayCoordinator.observe(
+            lyrics: $currentLyrics,
+            index: $currentLineIndex
+        )
         player.currentTrackWillChange
             .signal()
             .receive(on: DispatchQueue.lyricsDisplay)

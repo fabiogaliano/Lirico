@@ -37,27 +37,25 @@ class KaraokeLyricsWindowController: NSWindowController {
         lyricsView.displayLrc("LyricsX")
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             self.lyricsView.displayLrc("")
-            LyricsSession.shared.$currentLyrics
-                .signal()
-                .receive(on: DispatchQueue.lyricsDisplay)
-                .invoke(KaraokeLyricsWindowController.handleLyricsDisplay, weaklyOn: self)
+            LyricsSession.shared.displayCoordinator.$snapshot
+                .sink { [weak self] snapshot in
+                    self?.latestSnapshot = snapshot
+                    self?.renderCurrentSnapshot()
+                }
                 .store(in: &self.cancelBag)
-            LyricsSession.shared.$currentLineIndex
-                .signal()
-                .receive(on: DispatchQueue.lyricsDisplay)
-                .invoke(KaraokeLyricsWindowController.handleLyricsDisplay, weaklyOn: self)
-                .store(in: &self.cancelBag)
-            self.player.playbackStateWillChange
-                .signal()
-                .receive(on: DispatchQueue.lyricsDisplay)
-                .invoke(KaraokeLyricsWindowController.handleLyricsDisplay, weaklyOn: self)
-                .store(in: &self.cancelBag)
+            // Second-line policy (one-line vs bilingual) is desktop-karaoke-specific
+            // layout, not shared display policy, so it stays here and triggers a
+            // re-render against the most recent snapshot.
             defaults.publisher(for: [.preferBilingualLyrics, .desktopLyricsOneLineMode])
                 .prepend()
-                .invoke(KaraokeLyricsWindowController.handleLyricsDisplay, weaklyOn: self)
+                .sink { [weak self] in
+                    self?.renderCurrentSnapshot()
+                }
                 .store(in: &self.cancelBag)
         }
     }
+
+    private var latestSnapshot: LyricsDisplaySnapshot = .empty
 
     @available(*, unavailable)
     required init?(coder: NSCoder) {
@@ -109,59 +107,34 @@ class KaraokeLyricsWindowController: NSWindowController {
         window?.saveFrame(usingName: KaraokeLyricsWindowController.windowFrame)
     }
 
-    @objc private func handleLyricsDisplay() {
+    private func renderCurrentSnapshot() {
         guard defaults[.desktopLyricsEnabled],
-              !defaults[.disableLyricsWhenPaused] || player.playbackState.isPlaying,
-              let lyrics = LyricsSession.shared.currentLyrics,
-              let index = LyricsSession.shared.currentLineIndex else {
-            DispatchQueue.main.async {
-                self.lyricsView.displayLrc("", secondLine: "")
-            }
+              latestSnapshot.isLive,
+              let line = latestSnapshot.line else {
+            lyricsView.displayLrc("", secondLine: "")
             return
         }
 
-        let lrc = lyrics.lines[index]
-        let next = lyrics.lines[(index + 1)...].first { $0.enabled }
-
-        let languageCode = lyrics.metadata.translationLanguages.first
-
-        // Render main line with conversion applied to main content only; translation is handled
-        // separately below because the second display slot can show either a translation or the
-        // next lyric line, each requiring independent conversion logic.
-        let (firstLine, renderedTranslation) = LineRenderer.render(
-            line: lrc,
-            lyricsLanguage: lyrics.metadata.language,
-            translationLanguageCode: languageCode,
-            convert: [.mainLine, .translation]
-        )
-
-        var secondLine: String
+        let firstLine = line.primaryText
+        let secondLine: String
         if defaults[.desktopLyricsOneLineMode] {
             secondLine = ""
-        } else if defaults[.preferBilingualLyrics], let translation = renderedTranslation {
+        } else if defaults[.preferBilingualLyrics], let translation = line.translationText {
             secondLine = translation
-        } else if let next = next {
-            let (nextContent, _) = LineRenderer.render(
-                line: next,
-                lyricsLanguage: lyrics.metadata.language,
-                translationLanguageCode: nil,
-                convert: .mainLine
-            )
-            secondLine = nextContent
+        } else if let next = line.nextLineText {
+            secondLine = next
         } else {
             secondLine = ""
         }
 
-        DispatchQueue.main.async {
-            self.lyricsView.displayLrc(firstLine, secondLine: secondLine)
-            if let upperTextField = self.lyricsView.displayLine1,
-               let timetag = lrc.attachments.timetag {
-                let adjustedPos = PlaybackClock.shared.adjustedPlaybackTime
-                let progress = timetag.tags.map { ($0.time + lrc.position - adjustedPos, $0.index) }
-                upperTextField.setProgressAnimation(color: self.lyricsView.progressColor, progress: progress)
-                if !self.player.playbackState.isPlaying {
-                    upperTextField.pauseProgressAnimation()
-                }
+        lyricsView.displayLrc(firstLine, secondLine: secondLine)
+        if let upperTextField = lyricsView.displayLine1,
+           let timetag = line.line.attachments.timetag {
+            let adjustedPos = PlaybackClock.shared.adjustedPlaybackTime
+            let progress = timetag.tags.map { ($0.time + line.line.position - adjustedPos, $0.index) }
+            upperTextField.setProgressAnimation(color: lyricsView.progressColor, progress: progress)
+            if !player.playbackState.isPlaying {
+                upperTextField.pauseProgressAnimation()
             }
         }
     }
