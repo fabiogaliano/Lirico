@@ -24,6 +24,17 @@ extension MusicPlayerName {
         case .swinsian: return #imageLiteral(resourceName: "swinsian_icon")
         }
     }
+
+    /// Whether this player can expose a local file URL for the current track,
+    /// so the loader can look for an `.lrcx`/`.lrc` sitting next to the audio file.
+    /// Players that don't (streaming-only or no scripting bridge for `location`)
+    /// must have the "Load lyrics beside track" option disabled in preferences.
+    var supportsBesideTrackLyrics: Bool {
+        switch self {
+        case .appleMusic, .vox: return true
+        case .spotify, .audirvana, .swinsian: return false
+        }
+    }
 }
 
 extension MusicTrack {

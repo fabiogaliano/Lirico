@@ -26,22 +26,19 @@ class PreferenceGeneralViewController: PreferenceViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        switch defaults[.preferredPlayerIndex] {
-        case 0:
-            preferiTunes.state = .on
-        case 1:
-            preferSpotify.state = .on
-            loadHomonymLrcButton.isEnabled = false
-        case 2:
-            preferVox.state = .on
-        case 3:
-            preferAudirvana.state = .on
-            loadHomonymLrcButton.isEnabled = false
-        case 4:
-            preferSwinsian.state = .on
-        default:
+        let preferredPlayer = MusicPlayerName(index: defaults[.preferredPlayerIndex])
+        switch preferredPlayer {
+        case .appleMusic: preferiTunes.state = .on
+        case .spotify: preferSpotify.state = .on
+        case .vox: preferVox.state = .on
+        case .audirvana: preferAudirvana.state = .on
+        case .swinsian: preferSwinsian.state = .on
+        case nil:
             preferAuto.state = .on
             autoLaunchButton.isEnabled = false
+        }
+        if let player = preferredPlayer, !player.supportsBesideTrackLyrics {
+            loadHomonymLrcButton.isEnabled = false
         }
 
         if let url = persistenceSettings.customSavingDirectory {
@@ -123,7 +120,7 @@ class PreferenceGeneralViewController: PreferenceViewController {
             autoLaunchButton.isEnabled = true
         }
 
-        if sender.tag == 1 || sender.tag == 3 || sender.tag == 4 {
+        if let player = MusicPlayerName(index: sender.tag), !player.supportsBesideTrackLyrics {
             loadHomonymLrcButton.isEnabled = false
             loadHomonymLrcButton.state = .off
             persistenceSettings.shouldLoadLyricsBesideTrack = false
