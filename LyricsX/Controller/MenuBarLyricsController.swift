@@ -57,6 +57,7 @@ class MenuBarLyricsController {
             updateStatusItems()
         }
         LyricsSession.shared.displayCoordinator.$snapshot
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] snapshot in
                 self?.handle(snapshot: snapshot)
             }
@@ -64,10 +65,12 @@ class MenuBarLyricsController {
         workspaceNC
             .publisher(for: NSWorkspace.didActivateApplicationNotification)
             .signal()
+            .receive(on: DispatchQueue.main)
             .invoke(MenuBarLyricsController.updateStatusItems, weaklyOn: self)
             .store(in: &cancelBag)
         defaults.publisher(for: [.menuBarLyricsEnabled, .combinedMenubarLyrics, .hideMenuBarItems])
             .prepend()
+            .receive(on: DispatchQueue.main)
             .invoke(MenuBarLyricsController.updateStatusItems, weaklyOn: self)
             .store(in: &cancelBag)
     }
@@ -169,4 +172,3 @@ extension String {
         return components
     }
 }
-

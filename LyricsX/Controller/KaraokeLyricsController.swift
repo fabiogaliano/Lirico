@@ -38,6 +38,7 @@ class KaraokeLyricsWindowController: NSWindowController {
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             self.lyricsView.displayLrc("")
             LyricsSession.shared.displayCoordinator.$snapshot
+                .receive(on: DispatchQueue.main)
                 .sink { [weak self] snapshot in
                     self?.latestSnapshot = snapshot
                     self?.renderCurrentSnapshot()
@@ -48,6 +49,7 @@ class KaraokeLyricsWindowController: NSWindowController {
             // re-render against the most recent snapshot.
             defaults.publisher(for: [.preferBilingualLyrics, .desktopLyricsOneLineMode])
                 .prepend()
+                .receive(on: DispatchQueue.main)
                 .sink { [weak self] in
                     self?.renderCurrentSnapshot()
                 }

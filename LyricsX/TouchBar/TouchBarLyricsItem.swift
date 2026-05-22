@@ -23,6 +23,7 @@ class TouchBarLyricsItem: NSCustomTouchBarItem {
         view = lyricsTextField
         customizationLabel = "Lyrics"
         LyricsSession.shared.displayCoordinator.$snapshot
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] snapshot in
                 self?.render(snapshot)
             }
