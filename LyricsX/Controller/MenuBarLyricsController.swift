@@ -9,9 +9,9 @@ import MarqueeLabel
 class MenuBarLyricsController {
 //    let logger = Logger(subsystem: "com.fabiogaliano.LyricsX", category: "MenuBarLyricsController")
 
-    static let shared = MenuBarLyricsController()
+    static var shared: MenuBarLyricsController!
 
-    var player: PlayerHandle!
+    private let player: PlayerHandle
 
     var statusBarMenu: NSMenu? {
         didSet {
@@ -51,7 +51,8 @@ class MenuBarLyricsController {
 
     private var cancelBag = Set<AnyCancellable>()
 
-    private init() {
+    init(player: PlayerHandle) {
+        self.player = player
         if !defaults[.hideMenuBarItems] {
             updateStatusItems()
         }
