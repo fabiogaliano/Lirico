@@ -35,28 +35,35 @@ class KaraokeLyricsWindowController: NSWindowController {
         updateWindowFrame(animate: false)
 
         lyricsView.displayLrc("LyricsX")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            self.lyricsView.displayLrc("")
-            LyricsSession.shared.displayCoordinator.$snapshot
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] snapshot in
-                    self?.latestSnapshot = snapshot
-                    self?.renderCurrentSnapshot()
+        splashActive = true
+
+        LyricsSession.shared.displayCoordinator.$snapshot
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] snapshot in
+                guard let self = self else { return }
+                self.latestSnapshot = snapshot
+                if !self.splashActive {
+                    self.renderCurrentSnapshot()
                 }
-                .store(in: &self.cancelBag)
-            // Second-line policy (one-line vs bilingual) is desktop-karaoke-specific
-            // layout, not shared display policy, so it stays here and triggers a
-            // re-render against the most recent snapshot.
-            defaults.publisher(for: [.preferBilingualLyrics, .desktopLyricsOneLineMode])
-                .prepend()
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] in
-                    self?.renderCurrentSnapshot()
-                }
-                .store(in: &self.cancelBag)
+            }
+            .store(in: &cancelBag)
+        defaults.publisher(for: [.preferBilingualLyrics, .desktopLyricsOneLineMode])
+            .prepend()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                guard let self = self, !self.splashActive else { return }
+                self.renderCurrentSnapshot()
+            }
+            .store(in: &cancelBag)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+            guard let self = self else { return }
+            self.splashActive = false
+            self.renderCurrentSnapshot()
         }
     }
 
+    private var splashActive = false
     private var latestSnapshot: LyricsDisplaySnapshot = .empty
 
     @available(*, unavailable)
@@ -110,34 +117,26 @@ class KaraokeLyricsWindowController: NSWindowController {
     }
 
     private func renderCurrentSnapshot() {
+        let presentation = KaraokeLinePresentation.resolve(
+            snapshot: latestSnapshot,
+            desktopLyricsEnabled: defaults[.desktopLyricsEnabled],
+            oneLineMode: defaults[.desktopLyricsOneLineMode],
+            preferBilingual: defaults[.preferBilingualLyrics]
+        )
+        lyricsView.displayLrc(presentation.primary, secondLine: presentation.secondary)
+
         guard defaults[.desktopLyricsEnabled],
               latestSnapshot.isLive,
-              let line = latestSnapshot.line else {
-            lyricsView.displayLrc("", secondLine: "")
+              let line = latestSnapshot.line,
+              let upperTextField = lyricsView.displayLine1,
+              let timetag = line.line.attachments.timetag else {
             return
         }
-
-        let firstLine = line.primaryText
-        let secondLine: String
-        if defaults[.desktopLyricsOneLineMode] {
-            secondLine = ""
-        } else if defaults[.preferBilingualLyrics], let translation = line.translationText {
-            secondLine = translation
-        } else if let next = line.nextLineText {
-            secondLine = next
-        } else {
-            secondLine = ""
-        }
-
-        lyricsView.displayLrc(firstLine, secondLine: secondLine)
-        if let upperTextField = lyricsView.displayLine1,
-           let timetag = line.line.attachments.timetag {
-            let adjustedPos = PlaybackClock.shared.adjustedPlaybackTime
-            let progress = timetag.tags.map { ($0.time + line.line.position - adjustedPos, $0.index) }
-            upperTextField.setProgressAnimation(color: lyricsView.progressColor, progress: progress)
-            if !player.playbackState.isPlaying {
-                upperTextField.pauseProgressAnimation()
-            }
+        let adjustedPos = PlaybackClock.shared.adjustedPlaybackTime
+        let progress = timetag.tags.map { ($0.time + line.line.position - adjustedPos, $0.index) }
+        upperTextField.setProgressAnimation(color: lyricsView.progressColor, progress: progress)
+        if !player.playbackState.isPlaying {
+            upperTextField.pauseProgressAnimation()
         }
     }
 
@@ -224,4 +223,38 @@ extension ConstraintMakerEditable {
 extension ConstraintPriority {
     static let windowSizeStayPut = ConstraintPriority(NSLayoutConstraint.Priority.windowSizeStayPut.rawValue)
     static let keepWindowSize = ConstraintPriority.windowSizeStayPut.advanced(by: -1)
+}
+
+/// Resolves the two text rows the desktop karaoke surface should display.
+///
+/// Karaoke is the only surface that pairs an active line with a second visible
+/// row (translation, next-line preview, or hidden), so this stays local instead
+/// of leaking karaoke-only fields into `LyricsDisplaySnapshot`.
+struct KaraokeLinePresentation {
+    let primary: String
+    let secondary: String
+
+    static let empty = KaraokeLinePresentation(primary: "", secondary: "")
+
+    static func resolve(
+        snapshot: LyricsDisplaySnapshot,
+        desktopLyricsEnabled: Bool,
+        oneLineMode: Bool,
+        preferBilingual: Bool
+    ) -> KaraokeLinePresentation {
+        guard desktopLyricsEnabled, snapshot.isLive, let line = snapshot.line else {
+            return .empty
+        }
+        let secondary: String
+        if oneLineMode {
+            secondary = ""
+        } else if preferBilingual, let translation = line.translationText {
+            secondary = translation
+        } else if let next = line.nextLineText {
+            secondary = next
+        } else {
+            secondary = ""
+        }
+        return KaraokeLinePresentation(primary: line.primaryText, secondary: secondary)
+    }
 }
