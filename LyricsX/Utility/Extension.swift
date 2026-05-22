@@ -85,43 +85,6 @@ extension UserDefaults {
     }
 }
 
-extension UserDefaults {
-    func lyricsSavingPath() -> (URL, security: Bool) {
-        if self[.lyricsSavingPathPopUpIndex] != 0, let path = lyricsCustomSavingPath {
-            return (path, true)
-        } else {
-            let userPath = String(cString: getpwuid(getuid()).pointee.pw_dir)
-            return (URL(fileURLWithPath: userPath).appendingPathComponent("Music/LyricsX"), false)
-        }
-    }
-
-    var lyricsCustomSavingPath: URL? {
-        get {
-            guard let data = self[.lyricsCustomSavingPathBookmark] else {
-                return nil
-            }
-            var bookmarkDataIsStale = false
-            do {
-                let url = try URL(
-                    resolvingBookmarkData: data,
-                    options: [.withSecurityScope],
-                    bookmarkDataIsStale: &bookmarkDataIsStale
-                )
-                guard bookmarkDataIsStale == false else {
-                    return nil
-                }
-                return url
-            } catch {
-                log(error.localizedDescription)
-                return nil
-            }
-        }
-        set {
-            self[.lyricsCustomSavingPathBookmark] = try? newValue?.bookmarkData(options: [.withSecurityScope])
-        }
-    }
-}
-
 extension Lyrics {
     func associateWithTrack(_ track: MusicTrack) {
         metadata.title = track.title

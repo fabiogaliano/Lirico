@@ -133,7 +133,7 @@ class LyricsSession: NSObject {
     func persistCurrentLyricsIfNeeded(reason: PersistReason) {
         _ = reason
         guard let lyrics = currentLyrics, lyrics.metadata.needsPersist else { return }
-        LyricsPersister.saveToDisk(lyrics, to: persistenceSettings.localSavingDirectory())
+        LyricsPersister.saveToDisk(lyrics, to: persistenceSettings.storageDirectory())
     }
 
     /// Persist (if dirty) and reveal the current lyrics file in Finder. Returns
@@ -203,7 +203,7 @@ class LyricsSession: NSObject {
             return
         }
 
-        switch LocalLyricsLoader.load(track: track, title: title, artist: artist) {
+        switch LocalLyricsLoader.load(track: track, title: title, artist: artist, settings: persistenceSettings) {
         case .found(let lyrics):
             currentLyrics = lyrics
             return

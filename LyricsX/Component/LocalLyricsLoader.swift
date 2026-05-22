@@ -24,7 +24,12 @@ enum LocalLyricsLoader {
         case none
     }
 
-    static func load(track: MusicTrack, title: String, artist: String) -> Result {
+    static func load(
+        track: MusicTrack,
+        title: String,
+        artist: String,
+        settings: PersistenceSettings = PersistenceSettings()
+    ) -> Result {
         if defaults[.loadLyricsBesideTrack] {
             if let result = loadEmbedded(track: track, title: title, artist: artist) {
                 return result
@@ -33,7 +38,7 @@ enum LocalLyricsLoader {
                 return result
             }
         }
-        return loadFromSavingPath(title: title, artist: artist)
+        return loadFromSavingPath(title: title, artist: artist, directory: settings.storageDirectory())
     }
 }
 
@@ -68,8 +73,9 @@ private extension LocalLyricsLoader {
         return nil
     }
 
-    static func loadFromSavingPath(title: String, artist: String) -> Result {
-        let (savingDir, security) = defaults.lyricsSavingPath()
+    static func loadFromSavingPath(title: String, artist: String, directory: LyricsStorageDirectory) -> Result {
+        let savingDir = directory.url
+        let security = directory.requiresSecurityScope
         // Replace slashes so the composed filename doesn't create unintended subdirectories.
         let safeTitle = title.replacingOccurrences(of: "/", with: ":")
         let safeArtist = artist.replacingOccurrences(of: "/", with: ":")

@@ -27,10 +27,11 @@ enum LyricsPersister {
     /// `metadata.needsPersist` is cleared. Failures (no fileName, unwritable
     /// directory, …) are logged and silently swallowed.
     ///
-    /// The directory tuple is resolved by `PersistenceSettings`. Passing it in
+    /// The directory is resolved by `PersistenceSettings`. Passing it in
     /// rather than reading defaults here keeps this namespace defaults-free.
-    static func saveToDisk(_ lyrics: Lyrics, to directory: (url: URL, security: Bool)) {
-        let (url, security) = directory
+    static func saveToDisk(_ lyrics: Lyrics, to directory: LyricsStorageDirectory) {
+        let url = directory.url
+        let security = directory.requiresSecurityScope
         if security {
             guard url.startAccessingSecurityScopedResource() else {
                 return

@@ -1,11 +1,26 @@
 import Foundation
 
+/// A resolved on-disk directory where lyrics should be read from or written to.
+///
+/// `requiresSecurityScope` is true when the directory comes from the user's
+/// custom selection (a folder picked via `NSOpenPanel`, outside the sandbox
+/// container). Callers must wrap their file I/O in
+/// `start/stopAccessingSecurityScopedResource()` when this flag is set.
+struct LyricsStorageDirectory {
+    let url: URL
+    let requiresSecurityScope: Bool
+}
+
 /// Typed view of the on-disk-persistence slice of `UserDefaults`.
 ///
-/// Both the popup-index selector and the security-scoped bookmark live in
-/// the flat `UserDefaults.DefaultsKeys` namespace; this wrapper resolves
-/// them into a single "where should we write?" answer so callers don't
-/// re-derive it.
+/// Owns three concerns that used to live as ad-hoc `UserDefaults` extensions:
+///   - default-vs-custom-path selection (gated on `lyricsSavingPathPopUpIndex`)
+///   - security-scoped bookmark encode/decode for the user-chosen folder
+///   - the fallback to `~/Music/LyricsX` when no custom folder is set
+///
+/// Persistence (`LyricsPersister`), loading (`LocalLyricsLoader`), and the
+/// preferences UI all consume this struct; no other code in the app should
+/// reach into `defaults` for storage-path concerns.
 struct PersistenceSettings {
     private let defaults: UserDefaults
 
@@ -13,10 +28,51 @@ struct PersistenceSettings {
         self.defaults = defaults
     }
 
-    /// Directory where the next `.lrcx` should be written, together with a
-    /// flag telling the writer to start a security-scoped resource access
-    /// (true for user-chosen folders outside the sandbox container).
-    func localSavingDirectory() -> (url: URL, security: Bool) {
-        return defaults.lyricsSavingPath()
+    /// Resolve the directory where the next `.lrcx` should be written or
+    /// where saved-path loading should look. Returns the default
+    /// `~/Music/LyricsX` when the popup is on index 0 or when the custom
+    /// bookmark is absent/stale; otherwise the user-selected directory.
+    func storageDirectory() -> LyricsStorageDirectory {
+        if defaults[.lyricsSavingPathPopUpIndex] != 0, let url = customSavingDirectory {
+            return LyricsStorageDirectory(url: url, requiresSecurityScope: true)
+        }
+        let userPath = String(cString: getpwuid(getuid()).pointee.pw_dir)
+        let defaultURL = URL(fileURLWithPath: userPath).appendingPathComponent("Music/LyricsX")
+        return LyricsStorageDirectory(url: defaultURL, requiresSecurityScope: false)
+    }
+
+    /// User-selected custom directory, resolved from the security-scoped
+    /// bookmark stored in `lyricsCustomSavingPathBookmark`. Returns nil when
+    /// the bookmark is absent, stale, or unreadable.
+    ///
+    /// Exposed for the preferences UI: `PreferenceGeneralViewController` needs
+    /// to display the chosen folder's name and to write a new selection back.
+    /// Persistence and loading code should call `storageDirectory()` instead.
+    ///
+    /// The setter is `nonmutating` because it writes through to `UserDefaults`
+    /// rather than mutating the struct's own storage — callers can hold the
+    /// settings in a `let` and still update the bookmark.
+    var customSavingDirectory: URL? {
+        get {
+            guard let data = defaults[.lyricsCustomSavingPathBookmark] else {
+                return nil
+            }
+            var isStale = false
+            do {
+                let url = try URL(
+                    resolvingBookmarkData: data,
+                    options: [.withSecurityScope],
+                    bookmarkDataIsStale: &isStale
+                )
+                guard !isStale else { return nil }
+                return url
+            } catch {
+                log(error.localizedDescription)
+                return nil
+            }
+        }
+        nonmutating set {
+            defaults[.lyricsCustomSavingPathBookmark] = try? newValue?.bookmarkData(options: [.withSecurityScope])
+        }
     }
 }

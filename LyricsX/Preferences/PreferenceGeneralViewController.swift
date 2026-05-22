@@ -21,6 +21,8 @@ class PreferenceGeneralViewController: PreferenceViewController {
 
     @IBOutlet var languagePopUp: NSPopUpButton!
 
+    private let persistenceSettings = PersistenceSettings()
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -42,7 +44,7 @@ class PreferenceGeneralViewController: PreferenceViewController {
             autoLaunchButton.isEnabled = false
         }
 
-        if let url = defaults.lyricsCustomSavingPath {
+        if let url = persistenceSettings.customSavingDirectory {
             userPathMenuItem.title = url.lastPathComponent
             userPathMenuItem.toolTip = url.path
         } else {
@@ -73,8 +75,7 @@ class PreferenceGeneralViewController: PreferenceViewController {
     }
 
     @IBAction func showInFinderAction(_ sender: Any) {
-        let url = defaults.lyricsSavingPath().0
-        NSWorkspace.shared.open(url)
+        NSWorkspace.shared.open(persistenceSettings.storageDirectory().url)
     }
 
     @IBAction func chooseSavingPathAction(_ sender: Any) {
@@ -84,7 +85,7 @@ class PreferenceGeneralViewController: PreferenceViewController {
         openPanel.beginSheetModal(for: view.window!) { result in
             if result == .OK {
                 let url = openPanel.url!
-                defaults.lyricsCustomSavingPath = url
+                self.persistenceSettings.customSavingDirectory = url
                 self.userPathMenuItem.title = url.lastPathComponent
                 self.userPathMenuItem.toolTip = url.path
                 self.userPathMenuItem.isHidden = false
