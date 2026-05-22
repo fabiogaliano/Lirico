@@ -126,7 +126,7 @@ class PreferenceGeneralViewController: PreferenceViewController {
         if sender.tag == 1 || sender.tag == 3 || sender.tag == 4 {
             loadHomonymLrcButton.isEnabled = false
             loadHomonymLrcButton.state = .off
-            defaults[.loadLyricsBesideTrack] = false
+            persistenceSettings.shouldLoadLyricsBesideTrack = false
         } else {
             loadHomonymLrcButton.isEnabled = true
         }

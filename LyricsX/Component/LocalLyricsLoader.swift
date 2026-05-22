@@ -30,7 +30,7 @@ enum LocalLyricsLoader {
         artist: String,
         settings: PersistenceSettings = PersistenceSettings()
     ) -> Result {
-        if defaults[.loadLyricsBesideTrack] {
+        if settings.shouldLoadLyricsBesideTrack {
             if let result = loadEmbedded(track: track, title: title, artist: artist) {
                 return result
             }
@@ -66,7 +66,7 @@ private extension LocalLyricsLoader {
         guard let base = track.localFileURL?.deletingPathExtension() else { return nil }
         for ext in ["lrcx", "lrc"] {
             let url = base.appendingPathExtension(ext)
-            if let lyrics = readLyricsFile(at: url, isSecurityScoped: false, title: title, artist: artist) {
+            if let lyrics = parseLyricsFile(at: url, title: title, artist: artist) {
                 return .found(lyrics)
             }
         }
@@ -75,31 +75,34 @@ private extension LocalLyricsLoader {
 
     static func loadFromSavingPath(title: String, artist: String, directory: LyricsStorageDirectory) -> Result {
         let savingDir = directory.url
-        let security = directory.requiresSecurityScope
+        let didAccessSecurityScopedResource: Bool
+        if directory.requiresSecurityScope {
+            guard savingDir.startAccessingSecurityScopedResource() else { return .none }
+            didAccessSecurityScopedResource = true
+        } else {
+            didAccessSecurityScopedResource = false
+        }
+        defer {
+            if didAccessSecurityScopedResource {
+                savingDir.stopAccessingSecurityScopedResource()
+            }
+        }
+
         // Replace slashes so the composed filename doesn't create unintended subdirectories.
         let safeTitle = title.replacingOccurrences(of: "/", with: ":")
         let safeArtist = artist.replacingOccurrences(of: "/", with: ":")
         let base = savingDir.appendingPathComponent("\(safeTitle) - \(safeArtist)")
 
-        if let lyrics = readLyricsFile(at: base.appendingPathExtension("lrcx"), isSecurityScoped: security, title: title, artist: artist) {
+        if let lyrics = parseLyricsFile(at: base.appendingPathExtension("lrcx"), title: title, artist: artist) {
             return .found(lyrics)
         }
-        if let lyrics = readLyricsFile(at: base.appendingPathExtension("lrc"), isSecurityScoped: security, title: title, artist: artist) {
+        if let lyrics = parseLyricsFile(at: base.appendingPathExtension("lrc"), title: title, artist: artist) {
             return .foundPartial(lyrics)
         }
         return .none
     }
 
     /// Read, parse, and annotate a lyrics file. Returns `nil` if the file is inaccessible or unparseable.
-    static func readLyricsFile(at url: URL, isSecurityScoped: Bool, title: String, artist: String) -> Lyrics? {
-        if isSecurityScoped {
-            guard url.startAccessingSecurityScopedResource() else { return nil }
-            defer { url.stopAccessingSecurityScopedResource() }
-            return parseLyricsFile(at: url, title: title, artist: artist)
-        }
-        return parseLyricsFile(at: url, title: title, artist: artist)
-    }
-
     static func parseLyricsFile(at url: URL, title: String, artist: String) -> Lyrics? {
         guard let lrcContents = try? String(contentsOf: url, encoding: .utf8),
               let lyrics = Lyrics(lrcContents) else {

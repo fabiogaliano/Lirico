@@ -11,21 +11,33 @@ struct LyricsStorageDirectory {
     let requiresSecurityScope: Bool
 }
 
-/// Typed view of the on-disk-persistence slice of `UserDefaults`.
+/// Typed view of the local-lyrics storage/loading slice of `UserDefaults`.
 ///
-/// Owns three concerns that used to live as ad-hoc `UserDefaults` extensions:
+/// Owns concerns that used to live as ad-hoc `UserDefaults` reads:
 ///   - default-vs-custom-path selection (gated on `lyricsSavingPathPopUpIndex`)
 ///   - security-scoped bookmark encode/decode for the user-chosen folder
 ///   - the fallback to `~/Music/LyricsX` when no custom folder is set
+///   - whether embedded / beside-track lyrics should be considered
 ///
 /// Persistence (`LyricsPersister`), loading (`LocalLyricsLoader`), and the
 /// preferences UI all consume this struct; no other code in the app should
-/// reach into `defaults` for storage-path concerns.
+/// reach into `defaults` for local-lyrics storage/loading concerns.
 struct PersistenceSettings {
     private let defaults: UserDefaults
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+    }
+
+    /// True when local lyrics embedded in or stored beside the track file
+    /// should be considered before the shared saving path.
+    var shouldLoadLyricsBesideTrack: Bool {
+        get {
+            defaults[.loadLyricsBesideTrack]
+        }
+        nonmutating set {
+            defaults[.loadLyricsBesideTrack] = newValue
+        }
     }
 
     /// Resolve the directory where the next `.lrcx` should be written or
