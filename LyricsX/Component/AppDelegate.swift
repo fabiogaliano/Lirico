@@ -23,53 +23,32 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
     /// Constructed in `applicationDidFinishLaunching` after defaults registration
     /// so that `MusicPlayers.Selected.init()` (which reads `UserDefaults`) sees
-    /// the registered values. The container builds player → clock → session in a
-    /// fixed order, replacing the previous "PlaybackClock first, then session"
-    /// comment with type-level wiring.
+    /// the registered values. Force-unwrapped on access; if it's nil, AppKit
+    /// invoked a menu action before `applicationDidFinishLaunching` finished,
+    /// which is a bug we'd want to learn about loudly.
     private var container: AppContainer!
-    private var playerHandle: PlayerHandle { container.player }
 
     var firstLaunchForShouldHanlderReopen: Bool = true
-
-    var karaokeLyricsWC: KaraokeLyricsWindowController?
-
-    lazy var searchLyricsWC = SearchLyricsWindowController(player: playerHandle, session: container.session)
-
-    lazy var lyricsHUD: LyricsHUDWindowController = {
-        let wc = LyricsHUDWindowController.create()
-        if let vc = wc.contentViewController as? LyricsHUDViewController {
-            vc.configure(player: playerHandle, session: container.session, clock: container.playbackClock)
-        }
-        return wc
-    }()
-
-    lazy var preferencesWindowController: PreferenceWindowController = .create()
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         registerUserDefaults()
 
         let container = AppContainer()
         self.container = container
-        let controller = container.session
         _ = LyricsSelector.shared
-
-        karaokeLyricsWC = KaraokeLyricsWindowController(player: playerHandle, session: container.session, clock: container.playbackClock)
-        karaokeLyricsWC?.showWindow(nil)
-
-        MenuBarLyricsController.shared = MenuBarLyricsController(player: playerHandle, session: container.session)
-        MenuBarLyricsController.shared.statusBarMenu = statusBarMenu
+        container.start(statusBarMenu: statusBarMenu)
         statusBarMenu.delegate = self
 
+        let session = container.session
         lyricsOffsetStepper.bind(
             .value,
-            to: controller,
+            to: session,
             withKeyPath: #keyPath(LyricsSession.lyricsOffset),
             options: [.continuouslyUpdatesValue: true]
         )
-
         lyricsOffsetTextField.bind(
             .value,
-            to: controller,
+            to: session,
             withKeyPath: #keyPath(LyricsSession.lyricsOffset),
             options: [.continuouslyUpdatesValue: true]
         )
@@ -90,16 +69,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             updateController.updater.checkForUpdatesInBackground()
         }
 
-        observeDefaults(key: .touchBarLyricsEnabled, options: [.new, .initial]) { [self] _, change in
-            if change.newValue, TouchBarLyricsController.shared == nil {
-                TouchBarLyricsController.shared = TouchBarLyricsController(player: playerHandle, session: container.session, clock: container.playbackClock)
-            } else if !change.newValue, TouchBarLyricsController.shared != nil {
-                TouchBarLyricsController.shared = nil
-            }
-        }
-
         if defaults[.isShowLyricsHUD] {
-            lyricsHUD.showWindow(nil)
+            container.lyricsHUD.showWindow(nil)
         }
     }
 
@@ -108,12 +79,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             firstLaunchForShouldHanlderReopen = false
             return false
         }
-        preferencesWindowController.showWindow(nil)
+        container?.preferencesWindowController.showWindow(nil)
         return true
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
-        container.session.prepareForTermination()
+        container?.session.prepareForTermination()
         if defaults[.launchAndQuitWithPlayer] {
             let url = Bundle.main.bundleURL
                 .appendingPathComponent("Contents/Library/LoginItems/LyricsXHelper.app")
@@ -145,28 +116,30 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     // MARK: - NSMenuDelegate
 
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        guard let container else { return false }
         switch menuItem.action {
         case #selector(writeToiTunes(_:))?:
-            return playerHandle.name == .appleMusic && container.session.currentLyrics != nil
+            return container.player.name == .appleMusic && container.session.currentLyrics != nil
         case #selector(searchLyrics(_:))?:
-            return playerHandle.currentTrack != nil
+            return container.player.currentTrack != nil
         default:
             return true
         }
     }
 
     func menuNeedsUpdate(_ menu: NSMenu) {
-        menu.item(withTag: 202)?.isEnabled = container.session.currentLyrics != nil
+        menu.item(withTag: 202)?.isEnabled = container?.session.currentLyrics != nil
     }
 
     // MARK: - Menubar Action
 
     @IBAction func showLyricsHUD(_ sender: Any?) {
+        guard let container else { return }
         if defaults[.isShowLyricsHUD] {
-            lyricsHUD.close()
+            container.lyricsHUD.close()
             defaults[.isShowLyricsHUD] = false
         } else {
-            lyricsHUD.showWindow(nil)
+            container.lyricsHUD.showWindow(nil)
             defaults[.isShowLyricsHUD] = true
         }
 
@@ -185,14 +158,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     @IBAction func showPreferences(_ sender: Any?) {
-        preferencesWindowController.showWindow(nil)
+        container?.preferencesWindowController.showWindow(nil)
     }
 
     @objc func togglePreferences(_ sender: Any?) {
-        if preferencesWindowController.window?.isVisible ?? false {
-            preferencesWindowController.close()
+        guard let prefs = container?.preferencesWindowController else { return }
+        if prefs.window?.isVisible ?? false {
+            prefs.close()
         } else {
-            preferencesWindowController.showWindow(nil)
+            prefs.showWindow(nil)
         }
     }
 
@@ -202,28 +176,28 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     @IBAction func increaseOffset(_ sender: Any?) {
-        container.session.lyricsOffset += 100
+        container?.session.lyricsOffset += 100
     }
 
     @IBAction func decreaseOffset(_ sender: Any?) {
-        container.session.lyricsOffset -= 100
+        container?.session.lyricsOffset -= 100
     }
 
     @IBAction func showCurrentLyricsInFinder(_ sender: Any?) {
-        container.session.revealCurrentLyricsInFinder()
+        container?.session.revealCurrentLyricsInFinder()
     }
 
     @IBAction func writeToiTunes(_ sender: Any?) {
-        container.session.writeToiTunes(overwrite: true)
+        container?.session.writeToiTunes(overwrite: true)
     }
 
     @IBAction func searchLyrics(_ sender: Any?) {
-        searchLyricsWC.showWindow(nil)
+        container?.searchLyricsWindowController.showWindow(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
 
     @IBAction func wrongLyrics(_ sender: Any?) {
-        guard let track = playerHandle.currentTrack else {
+        guard let container, let track = container.player.currentTrack else {
             return
         }
         SearchBlocklist.block(track: track)
@@ -231,7 +205,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     @IBAction func doNotSearchLyricsForThisAlbum(_ sender: Any?) {
-        guard let track = playerHandle.currentTrack,
+        guard let container,
+              let track = container.player.currentTrack,
               let album = track.album else {
             return
         }

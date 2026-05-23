@@ -3,11 +3,21 @@ import MusicPlayer
 import Combine
 
 class TouchBarPlaybackControlViewController: NSViewController {
-    var player: PlayerHandle!
+    private let player: PlayerHandle
 
     private weak var segmentedControl: NSSegmentedControl!
 
     private var cancelBag = Set<AnyCancellable>()
+
+    init(player: PlayerHandle) {
+        self.player = player
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) is not supported; TouchBarPlaybackControlViewController is constructed programmatically.")
+    }
 
     override func loadView() {
         let rewindImage = NSImage(named: NSImage.touchBarRewindTemplateName)!

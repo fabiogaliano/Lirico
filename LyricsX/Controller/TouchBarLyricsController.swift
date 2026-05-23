@@ -4,8 +4,6 @@ import TouchBarHelper
 import OpenCC
 
 class TouchBarLyricsController: TouchBarSystemModalController {
-    static var shared: TouchBarLyricsController?
-
     private let player: PlayerHandle
     private let lyricsItem: TouchBarLyricsItem
 
@@ -50,16 +48,12 @@ class TouchBarLyricsController: TouchBarSystemModalController {
             return lyricsItem
         case .playbackControl:
             let item = NSCustomTouchBarItem(identifier: identifier)
-            let playbackVC = TouchBarPlaybackControlViewController()
-            playbackVC.player = player
-            item.viewController = playbackVC
+            item.viewController = TouchBarPlaybackControlViewController(player: player)
             item.customizationLabel = "Playback Control"
             return item
         case .currentArtwork:
             let item = NSCustomTouchBarItem(identifier: identifier)
-            let artworkVC = TouchBarArtworkViewController()
-            artworkVC.player = player
-            item.viewController = artworkVC
+            item.viewController = TouchBarArtworkViewController(player: player)
             item.customizationLabel = "Artwork"
             return item
         default:

@@ -9,8 +9,6 @@ import MarqueeLabel
 class MenuBarLyricsController {
 //    let logger = Logger(subsystem: "com.fabiogaliano.LyricsX", category: "MenuBarLyricsController")
 
-    static var shared: MenuBarLyricsController!
-
     private let player: PlayerHandle
     private let session: LyricsSession
 
