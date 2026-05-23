@@ -5,11 +5,10 @@ import MusicPlayer
 
 class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsViewDelegate, DragNDropDelegate {
     // Storyboard-instantiated; the owning window controller / AppContainer
-    // calls `configure(player:session:clock:)` immediately after creation, so
+    // calls `configure(player:session:)` immediately after creation, so
     // these IUOs are guaranteed populated before any subscription fires.
     private var player: PlayerHandle!
     private var session: LyricsSession!
-    private var clock: PlaybackClock!
 
     @IBOutlet var dragNDropView: DragNDropView!
     @IBOutlet var lyricsScrollView: ScrollLyricsView!
@@ -71,10 +70,9 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
     /// call this immediately after instantiation; subscriptions live here
     /// rather than in `awakeFromNib` because the session isn't reachable from
     /// inside the storyboard's lifecycle.
-    func configure(player: PlayerHandle, session: LyricsSession, clock: PlaybackClock) {
+    func configure(player: PlayerHandle, session: LyricsSession) {
         self.player = player
         self.session = session
-        self.clock = clock
 
         lyricsScrollView.setupTextContents(lyrics: session.currentLyrics)
 
@@ -109,9 +107,8 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
     }
 
     private func displayLyrics(animation: Bool = true) {
-        guard let clock else { return }
-        let pos = clock.adjustedPlaybackTime
-        lyricsScrollView.highlight(position: pos)
+        let index = session?.currentLineIndex
+        lyricsScrollView.highlight(lineIndex: index)
         guard isTracking else {
             return
         }
@@ -120,10 +117,10 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
                 context.duration = 0.3
                 context.allowsImplicitAnimation = true
                 context.timingFunction = .swiftOut
-                self.lyricsScrollView.scroll(position: pos)
+                self.lyricsScrollView.scroll(lineIndex: index)
             }
         } else {
-            lyricsScrollView.scroll(position: pos)
+            lyricsScrollView.scroll(lineIndex: index)
         }
     }
 

@@ -48,7 +48,13 @@ class ScrollLyricsView: NSScrollView {
         didSet { updateFont() }
     }
 
-    private var ranges: [(TimeInterval, NSRange)] = []
+    private struct RenderedLineRange {
+        let lineIndex: Int
+        let position: TimeInterval
+        let range: NSRange
+    }
+
+    private var ranges: [RenderedLineRange] = []
     private var highlightedRange: NSRange?
 
     func setupTextContents(lyrics: Lyrics?) {
@@ -60,11 +66,13 @@ class ScrollLyricsView: NSScrollView {
         }
 
         var lrcContent = ""
-        var newRanges: [(TimeInterval, NSRange)] = []
-        let enabledLrc = lyrics.lines.filter { $0.enabled && !$0.content.isEmpty }
+        var newRanges: [RenderedLineRange] = []
+        let displayed: [(Int, LyricsLine)] = lyrics.lines.enumerated().compactMap { index, line in
+            (line.enabled && !line.content.isEmpty) ? (index, line) : nil
+        }
         let languageCode = lyrics.metadata.translationLanguages.first
 
-        for line in enabledLrc {
+        for (i, (originalIndex, line)) in displayed.enumerated() {
             let (mainContent, renderedTrans) = LineRenderer.render(
                 line: line,
                 lyricsLanguage: lyrics.metadata.language,
@@ -76,9 +84,9 @@ class ScrollLyricsView: NSScrollView {
                 lineStr += "\n" + trans
             }
             let range = NSRange(location: lrcContent.utf16.count, length: lineStr.utf16.count)
-            newRanges.append((line.position, range))
+            newRanges.append(RenderedLineRange(lineIndex: originalIndex, position: line.position, range: range))
             lrcContent += lineStr
-            if line != enabledLrc.last {
+            if i < displayed.count - 1 {
                 lrcContent += "\n\n"
             }
         }
@@ -111,12 +119,14 @@ class ScrollLyricsView: NSScrollView {
         }
 
         let clickPoint = textView.convert(event.locationInWindow, from: nil)
-        let clickRange = ranges.filter { _, range in
-            let bounding = textView.layoutManager!.boundingRect(forGlyphRange: range, in: textView.textContainer!)
+        guard let layoutManager = textView.layoutManager,
+              let textContainer = textView.textContainer else { return }
+        let clicked = ranges.first { entry in
+            let bounding = layoutManager.boundingRect(forGlyphRange: entry.range, in: textContainer)
             return bounding.contains(clickPoint)
         }
-        if let (position, _) = clickRange.first {
-            delegate?.doubleClickLyricsLine(at: position)
+        if let clicked {
+            delegate?.doubleClickLyricsLine(at: clicked.position)
         }
     }
 
@@ -151,64 +161,65 @@ class ScrollLyricsView: NSScrollView {
     }
 
     private func updateEdgeInset() {
-        guard !ranges.isEmpty else {
+        guard let first = ranges.first,
+              let last = ranges.last,
+              let layoutManager = textView.layoutManager,
+              let textContainer = textView.textContainer else {
             return
         }
 
-        let bounding1 = textView.layoutManager!.boundingRect(forGlyphRange: ranges.first!.1, in: textView.textContainer!)
+        let bounding1 = layoutManager.boundingRect(forGlyphRange: first.range, in: textContainer)
         let topInset = frame.height / 2 - bounding1.height / 2
-        let bounding2 = textView.layoutManager!.boundingRect(forGlyphRange: ranges.last!.1, in: textView.textContainer!)
+        let bounding2 = layoutManager.boundingRect(forGlyphRange: last.range, in: textContainer)
         let bottomInset = frame.height / 2 - bounding2.height / 2
         automaticallyAdjustsContentInsets = false
         contentInsets = NSEdgeInsets(top: topInset, left: 0, bottom: bottomInset, right: 0)
     }
 
-    func highlight(position: TimeInterval) {
-        guard !ranges.isEmpty else {
-            return
-        }
-
-        var left = ranges.startIndex
-        var right = ranges.endIndex - 1
+    /// Find the displayed range nearest to the active original lyrics-line index.
+    /// The clock can report indices for enabled lines we chose not to display
+    /// (empty content); fall back to the closest displayed line so highlight/scroll
+    /// stay anchored.
+    private func displayedRange(forLineIndex lineIndex: Int) -> RenderedLineRange? {
+        var left = 0
+        var right = ranges.count - 1
+        var found: RenderedLineRange?
         while left <= right {
             let mid = (left + right) / 2
-            if ranges[mid].0 <= position {
+            if ranges[mid].lineIndex <= lineIndex {
+                found = ranges[mid]
                 left = mid + 1
             } else {
                 right = mid - 1
             }
         }
-        let range = ranges[right.clamped(to: ranges.indices)].1
+        return found ?? ranges.first
+    }
 
-        if highlightedRange == range {
+    func highlight(lineIndex: Int?) {
+        guard !ranges.isEmpty else { return }
+        let target: NSRange? = lineIndex.flatMap { displayedRange(forLineIndex: $0)?.range }
+
+        if highlightedRange == target {
             return
         }
 
         highlightedRange.map { textView.textStorage?.addAttribute(.foregroundColor, value: textColor, range: $0) }
-        textView.textStorage?.addAttribute(.foregroundColor, value: highlightColor, range: range)
+        if let target {
+            textView.textStorage?.addAttribute(.foregroundColor, value: highlightColor, range: target)
+        }
 
-        highlightedRange = range
+        highlightedRange = target
     }
 
-    func scroll(position: TimeInterval) {
-        guard !ranges.isEmpty else {
-            return
-        }
+    func scroll(lineIndex: Int?) {
+        guard !ranges.isEmpty,
+              let lineIndex,
+              let entry = displayedRange(forLineIndex: lineIndex),
+              let layoutManager = textView.layoutManager,
+              let textContainer = textView.textContainer else { return }
 
-        var left = ranges.startIndex
-        var right = ranges.endIndex - 1
-        while left <= right {
-            let mid = (left + right) / 2
-            if ranges[mid].0 <= position {
-                left = mid + 1
-            } else {
-                right = mid - 1
-            }
-        }
-        let range = ranges[right.clamped(to: ranges.indices)].1
-
-        let bounding = textView.layoutManager!.boundingRect(forGlyphRange: range, in: textView.textContainer!)
-
+        let bounding = layoutManager.boundingRect(forGlyphRange: entry.range, in: textContainer)
         let point = NSPoint(x: 0, y: bounding.midY - frame.height / 2)
         textView.scroll(point)
     }

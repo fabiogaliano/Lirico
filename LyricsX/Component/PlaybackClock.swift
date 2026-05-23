@@ -12,9 +12,8 @@ typealias LyricsPosition = TimeInterval
 ///
 /// It exposes the current active line index as a publisher (`currentLineIndex`); the
 /// lyrics session subscribes and mirrors the value into its own `@Published
-/// currentLineIndex`. It also exposes `adjustedPlaybackTime` so that display layers
-/// (HUD scroll view, karaoke timetags) can read the offset-corrected position without
-/// recomputing it themselves.
+/// currentLineIndex`. It also exposes `adjustedPlaybackTime` so karaoke/touchbar
+/// timetag progress can read the offset-corrected position without recomputing it.
 ///
 /// The clock is a publisher: lyrics are pushed in via `setLyrics(_:)`, and a dedup
 /// hook (`dedupTarget`) lets the session report what value it has already mirrored so

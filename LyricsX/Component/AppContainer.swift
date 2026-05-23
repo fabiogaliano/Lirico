@@ -90,7 +90,7 @@ final class AppContainer {
     private func makeLyricsHUD() -> LyricsHUDWindowController {
         let wc = LyricsHUDWindowController.create()
         if let vc = wc.contentViewController as? LyricsHUDViewController {
-            vc.configure(player: player, session: session, clock: playbackClock)
+            vc.configure(player: player, session: session)
         }
         return wc
     }
