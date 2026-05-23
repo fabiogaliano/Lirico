@@ -12,9 +12,9 @@ import LyricsXFoundation
 /// - optionally drops candidates that fail strict matching.
 ///
 /// Both automatic search (`LyricsSession.currentTrackChanged`) and manual
-/// search (`SearchLyricsViewController.searchAction`) go through this single
-/// type. Callers stay responsible for things only they know — request
-/// freshness, priority comparison, collection windows, and UI updates.
+/// search (`SearchLyricsViewModel.search`) go through this single type.
+/// Callers stay responsible for things only they know — request freshness,
+/// priority comparison, collection windows, and UI updates.
 @MainActor
 final class LyricsSearchPipeline {
     private var providerGroup: LyricsProvider = LyricsProviders.Group()

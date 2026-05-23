@@ -3,7 +3,7 @@ import GenericID
 import MusicPlayer
 import Semver
 
-@NSApplicationMain
+@main
 class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenuDelegate {
     static var shared: AppDelegate? {
         return NSApplication.shared.delegate as? AppDelegate
@@ -102,18 +102,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             defaults[.isShowLyricsHUD] = true
         }
 
-        NSApp.activate(ignoringOtherApps: true)
+        NSApp.activate()
     }
 
     @IBAction func aboutLyricsXAction(_ sender: Any) {
-        if #available(OSX 10.13, *) {
-            let channel = "GitHub"
-            let versionString = "\(channel) Version \(Bundle.main.semanticVersion ?? "Unknown")"
-            NSApp.orderFrontStandardAboutPanel(options: [.applicationVersion: versionString])
-        } else {
-            NSApp.orderFrontStandardAboutPanel(sender)
-        }
-        NSApp.activate(ignoringOtherApps: true)
+        let channel = "GitHub"
+        let versionString = "\(channel) Version \(Bundle.main.semanticVersion ?? "Unknown")"
+        NSApp.orderFrontStandardAboutPanel(options: [.applicationVersion: versionString])
+        NSApp.activate()
     }
 
     @IBAction func showPreferences(_ sender: Any?) {
@@ -151,7 +147,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
     @IBAction func searchLyrics(_ sender: Any?) {
         container?.searchLyricsWindowController.showWindow(nil)
-        NSApp.activate(ignoringOtherApps: true)
+        NSApp.activate()
     }
 
     @IBAction func wrongLyrics(_ sender: Any?) {
@@ -173,18 +169,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     func menuWillOpen(_ menu: NSMenu) {
-        if #available(macOS 11, *) {
-            let menuHasOnState = statusBarMenu.items.filter { menuItem in
-                return menuItem.state == .on
-            }.count > 0
-
-            let lyricsOffsetConstraint = lyricsOffsetView.constraints.first(where: { $0.identifier == "lyricsOffsetConstraint" })
-
-            lyricsOffsetConstraint?.constant = 14
-            if menuHasOnState {
-                lyricsOffsetConstraint?.constant += 10
-            }
-        }
+        let menuHasOnState = statusBarMenu.items.contains(where: { $0.state == .on })
+        let lyricsOffsetConstraint = lyricsOffsetView.constraints.first(where: { $0.identifier == "lyricsOffsetConstraint" })
+        lyricsOffsetConstraint?.constant = menuHasOnState ? 24 : 14
     }
 }
 

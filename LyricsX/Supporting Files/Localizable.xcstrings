@@ -10,6 +10,9 @@
     "Apply" : {
 
     },
+    "Artist" : {
+
+    },
     "Audirvana" : {
 
     },
@@ -44,6 +47,9 @@
 
     },
     "Display" : {
+
+    },
+    "Enter a song title to search" : {
 
     },
     "Download" : {
@@ -427,6 +433,12 @@
     "No Conversion" : {
 
     },
+    "No results yet" : {
+
+    },
+    "No track is playing" : {
+
+    },
     "OK" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -550,6 +562,12 @@
 
     },
     "Reset to Defaults" : {
+
+    },
+    "Search" : {
+
+    },
+    "Searching…" : {
 
     },
     "Search Lyrics" : {
@@ -684,6 +702,9 @@
 
     },
     "System" : {
+
+    },
+    "Title" : {
 
     },
     "Token" : {

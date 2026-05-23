@@ -33,7 +33,7 @@
     },
     "1xI-G4-Fsc.headerCell.title" : {
       "comment" : "Class = \"NSTableColumn\"; headerCell.title = \"Source\"; ObjectID = \"1xI-G4-Fsc\";",
-      "extractionState" : "extracted_with_value",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -831,7 +831,7 @@
     },
     "eb9-fE-Lgq.title" : {
       "comment" : "Class = \"NSButtonCell\"; title = \"Search\"; ObjectID = \"eb9-fE-Lgq\";",
-      "extractionState" : "extracted_with_value",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -1071,7 +1071,7 @@
     },
     "FMI-7E-tCo.title" : {
       "comment" : "Class = \"NSTextFieldCell\"; title = \"Title:\"; ObjectID = \"FMI-7E-tCo\";",
-      "extractionState" : "extracted_with_value",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -1791,7 +1791,7 @@
     },
     "HMU-fa-17B.headerCell.title" : {
       "comment" : "Class = \"NSTableColumn\"; headerCell.title = \"Artist\"; ObjectID = \"HMU-fa-17B\";",
-      "extractionState" : "extracted_with_value",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2151,7 +2151,7 @@
     },
     "jWT-S5-YXM.headerCell.title" : {
       "comment" : "Class = \"NSTableColumn\"; headerCell.title = \"Title\"; ObjectID = \"jWT-S5-YXM\";",
-      "extractionState" : "extracted_with_value",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2493,7 +2493,7 @@
     },
     "l8J-1r-dIZ.title" : {
       "comment" : "Class = \"NSTextFieldCell\"; title = \"Artist:\"; ObjectID = \"l8J-1r-dIZ\";",
-      "extractionState" : "extracted_with_value",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3021,7 +3021,7 @@
     },
     "RGl-MT-MQb.title" : {
       "comment" : "Class = \"NSButtonCell\"; title = \"Apply\"; ObjectID = \"RGl-MT-MQb\";",
-      "extractionState" : "extracted_with_value",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

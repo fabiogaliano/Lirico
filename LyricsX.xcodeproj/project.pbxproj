@@ -52,7 +52,8 @@
 		BBB03F2D232FB3AF00A3879E /* GenericID in Frameworks */ = {isa = PBXBuildFile; productRef = BBB03F2C232FB3AF00A3879E /* GenericID */; };
 		BBB03F30232FB40400A3879E /* Semver in Frameworks */ = {isa = PBXBuildFile; productRef = BBB03F2F232FB40400A3879E /* Semver */; };
 		BBB03F3A2331D8A800A3879E /* OpenCC in Frameworks */ = {isa = PBXBuildFile; productRef = BBB03F392331D8A800A3879E /* OpenCC */; };
-		BBB9AAE31E57EE880078F91A /* SearchLyricsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB9AAE21E57EE880078F91A /* SearchLyricsViewController.swift */; };
+		F1A5EA0100000000000A0001 /* SearchLyricsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A5EA0000000000000A0001 /* SearchLyricsView.swift */; };
+		F1A5EA0100000000000A0002 /* SearchLyricsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A5EA0000000000000A0002 /* SearchLyricsViewModel.swift */; };
 		BBC1D35B1E485BA7002538A2 /* LyricsSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC1D35A1E485BA7002538A2 /* LyricsSession.swift */; };
 		E9FA2B022E9000000001AA02 /* PlaybackClock.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B012E9000000001AA01 /* PlaybackClock.swift */; };
 		E9FA2C002F0000000001AC00 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2BFF2F0000000001AC01 /* AppContainer.swift */; };
@@ -166,7 +167,8 @@
 		BB947DFA23B4C60000C43BF2 /* SelectedPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedPlayer.swift; sourceTree = "<group>"; };
 		BB9BCEB81E84120D001BC54B /* LyricsX.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LyricsX.entitlements; sourceTree = "<group>"; };
 		BB9BCEB91E843157001BC54B /* Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
-		BBB9AAE21E57EE880078F91A /* SearchLyricsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchLyricsViewController.swift; sourceTree = "<group>"; };
+		F1A5EA0000000000000A0001 /* SearchLyricsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchLyricsView.swift; sourceTree = "<group>"; };
+		F1A5EA0000000000000A0002 /* SearchLyricsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchLyricsViewModel.swift; sourceTree = "<group>"; };
 		BBC1D35A1E485BA7002538A2 /* LyricsSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LyricsSession.swift; sourceTree = "<group>"; };
 		E9FA2B012E9000000001AA01 /* PlaybackClock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackClock.swift; sourceTree = "<group>"; };
 		E9FA2BFF2F0000000001AC01 /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
@@ -468,7 +470,8 @@
 			isa = PBXGroup;
 			children = (
 				E9EF0D542D6F70E400D45E0F /* SearchLyricsWindowController.swift */,
-				BBB9AAE21E57EE880078F91A /* SearchLyricsViewController.swift */,
+				F1A5EA0000000000000A0001 /* SearchLyricsView.swift */,
+				F1A5EA0000000000000A0002 /* SearchLyricsViewModel.swift */,
 				E9FA2B112E9000000009CC11 /* ArtworkFetcher.swift */,
 			);
 			path = Search;
@@ -731,7 +734,8 @@
 				BB7EC7B21E4E018C00A0AC3F /* LyricsHUDViewController.swift in Sources */,
 				E97593E62150F6FB00D80616 /* IBInspection.swift in Sources */,
 				E9EF0D4E2D6F5E0A00D45E0F /* LyricsHUDWindowController.swift in Sources */,
-				BBB9AAE31E57EE880078F91A /* SearchLyricsViewController.swift in Sources */,
+				F1A5EA0100000000000A0001 /* SearchLyricsView.swift in Sources */,
+				F1A5EA0100000000000A0002 /* SearchLyricsViewModel.swift in Sources */,
 				E9E55138207C4CB000F9958A /* TouchBarLyricsController.swift in Sources */,
 				E97F2CFD2E757C19005466D1 /* Signal.swift in Sources */,
 				E97F2D012E757C19005466D1 /* Invoke.swift in Sources */,
