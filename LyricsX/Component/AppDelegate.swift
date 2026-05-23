@@ -1,7 +1,6 @@
 import AppKit
 import GenericID
 import MusicPlayer
-import Sparkle
 import Semver
 
 @NSApplicationMain
@@ -15,10 +14,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     @IBOutlet var lyricsOffsetStepper: NSStepper!
     @IBOutlet var statusBarMenu: NSMenu!
 
-    private lazy var updateController = SPUStandardUpdaterController(updaterDelegate: nil, userDriverDelegate: self)
-
-    // TODO: Flip to true once SUPublicEDKey is generated and pasted into Info.plist.
-    private let isSparkleEnabled = false
+    private let updateController = UpdateController()
 
     /// Constructed in `applicationDidFinishLaunching` after defaults registration
     /// so that `MusicPlayers.Selected.init()` (which reads `UserDefaults`) sees
@@ -56,9 +52,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             groupDefaults.bind(NSBindingName(sharedKey.key), withDefaultName: sharedKey)
         }
 
-        if isSparkleEnabled {
-            updateController.updater.checkForUpdatesInBackground()
-        }
+        updateController.startIfEnabled()
 
         if defaults[.isShowLyricsHUD] {
             container.lyricsHUD.showWindow(nil)
@@ -137,7 +131,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     @IBAction func checkUpdateAction(_ sender: Any) {
-        guard isSparkleEnabled else { return }
         updateController.checkForUpdates(sender)
     }
 
@@ -193,12 +186,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
                 lyricsOffsetConstraint?.constant += 10
             }
         }
-    }
-}
-
-extension AppDelegate: SPUStandardUserDriverDelegate {
-    func standardUserDriverShouldHandleShowingScheduledUpdate(_ update: SUAppcastItem, andInImmediateFocus immediateFocus: Bool) -> Bool {
-        return true
     }
 }
 
