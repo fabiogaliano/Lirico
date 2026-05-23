@@ -129,21 +129,10 @@ class LyricsSession: NSObject {
 
     // MARK: - Persistence policy
 
-    /// Why a persistence flush is being requested. Currently informational —
-    /// every reason flushes when `needsPersist` is true. The enum exists so
-    /// the call sites read like documentation and so a future policy
-    /// (e.g. throttle on `offsetEdit`) has somewhere to live.
-    enum PersistReason {
-        case trackChange
-        case applicationTermination
-        case revealInFinder
-    }
-
     /// Flush the current lyrics to disk when they've been marked dirty
     /// (`metadata.needsPersist == true`). This is the only place in the app
     /// that should drive a disk write — everywhere else asks the session.
-    func persistCurrentLyricsIfNeeded(reason: PersistReason) {
-        _ = reason
+    func persistCurrentLyricsIfNeeded() {
         guard let lyrics = currentLyrics, lyrics.metadata.needsPersist else { return }
         LyricsPersister.saveToDisk(lyrics, to: persistenceSettings.storageDirectory())
     }
@@ -152,7 +141,7 @@ class LyricsSession: NSObject {
     /// silently if there is no current lyrics or it has no resolvable URL after
     /// the write attempt.
     func revealCurrentLyricsInFinder() {
-        persistCurrentLyricsIfNeeded(reason: .revealInFinder)
+        persistCurrentLyricsIfNeeded()
         guard let url = currentLyrics?.metadata.localURL else { return }
         NSWorkspace.shared.activateFileViewerSelecting([url])
     }
@@ -161,7 +150,7 @@ class LyricsSession: NSObject {
     /// `AppDelegate.applicationWillTerminate` so the terminate path doesn't
     /// have to know about the `needsPersist` flag.
     func prepareForTermination() {
-        persistCurrentLyricsIfNeeded(reason: .applicationTermination)
+        persistCurrentLyricsIfNeeded()
     }
 
     // MARK: - Commands
@@ -200,7 +189,7 @@ class LyricsSession: NSObject {
     }
 
     func currentTrackChanged() {
-        persistCurrentLyricsIfNeeded(reason: .trackChange)
+        persistCurrentLyricsIfNeeded()
         currentLyrics = nil
         currentLineIndex = nil
         searchTask?.cancel()
