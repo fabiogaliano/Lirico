@@ -7,10 +7,11 @@ class TouchBarLyricsController: TouchBarSystemModalController {
     static var shared: TouchBarLyricsController?
 
     private let player: PlayerHandle
-    private var lyricsItem = TouchBarLyricsItem(identifier: .lyrics)
+    private let lyricsItem: TouchBarLyricsItem
 
-    init(player: PlayerHandle) {
+    init(player: PlayerHandle, clock: PlaybackClock) {
         self.player = player
+        self.lyricsItem = TouchBarLyricsItem(identifier: .lyrics, clock: clock)
         super.init()
     }
 

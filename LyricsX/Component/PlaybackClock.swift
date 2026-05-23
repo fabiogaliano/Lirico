@@ -21,8 +21,6 @@ typealias LyricsPosition = TimeInterval
 /// duplicate emissions can be suppressed. The clock holds no reference to the session
 /// type.
 final class PlaybackClock {
-    static var shared: PlaybackClock!
-
     // MARK: - Public interface
 
     /// Offset-corrected playback position in the lyrics file coordinate space.

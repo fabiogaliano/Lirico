@@ -37,7 +37,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
     lazy var lyricsHUD: LyricsHUDWindowController = {
         let wc = LyricsHUDWindowController.create()
-        (wc.contentViewController as? LyricsHUDViewController)?.player = playerHandle
+        if let vc = wc.contentViewController as? LyricsHUDViewController {
+            vc.player = playerHandle
+            vc.clock = container.playbackClock
+        }
         return wc
     }()
 
@@ -48,15 +51,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
         let container = AppContainer()
         self.container = container
-        // Bridge the legacy `static var shared` holders until consumers are
-        // migrated to receive their dependencies explicitly (commit boundaries
-        // B and C remove them).
-        PlaybackClock.shared = container.playbackClock
+        // Bridge the legacy `LyricsSession.shared` IUO until commit boundary C
+        // migrates remaining consumers to take the session explicitly.
         LyricsSession.shared = container.session
         let controller = container.session
         _ = LyricsSelector.shared
 
-        karaokeLyricsWC = KaraokeLyricsWindowController(player: playerHandle)
+        karaokeLyricsWC = KaraokeLyricsWindowController(player: playerHandle, clock: container.playbackClock)
         karaokeLyricsWC?.showWindow(nil)
 
         MenuBarLyricsController.shared = MenuBarLyricsController(player: playerHandle)
@@ -95,7 +96,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
         observeDefaults(key: .touchBarLyricsEnabled, options: [.new, .initial]) { [self] _, change in
             if change.newValue, TouchBarLyricsController.shared == nil {
-                TouchBarLyricsController.shared = TouchBarLyricsController(player: playerHandle)
+                TouchBarLyricsController.shared = TouchBarLyricsController(player: playerHandle, clock: container.playbackClock)
             } else if !change.newValue, TouchBarLyricsController.shared != nil {
                 TouchBarLyricsController.shared = nil
             }

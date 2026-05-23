@@ -5,6 +5,11 @@ import MusicPlayer
 
 class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsViewDelegate, DragNDropDelegate {
     var player: PlayerHandle!
+    /// Injected by the owning window controller after instantiation; required
+    /// before the window is displayed so that `displayLyrics(animation:)` has a
+    /// clock to read from. Boundary C migrates `LyricsSession.shared` use here
+    /// to the same configure path.
+    var clock: PlaybackClock!
 
     @IBOutlet var dragNDropView: DragNDropView!
     @IBOutlet var lyricsScrollView: ScrollLyricsView!
@@ -94,7 +99,7 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
     }
 
     private func displayLyrics(animation: Bool = true) {
-        let pos = PlaybackClock.shared.adjustedPlaybackTime
+        let pos = clock.adjustedPlaybackTime
         lyricsScrollView.highlight(position: pos)
         guard isTracking else {
             return

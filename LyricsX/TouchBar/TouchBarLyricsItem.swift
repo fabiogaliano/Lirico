@@ -7,19 +7,13 @@ class TouchBarLyricsItem: NSCustomTouchBarItem {
 
     @objc dynamic var progressColor = #colorLiteral(red: 0.039, green: 0.518, blue: 1, alpha: 1)
 
+    private let clock: PlaybackClock
+
     private var cancelBag = Set<AnyCancellable>()
 
-    override init(identifier: NSTouchBarItem.Identifier) {
+    init(identifier: NSTouchBarItem.Identifier, clock: PlaybackClock) {
+        self.clock = clock
         super.init(identifier: identifier)
-        commonInit()
-    }
-
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        commonInit()
-    }
-
-    func commonInit() {
         view = lyricsTextField
         customizationLabel = "Lyrics"
         LyricsSession.shared.displayCoordinator.$snapshot
@@ -28,6 +22,11 @@ class TouchBarLyricsItem: NSCustomTouchBarItem {
                 self?.render(snapshot)
             }
             .store(in: &cancelBag)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) is not supported; TouchBarLyricsItem is constructed programmatically.")
     }
 
     // Touch Bar historically ignores `disableLyricsWhenPaused`, so we look only
@@ -40,7 +39,7 @@ class TouchBarLyricsItem: NSCustomTouchBarItem {
         }
         lyricsTextField.stringValue = line.primaryText
         if let timetag = line.line.attachments.timetag {
-            let adjustedPos = PlaybackClock.shared.adjustedPlaybackTime
+            let adjustedPos = clock.adjustedPlaybackTime
             let progress = timetag.tags.map { ($0.time + line.line.position - adjustedPos, $0.index) }
             lyricsTextField.setProgressAnimation(color: progressColor, progress: progress)
         }

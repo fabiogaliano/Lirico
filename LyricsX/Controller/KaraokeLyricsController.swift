@@ -13,11 +13,13 @@ class KaraokeLyricsWindowController: NSWindowController {
     private var lyricsView = KaraokeLyricsView(frame: .zero)
 
     private let player: PlayerHandle
+    private let clock: PlaybackClock
 
     private var cancelBag = Set<AnyCancellable>()
 
-    init(player: PlayerHandle) {
+    init(player: PlayerHandle, clock: PlaybackClock) {
         self.player = player
+        self.clock = clock
         let window = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: true)
         window.backgroundColor = .clear
         window.hasShadow = false
@@ -132,7 +134,7 @@ class KaraokeLyricsWindowController: NSWindowController {
               let timetag = line.line.attachments.timetag else {
             return
         }
-        let adjustedPos = PlaybackClock.shared.adjustedPlaybackTime
+        let adjustedPos = clock.adjustedPlaybackTime
         let progress = timetag.tags.map { ($0.time + line.line.position - adjustedPos, $0.index) }
         upperTextField.setProgressAnimation(color: lyricsView.progressColor, progress: progress)
         if !player.playbackState.isPlaying {
