@@ -4,7 +4,7 @@ import MusicPlayer
 import LyricsXFoundation
 
 class LyricsSession: NSObject {
-    var lyricsManager: LyricsProvider
+    private let pipeline: LyricsSearchPipeline
     private let player: PlayerHandle
     private let clock: PlaybackClock
     private let persistenceSettings: PersistenceSettings
@@ -26,8 +26,8 @@ class LyricsSession: NSObject {
 
     @Published var currentLineIndex: Int?
 
-    var searchRequest: LyricsSearchRequest?
-    var searchTask: Task<Void, Never>?
+    private var searchRequest: LyricsSearchRequest?
+    private var searchTask: Task<Void, Never>?
 
     private var cancelBag = Set<AnyCancellable>()
 
@@ -45,10 +45,11 @@ class LyricsSession: NSObject {
     init(
         player: PlayerHandle,
         clock: PlaybackClock,
+        pipeline: LyricsSearchPipeline,
         displaySettings: DisplaySettings = DisplaySettings(),
         persistenceSettings: PersistenceSettings = PersistenceSettings()
     ) {
-        self.lyricsManager = LyricsProviders.Group()
+        self.pipeline = pipeline
         self.player = player
         self.clock = clock
         self.persistenceSettings = persistenceSettings
@@ -78,44 +79,11 @@ class LyricsSession: NSObject {
                 }
             }.store(in: &cancelBag)
 
-        // The token lives in `UserDefaults`; observe it here so the session
-        // owns its provider list and the preference UI only has to write the
-        // value, not reach across modules to nudge a refresh.
-        defaults.publisher(for: [.musixmatchToken])
-            .sink { [weak self] in
-                Task { @MainActor in
-                    try? await self?.updateLyricsManager()
-                }
-            }
-            .store(in: &cancelBag)
-
         // Run the first track sync on the next runloop tick so callers have a
         // chance to retain the session before subscribers start firing.
         DispatchQueue.main.async { [weak self] in
             self?.currentTrackChanged()
         }
-
-        Task {
-            try await updateLyricsManager()
-        }
-    }
-
-    @MainActor
-    func updateLyricsManager() async throws {
-        let services: [LyricsProviders.Service] = LyricsProviders.Service.noAuthenticationRequiredServices
-
-        var providers: [LyricsProvider] = []
-        for service in services {
-            providers.append(service.create())
-        }
-
-        // Add Musixmatch provider with saved token if available
-        if let token = defaults[.musixmatchToken], !token.isEmpty {
-            let musixmatchProvider = LyricsProviders.Musixmatch(usertoken: token)
-            providers.append(musixmatchProvider)
-        }
-
-        lyricsManager = LyricsProviders.Group(providers: providers)
     }
 
     func scheduleCurrentLineCheck() {
@@ -226,12 +194,10 @@ class LyricsSession: NSObject {
                 let window = defaults[.lyricsPriorityWindow] ?? 5
                 var collector = LyricsSelector.shared.makeCollector(window: window)
 
-                search: for try await lyrics in lyricsManager.lyrics(for: request) {
+                search: for try await lyrics in pipeline.candidates(for: request, strict: true) {
                     switch collector.nextDecision() {
                     case .accept:
-                        let before = currentLyrics
-                        lyricsReceived(lyrics: lyrics)
-                        if currentLyrics !== before {
+                        if accept(lyrics: lyrics, request: request) {
                             collector.notifyAccepted()
                         }
                     case .stop:
@@ -250,25 +216,21 @@ class LyricsSession: NSObject {
         }
     }
 
-    // MARK: LyricsSourceDelegate
-
-    func lyricsReceived(lyrics: Lyrics) {
-        guard let req = searchRequest,
-              lyrics.metadata.request == req,
+    /// Pick `lyrics` as the new selection when it beats the current one for the
+    /// still-active request. Returns whether the swap actually happened so the
+    /// caller's collection window only starts on a real acceptance.
+    private func accept(lyrics: Lyrics, request: LyricsSearchRequest) -> Bool {
+        guard searchRequest == request,
+              lyrics.metadata.request == request,
               let track = player.currentTrack else {
-            return
+            return false
         }
-        if defaults[.strictSearchEnabled], !lyrics.isMatched() {
-            return
+        guard LyricsSelector.shared.hasHigherPriority(lyrics, over: currentLyrics) else {
+            return false
         }
-        if !LyricsSelector.shared.hasHigherPriority(lyrics, over: currentLyrics) {
-            return
-        }
-
         lyrics.associateWithTrack(track)
-        LyricsPreparer.prepare(lyrics)
-        lyrics.metadata.needsPersist = true
         currentLyrics = lyrics
+        return true
     }
 }
 

@@ -12,23 +12,27 @@ import MusicPlayer
 final class AppContainer {
     let player: PlayerHandle
     let playbackClock: PlaybackClock
+    let searchPipeline: LyricsSearchPipeline
     let session: LyricsSession
     let menuBarController: MenuBarLyricsController
     let karaokeWindowController: KaraokeLyricsWindowController
 
     private(set) lazy var lyricsHUD: LyricsHUDWindowController = makeLyricsHUD()
     private(set) lazy var searchLyricsWindowController: SearchLyricsWindowController =
-        SearchLyricsWindowController(player: player, session: session)
+        SearchLyricsWindowController(player: player, session: session, pipeline: searchPipeline)
     private(set) lazy var preferencesWindowController: PreferenceWindowController = .create()
 
     private var touchBarController: TouchBarLyricsController?
     private var touchBarCancellable: AnyCancellable?
 
+    @MainActor
     init(player: PlayerHandle = MusicPlayers.Selected.shared) {
         self.player = player
         let clock = PlaybackClock(player: player)
         self.playbackClock = clock
-        self.session = LyricsSession(player: player, clock: clock)
+        let pipeline = LyricsSearchPipeline()
+        self.searchPipeline = pipeline
+        self.session = LyricsSession(player: player, clock: clock, pipeline: pipeline)
         self.menuBarController = MenuBarLyricsController(player: player, session: session)
         self.karaokeWindowController = KaraokeLyricsWindowController(
             player: player, session: session, clock: clock

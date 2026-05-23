@@ -69,6 +69,7 @@
 		E9FA2B062E9000000003CC06 /* LineRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B052E9000000003CC05 /* LineRenderer.swift */; };
 		E9FA2B082E9000000004DD08 /* LyricsSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B072E9000000004DD07 /* LyricsSelector.swift */; };
 		E9FA2B0A2E9000000005EE0A /* LocalLyricsLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B092E9000000005EE09 /* LocalLyricsLoader.swift */; };
+		F1A2B0012F1000000001AA01 /* LyricsSearchPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A2B0002F1000000001AA00 /* LyricsSearchPipeline.swift */; };
 		E9FA2B0C2E9000000006FF0C /* SearchBlocklist.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B0B2E9000000006FF0B /* SearchBlocklist.swift */; };
 		E9FA2B0E2E9000000007AA0E /* AlphaColorWell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B0D2E9000000007AA0D /* AlphaColorWell.swift */; };
 		E9FA2B102E9000000008BB10 /* FilterKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B0F2E9000000008BB0F /* FilterKey.swift */; };
@@ -173,6 +174,7 @@
 		E9FA2B052E9000000003CC05 /* LineRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineRenderer.swift; sourceTree = "<group>"; };
 		E9FA2B072E9000000004DD07 /* LyricsSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsSelector.swift; sourceTree = "<group>"; };
 		E9FA2B092E9000000005EE09 /* LocalLyricsLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLyricsLoader.swift; sourceTree = "<group>"; };
+		F1A2B0002F1000000001AA00 /* LyricsSearchPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsSearchPipeline.swift; sourceTree = "<group>"; };
 		E9FA2B0B2E9000000006FF0B /* SearchBlocklist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBlocklist.swift; sourceTree = "<group>"; };
 		E9FA2B0D2E9000000007AA0D /* AlphaColorWell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphaColorWell.swift; sourceTree = "<group>"; };
 		E9FA2B0F2E9000000008BB0F /* FilterKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterKey.swift; sourceTree = "<group>"; };
@@ -394,6 +396,7 @@
 				E9FA2B052E9000000003CC05 /* LineRenderer.swift */,
 				E9FA2B072E9000000004DD07 /* LyricsSelector.swift */,
 				E9FA2B092E9000000005EE09 /* LocalLyricsLoader.swift */,
+				F1A2B0002F1000000001AA00 /* LyricsSearchPipeline.swift */,
 				E9FA2B0B2E9000000006FF0B /* SearchBlocklist.swift */,
 				E9FA2B132E900000000ADD13 /* PlayerHandle.swift */,
 				E9FA2B152E900000000BEE15 /* LyricsPersister.swift */,
@@ -746,6 +749,7 @@
 				E9FA2B062E9000000003CC06 /* LineRenderer.swift in Sources */,
 				E9FA2B082E9000000004DD08 /* LyricsSelector.swift in Sources */,
 				E9FA2B0A2E9000000005EE0A /* LocalLyricsLoader.swift in Sources */,
+				F1A2B0012F1000000001AA01 /* LyricsSearchPipeline.swift in Sources */,
 				E9FA2B0C2E9000000006FF0C /* SearchBlocklist.swift in Sources */,
 				E9FA2B0E2E9000000007AA0E /* AlphaColorWell.swift in Sources */,
 				E9FA2B102E9000000008BB10 /* FilterKey.swift in Sources */,

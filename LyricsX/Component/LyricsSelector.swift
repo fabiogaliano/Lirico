@@ -75,6 +75,19 @@ final class LyricsSelector {
     func makeCollector(window: TimeInterval) -> LyricsCollector {
         LyricsCollector(window: window)
     }
+
+    // MARK: - Ordered insertion
+
+    /// Insert `candidate` into `results` so the list stays sorted by
+    /// `hasHigherPriority`. The manual search window uses this to mirror the
+    /// priority order automatic search applies when accepting candidates.
+    func insert(_ candidate: Lyrics, into results: inout [Lyrics]) {
+        if let idx = results.firstIndex(where: { hasHigherPriority(candidate, over: $0) }) {
+            results.insert(candidate, at: idx)
+        } else {
+            results.append(candidate)
+        }
+    }
 }
 
 // MARK: - LyricsCollector

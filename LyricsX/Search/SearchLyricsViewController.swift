@@ -4,14 +4,16 @@ import MusicPlayer
 import UIFoundation
 
 class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTableViewDataSource, NSTextFieldDelegate, StoryboardViewController {
-    // Storyboard-instantiated; populated via `configure(player:session:)` by
-    // `SearchLyricsWindowController` immediately after creation.
+    // Storyboard-instantiated; populated via `configure(player:session:pipeline:)`
+    // by `SearchLyricsWindowController` immediately after creation.
     private var player: PlayerHandle!
     private var session: LyricsSession!
+    private var pipeline: LyricsSearchPipeline!
 
-    func configure(player: PlayerHandle, session: LyricsSession) {
+    func configure(player: PlayerHandle, session: LyricsSession, pipeline: LyricsSearchPipeline) {
         self.player = player
         self.session = session
+        self.pipeline = pipeline
     }
 
     var imageCache = NSCache<NSURL, NSImage>()
@@ -23,7 +25,6 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
         }
     }
 
-    var lyricsManager: LyricsProvider { session.lyricsManager }
     var searchRequest: LyricsSearchRequest?
     var searchTask: Task<Void, Never>?
     var searchResult: [Lyrics] = []
@@ -82,9 +83,9 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
         searchRequest = req
         progressIndicator.startAnimation(nil)
         tableView.reloadData()
-        searchTask = Task {
+        searchTask = Task { @MainActor in
             do {
-                for try await lyrics in lyricsManager.lyrics(for: req) {
+                for try await lyrics in pipeline.candidates(for: req, strict: false) {
                     lyricsReceived(lyrics: lyrics)
                 }
                 progressIndicator.stopAnimation(nil)
@@ -111,22 +112,12 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
         session.select(lrc, writeToiTunesIfAuto: true)
     }
 
-    // MARK: - LyricsSourceDelegate
-
-    func lyricsReceived(lyrics: Lyrics) {
+    private func lyricsReceived(lyrics: Lyrics) {
         guard lyrics.metadata.request == searchRequest else {
             return
         }
-        LyricsPreparer.prepare(lyrics)
-        lyrics.metadata.needsPersist = true
-        if let idx = searchResult.firstIndex(where: { LyricsSelector.shared.hasHigherPriority(lyrics, over: $0) }) {
-            searchResult.insert(lyrics, at: idx)
-        } else {
-            searchResult.append(lyrics)
-        }
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
-        }
+        LyricsSelector.shared.insert(lyrics, into: &searchResult)
+        tableView.reloadData()
     }
 
     // MARK: - TableViewDelegate

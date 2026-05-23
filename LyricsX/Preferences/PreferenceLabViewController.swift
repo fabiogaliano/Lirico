@@ -26,8 +26,8 @@ class PreferenceLabViewController: PreferenceViewController {
         } else {
             defaults[.musixmatchToken] = value
         }
-        // `LyricsSession` observes `.musixmatchToken` and rebuilds its provider
-        // list itself, so no direct call is needed here.
+        // `LyricsSearchPipeline` observes `.musixmatchToken` and rebuilds its
+        // provider list itself, so no direct call is needed here.
     }
 
     @IBAction func customizeAllowsNowPlayingApplicationsAction(_ sender: NSButton) {

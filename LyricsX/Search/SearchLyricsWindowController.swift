@@ -4,9 +4,9 @@ import UIFoundation
 final class SearchLyricsWindowController: NSWindowController {
     let viewController: SearchLyricsViewController
 
-    init(player: PlayerHandle, session: LyricsSession) {
+    init(player: PlayerHandle, session: LyricsSession, pipeline: LyricsSearchPipeline) {
         let viewController = SearchLyricsViewController.create()
-        viewController.configure(player: player, session: session)
+        viewController.configure(player: player, session: session, pipeline: pipeline)
         self.viewController = viewController
         let window = NSWindow(contentViewController: viewController)
         window.title = NSLocalizedString("Search Lyrics", comment: "window title")
