@@ -81,7 +81,11 @@ enum LyricsPersister {
     /// Write `lyrics` to the currently playing Apple Music track.
     /// No-op if the player isn't Apple Music or there's no scriptable track.
     /// When `overwrite` is false, existing non-empty lyrics on the track are preserved.
-    static func writeToiTunes(_ lyrics: Lyrics, player: PlayerHandle, overwrite: Bool) {
+    ///
+    /// The `settings` parameter carries the formatting policy (plain-LRC export
+    /// vs. enhanced; include translation or not). Passing it in keeps this
+    /// namespace defaults-free in the same shape as `saveToDisk(_:to:)`.
+    static func writeToiTunes(_ lyrics: Lyrics, player: PlayerHandle, overwrite: Bool, settings: ExportSettings) {
         guard player.name == .appleMusic,
               let sbTrack = player.currentTrack?.originalTrack,
               overwrite || (sbTrack.value(forKey: "lyrics") as! String?)?.isEmpty != false else {
@@ -89,7 +93,7 @@ enum LyricsPersister {
         }
 
         let content: String
-        if defaults[.writeiTunesConvertToPlainLRC] {
+        if settings.convertToPlainLRC {
             // For plain LRC export, preserve the legacy LRC formatting but still respect
             // the Chinese conversion setting for consistency with the non-plain branch.
             var legacy = lyrics.legacyDescription
@@ -98,12 +102,12 @@ enum LyricsPersister {
                 legacy = converter.convert(legacy)
             }
             // Translations are intentionally not appended for plain LRC export,
-            // even when `writeiTunesWithTranslation` is enabled, to keep the legacy
+            // even when `writeWithTranslation` is enabled, to keep the legacy
             // LRC output single-line per timestamp.
             content = legacy
         } else {
             // TODO: tagged translation
-            let translationCode = defaults[.writeiTunesWithTranslation]
+            let translationCode = settings.writeWithTranslation
                 ? lyrics.metadata.translationLanguages.first
                 : nil
             content = lyrics.lines.map { line -> String in

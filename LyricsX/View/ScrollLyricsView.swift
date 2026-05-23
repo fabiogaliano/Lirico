@@ -10,6 +10,8 @@ protocol ScrollLyricsViewDelegate: AnyObject {
 class ScrollLyricsView: NSScrollView {
     weak var delegate: ScrollLyricsViewDelegate?
 
+    private let displaySettings = DisplaySettings()
+
     private var textView: NSTextView {
         // swiftlint:disable:next force_cast
         return documentView as! NSTextView
@@ -70,7 +72,7 @@ class ScrollLyricsView: NSScrollView {
                 convert: .all
             )
             var lineStr = mainContent
-            if let trans = renderedTrans, defaults[.preferBilingualLyrics] {
+            if let trans = renderedTrans, displaySettings.preferBilingualLyrics {
                 lineStr += "\n" + trans
             }
             let range = NSRange(location: lrcContent.utf16.count, length: lineStr.utf16.count)

@@ -5,15 +5,16 @@ class PreferenceSourceViewController: PreferenceViewController {
     @IBOutlet var enableSourcePriorityButton: NSButton!
     @IBOutlet var sourceTableView: NSTableView!
 
+    private let searchSettings = SearchSettings()
     private var sourcePriorityOrder: [String] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        LyricsSelector.shared.normalize(against: availableLyricsSources)
+        LyricsSelector.shared.normalize(against: availableLyricsSources, settings: searchSettings)
 
-        enableSourcePriorityButton.state = defaults[.lyricsSourcePriorityEnabled] ? .on : .off
-        sourcePriorityOrder = defaults[.lyricsSourcePriorityOrder] ?? []
+        enableSourcePriorityButton.state = searchSettings.sourcePriorityEnabled ? .on : .off
+        sourcePriorityOrder = searchSettings.sourcePriorityOrder
 
         sourceTableView.delegate = self
         sourceTableView.dataSource = self
@@ -23,19 +24,19 @@ class PreferenceSourceViewController: PreferenceViewController {
     }
 
     @IBAction func toggleSourcePriority(_ sender: NSButton) {
-        let enabled = sender.state == .on
-        defaults[.lyricsSourcePriorityEnabled] = enabled
+        searchSettings.sourcePriorityEnabled = sender.state == .on
         updateUI()
     }
 
     private func updateUI() {
-        sourceTableView.isEnabled = defaults[.lyricsSourcePriorityEnabled]
-        sourceTableView.alphaValue = defaults[.lyricsSourcePriorityEnabled] ? 1.0 : 0.5
+        let enabled = searchSettings.sourcePriorityEnabled
+        sourceTableView.isEnabled = enabled
+        sourceTableView.alphaValue = enabled ? 1.0 : 0.5
     }
 
     private func savePriorityOrder() {
-        defaults[.lyricsSourcePriorityOrder] = sourcePriorityOrder
-        LyricsSelector.shared.normalize(against: availableLyricsSources)
+        searchSettings.sourcePriorityOrder = sourcePriorityOrder
+        LyricsSelector.shared.normalize(against: availableLyricsSources, settings: searchSettings)
     }
 }
 

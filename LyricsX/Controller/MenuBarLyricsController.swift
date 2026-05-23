@@ -11,6 +11,7 @@ class MenuBarLyricsController {
 
     private let player: PlayerHandle
     private let session: LyricsSession
+    private let settings: DisplaySettings
 
     var statusBarMenu: NSMenu? {
         didSet {
@@ -50,10 +51,11 @@ class MenuBarLyricsController {
 
     private var cancelBag = Set<AnyCancellable>()
 
-    init(player: PlayerHandle, session: LyricsSession) {
+    init(player: PlayerHandle, session: LyricsSession, settings: DisplaySettings = DisplaySettings()) {
         self.player = player
         self.session = session
-        if !defaults[.hideMenuBarItems] {
+        self.settings = settings
+        if !settings.hideMenuBarItems {
             updateStatusItems()
         }
         session.displayCoordinator.$snapshot
@@ -85,7 +87,7 @@ class MenuBarLyricsController {
     }
 
     @objc private func updateStatusItems() {
-        guard !defaults[.hideMenuBarItems] else {
+        guard !settings.hideMenuBarItems else {
             marqueeLabel.removeFromSuperview()
             iconStatusItem = nil
             lyricStatusItem = nil
@@ -93,7 +95,7 @@ class MenuBarLyricsController {
             return
         }
 
-        guard defaults[.menuBarLyricsEnabled] else {
+        guard settings.menuBarLyricsEnabled else {
             marqueeLabel.removeFromSuperview()
             if iconStatusItem == nil {
                 setupIconStatusItem()
@@ -103,7 +105,7 @@ class MenuBarLyricsController {
             return
         }
 
-        if defaults[.combinedMenubarLyrics] {
+        if settings.combinedMenubarLyrics {
             updateCombinedStatusLyrics()
             lastDisplayMode = .combine
         } else {
@@ -150,8 +152,8 @@ class MenuBarLyricsController {
     }
 
     private func setupStatusItemMenu() {
-        if defaults[.combinedMenubarLyrics] {
-            if defaults[.menuBarLyricsEnabled] {
+        if settings.combinedMenubarLyrics {
+            if settings.menuBarLyricsEnabled {
                 lyricStatusItem?.menu = statusBarMenu
             } else {
                 iconStatusItem?.menu = statusBarMenu

@@ -6,8 +6,8 @@ enum HelperLifecycle {
             .forEach { $0.terminate() }
     }
 
-    static func openHelperOnQuitIfNeeded() {
-        guard defaults[.launchAndQuitWithPlayer] else { return }
+    static func openHelperOnQuitIfNeeded(settings: PlayerSettings = PlayerSettings()) {
+        guard settings.launchAndQuitWithPlayer else { return }
         let url = Bundle.main.bundleURL
             .appendingPathComponent("Contents/Library/LoginItems/LyricsXHelper.app")
         groupDefaults[.launchHelperTime] = Date()

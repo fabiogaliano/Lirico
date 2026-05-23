@@ -30,7 +30,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
         let container = AppContainer()
         self.container = container
-        _ = LyricsSelector.shared
         container.start(statusBarMenu: statusBarMenu)
         statusBarMenu.delegate = self
 
@@ -70,7 +69,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
     func applicationWillTerminate(_ aNotification: Notification) {
         container?.session.prepareForTermination()
-        HelperLifecycle.openHelperOnQuitIfNeeded()
+        HelperLifecycle.openHelperOnQuitIfNeeded(settings: container?.playerSettings ?? PlayerSettings())
     }
 
     // MARK: - NSMenuDelegate

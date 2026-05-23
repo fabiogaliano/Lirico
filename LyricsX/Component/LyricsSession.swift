@@ -8,6 +8,9 @@ class LyricsSession: NSObject {
     private let player: PlayerHandle
     private let clock: PlaybackClock
     private let persistenceSettings: PersistenceSettings
+    private let searchSettings: SearchSettings
+    private let exportSettings: ExportSettings
+    private let playerSettings: PlayerSettings
 
     /// Resolver for the per-surface `LyricsDisplaySnapshot`. Owned by the
     /// session so consumers reach one well-known place for display state.
@@ -47,12 +50,18 @@ class LyricsSession: NSObject {
         clock: PlaybackClock,
         pipeline: LyricsSearchPipeline,
         displaySettings: DisplaySettings = DisplaySettings(),
-        persistenceSettings: PersistenceSettings = PersistenceSettings()
+        persistenceSettings: PersistenceSettings = PersistenceSettings(),
+        searchSettings: SearchSettings = SearchSettings(),
+        exportSettings: ExportSettings = ExportSettings(),
+        playerSettings: PlayerSettings = PlayerSettings()
     ) {
         self.pipeline = pipeline
         self.player = player
         self.clock = clock
         self.persistenceSettings = persistenceSettings
+        self.searchSettings = searchSettings
+        self.exportSettings = exportSettings
+        self.playerSettings = playerSettings
         self.displayCoordinator = LyricsDisplayCoordinator(player: player, settings: displaySettings)
         super.init()
         displayCoordinator.observe(
@@ -71,10 +80,10 @@ class LyricsSession: NSObject {
             .store(in: &cancelBag)
 
         workspaceNC.publisher(for: NSWorkspace.didTerminateApplicationNotification, object: nil)
-            .sink { notification in
+            .sink { [playerSettings] notification in
                 guard let application = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }
                 let bundleID = application.bundleIdentifier
-                if defaults[.launchAndQuitWithPlayer], player.designatedPlayerBundleID == bundleID {
+                if playerSettings.launchAndQuitWithPlayer, player.designatedPlayerBundleID == bundleID {
                     NSApplication.shared.terminate(self)
                 }
             }.store(in: &cancelBag)
@@ -92,7 +101,7 @@ class LyricsSession: NSObject {
 
     func writeToiTunes(overwrite: Bool) {
         guard let currentLyrics else { return }
-        LyricsPersister.writeToiTunes(currentLyrics, player: player, overwrite: overwrite)
+        LyricsPersister.writeToiTunes(currentLyrics, player: player, overwrite: overwrite, settings: exportSettings)
     }
 
     // MARK: - Persistence policy
@@ -133,7 +142,7 @@ class LyricsSession: NSObject {
             lyrics.associateWithTrack(track)
         }
         currentLyrics = lyrics
-        if writeToiTunesIfAuto, defaults[.writeToiTunesAutomatically] {
+        if writeToiTunesIfAuto, exportSettings.writeToiTunesAutomatically {
             writeToiTunes(overwrite: true)
         }
     }
@@ -145,7 +154,7 @@ class LyricsSession: NSObject {
     /// search is always cancelled.
     func clear(deleteOnDisk: Bool = false) {
         if deleteOnDisk {
-            if defaults[.writeToiTunesAutomatically], let track = player.currentTrack {
+            if exportSettings.writeToiTunesAutomatically, let track = player.currentTrack {
                 track.setLyrics("")
             }
             if let url = currentLyrics?.metadata.localURL {
@@ -191,8 +200,7 @@ class LyricsSession: NSObject {
         searchRequest = request
         searchTask = Task { @MainActor in
             do {
-                let window = defaults[.lyricsPriorityWindow] ?? 5
-                var collector = LyricsSelector.shared.makeCollector(window: window)
+                var collector = LyricsSelector.shared.makeCollector(window: searchSettings.priorityWindow)
 
                 search: for try await lyrics in pipeline.candidates(for: request, strict: true) {
                     switch collector.nextDecision() {
@@ -205,7 +213,7 @@ class LyricsSession: NSObject {
                     }
                 }
 
-                if defaults[.writeToiTunesAutomatically] {
+                if exportSettings.writeToiTunesAutomatically {
                     writeToiTunes(overwrite: true)
                 }
             } catch is CancellationError {
@@ -225,7 +233,7 @@ class LyricsSession: NSObject {
               let track = player.currentTrack else {
             return false
         }
-        guard LyricsSelector.shared.hasHigherPriority(lyrics, over: currentLyrics) else {
+        guard LyricsSelector.shared.hasHigherPriority(lyrics, over: currentLyrics, settings: searchSettings) else {
             return false
         }
         lyrics.associateWithTrack(track)

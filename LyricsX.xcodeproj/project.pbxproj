@@ -80,7 +80,18 @@
 		E9FA2B1A2E900000000DDD1A /* LyricsDisplayCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B192E900000000DDD19 /* LyricsDisplayCoordinator.swift */; };
 		E9FA2B1C2E900000000EEE1C /* DisplaySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B1B2E900000000EEE1B /* DisplaySettings.swift */; };
 		E9FA2B1E2E900000000FFF1E /* PersistenceSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B1D2E900000000FFF1D /* PersistenceSettings.swift */; };
-		BBC1D35F1E499A6D002538A2 /* Global.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC1D35E1E499A6D002538A2 /* Global.swift */; };
+		F1B0001100000000000A0001 /* AppIdentifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0001 /* AppIdentifiers.swift */; };
+		F1B0001100000000000A0002 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0002 /* AppConstants.swift */; };
+		F1B0001100000000000A0003 /* AppURLs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0003 /* AppURLs.swift */; };
+		F1B0001100000000000A0004 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0004 /* AppEnvironment.swift */; };
+		F1B0001100000000000A0005 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0005 /* Logging.swift */; };
+		F1B0001100000000000A0006 /* LyricsAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0006 /* LyricsAnimation.swift */; };
+		F1B0001100000000000A0007 /* UIIdentifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0007 /* UIIdentifiers.swift */; };
+		F1B0001100000000000A0008 /* NotificationCenters.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0008 /* NotificationCenters.swift */; };
+		F1B0001100000000000A0009 /* UserDefaultsKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0009 /* UserDefaultsKeys.swift */; };
+		F1B0002100000000000B0001 /* SearchSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0002000000000000B0001 /* SearchSettings.swift */; };
+		F1B0002100000000000C0001 /* ExportSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0002000000000000C0001 /* ExportSettings.swift */; };
+		F1B0002100000000000E0001 /* PlayerSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0002000000000000E0001 /* PlayerSettings.swift */; };
 		BBC1D5801E4AE3B9008869EC /* MenuBarLyricsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC1D57F1E4AE3B9008869EC /* MenuBarLyricsController.swift */; };
 		BBC1D5911E4C80FC008869EC /* PreferenceDisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC1D5901E4C80FC008869EC /* PreferenceDisplayViewController.swift */; };
 		BBC7C5551E6AE28600E3EC4F /* PreferenceGeneralViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC7C5541E6AE28600E3EC4F /* PreferenceGeneralViewController.swift */; };
@@ -185,7 +196,18 @@
 		E9FA2B192E900000000DDD19 /* LyricsDisplayCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsDisplayCoordinator.swift; sourceTree = "<group>"; };
 		E9FA2B1B2E900000000EEE1B /* DisplaySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplaySettings.swift; sourceTree = "<group>"; };
 		E9FA2B1D2E900000000FFF1D /* PersistenceSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceSettings.swift; sourceTree = "<group>"; };
-		BBC1D35E1E499A6D002538A2 /* Global.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Global.swift; sourceTree = "<group>"; };
+		F1B0001000000000000A0001 /* AppIdentifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIdentifiers.swift; sourceTree = "<group>"; };
+		F1B0001000000000000A0002 /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
+		F1B0001000000000000A0003 /* AppURLs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppURLs.swift; sourceTree = "<group>"; };
+		F1B0001000000000000A0004 /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
+		F1B0001000000000000A0005 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
+		F1B0001000000000000A0006 /* LyricsAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsAnimation.swift; sourceTree = "<group>"; };
+		F1B0001000000000000A0007 /* UIIdentifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIIdentifiers.swift; sourceTree = "<group>"; };
+		F1B0001000000000000A0008 /* NotificationCenters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCenters.swift; sourceTree = "<group>"; };
+		F1B0001000000000000A0009 /* UserDefaultsKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsKeys.swift; sourceTree = "<group>"; };
+		F1B0002000000000000B0001 /* SearchSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchSettings.swift; sourceTree = "<group>"; };
+		F1B0002000000000000C0001 /* ExportSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportSettings.swift; sourceTree = "<group>"; };
+		F1B0002000000000000E0001 /* PlayerSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerSettings.swift; sourceTree = "<group>"; };
 		BBC1D57F1E4AE3B9008869EC /* MenuBarLyricsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuBarLyricsController.swift; sourceTree = "<group>"; };
 		BBC1D5901E4C80FC008869EC /* PreferenceDisplayViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferenceDisplayViewController.swift; sourceTree = "<group>"; };
 		BBC7C5541E6AE28600E3EC4F /* PreferenceGeneralViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferenceGeneralViewController.swift; sourceTree = "<group>"; };
@@ -329,7 +351,15 @@
 			isa = PBXGroup;
 			children = (
 				E97F2CF22E757C0A005466D1 /* CXExtensions */,
-				BBC1D35E1E499A6D002538A2 /* Global.swift */,
+				F1B0001000000000000A0001 /* AppIdentifiers.swift */,
+				F1B0001000000000000A0002 /* AppConstants.swift */,
+				F1B0001000000000000A0003 /* AppURLs.swift */,
+				F1B0001000000000000A0004 /* AppEnvironment.swift */,
+				F1B0001000000000000A0005 /* Logging.swift */,
+				F1B0001000000000000A0006 /* LyricsAnimation.swift */,
+				F1B0001000000000000A0007 /* UIIdentifiers.swift */,
+				F1B0001000000000000A0008 /* NotificationCenters.swift */,
+				F1B0001000000000000A0009 /* UserDefaultsKeys.swift */,
 				E97593E32150F47800D80616 /* Polyfill.swift */,
 				E97593E52150F6FB00D80616 /* IBInspection.swift */,
 				BB9BCEB91E843157001BC54B /* Extension.swift */,
@@ -404,6 +434,9 @@
 				E9FA2B192E900000000DDD19 /* LyricsDisplayCoordinator.swift */,
 				E9FA2B1B2E900000000EEE1B /* DisplaySettings.swift */,
 				E9FA2B1D2E900000000FFF1D /* PersistenceSettings.swift */,
+				F1B0002000000000000B0001 /* SearchSettings.swift */,
+				F1B0002000000000000C0001 /* ExportSettings.swift */,
+				F1B0002000000000000E0001 /* PlayerSettings.swift */,
 				BB947DFA23B4C60000C43BF2 /* SelectedPlayer.swift */,
 				BB03C8881FDF6FC000FBE0DA /* ChineseConverter+Singleton.swift */,
 				BB458C62201C5F4500740C3B /* LyricsMetadata+Extension.swift */,
@@ -725,7 +758,18 @@
 				E960A9A22D68F9FA00A32EEC /* NowPlayingApplicationListViewController.swift in Sources */,
 				BB58640721F2B7500084D2C0 /* TouchBarArtworkViewController.swift in Sources */,
 				E975C5BC2D380B920059BE92 /* PreferenceWindowController.swift in Sources */,
-				BBC1D35F1E499A6D002538A2 /* Global.swift in Sources */,
+				F1B0001100000000000A0001 /* AppIdentifiers.swift in Sources */,
+				F1B0001100000000000A0002 /* AppConstants.swift in Sources */,
+				F1B0001100000000000A0003 /* AppURLs.swift in Sources */,
+				F1B0001100000000000A0004 /* AppEnvironment.swift in Sources */,
+				F1B0001100000000000A0005 /* Logging.swift in Sources */,
+				F1B0001100000000000A0006 /* LyricsAnimation.swift in Sources */,
+				F1B0001100000000000A0007 /* UIIdentifiers.swift in Sources */,
+				F1B0001100000000000A0008 /* NotificationCenters.swift in Sources */,
+				F1B0001100000000000A0009 /* UserDefaultsKeys.swift in Sources */,
+				F1B0002100000000000B0001 /* SearchSettings.swift in Sources */,
+				F1B0002100000000000C0001 /* ExportSettings.swift in Sources */,
+				F1B0002100000000000E0001 /* PlayerSettings.swift in Sources */,
 				BB1B300320E878AE002F1AF8 /* StdExtension.swift in Sources */,
 				BB947DFB23B4C60000C43BF2 /* SelectedPlayer.swift in Sources */,
 				BB4919361F00CD800054EA09 /* PreferenceShortcutViewController.swift in Sources */,

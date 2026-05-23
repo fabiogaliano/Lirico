@@ -22,11 +22,12 @@ class PreferenceGeneralViewController: PreferenceViewController {
     @IBOutlet var languagePopUp: NSPopUpButton!
 
     private let persistenceSettings = PersistenceSettings()
+    private let playerSettings = PlayerSettings()
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let preferredPlayer = MusicPlayerName(index: defaults[.preferredPlayerIndex])
+        let preferredPlayer = MusicPlayerName(index: playerSettings.preferredPlayerIndex)
         switch preferredPlayer {
         case .appleMusic: preferiTunes.state = .on
         case .spotify: preferSpotify.state = .on
@@ -110,12 +111,12 @@ class PreferenceGeneralViewController: PreferenceViewController {
     }
 
     @IBAction func preferredPlayerAction(_ sender: NSButton) {
-        defaults[.preferredPlayerIndex] = sender.tag
+        playerSettings.preferredPlayerIndex = sender.tag
 
         if sender.tag < 0 {
             autoLaunchButton.isEnabled = false
             autoLaunchButton.state = .off
-            defaults[.launchAndQuitWithPlayer] = false
+            playerSettings.launchAndQuitWithPlayer = false
         } else {
             autoLaunchButton.isEnabled = true
         }

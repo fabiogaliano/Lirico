@@ -4,16 +4,18 @@ import MusicPlayer
 import UIFoundation
 
 class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTableViewDataSource, NSTextFieldDelegate, StoryboardViewController {
-    // Storyboard-instantiated; populated via `configure(player:session:pipeline:)`
+    // Storyboard-instantiated; populated via `configure(player:session:pipeline:searchSettings:)`
     // by `SearchLyricsWindowController` immediately after creation.
     private var player: PlayerHandle!
     private var session: LyricsSession!
     private var pipeline: LyricsSearchPipeline!
+    private var searchSettings: SearchSettings!
 
-    func configure(player: PlayerHandle, session: LyricsSession, pipeline: LyricsSearchPipeline) {
+    func configure(player: PlayerHandle, session: LyricsSession, pipeline: LyricsSearchPipeline, searchSettings: SearchSettings) {
         self.player = player
         self.session = session
         self.pipeline = pipeline
+        self.searchSettings = searchSettings
     }
 
     var imageCache = NSCache<NSURL, NSImage>()
@@ -116,7 +118,7 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
         guard lyrics.metadata.request == searchRequest else {
             return
         }
-        LyricsSelector.shared.insert(lyrics, into: &searchResult)
+        LyricsSelector.shared.insert(lyrics, into: &searchResult, settings: searchSettings)
         tableView.reloadData()
     }
 

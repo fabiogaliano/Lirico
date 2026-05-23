@@ -5,55 +5,55 @@ import LyricsXFoundation
 /// Both `LyricsSelector` and `PreferenceSourceViewController` read from this source of truth.
 let availableLyricsSources: [String] = LyricsProviders.Service.allCases.map(\.displayName)
 
-/// `LyricsSelector` owns the "which lyrics wins?" concept end-to-end:
+/// `LyricsSelector` owns the "which lyrics wins?" concept end-to-end.
 ///
-/// - **Source-order normalization**: filters stale source names from `defaults[.lyricsSourcePriorityOrder]`
-///   and appends any new sources that have been added since the order was last saved.
-///   Normalization runs at app launch (via `_ = LyricsSelector.shared` in `applicationDidFinishLaunching`)
-///   and whenever the preferences pane saves a new order (via `normalize(against:)`).
+/// It's still a `shared` singleton because there is only ever one lyrics
+/// selection happening at a time and the type itself is stateless: every
+/// method takes a `SearchSettings` so the search-policy dependency is
+/// explicit at the call site instead of hidden behind module-level `defaults`.
 ///
-/// - **Priority comparison**: `hasHigherPriority(_:over:)` replaces the free function
-///   `lyricsHasHigherPriority(_:over:)` from `Global.swift`.
-///
-/// - **Collection-window state**: `LyricsCollector` encapsulates the per-search accumulation
-///   state (accept-first, then keep collecting for a bounded window) so the loop in
-///   `LyricsSession.currentTrackChanged` no longer holds raw `Bool`/`Date` locals.
+/// - **Source-order normalization** (`normalize(against:settings:)`):
+///   filters stale source names from the persisted priority order and appends
+///   any new sources that have been added since it was last saved. Run at app
+///   launch and whenever the preferences pane saves a new order.
+/// - **Priority comparison** (`hasHigherPriority(_:over:settings:)`):
+///   decides whether a candidate should replace the current selection,
+///   honoring source-order when enabled and falling back to `Lyrics.quality`.
+/// - **Collection-window state** (`LyricsCollector`): per-search accept-first /
+///   then-collect-for-a-window logic, kept here so the loop in
+///   `LyricsSession.currentTrackChanged` no longer holds raw `Bool`/`Date`
+///   locals.
 final class LyricsSelector {
     static let shared = LyricsSelector()
 
-    private init() {
-        normalize(against: availableLyricsSources)
-    }
+    private init() {}
 
     // MARK: - Normalization
 
     /// Normalize the persisted priority order against the current canonical source list:
     /// removes unknown source names and appends any new sources at the end.
-    ///
-    /// Call this at app launch and whenever the preferences pane writes a new order.
-    func normalize(against knownSources: [String]) {
-        let raw = defaults[.lyricsSourcePriorityOrder] ?? knownSources
+    func normalize(against knownSources: [String], settings: SearchSettings) {
+        let raw = settings.sourcePriorityOrder.isEmpty ? knownSources : settings.sourcePriorityOrder
         var normalized = raw.filter { knownSources.contains($0) }
         for source in knownSources where !normalized.contains(source) {
             normalized.append(source)
         }
-        defaults[.lyricsSourcePriorityOrder] = normalized
+        settings.sourcePriorityOrder = normalized
     }
 
     // MARK: - Priority comparison
 
     /// Returns true if `candidate` should replace `current` as the displayed lyrics.
     ///
-    /// - When `lyricsSourcePriorityEnabled` is off, falls back to quality comparison only.
+    /// - When `settings.sourcePriorityEnabled` is off, falls back to quality comparison only.
     /// - When `current` is nil, any candidate is accepted unconditionally.
     /// - Otherwise, compares source-order indices (lower index = higher priority),
     ///   breaking ties with `Lyrics.quality`.
-    func hasHigherPriority(_ candidate: Lyrics, over current: Lyrics?) -> Bool {
+    func hasHigherPriority(_ candidate: Lyrics, over current: Lyrics?, settings: SearchSettings) -> Bool {
         guard let current = current else { return true }
 
-        if defaults[.lyricsSourcePriorityEnabled] {
-            let order = defaults[.lyricsSourcePriorityOrder] ?? []
-            let normalizedOrder = order.map { $0.lowercased() }
+        if settings.sourcePriorityEnabled {
+            let normalizedOrder = settings.sourcePriorityOrder.map { $0.lowercased() }
 
             let currentSource = (current.metadata.service ?? "").lowercased()
             let candidateSource = (candidate.metadata.service ?? "").lowercased()
@@ -81,8 +81,8 @@ final class LyricsSelector {
     /// Insert `candidate` into `results` so the list stays sorted by
     /// `hasHigherPriority`. The manual search window uses this to mirror the
     /// priority order automatic search applies when accepting candidates.
-    func insert(_ candidate: Lyrics, into results: inout [Lyrics]) {
-        if let idx = results.firstIndex(where: { hasHigherPriority(candidate, over: $0) }) {
+    func insert(_ candidate: Lyrics, into results: inout [Lyrics], settings: SearchSettings) {
+        if let idx = results.firstIndex(where: { hasHigherPriority(candidate, over: $0, settings: settings) }) {
             results.insert(candidate, at: idx)
         } else {
             results.append(candidate)

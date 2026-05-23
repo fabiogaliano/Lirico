@@ -13,13 +13,17 @@ final class AppContainer {
     let player: PlayerHandle
     let playbackClock: PlaybackClock
     let searchPipeline: LyricsSearchPipeline
+    let displaySettings: DisplaySettings
+    let searchSettings: SearchSettings
+    let exportSettings: ExportSettings
+    let playerSettings: PlayerSettings
     let session: LyricsSession
     let menuBarController: MenuBarLyricsController
     let karaokeWindowController: KaraokeLyricsWindowController
 
     private(set) lazy var lyricsHUD: LyricsHUDWindowController = makeLyricsHUD()
     private(set) lazy var searchLyricsWindowController: SearchLyricsWindowController =
-        SearchLyricsWindowController(player: player, session: session, pipeline: searchPipeline)
+        SearchLyricsWindowController(player: player, session: session, pipeline: searchPipeline, searchSettings: searchSettings)
     private(set) lazy var preferencesWindowController: PreferenceWindowController = .create()
 
     private var touchBarController: TouchBarLyricsController?
@@ -30,12 +34,28 @@ final class AppContainer {
         self.player = player
         let clock = PlaybackClock(player: player)
         self.playbackClock = clock
-        let pipeline = LyricsSearchPipeline()
+        let displaySettings = DisplaySettings()
+        let searchSettings = SearchSettings()
+        let exportSettings = ExportSettings()
+        let playerSettings = PlayerSettings()
+        self.displaySettings = displaySettings
+        self.searchSettings = searchSettings
+        self.exportSettings = exportSettings
+        self.playerSettings = playerSettings
+        let pipeline = LyricsSearchPipeline(settings: searchSettings)
         self.searchPipeline = pipeline
-        self.session = LyricsSession(player: player, clock: clock, pipeline: pipeline)
-        self.menuBarController = MenuBarLyricsController(player: player, session: session)
+        self.session = LyricsSession(
+            player: player,
+            clock: clock,
+            pipeline: pipeline,
+            displaySettings: displaySettings,
+            searchSettings: searchSettings,
+            exportSettings: exportSettings,
+            playerSettings: playerSettings
+        )
+        self.menuBarController = MenuBarLyricsController(player: player, session: session, settings: displaySettings)
         self.karaokeWindowController = KaraokeLyricsWindowController(
-            player: player, session: session, clock: clock
+            player: player, session: session, clock: clock, settings: displaySettings
         )
     }
 
@@ -43,6 +63,7 @@ final class AppContainer {
     /// side effects on the container (rather than inside individual inits)
     /// means the constructor stays free of "and now show a window" magic.
     func start(statusBarMenu: NSMenu) {
+        LyricsSelector.shared.normalize(against: availableLyricsSources, settings: searchSettings)
         karaokeWindowController.showWindow(nil)
         menuBarController.statusBarMenu = statusBarMenu
         observeTouchBarPreference()

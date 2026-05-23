@@ -1,68 +1,8 @@
 import AppKit
-import Combine
 import GenericID
-import LyricsXFoundation
-import MusicPlayer
-
-let fontNameFallbackCountMax = 1
-// 7 days. after this period of time since the app built, the app is not considered as "in review".
-let masReviewPeriodLimit: TimeInterval = 60 * 60 * 24 * 7
-
-// NOTE: to build your own product, you need to replace the team identifier to yours
-// and do the same thing in LyricsXHelper
-#if DEBUG
-let lyricsXGroupIdentifier = "83HYP96U74.group.dev.fabiogaliano.LyricsX"
-let lyricsXHelperIdentifier = "dev.fabiogaliano.LyricsXHelper"
-let lyricsXErrorDomain = "dev.fabiogaliano.LyricsX"
-#else
-let lyricsXGroupIdentifier = "83HYP96U74.group.com.fabiogaliano.LyricsX"
-let lyricsXHelperIdentifier = "com.fabiogaliano.LyricsXHelper"
-let lyricsXErrorDomain = "com.fabiogaliano.LyricsX"
-#endif
-
-let crowdinProjectURL = URL(string: "https://crowdin.com/project/lyricsx")!
 
 let defaults = UserDefaults.standard
 let groupDefaults = UserDefaults(suiteName: lyricsXGroupIdentifier)!
-let defaultNC = NotificationCenter.default
-let workspaceNC = NSWorkspace.shared.notificationCenter
-
-let isInSandbox = ProcessInfo.processInfo.environment["APP_SANDBOX_CONTAINER_ID"] != nil
-let isFromMacAppStore = (try? Bundle.main.appStoreReceiptURL?.checkResourceIsReachable()) == true
-
-extension DispatchQueue {
-    static let lyricsDisplay = DispatchQueue(label: "LyricsDisplay")
-}
-
-extension CAMediaTimingFunction {
-    static let mystery = CAMediaTimingFunction(controlPoints: 0.2, 0.1, 0.2, 1)
-    static let swiftOut = CAMediaTimingFunction(controlPoints: 0.4, 0.0, 0.2, 1)
-}
-
-func log(_ message: @autoclosure () -> String, file: String = #file, line: UInt = #line) {
-    let fileName = (file as NSString).lastPathComponent
-    // Adding prefix to distinguish from ton of AppleEvent error log.
-    NSLog("CustomLog:\(fileName):\(line): \(message())")
-}
-
-// MARK: - Identifier
-
-extension NSUserInterfaceItemIdentifier {
-//    static let WriteToiTunes = NSUserInterfaceItemIdentifier("MainMenu.WriteToiTunes")
-//    static let SearchLyrics = NSUserInterfaceItemIdentifier("MainMenu.SearchLyrics")
-//    static let LyricsMenu = NSUserInterfaceItemIdentifier("MainMenu.Lyrics")
-
-    static let searchResultColumnTitle = NSUserInterfaceItemIdentifier("SearchResult.TableColumn.Title")
-    static let searchResultColumnArtist = NSUserInterfaceItemIdentifier("SearchResult.TableColumn.Artist")
-    static let searchResultColumnSource = NSUserInterfaceItemIdentifier("SearchResult.TableColumn.Source")
-}
-
-extension NSStoryboard.SceneIdentifier {
-    static let desktopLyricsWindow = NSStoryboard.SceneIdentifier("DesktopLyricsWindow")
-    static let lyricsHUDAccessory = NSStoryboard.SceneIdentifier("LyricsHUDAccessory")
-}
-
-// MARK: - User Defaults
 
 extension UserDefaults.DefaultsKeys {
     static let notifiedUpdateVersion = Key<String?>("NotifiedUpdateVersion")

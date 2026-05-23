@@ -15,13 +15,15 @@ class KaraokeLyricsWindowController: NSWindowController {
     private let player: PlayerHandle
     private let session: LyricsSession
     private let clock: PlaybackClock
+    private let settings: DisplaySettings
 
     private var cancelBag = Set<AnyCancellable>()
 
-    init(player: PlayerHandle, session: LyricsSession, clock: PlaybackClock) {
+    init(player: PlayerHandle, session: LyricsSession, clock: PlaybackClock, settings: DisplaySettings = DisplaySettings()) {
         self.player = player
         self.session = session
         self.clock = clock
+        self.settings = settings
         let window = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: true)
         window.backgroundColor = .clear
         window.hasShadow = false
@@ -94,7 +96,7 @@ class KaraokeLyricsWindowController: NSWindowController {
             .hideLyricsWhenMousePassingBy,
             .desktopLyricsDraggable,
         ], options: [.initial]) {
-            self.lyricsView.shouldHideWithMouse = defaults[.hideLyricsWhenMousePassingBy] && !defaults[.desktopLyricsDraggable]
+            self.lyricsView.shouldHideWithMouse = self.settings.hideLyricsWhenMousePassingBy && !self.settings.desktopLyricsDraggable
         }
         observeDefaults(keys: [
             .desktopLyricsFontName,
@@ -123,13 +125,13 @@ class KaraokeLyricsWindowController: NSWindowController {
     private func renderCurrentSnapshot() {
         let presentation = KaraokeLinePresentation.resolve(
             snapshot: latestSnapshot,
-            desktopLyricsEnabled: defaults[.desktopLyricsEnabled],
-            oneLineMode: defaults[.desktopLyricsOneLineMode],
-            preferBilingual: defaults[.preferBilingualLyrics]
+            desktopLyricsEnabled: settings.desktopLyricsEnabled,
+            oneLineMode: settings.desktopLyricsOneLineMode,
+            preferBilingual: settings.preferBilingualLyrics
         )
         lyricsView.displayLrc(presentation.primary, secondLine: presentation.secondary)
 
-        guard defaults[.desktopLyricsEnabled],
+        guard settings.desktopLyricsEnabled,
               latestSnapshot.isLive,
               let line = latestSnapshot.line,
               let upperTextField = lyricsView.displayLine1,
@@ -146,8 +148,8 @@ class KaraokeLyricsWindowController: NSWindowController {
 
     private func makeConstraints() {
         lyricsView.snp.remakeConstraints { make in
-            make.centerX.equalToSuperview().safeMultipliedBy(defaults[.desktopLyricsXPositionFactor] * 2).priority(.low)
-            make.centerY.equalToSuperview().safeMultipliedBy(defaults[.desktopLyricsYPositionFactor] * 2).priority(.low)
+            make.centerX.equalToSuperview().safeMultipliedBy(settings.desktopLyricsXPositionFactor * 2).priority(.low)
+            make.centerY.equalToSuperview().safeMultipliedBy(settings.desktopLyricsYPositionFactor * 2).priority(.low)
 
             make.leading.greaterThanOrEqualToSuperview().priority(.keepWindowSize)
             make.trailing.lessThanOrEqualToSuperview().priority(.keepWindowSize)
@@ -166,7 +168,7 @@ class KaraokeLyricsWindowController: NSWindowController {
     }
 
     override func mouseDragged(with event: NSEvent) {
-        guard defaults[.desktopLyricsDraggable],
+        guard settings.desktopLyricsDraggable,
               let vecToCenter = vecToCenter,
               let window = window else {
             return
@@ -189,8 +191,8 @@ class KaraokeLyricsWindowController: NSWindowController {
         if abs(center.y - bounds.height / 2) < 8 {
             yFactor = 0.5
         }
-        defaults[.desktopLyricsXPositionFactor] = xFactor
-        defaults[.desktopLyricsYPositionFactor] = yFactor
+        settings.desktopLyricsXPositionFactor = xFactor
+        settings.desktopLyricsYPositionFactor = yFactor
         makeConstraints()
         window.layoutIfNeeded()
     }

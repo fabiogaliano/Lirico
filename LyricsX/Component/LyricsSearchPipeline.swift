@@ -18,10 +18,12 @@ import LyricsXFoundation
 @MainActor
 final class LyricsSearchPipeline {
     private var providerGroup: LyricsProvider = LyricsProviders.Group()
+    private let settings: SearchSettings
     private var cancelBag = Set<AnyCancellable>()
 
-    init() {
-        defaults.publisher(for: [.musixmatchToken])
+    init(settings: SearchSettings = SearchSettings()) {
+        self.settings = settings
+        settings.musixmatchTokenPublisher()
             .sink { [weak self] in
                 Task { @MainActor in
                     self?.rebuildProviders()
@@ -39,11 +41,12 @@ final class LyricsSearchPipeline {
         // Snapshot the manager so a mid-stream token change can't swap providers
         // out from under an in-flight search.
         let manager = providerGroup
+        let settings = settings
         return AsyncThrowingStream { continuation in
             let task = Task {
                 do {
                     for try await lyrics in manager.lyrics(for: request) {
-                        if strict, defaults[.strictSearchEnabled], !lyrics.isMatched() { continue }
+                        if strict, settings.strictSearchEnabled, !lyrics.isMatched() { continue }
                         LyricsPreparer.prepare(lyrics)
                         lyrics.metadata.needsPersist = true
                         continuation.yield(lyrics)
@@ -60,7 +63,7 @@ final class LyricsSearchPipeline {
     private func rebuildProviders() {
         var providers: [LyricsProvider] = LyricsProviders.Service.noAuthenticationRequiredServices
             .map { $0.create() }
-        if let token = defaults[.musixmatchToken], !token.isEmpty {
+        if let token = settings.musixmatchToken, !token.isEmpty {
             providers.append(LyricsProviders.Musixmatch(usertoken: token))
         }
         providerGroup = LyricsProviders.Group(providers: providers)

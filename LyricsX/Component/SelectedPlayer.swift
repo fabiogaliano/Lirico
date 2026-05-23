@@ -11,6 +11,8 @@ extension MusicPlayers {
 
         private var manualUpdateObservation: AnyCancellable?
 
+        private let settings = PlayerSettings()
+
         var manualUpdateInterval: TimeInterval = 1.0 {
             didSet {
                 scheduleManualUpdate()
@@ -34,10 +36,10 @@ extension MusicPlayers {
         }
 
         private func selectPlayer() {
-            let idx = defaults[.preferredPlayerIndex]
+            let idx = settings.preferredPlayerIndex
             if idx == -1 {
-                if defaults[.useSystemWideNowPlaying] {
-                    designatedPlayer = MusicPlayers.SystemMedia(allowsApplicationBundleIdentifiers: defaults[.systemWideNowPlayingAppList])
+                if settings.useSystemWideNowPlaying {
+                    designatedPlayer = MusicPlayers.SystemMedia(allowsApplicationBundleIdentifiers: settings.systemWideNowPlayingAppList)
                 } else {
                     let players = MusicPlayerName.scriptableCases.compactMap(MusicPlayers.Scriptable.init)
                     designatedPlayer = MusicPlayers.NowPlaying(players: players)

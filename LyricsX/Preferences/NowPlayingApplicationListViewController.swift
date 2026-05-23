@@ -81,6 +81,8 @@ final class NowPlayingApplicationListViewController: NSViewController {
 
     lazy var dataSource = makeDataSource()
 
+    private let settings = PlayerSettings()
+
     var applications: [NowPlayingApplication] = [] {
         didSet {
             reloadData()
@@ -163,7 +165,7 @@ final class NowPlayingApplicationListViewController: NSViewController {
             $0.titlePosition = .noTitle
         }
 
-        applications = defaults[.systemWideNowPlayingAppList].compactMap { .init(bundleIdentifier: $0) }
+        applications = settings.systemWideNowPlayingAppList.compactMap { .init(bundleIdentifier: $0) }
     }
 
     @objc func addButtonAction(_ sender: NSButton) {
@@ -185,7 +187,7 @@ final class NowPlayingApplicationListViewController: NSViewController {
     }
 
     @objc func closeButtonAction(_ sender: NSButton) {
-        defaults[.systemWideNowPlayingAppList] = applications.map(\.bundleIdentifier)
+        settings.systemWideNowPlayingAppList = applications.map(\.bundleIdentifier)
         dismiss(nil)
     }
 
