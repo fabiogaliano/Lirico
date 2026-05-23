@@ -1,7 +1,6 @@
 import AppKit
 import LaunchAtLogin
 import MusicPlayer
-import ServiceManagement
 import SwiftUI
 
 // MARK: - General Preferences View
@@ -74,17 +73,13 @@ struct GeneralPreferencesView: View {
             Toggle("Auto launch & quit with music player", isOn: $launchAndQuitWithPlayer)
                 .disabled(!canLaunchWithPlayer)
                 .onChange(of: launchAndQuitWithPlayer) { _, enabled in
-                    if !SMLoginItemSetEnabled(lyricsXHelperIdentifier as CFString, enabled) {
-                        log("Failed to set login item enabled")
-                    }
+                    setHelperLoginItemEnabled(enabled)
                 }
                 .onChange(of: canLaunchWithPlayer) { _, enabled in
                     if !enabled {
                         launchAndQuitWithPlayer = false
                         playerSettings.launchAndQuitWithPlayer = false
-                        if !SMLoginItemSetEnabled(lyricsXHelperIdentifier as CFString, false) {
-                            log("Failed to set login item enabled")
-                        }
+                        setHelperLoginItemEnabled(false)
                     }
                 }
             // Controls whether the main LyricsX app itself launches at system login,
@@ -205,6 +200,12 @@ struct GeneralPreferencesView: View {
     }
 
     // MARK: - Helpers
+
+    private func setHelperLoginItemEnabled(_ enabled: Bool) {
+        if case let .failure(error) = HelperLifecycle.setLoginItemEnabled(enabled) {
+            log("Failed to \(enabled ? "register" : "unregister") LyricsXHelper login item. reason: \(error.localizedDescription)")
+        }
+    }
 
     private func loadInitialState() {
         if let url = persistenceSettings.customSavingDirectory {

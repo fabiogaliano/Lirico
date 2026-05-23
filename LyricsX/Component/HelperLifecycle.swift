@@ -1,6 +1,27 @@
 import AppKit
+import ServiceManagement
 
 enum HelperLifecycle {
+    static func setLoginItemEnabled(_ enabled: Bool) -> Result<Void, Error> {
+        let service = SMAppService.loginItem(identifier: lyricsXHelperIdentifier)
+        do {
+            if enabled {
+                guard service.status != .enabled, service.status != .requiresApproval else {
+                    return .success(())
+                }
+                try service.register()
+            } else {
+                guard service.status != .notRegistered, service.status != .notFound else {
+                    return .success(())
+                }
+                try service.unregister()
+            }
+            return .success(())
+        } catch {
+            return .failure(error)
+        }
+    }
+
     static func terminateRunningHelper() {
         NSRunningApplication.runningApplications(withBundleIdentifier: lyricsXHelperIdentifier)
             .forEach { $0.terminate() }
