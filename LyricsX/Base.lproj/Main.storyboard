@@ -459,14 +459,6 @@
             </objects>
             <point key="canvasLocation" x="75" y="655"/>
         </scene>
-        <!--Preferences-->
-        <scene sceneID="TYy-pe-r3R">
-            <objects>
-                <controllerPlaceholder storyboardName="Preferences" id="W7f-Zh-TfF" sceneMemberID="viewController"/>
-                <customObject id="lbA-5G-Vwy" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="668" y="197"/>
-        </scene>
         <!--Lyrics HUD Accessory-->
         <scene sceneID="WWo-Fn-ADk">
             <objects>

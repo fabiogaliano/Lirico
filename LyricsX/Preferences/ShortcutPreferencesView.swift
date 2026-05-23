@@ -51,7 +51,15 @@ struct ShortcutPreferencesView: View {
     private var lyricsActionsSection: some View {
         SettingsSection(title: "Lyrics Actions") {
             shortcutRow("Write lyrics to Apple Music", key: "ShortcutWriteToiTunes")
+            #if IS_FOR_MAS
+            if defaults[.isInMASReview] != false {
+                EmptyView()
+            } else {
+                shortcutRow("Search lyrics", key: "ShortcutSearchLyrics")
+            }
+            #else
             shortcutRow("Search lyrics", key: "ShortcutSearchLyrics")
+            #endif
             shortcutRow("Mark as wrong lyrics", key: "ShortcutWrongLyrics")
         }
     }

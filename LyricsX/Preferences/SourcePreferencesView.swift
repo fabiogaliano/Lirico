@@ -22,7 +22,7 @@ struct SourcePreferencesView: View {
     private var sourcePrioritySection: some View {
         SettingsSection(title: "Source Priority") {
             Toggle("Enable source priority", isOn: $sourcePriorityEnabled)
-                .onChange(of: sourcePriorityEnabled) { enabled in
+                .onChange(of: sourcePriorityEnabled) { _, enabled in
                     searchSettings.sourcePriorityEnabled = enabled
                 }
 
@@ -41,9 +41,6 @@ struct SourcePreferencesView: View {
         }
     }
 
-    // List with .onMove provides native drag-to-reorder on macOS 13+.
-    // On macOS 11–12 the drag handles may not appear without a sidebar list
-    // style, so Move Up / Move Down buttons below are the reliable fallback.
     private var sourceList: some View {
         List {
             ForEach(Array(sources.enumerated()), id: \.element) { index, source in

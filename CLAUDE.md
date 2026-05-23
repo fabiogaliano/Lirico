@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 LyricsX is a macOS menu-bar application (`LSUIElement`) that automatically searches, downloads, and displays synchronized lyrics for the currently playing song. It supports multiple music players and lyrics sources, with desktop karaoke overlay and menu-bar lyrics display. This is a personally maintained fork of `ddddxxx/LyricsX`.
 
-- **Platform**: macOS 11+ only
+- **Platform**: macOS 15+ only
 - **Language**: Swift 5 (project setting), Swift 6.2 toolchain (Package.swift)
 - **Bundle ID**: `com.fabiogaliano.LyricsX`
 
@@ -62,7 +62,7 @@ The app uses a **Combine-driven reactive architecture** with shared singletons:
 - **`Component/`** — Core singletons: `LyricsSession` (central lyrics state + search/management hub), `AppDelegate`, `PlaybackClock` (line-index publisher), `PlayerHandle` (player adapter). `LyricsSession` listens for track changes via Combine publishers, runs async lyrics searches (`AsyncSequence`), and exposes `currentLyrics` as a read-only publisher. Mutations flow through `select()` / `clear()` / `importLyrics()` commands. Apple-Music export lives in the pure `LyricsPersister` namespace.
 - **`Controller/`** — Display controllers: `KaraokeLyricsController` (desktop karaoke overlay), `MenuBarLyricsController` (menu bar text), `TouchBarLyricsController`
 - **`LyricsHUD/`** — Floating lyrics panel (`LyricsHUDViewController`)
-- **`Preferences/`** — Preference pane ViewControllers (General, Display, Filter, Shortcut, Source, Lab)
+- **`Preferences/`** — Preference pane SwiftUI views (General, Display, Filter, Shortcut, Source, Lab); `PreferenceWindowController` creates the window programmatically via `NSHostingController`
 - **`View/`** — Custom views: `KaraokeLabel`, `KaraokeLyricsView`, `ScrollLyricsView`
 - **`Utility/`** — Global constants (`Global.swift`), extensions, Combine utilities (`CXExtensions/`)
 

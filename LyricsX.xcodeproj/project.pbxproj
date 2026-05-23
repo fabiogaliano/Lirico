@@ -896,7 +896,7 @@
 				LX_BUNDLE_ID_PREFIX = dev.fabiogaliano;
 				LX_HELPER_BUNDLE_ID = dev.fabiogaliano.LyricsXHelper;
 				LX_ICLOUD_CONTAINER = iCloud.dev.fabiogaliano.LyricsX;
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_SWIFT_FLAGS = "-DDEBUG";
@@ -955,7 +955,7 @@
 				LX_BUNDLE_ID_PREFIX = com.fabiogaliano;
 				LX_HELPER_BUNDLE_ID = com.fabiogaliano.LyricsXHelper;
 				LX_ICLOUD_CONTAINER = iCloud.com.fabiogaliano.LyricsX;
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_SWIFT_FLAGS = "-DRELEASE";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -986,7 +986,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.fabiogaliano.LyricsX;
 				PRODUCT_NAME = "$(TARGET_NAME)-Debug";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1012,7 +1012,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.fabiogaliano.LyricsX;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
@@ -1033,7 +1033,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.fabiogaliano.LyricsXHelper;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1054,7 +1054,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.fabiogaliano.LyricsXHelper;
 				SKIP_INSTALL = YES;
 			};

@@ -6,12 +6,9 @@ import SwiftUI
 /// Wraps `NowPlayingApplicationListViewController` so it can be presented as
 /// a SwiftUI sheet.
 ///
-/// `dismiss(nil)` in an `NSViewControllerRepresentable` propagates through
-/// `presentingViewController` to SwiftUI's sheet machinery on macOS 13+, but
-/// is unreliable on macOS 11–12. The `Coordinator` intercepts the VC's close
-/// button and calls the `onDismiss` closure instead, which sets
-/// `showingNowPlayingSheet = false` directly — reliably on all supported
-/// macOS versions.
+/// The `Coordinator` intercepts the VC's close button and calls the `onDismiss`
+/// closure, which sets `showingNowPlayingSheet = false` directly rather than
+/// relying on `presentingViewController`-based dismissal.
 private struct NowPlayingApplicationListRepresentable: NSViewControllerRepresentable {
     let onDismiss: () -> Void
 
@@ -42,8 +39,7 @@ private struct NowPlayingApplicationListRepresentable: NSViewControllerRepresent
         vc.preferredContentSize = NSSize(width: 600, height: 500)
         context.coordinator.viewController = vc
         // Retarget the close button so the coordinator drives dismissal via the
-        // SwiftUI binding instead of dismiss(nil), which is unreliable inside a
-        // SwiftUI sheet on macOS 11–12.
+        // SwiftUI binding instead of dismiss(nil).
         vc.closeButton.target = context.coordinator
         vc.closeButton.action = #selector(Coordinator.closeButtonTapped(_:))
         return vc
@@ -147,16 +143,10 @@ struct LabPreferencesView: View {
     }
 
     @ViewBuilder private var musixmatchTextField: some View {
-        if #available(macOS 12, *) {
-            TextField("Token", text: $musixmatchToken)
-                .textFieldStyle(.roundedBorder)
-                .frame(maxWidth: 260)
-                .onSubmit { commitMusixmatchToken() }
-        } else {
-            TextField("Token", text: $musixmatchToken)
-                .textFieldStyle(.roundedBorder)
-                .frame(maxWidth: 260)
-        }
+        TextField("Token", text: $musixmatchToken)
+            .textFieldStyle(.roundedBorder)
+            .frame(maxWidth: 260)
+            .onSubmit { commitMusixmatchToken() }
     }
 
     // MARK: - Helpers

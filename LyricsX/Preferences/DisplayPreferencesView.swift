@@ -208,22 +208,22 @@ struct DisplayPreferencesView: View {
             SettingsRow(label: "Text Color") {
                 ColorPicker("", selection: $vm.desktopTextColor, supportsOpacity: true)
                     .labelsHidden()
-                    .onChange(of: vm.desktopTextColor) { _ in vm.saveDesktopTextColor() }
+                    .onChange(of: vm.desktopTextColor) { vm.saveDesktopTextColor() }
             }
             SettingsRow(label: "Karaoke Color") {
                 ColorPicker("", selection: $vm.desktopProgressColor, supportsOpacity: true)
                     .labelsHidden()
-                    .onChange(of: vm.desktopProgressColor) { _ in vm.saveDesktopProgressColor() }
+                    .onChange(of: vm.desktopProgressColor) { vm.saveDesktopProgressColor() }
             }
             SettingsRow(label: "Shadow Color") {
                 ColorPicker("", selection: $vm.desktopShadowColor, supportsOpacity: true)
                     .labelsHidden()
-                    .onChange(of: vm.desktopShadowColor) { _ in vm.saveDesktopShadowColor() }
+                    .onChange(of: vm.desktopShadowColor) { vm.saveDesktopShadowColor() }
             }
             SettingsRow(label: "Background Color") {
                 ColorPicker("", selection: $vm.desktopBackgroundColor, supportsOpacity: true)
                     .labelsHidden()
-                    .onChange(of: vm.desktopBackgroundColor) { _ in vm.saveDesktopBackgroundColor() }
+                    .onChange(of: vm.desktopBackgroundColor) { vm.saveDesktopBackgroundColor() }
             }
             Toggle("One line mode", isOn: $oneLineMode)
             Toggle("Vertical mode", isOn: $verticalMode)
@@ -249,12 +249,12 @@ struct DisplayPreferencesView: View {
             SettingsRow(label: "Text Color") {
                 ColorPicker("", selection: $vm.hudTextColor, supportsOpacity: true)
                     .labelsHidden()
-                    .onChange(of: vm.hudTextColor) { _ in vm.saveHudTextColor() }
+                    .onChange(of: vm.hudTextColor) { vm.saveHudTextColor() }
             }
             SettingsRow(label: "Highlight Color") {
                 ColorPicker("", selection: $vm.hudHighlightColor, supportsOpacity: true)
                     .labelsHidden()
-                    .onChange(of: vm.hudHighlightColor) { _ in vm.saveHudHighlightColor() }
+                    .onChange(of: vm.hudHighlightColor) { vm.saveHudHighlightColor() }
             }
         }
     }

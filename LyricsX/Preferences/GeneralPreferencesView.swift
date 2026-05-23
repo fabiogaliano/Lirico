@@ -73,12 +73,12 @@ struct GeneralPreferencesView: View {
             // there is no designated player to follow.
             Toggle("Auto launch & quit with music player", isOn: $launchAndQuitWithPlayer)
                 .disabled(!canLaunchWithPlayer)
-                .onChange(of: launchAndQuitWithPlayer) { enabled in
+                .onChange(of: launchAndQuitWithPlayer) { _, enabled in
                     if !SMLoginItemSetEnabled(lyricsXHelperIdentifier as CFString, enabled) {
                         log("Failed to set login item enabled")
                     }
                 }
-                .onChange(of: canLaunchWithPlayer) { enabled in
+                .onChange(of: canLaunchWithPlayer) { _, enabled in
                     if !enabled {
                         launchAndQuitWithPlayer = false
                         playerSettings.launchAndQuitWithPlayer = false
@@ -105,7 +105,7 @@ struct GeneralPreferencesView: View {
             }
             Toggle("Load lyrics beside track", isOn: $loadLyricsBesideTrack)
                 .disabled(!canLoadBesideTrack)
-                .onChange(of: canLoadBesideTrack) { enabled in
+                .onChange(of: canLoadBesideTrack) { _, enabled in
                     if !enabled {
                         persistenceSettings.shouldLoadLyricsBesideTrack = false
                         loadLyricsBesideTrack = false
@@ -154,7 +154,7 @@ struct GeneralPreferencesView: View {
                 }
                 .labelsHidden()
                 .frame(width: 180)
-                .onChange(of: languagePickerIndex) { idx in
+                .onChange(of: languagePickerIndex) { _, idx in
                     applyLanguageSelection(idx)
                 }
             }
@@ -177,7 +177,7 @@ struct GeneralPreferencesView: View {
             Text("Swinsian").tag(4)
         }
         .pickerStyle(.radioGroup)
-        .onChange(of: preferredPlayerIndex) { newIndex in
+        .onChange(of: preferredPlayerIndex) { _, newIndex in
             playerSettings.preferredPlayerIndex = newIndex
             enforcePlayerConstraints(for: newIndex)
         }
@@ -194,7 +194,7 @@ struct GeneralPreferencesView: View {
                 }
                 .labelsHidden()
                 .frame(width: 200)
-                .onChange(of: savingPathPopUpIndex) { idx in
+                .onChange(of: savingPathPopUpIndex) { _, idx in
                     if idx == 0 {
                         defaults[.lyricsSavingPathPopUpIndex] = 0
                     }

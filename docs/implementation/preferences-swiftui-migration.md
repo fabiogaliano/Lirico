@@ -12,6 +12,7 @@
 
 - [x] Phase 0 — Audit and migration plan
 - [ ] Phase 0 review
+  > Phase 0 review was deferred at migration time and is being completed by the modernization follow-up; see docs/implementation/preferences-swiftui-modernization-followup.md.
 - [x] Phase 1 — SwiftUI shell + Lab tracer bullet
 - [x] Phase 1 review
 - [x] Phase 2 — Shortcut pane
@@ -389,6 +390,7 @@
 - `private let searchSettings = SearchSettings()` on a SwiftUI `View` struct: safe — `SearchSettings` is a struct wrapping `UserDefaults.standard` with `nonmutating set`. Consistent with `LabPreferencesView` and `PreferenceSourceViewController`. New instances across SwiftUI re-renders all share the same backing store.
 - All 6 tabs in `PreferencesView` show real content — no placeholder panes remain. Tab order (General, Display, Shortcut, Filter, Lab, Source) preserved per D3.
 - `onChange(of:) { newValue in }` single-argument form: consistent with rest of codebase (pre-macOS 14 API, no warnings at deployment target macOS 11).
+  > **Corrective note (modernization follow-up, 2026-05-23):** The deprecated single-argument `onChange(of:)` forms were eliminated in Phase 3 of the modernization follow-up, and the deployment target was raised to macOS 15+. See `docs/implementation/preferences-swiftui-modernization-followup.md`.
 - No fixes required.
 - Build: BUILD SUCCEEDED (Debug, 2026-05-23), no errors, no new warnings.
 

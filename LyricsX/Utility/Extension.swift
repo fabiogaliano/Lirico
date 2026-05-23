@@ -91,7 +91,7 @@ extension UserDefaults {
             name: defaults[.lyricsWindowFontName],
             size: CGFloat(defaults[.lyricsWindowFontSize])
         )
-            ?? NSFont.labelFont(ofSize: CGFloat(defaults[.desktopLyricsFontSize]))
+            ?? NSFont.labelFont(ofSize: CGFloat(defaults[.lyricsWindowFontSize]))
     }
 }
 

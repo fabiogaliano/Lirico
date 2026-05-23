@@ -27,7 +27,7 @@ To use **Musixmatch** as lyrics source, you need to follow the steps provided [h
 
 ### Requirements
 
-- macOS 11+
+- macOS 15+
 
 ## Features
 
