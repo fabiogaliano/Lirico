@@ -54,7 +54,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
         ShortcutBindings.install(actionTarget: self)
 
-        NSRunningApplication.runningApplications(withBundleIdentifier: lyricsXHelperIdentifier).forEach { $0.terminate() }
+        HelperLifecycle.terminateRunningHelper()
 
         let sharedKeys: [UserDefaults.DefaultsKeys] = [
             .launchAndQuitWithPlayer,
@@ -84,19 +84,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
     func applicationWillTerminate(_ aNotification: Notification) {
         container?.session.prepareForTermination()
-        if defaults[.launchAndQuitWithPlayer] {
-            let url = Bundle.main.bundleURL
-                .appendingPathComponent("Contents/Library/LoginItems/LyricsXHelper.app")
-            groupDefaults[.launchHelperTime] = Date()
-
-            NSWorkspace.shared.openApplication(at: url, configuration: .init()) { application, error in
-                if let error = error {
-                    log("launch LyricsX Helper failed. reason: \(error)")
-                } else {
-                    log("launch LyricsX Helper succeed.")
-                }
-            }
-        }
+        HelperLifecycle.openHelperOnQuitIfNeeded()
     }
 
     // MARK: - NSMenuDelegate
