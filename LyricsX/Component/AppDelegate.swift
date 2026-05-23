@@ -38,18 +38,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         container.start(statusBarMenu: statusBarMenu)
         statusBarMenu.delegate = self
 
-        let session = container.session
-        lyricsOffsetStepper.bind(
-            .value,
-            to: session,
-            withKeyPath: #keyPath(LyricsSession.lyricsOffset),
-            options: [.continuouslyUpdatesValue: true]
-        )
-        lyricsOffsetTextField.bind(
-            .value,
-            to: session,
-            withKeyPath: #keyPath(LyricsSession.lyricsOffset),
-            options: [.continuouslyUpdatesValue: true]
+        LyricsOffsetMenuBindings.install(
+            stepper: lyricsOffsetStepper,
+            textField: lyricsOffsetTextField,
+            session: container.session
         )
 
         ShortcutBindings.install(actionTarget: self)
