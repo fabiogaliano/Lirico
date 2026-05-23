@@ -24,7 +24,11 @@ final class AppContainer {
     let menuBarController: MenuBarLyricsController
     let karaokeWindowController: KaraokeLyricsWindowController
 
-    private(set) lazy var lyricsHUD: LyricsHUDWindowController = makeLyricsHUD()
+    private(set) lazy var lyricsHUD: LyricsHUDWindowController = LyricsHUDWindowController(
+        player: player,
+        session: session,
+        chineseConverter: chineseConverterProvider
+    )
     private(set) lazy var searchLyricsWindowController: SearchLyricsWindowController =
         SearchLyricsWindowController(player: player, session: session, pipeline: searchPipeline, searchSettings: searchSettings)
     private(set) lazy var preferencesWindowController: PreferenceWindowController = .create()
@@ -98,11 +102,4 @@ final class AppContainer {
         }
     }
 
-    private func makeLyricsHUD() -> LyricsHUDWindowController {
-        let wc = LyricsHUDWindowController.create()
-        if let vc = wc.contentViewController as? LyricsHUDViewController {
-            vc.configure(player: player, session: session, chineseConverter: chineseConverterProvider)
-        }
-        return wc
-    }
 }

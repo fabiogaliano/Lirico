@@ -4,12 +4,17 @@ protocol DragNDropDelegate: AnyObject {
     func dragFinished(content: String)
 }
 
-class DragNDropView: NSView {
+final class DragNDropView: NSView {
     weak var dragDelegate: DragNDropDelegate?
 
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        registerForDraggedTypes([.string, .fileURL])
+    }
+
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        registerForDraggedTypes([.string, .fileNames])
+        fatalError("init(coder:) has not been implemented")
     }
 
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
@@ -30,28 +35,26 @@ class DragNDropView: NSView {
         }
 
         do {
-            if pboard.types?.contains(.fileNames) == true,
-               let files = pboard.propertyList(forType: .fileNames) as? [Any],
-               let path = files.first as? String {
-                let str = try String(contentsOf: URL(fileURLWithPath: path))
-                dragDelegate?.dragFinished(content: str)
-                return true
-            } else {
+            // Read file URLs via the modern .fileURL pasteboard type rather
+            // than the legacy NSFilenamesPboardType property list — the
+            // former is the recommended type since macOS 10.13.
+            guard let urls = pboard.readObjects(forClasses: [NSURL.self]) as? [URL],
+                  let fileURL = urls.first else {
                 let errorInfo = [
                     NSLocalizedDescriptionKey: "Fail to import lyrics",
                     NSLocalizedFailureReasonErrorKey: "The file couldn’t be opened.",
                 ]
-                let error = NSError(domain: lyricsXErrorDomain, code: 0, userInfo: errorInfo)
-                throw error
+                throw NSError(domain: lyricsXErrorDomain, code: 0, userInfo: errorInfo)
             }
+            // `String(contentsOf:)` (the encoding-inferring overload) is
+            // deprecated since macOS 14; LRC files are UTF-8 in practice.
+            let str = try String(contentsOf: fileURL, encoding: .utf8)
+            dragDelegate?.dragFinished(content: str)
+            return true
         } catch {
             let alert = NSAlert(error: error)
             alert.runModal()
             return false
         }
     }
-}
-
-extension NSPasteboard.PasteboardType {
-    static let fileNames = NSPasteboard.PasteboardType("NSFilenamesPboardType")
 }

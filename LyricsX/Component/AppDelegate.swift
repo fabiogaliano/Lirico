@@ -9,33 +9,44 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         return NSApplication.shared.delegate as? AppDelegate
     }
 
-    @IBOutlet var lyricsOffsetView: NSView!
-    @IBOutlet var lyricsOffsetTextField: NSTextField!
-    @IBOutlet var lyricsOffsetStepper: NSStepper!
-    @IBOutlet var statusBarMenu: NSMenu!
+    /// Status-bar menu and offset-view references, populated programmatically
+    /// in `applicationDidFinishLaunching` after defaults registration. Force-
+    /// unwrapped on access; if nil, AppKit dispatched a menu action before
+    /// launch finished — a bug we want to fail loudly on.
+    private var statusBarMenu: NSMenu!
+    private var lyricsOffsetView: NSView!
 
     private let updateController = UpdateController()
 
     /// Constructed in `applicationDidFinishLaunching` after defaults registration
     /// so that `MusicPlayers.Selected.init()` (which reads `UserDefaults`) sees
-    /// the registered values. Force-unwrapped on access; if it's nil, AppKit
-    /// invoked a menu action before `applicationDidFinishLaunching` finished,
-    /// which is a bug we'd want to learn about loudly.
+    /// the registered values.
     private var container: AppContainer!
 
     var firstLaunchForShouldHanlderReopen: Bool = true
 
+    /// Install the app's main menu before the run loop processes key events.
+    /// Without this, Cocoa has no menu to dispatch key equivalents to and
+    /// editing shortcuts (⌘C/V/Z) silently no-op in any embedded text view.
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        NSApp.mainMenu = MainMenuBuilder.mainMenu()
+    }
+
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         UserDefaultsRegistration.register()
 
+        let built = MainMenuBuilder.statusBarMenu(target: self)
+        self.statusBarMenu = built.menu
+        self.lyricsOffsetView = built.lyricsOffsetView
+
         let container = AppContainer()
         self.container = container
-        container.start(statusBarMenu: statusBarMenu)
-        statusBarMenu.delegate = self
+        container.start(statusBarMenu: built.menu)
+        built.menu.delegate = self
 
         LyricsOffsetMenuBindings.install(
-            stepper: lyricsOffsetStepper,
-            textField: lyricsOffsetTextField,
+            stepper: built.lyricsOffsetStepper,
+            textField: built.lyricsOffsetTextField,
             session: container.session
         )
 
