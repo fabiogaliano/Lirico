@@ -57,9 +57,9 @@ struct PersistenceSettings {
     /// bookmark stored in `lyricsCustomSavingPathBookmark`. Returns nil when
     /// the bookmark is absent, stale, or unreadable.
     ///
-    /// Exposed for the preferences UI: `PreferenceGeneralViewController` needs
-    /// to display the chosen folder's name and to write a new selection back.
-    /// Persistence and loading code should call `storageDirectory()` instead.
+    /// Exposed for the preferences UI to display the chosen folder's name and
+    /// to write a new selection back. Persistence and loading code should call
+    /// `storageDirectory()` instead.
     ///
     /// The setter is `nonmutating` because it writes through to `UserDefaults`
     /// rather than mutating the struct's own storage — callers can hold the

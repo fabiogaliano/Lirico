@@ -1,8 +1,20 @@
 import AppKit
-import UIFoundation
+import SwiftUI
 
-class PreferenceWindowController: NSWindowController, StoryboardWindowController {
-    static var storyboard: NSStoryboard { .init(name: "Preferences", bundle: .main) }
+class PreferenceWindowController: NSWindowController {
+    convenience init() {
+        let hostingController = NSHostingController(rootView: PreferencesView())
+        let window = NSWindow(contentViewController: hostingController)
+        window.title = "LyricsX Preferences"
+        window.styleMask = [.titled, .closable]
+        window.setContentSize(NSSize(width: 600, height: 450))
+        window.center()
+        self.init(window: window)
+    }
+
+    static func create() -> PreferenceWindowController {
+        return PreferenceWindowController()
+    }
 
     override func windowDidLoad() {
         super.windowDidLoad()

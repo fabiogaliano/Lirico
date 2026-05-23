@@ -21,12 +21,10 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		0F07BAF52E8A8B2900085912 /* PreferenceSourceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F07BAF42E8A8B2900085912 /* PreferenceSourceViewController.swift */; };
 		F1C0001100000000010A0001 /* ChineseConverterProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C0001000000000010A0001 /* ChineseConverterProvider.swift */; };
 		F1C0001100000000010A0002 /* LyricsFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C0001000000000010A0002 /* LyricsFilter.swift */; };
 		F1C0001100000000010A0003 /* LyricsPreparation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C0001000000000010A0003 /* LyricsPreparation.swift */; };
 		BB063B2E1E8A93C900A25C3E /* KaraokeLyricsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB063B2D1E8A93C900A25C3E /* KaraokeLyricsView.swift */; };
-		BB0B296A1E7FBA2D00B1D6C9 /* PreferenceFilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0B29691E7FBA2D00B1D6C9 /* PreferenceFilterViewController.swift */; };
 		BB1B2FFD20E8780A002F1AF8 /* CFExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1B2FFC20E8780A002F1AF8 /* CFExtension.swift */; };
 		BB1B300320E878AE002F1AF8 /* StdExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1B300220E878AE002F1AF8 /* StdExtension.swift */; };
 		BB1B300520E87CC9002F1AF8 /* KaraokeLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1B300420E87CC9002F1AF8 /* KaraokeLabel.swift */; };
@@ -36,20 +34,16 @@
 		BB4141B51E458BA900A51775 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BB4141B31E458BA900A51775 /* Main.storyboard */; };
 		BB4141C01E45B67800A51775 /* KaraokeLyricsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4141BF1E45B67800A51775 /* KaraokeLyricsController.swift */; };
 		BB458C63201C5F4500740C3B /* LyricsMetadata+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB458C62201C5F4500740C3B /* LyricsMetadata+Extension.swift */; };
-		BB4919361F00CD800054EA09 /* PreferenceShortcutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4919351F00CD800054EA09 /* PreferenceShortcutViewController.swift */; };
 		BB5863F321EFFD9F0084D2C0 /* TouchBarLyricsItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5863F221EFFD9F0084D2C0 /* TouchBarLyricsItem.swift */; };
 		BB58640721F2B7500084D2C0 /* TouchBarArtworkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB58640621F2B7500084D2C0 /* TouchBarArtworkViewController.swift */; };
 		BB58B0821E82971400598D4F /* UserDefaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB58B0811E82971400598D4F /* UserDefaults.plist */; };
 		BB58B0891E82CA9B00598D4F /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = BB58B0881E82CA9B00598D4F /* Credits.rtf */; };
-		BB5D4B2D2094A1D700844D9F /* FontSelectTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5D4B2C2094A1D700844D9F /* FontSelectTextField.swift */; };
 		BB60F3041E889A1B00BA1FD2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB60F3031E889A1B00BA1FD2 /* AppDelegate.swift */; };
 		BB60F3061E889A1B00BA1FD2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB60F3051E889A1B00BA1FD2 /* Assets.xcassets */; };
 		BB60F3091E889A1B00BA1FD2 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = BB60F3071E889A1B00BA1FD2 /* MainMenu.xib */; };
 		BB60F3121E889FCD00BA1FD2 /* LyricsXHelper.app in Copy Helper */ = {isa = PBXBuildFile; fileRef = BB60F3011E889A1B00BA1FD2 /* LyricsXHelper.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		BB6139741FCCFA6700CBD808 /* Preferences.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BB6139761FCCFA6700CBD808 /* Preferences.storyboard */; };
 		BB63C24F22774B47008CFFBB /* TouchBarPlaybackControlViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB63C24E22774B47008CFFBB /* TouchBarPlaybackControlViewController.swift */; };
 		BB6C75E8248B908500804AEB /* TouchBarHelper in Frameworks */ = {isa = PBXBuildFile; productRef = BB6C75E7248B908500804AEB /* TouchBarHelper */; };
-		BB72784A20996DE900231C63 /* PreferenceLabViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB72784920996DE900231C63 /* PreferenceLabViewController.swift */; };
 		BB7EC7B21E4E018C00A0AC3F /* LyricsHUDViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7EC7B11E4E018C00A0AC3F /* LyricsHUDViewController.swift */; };
 		BB89089E21ED69410078F522 /* Lyrics+Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB89089D21ED69410078F522 /* Lyrics+Language.swift */; };
 		BB947DFB23B4C60000C43BF2 /* SelectedPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB947DFA23B4C60000C43BF2 /* SelectedPlayer.swift */; };
@@ -72,8 +66,6 @@
 		E9FA2B0A2E9000000005EE0A /* LocalLyricsLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B092E9000000005EE09 /* LocalLyricsLoader.swift */; };
 		F1A2B0012F1000000001AA01 /* LyricsSearchPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A2B0002F1000000001AA00 /* LyricsSearchPipeline.swift */; };
 		E9FA2B0C2E9000000006FF0C /* SearchBlocklist.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B0B2E9000000006FF0B /* SearchBlocklist.swift */; };
-		E9FA2B0E2E9000000007AA0E /* AlphaColorWell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B0D2E9000000007AA0D /* AlphaColorWell.swift */; };
-		E9FA2B102E9000000008BB10 /* FilterKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B0F2E9000000008BB0F /* FilterKey.swift */; };
 		E9FA2B122E9000000009CC12 /* ArtworkFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B112E9000000009CC11 /* ArtworkFetcher.swift */; };
 		E9FA2B142E900000000ADD14 /* PlayerHandle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B132E900000000ADD13 /* PlayerHandle.swift */; };
 		E9FA2B162E900000000BEE16 /* LyricsPersister.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B152E900000000BEE15 /* LyricsPersister.swift */; };
@@ -94,17 +86,22 @@
 		F1B0002100000000000C0001 /* ExportSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0002000000000000C0001 /* ExportSettings.swift */; };
 		F1B0002100000000000E0001 /* PlayerSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0002000000000000E0001 /* PlayerSettings.swift */; };
 		BBC1D5801E4AE3B9008869EC /* MenuBarLyricsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC1D57F1E4AE3B9008869EC /* MenuBarLyricsController.swift */; };
-		BBC1D5911E4C80FC008869EC /* PreferenceDisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC1D5901E4C80FC008869EC /* PreferenceDisplayViewController.swift */; };
-		BBC7C5551E6AE28600E3EC4F /* PreferenceGeneralViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC7C5541E6AE28600E3EC4F /* PreferenceGeneralViewController.swift */; };
 		BBD03C371E9B2C7200EFB975 /* DragNDropView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD03C361E9B2C7200EFB975 /* DragNDropView.swift */; };
 		BBE2A79824041E36004A7E93 /* CombineExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE2A79724041E36004A7E93 /* CombineExtension.swift */; };
 		BBE8FC751F6BEA6200122AFA /* Then.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE8FC741F6BEA6200122AFA /* Then.swift */; };
-		E91F76EB21211B8D00755698 /* PreferenceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E91F76EA21211B8D00755698 /* PreferenceViewController.swift */; };
 		E960A9A22D68F9FA00A32EEC /* NowPlayingApplicationListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E960A9A12D68F9FA00A32EEC /* NowPlayingApplicationListViewController.swift */; };
 		E967A20C2D2AD6DB00982E06 /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = E967A20B2D2AD6DB00982E06 /* LaunchAtLogin */; };
 		E97593E42150F47900D80616 /* Polyfill.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97593E32150F47800D80616 /* Polyfill.swift */; };
 		E97593E62150F6FB00D80616 /* IBInspection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97593E52150F6FB00D80616 /* IBInspection.swift */; };
 		E975C5BC2D380B920059BE92 /* PreferenceWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E975C5BA2D380B920059BE92 /* PreferenceWindowController.swift */; };
+		FA0000012F200000000A0001 /* SettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0001 /* SettingsSection.swift */; };
+		FA0000012F200000000A0002 /* LabPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0002 /* LabPreferencesView.swift */; };
+		FA0000012F200000000A0003 /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0003 /* PreferencesView.swift */; };
+		FA0000012F200000000A0004 /* ShortcutPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0004 /* ShortcutPreferencesView.swift */; };
+		FA0000012F200000000A0005 /* FilterPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0005 /* FilterPreferencesView.swift */; };
+		FA0000012F200000000A0006 /* GeneralPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0006 /* GeneralPreferencesView.swift */; };
+		FA0000012F200000000A0007 /* DisplayPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0007 /* DisplayPreferencesView.swift */; };
+		FA0000012F200000000A0008 /* SourcePreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0008 /* SourcePreferencesView.swift */; };
 		E97F2CFD2E757C19005466D1 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97F2CF92E757C19005466D1 /* Signal.swift */; };
 		E97F2D012E757C19005466D1 /* Invoke.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97F2CF72E757C19005466D1 /* Invoke.swift */; };
 		E983FA212C85EA6E00170CF7 /* MarqueeLabel in Frameworks */ = {isa = PBXBuildFile; productRef = E983FA202C85EA6E00170CF7 /* MarqueeLabel */; };
@@ -138,12 +135,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		0F07BAF42E8A8B2900085912 /* PreferenceSourceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceSourceViewController.swift; sourceTree = "<group>"; };
 		F1C0001000000000010A0001 /* ChineseConverterProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChineseConverterProvider.swift; sourceTree = "<group>"; };
 		F1C0001000000000010A0002 /* LyricsFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsFilter.swift; sourceTree = "<group>"; };
 		F1C0001000000000010A0003 /* LyricsPreparation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsPreparation.swift; sourceTree = "<group>"; };
 		BB063B2D1E8A93C900A25C3E /* KaraokeLyricsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaraokeLyricsView.swift; sourceTree = "<group>"; };
-		BB0B29691E7FBA2D00B1D6C9 /* PreferenceFilterViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferenceFilterViewController.swift; sourceTree = "<group>"; };
 		BB1B2FFC20E8780A002F1AF8 /* CFExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CFExtension.swift; sourceTree = "<group>"; };
 		BB1B300220E878AE002F1AF8 /* StdExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StdExtension.swift; sourceTree = "<group>"; };
 		BB1B300420E87CC9002F1AF8 /* KaraokeLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaraokeLabel.swift; sourceTree = "<group>"; };
@@ -155,21 +150,17 @@
 		BB4141B61E458BA900A51775 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB4141BF1E45B67800A51775 /* KaraokeLyricsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaraokeLyricsController.swift; sourceTree = "<group>"; };
 		BB458C62201C5F4500740C3B /* LyricsMetadata+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LyricsMetadata+Extension.swift"; sourceTree = "<group>"; };
-		BB4919351F00CD800054EA09 /* PreferenceShortcutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferenceShortcutViewController.swift; sourceTree = "<group>"; };
 		BB5863F221EFFD9F0084D2C0 /* TouchBarLyricsItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchBarLyricsItem.swift; sourceTree = "<group>"; };
 		BB58640621F2B7500084D2C0 /* TouchBarArtworkViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchBarArtworkViewController.swift; sourceTree = "<group>"; };
 		BB58B0811E82971400598D4F /* UserDefaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = UserDefaults.plist; sourceTree = "<group>"; };
 		BB58B0881E82CA9B00598D4F /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
-		BB5D4B2C2094A1D700844D9F /* FontSelectTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontSelectTextField.swift; sourceTree = "<group>"; };
 		BB60F3011E889A1B00BA1FD2 /* LyricsXHelper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LyricsXHelper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB60F3031E889A1B00BA1FD2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BB60F3051E889A1B00BA1FD2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BB60F3081E889A1B00BA1FD2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		BB60F30A1E889A1B00BA1FD2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB60F30E1E889C5400BA1FD2 /* LyricsXHelper.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LyricsXHelper.entitlements; sourceTree = "<group>"; };
-		BB6139751FCCFA6700CBD808 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Preferences.storyboard; sourceTree = "<group>"; };
 		BB63C24E22774B47008CFFBB /* TouchBarPlaybackControlViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchBarPlaybackControlViewController.swift; sourceTree = "<group>"; };
-		BB72784920996DE900231C63 /* PreferenceLabViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceLabViewController.swift; sourceTree = "<group>"; };
 		BB7EC7B11E4E018C00A0AC3F /* LyricsHUDViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LyricsHUDViewController.swift; sourceTree = "<group>"; };
 		BB89089D21ED69410078F522 /* Lyrics+Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Lyrics+Language.swift"; sourceTree = "<group>"; };
 		BB947DFA23B4C60000C43BF2 /* SelectedPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedPlayer.swift; sourceTree = "<group>"; };
@@ -189,8 +180,6 @@
 		E9FA2B092E9000000005EE09 /* LocalLyricsLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLyricsLoader.swift; sourceTree = "<group>"; };
 		F1A2B0002F1000000001AA00 /* LyricsSearchPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsSearchPipeline.swift; sourceTree = "<group>"; };
 		E9FA2B0B2E9000000006FF0B /* SearchBlocklist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBlocklist.swift; sourceTree = "<group>"; };
-		E9FA2B0D2E9000000007AA0D /* AlphaColorWell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphaColorWell.swift; sourceTree = "<group>"; };
-		E9FA2B0F2E9000000008BB0F /* FilterKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterKey.swift; sourceTree = "<group>"; };
 		E9FA2B112E9000000009CC11 /* ArtworkFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtworkFetcher.swift; sourceTree = "<group>"; };
 		E9FA2B132E900000000ADD13 /* PlayerHandle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerHandle.swift; sourceTree = "<group>"; };
 		E9FA2B152E900000000BEE15 /* LyricsPersister.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsPersister.swift; sourceTree = "<group>"; };
@@ -211,22 +200,26 @@
 		F1B0002000000000000C0001 /* ExportSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportSettings.swift; sourceTree = "<group>"; };
 		F1B0002000000000000E0001 /* PlayerSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerSettings.swift; sourceTree = "<group>"; };
 		BBC1D57F1E4AE3B9008869EC /* MenuBarLyricsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuBarLyricsController.swift; sourceTree = "<group>"; };
-		BBC1D5901E4C80FC008869EC /* PreferenceDisplayViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferenceDisplayViewController.swift; sourceTree = "<group>"; };
-		BBC7C5541E6AE28600E3EC4F /* PreferenceGeneralViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferenceGeneralViewController.swift; sourceTree = "<group>"; };
 		BBD03C361E9B2C7200EFB975 /* DragNDropView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DragNDropView.swift; sourceTree = "<group>"; };
 		BBE2A79724041E36004A7E93 /* CombineExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombineExtension.swift; sourceTree = "<group>"; };
 		BBE8FC741F6BEA6200122AFA /* Then.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Then.swift; sourceTree = "<group>"; };
-		E91F76EA21211B8D00755698 /* PreferenceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceViewController.swift; sourceTree = "<group>"; };
 		E960A9A12D68F9FA00A32EEC /* NowPlayingApplicationListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingApplicationListViewController.swift; sourceTree = "<group>"; };
 		E97593E32150F47800D80616 /* Polyfill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Polyfill.swift; sourceTree = "<group>"; };
 		E97593E52150F6FB00D80616 /* IBInspection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IBInspection.swift; sourceTree = "<group>"; };
 		E975C5BA2D380B920059BE92 /* PreferenceWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceWindowController.swift; sourceTree = "<group>"; };
+		FA0000002F200000000A0001 /* SettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSection.swift; sourceTree = "<group>"; };
+		FA0000002F200000000A0002 /* LabPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabPreferencesView.swift; sourceTree = "<group>"; };
+		FA0000002F200000000A0003 /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
+		FA0000002F200000000A0004 /* ShortcutPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutPreferencesView.swift; sourceTree = "<group>"; };
+		FA0000002F200000000A0005 /* FilterPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterPreferencesView.swift; sourceTree = "<group>"; };
+		FA0000002F200000000A0006 /* GeneralPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralPreferencesView.swift; sourceTree = "<group>"; };
+		FA0000002F200000000A0007 /* DisplayPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayPreferencesView.swift; sourceTree = "<group>"; };
+		FA0000002F200000000A0008 /* SourcePreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcePreferencesView.swift; sourceTree = "<group>"; };
 		E97F2CF72E757C19005466D1 /* Invoke.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Invoke.swift; sourceTree = "<group>"; };
 		E97F2CF92E757C19005466D1 /* Signal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Signal.swift; sourceTree = "<group>"; };
 		E9A38A6A2D7337E700DEFE0E /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		E9A38A6C2D7337E700DEFE0E /* mul */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = mul; path = mul.lproj/Main.xcstrings; sourceTree = "<group>"; };
 		E9A38A6D2D7337E700DEFE0E /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
-		E9A38A6F2D73383200DEFE0E /* mul */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = mul; path = mul.lproj/Preferences.xcstrings; sourceTree = "<group>"; };
 		E9C5763A2DEDF135009107B5 /* LyricsXPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = LyricsXPackage; sourceTree = "<group>"; };
 		E9E55137207C4CB000F9958A /* TouchBarLyricsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchBarLyricsController.swift; sourceTree = "<group>"; };
 		E9EBDA2421115A150019FDF9 /* Observation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observation.swift; sourceTree = "<group>"; };
@@ -273,7 +266,6 @@
 				BB1B300420E87CC9002F1AF8 /* KaraokeLabel.swift */,
 				BB1B631A1E8CD7CA004CC9E0 /* ScrollLyricsView.swift */,
 				BBD03C361E9B2C7200EFB975 /* DragNDropView.swift */,
-				BB5D4B2C2094A1D700844D9F /* FontSelectTextField.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -302,7 +294,6 @@
 			isa = PBXGroup;
 			children = (
 				BB4141B31E458BA900A51775 /* Main.storyboard */,
-				BB6139761FCCFA6700CBD808 /* Preferences.storyboard */,
 				E9C49A8E2110490700159ADC /* Component */,
 				E9C4E8B02D7845DD00E3D8CA /* TouchBar */,
 				BB063B2F1E8A93CE00A25C3E /* View */,
@@ -378,16 +369,15 @@
 		BBC7C5561E6AEA4500E3EC4F /* Preferences */ = {
 			isa = PBXGroup;
 			children = (
-				0F07BAF42E8A8B2900085912 /* PreferenceSourceViewController.swift */,
 				E975C5BA2D380B920059BE92 /* PreferenceWindowController.swift */,
-				E91F76EA21211B8D00755698 /* PreferenceViewController.swift */,
-				BBC7C5541E6AE28600E3EC4F /* PreferenceGeneralViewController.swift */,
-				BBC1D5901E4C80FC008869EC /* PreferenceDisplayViewController.swift */,
-				E9FA2B0D2E9000000007AA0D /* AlphaColorWell.swift */,
-				BB4919351F00CD800054EA09 /* PreferenceShortcutViewController.swift */,
-				BB0B29691E7FBA2D00B1D6C9 /* PreferenceFilterViewController.swift */,
-				E9FA2B0F2E9000000008BB0F /* FilterKey.swift */,
-				BB72784920996DE900231C63 /* PreferenceLabViewController.swift */,
+				FA0000002F200000000A0003 /* PreferencesView.swift */,
+				FA0000002F200000000A0001 /* SettingsSection.swift */,
+				FA0000002F200000000A0002 /* LabPreferencesView.swift */,
+				FA0000002F200000000A0004 /* ShortcutPreferencesView.swift */,
+				FA0000002F200000000A0005 /* FilterPreferencesView.swift */,
+				FA0000002F200000000A0006 /* GeneralPreferencesView.swift */,
+				FA0000002F200000000A0007 /* DisplayPreferencesView.swift */,
+				FA0000002F200000000A0008 /* SourcePreferencesView.swift */,
 				E960A9A12D68F9FA00A32EEC /* NowPlayingApplicationListViewController.swift */,
 			);
 			path = Preferences;
@@ -643,7 +633,6 @@
 			files = (
 				E9A38A6B2D7337E700DEFE0E /* Localizable.xcstrings in Resources */,
 				E9A38A6E2D7337E700DEFE0E /* InfoPlist.xcstrings in Resources */,
-				BB6139741FCCFA6700CBD808 /* Preferences.storyboard in Resources */,
 				BB4141B21E458BA800A51775 /* Assets.xcassets in Resources */,
 				BB58B0821E82971400598D4F /* UserDefaults.plist in Resources */,
 				BB4141B51E458BA900A51775 /* Main.storyboard in Resources */,
@@ -739,11 +728,9 @@
 				BB4141C01E45B67800A51775 /* KaraokeLyricsController.swift in Sources */,
 				E97593E42150F47900D80616 /* Polyfill.swift in Sources */,
 				E9EF0D552D6F70E400D45E0F /* SearchLyricsWindowController.swift in Sources */,
-				BB72784A20996DE900231C63 /* PreferenceLabViewController.swift in Sources */,
 				BB7EC7B21E4E018C00A0AC3F /* LyricsHUDViewController.swift in Sources */,
 				E97593E62150F6FB00D80616 /* IBInspection.swift in Sources */,
 				E9EF0D4E2D6F5E0A00D45E0F /* LyricsHUDWindowController.swift in Sources */,
-				BBC1D5911E4C80FC008869EC /* PreferenceDisplayViewController.swift in Sources */,
 				BBB9AAE31E57EE880078F91A /* SearchLyricsViewController.swift in Sources */,
 				E9E55138207C4CB000F9958A /* TouchBarLyricsController.swift in Sources */,
 				E97F2CFD2E757C19005466D1 /* Signal.swift in Sources */,
@@ -756,11 +743,18 @@
 				BB1B2FFD20E8780A002F1AF8 /* CFExtension.swift in Sources */,
 				BB4141AE1E458BA800A51775 /* AppDelegate.swift in Sources */,
 				BB458C63201C5F4500740C3B /* LyricsMetadata+Extension.swift in Sources */,
-				BBC7C5551E6AE28600E3EC4F /* PreferenceGeneralViewController.swift in Sources */,
 				BBE8FC751F6BEA6200122AFA /* Then.swift in Sources */,
 				E960A9A22D68F9FA00A32EEC /* NowPlayingApplicationListViewController.swift in Sources */,
 				BB58640721F2B7500084D2C0 /* TouchBarArtworkViewController.swift in Sources */,
 				E975C5BC2D380B920059BE92 /* PreferenceWindowController.swift in Sources */,
+				FA0000012F200000000A0003 /* PreferencesView.swift in Sources */,
+				FA0000012F200000000A0001 /* SettingsSection.swift in Sources */,
+				FA0000012F200000000A0002 /* LabPreferencesView.swift in Sources */,
+				FA0000012F200000000A0004 /* ShortcutPreferencesView.swift in Sources */,
+				FA0000012F200000000A0005 /* FilterPreferencesView.swift in Sources */,
+				FA0000012F200000000A0006 /* GeneralPreferencesView.swift in Sources */,
+				FA0000012F200000000A0007 /* DisplayPreferencesView.swift in Sources */,
+				FA0000012F200000000A0008 /* SourcePreferencesView.swift in Sources */,
 				F1B0001100000000000A0001 /* AppIdentifiers.swift in Sources */,
 				F1B0001100000000000A0002 /* AppConstants.swift in Sources */,
 				F1B0001100000000000A0003 /* AppURLs.swift in Sources */,
@@ -775,15 +769,12 @@
 				F1B0002100000000000E0001 /* PlayerSettings.swift in Sources */,
 				BB1B300320E878AE002F1AF8 /* StdExtension.swift in Sources */,
 				BB947DFB23B4C60000C43BF2 /* SelectedPlayer.swift in Sources */,
-				BB4919361F00CD800054EA09 /* PreferenceShortcutViewController.swift in Sources */,
 				BB63C24F22774B47008CFFBB /* TouchBarPlaybackControlViewController.swift in Sources */,
-				E91F76EB21211B8D00755698 /* PreferenceViewController.swift in Sources */,
 				BB063B2E1E8A93C900A25C3E /* KaraokeLyricsView.swift in Sources */,
 				BBC1D5801E4AE3B9008869EC /* MenuBarLyricsController.swift in Sources */,
 				F1C0001100000000010A0001 /* ChineseConverterProvider.swift in Sources */,
 				F1C0001100000000010A0002 /* LyricsFilter.swift in Sources */,
 				F1C0001100000000010A0003 /* LyricsPreparation.swift in Sources */,
-				BB5D4B2D2094A1D700844D9F /* FontSelectTextField.swift in Sources */,
 				BB9BCEBA1E843157001BC54B /* Extension.swift in Sources */,
 				BBE2A79824041E36004A7E93 /* CombineExtension.swift in Sources */,
 				BBC1D35B1E485BA7002538A2 /* LyricsSession.swift in Sources */,
@@ -799,8 +790,6 @@
 				E9FA2B0A2E9000000005EE0A /* LocalLyricsLoader.swift in Sources */,
 				F1A2B0012F1000000001AA01 /* LyricsSearchPipeline.swift in Sources */,
 				E9FA2B0C2E9000000006FF0C /* SearchBlocklist.swift in Sources */,
-				E9FA2B0E2E9000000007AA0E /* AlphaColorWell.swift in Sources */,
-				E9FA2B102E9000000008BB10 /* FilterKey.swift in Sources */,
 				E9FA2B122E9000000009CC12 /* ArtworkFetcher.swift in Sources */,
 				E9FA2B142E900000000ADD14 /* PlayerHandle.swift in Sources */,
 				E9FA2B162E900000000BEE16 /* LyricsPersister.swift in Sources */,
@@ -808,8 +797,6 @@
 				E9FA2B1A2E900000000DDD1A /* LyricsDisplayCoordinator.swift in Sources */,
 				E9FA2B1C2E900000000EEE1C /* DisplaySettings.swift in Sources */,
 				E9FA2B1E2E900000000FFF1E /* PersistenceSettings.swift in Sources */,
-				BB0B296A1E7FBA2D00B1D6C9 /* PreferenceFilterViewController.swift in Sources */,
-				0F07BAF52E8A8B2900085912 /* PreferenceSourceViewController.swift in Sources */,
 				BB89089E21ED69410078F522 /* Lyrics+Language.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -840,15 +827,6 @@
 				BB60F3081E889A1B00BA1FD2 /* Base */,
 			);
 			name = MainMenu.xib;
-			sourceTree = "<group>";
-		};
-		BB6139761FCCFA6700CBD808 /* Preferences.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				BB6139751FCCFA6700CBD808 /* Base */,
-				E9A38A6F2D73383200DEFE0E /* mul */,
-			);
-			name = Preferences.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

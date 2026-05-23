@@ -2,7 +2,6 @@ import Foundation
 import LyricsXFoundation
 
 /// The canonical list of available lyrics source names, derived from the known provider registry.
-/// Both `LyricsSelector` and `PreferenceSourceViewController` read from this source of truth.
 let availableLyricsSources: [String] = LyricsProviders.Service.allCases.map(\.displayName)
 
 /// `LyricsSelector` owns the "which lyrics wins?" concept end-to-end.
