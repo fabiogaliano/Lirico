@@ -87,14 +87,8 @@
 		E97593E42150F47900D80616 /* Polyfill.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97593E32150F47800D80616 /* Polyfill.swift */; };
 		E97593E62150F6FB00D80616 /* IBInspection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97593E52150F6FB00D80616 /* IBInspection.swift */; };
 		E975C5BC2D380B920059BE92 /* PreferenceWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E975C5BA2D380B920059BE92 /* PreferenceWindowController.swift */; };
-		E97F2CFB2E757C19005466D1 /* AnyScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97F2CF32E757C19005466D1 /* AnyScheduler.swift */; };
-		E97F2CFC2E757C19005466D1 /* IgnoreError.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97F2CF62E757C19005466D1 /* IgnoreError.swift */; };
 		E97F2CFD2E757C19005466D1 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97F2CF92E757C19005466D1 /* Signal.swift */; };
-		E97F2CFE2E757C19005466D1 /* SelfRetainedCancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97F2CF82E757C19005466D1 /* SelfRetainedCancellable.swift */; };
-		E97F2CFF2E757C19005466D1 /* Blocking.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97F2CF42E757C19005466D1 /* Blocking.swift */; };
-		E97F2D002E757C19005466D1 /* DelayedAutoCancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97F2CF52E757C19005466D1 /* DelayedAutoCancellable.swift */; };
 		E97F2D012E757C19005466D1 /* Invoke.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97F2CF72E757C19005466D1 /* Invoke.swift */; };
-		E97F2D022E757C19005466D1 /* WeakAssign.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97F2CFA2E757C19005466D1 /* WeakAssign.swift */; };
 		E983FA212C85EA6E00170CF7 /* MarqueeLabel in Frameworks */ = {isa = PBXBuildFile; productRef = E983FA202C85EA6E00170CF7 /* MarqueeLabel */; };
 		E983FA242C86302200170CF7 /* MarqueeLabel in Frameworks */ = {isa = PBXBuildFile; productRef = E983FA232C86302200170CF7 /* MarqueeLabel */; };
 		E9A38A6B2D7337E700DEFE0E /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = E9A38A6A2D7337E700DEFE0E /* Localizable.xcstrings */; };
@@ -191,14 +185,8 @@
 		E97593E32150F47800D80616 /* Polyfill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Polyfill.swift; sourceTree = "<group>"; };
 		E97593E52150F6FB00D80616 /* IBInspection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IBInspection.swift; sourceTree = "<group>"; };
 		E975C5BA2D380B920059BE92 /* PreferenceWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceWindowController.swift; sourceTree = "<group>"; };
-		E97F2CF32E757C19005466D1 /* AnyScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyScheduler.swift; sourceTree = "<group>"; };
-		E97F2CF42E757C19005466D1 /* Blocking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Blocking.swift; sourceTree = "<group>"; };
-		E97F2CF52E757C19005466D1 /* DelayedAutoCancellable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelayedAutoCancellable.swift; sourceTree = "<group>"; };
-		E97F2CF62E757C19005466D1 /* IgnoreError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IgnoreError.swift; sourceTree = "<group>"; };
 		E97F2CF72E757C19005466D1 /* Invoke.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Invoke.swift; sourceTree = "<group>"; };
-		E97F2CF82E757C19005466D1 /* SelfRetainedCancellable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfRetainedCancellable.swift; sourceTree = "<group>"; };
 		E97F2CF92E757C19005466D1 /* Signal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Signal.swift; sourceTree = "<group>"; };
-		E97F2CFA2E757C19005466D1 /* WeakAssign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakAssign.swift; sourceTree = "<group>"; };
 		E9A38A6A2D7337E700DEFE0E /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		E9A38A6C2D7337E700DEFE0E /* mul */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = mul; path = mul.lproj/Main.xcstrings; sourceTree = "<group>"; };
 		E9A38A6D2D7337E700DEFE0E /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
@@ -374,14 +362,8 @@
 		E97F2CF22E757C0A005466D1 /* CXExtensions */ = {
 			isa = PBXGroup;
 			children = (
-				E97F2CF32E757C19005466D1 /* AnyScheduler.swift */,
-				E97F2CF42E757C19005466D1 /* Blocking.swift */,
-				E97F2CF52E757C19005466D1 /* DelayedAutoCancellable.swift */,
-				E97F2CF62E757C19005466D1 /* IgnoreError.swift */,
 				E97F2CF72E757C19005466D1 /* Invoke.swift */,
-				E97F2CF82E757C19005466D1 /* SelfRetainedCancellable.swift */,
 				E97F2CF92E757C19005466D1 /* Signal.swift */,
-				E97F2CFA2E757C19005466D1 /* WeakAssign.swift */,
 			);
 			path = CXExtensions;
 			sourceTree = "<group>";
@@ -710,14 +692,8 @@
 				BBC1D5911E4C80FC008869EC /* PreferenceDisplayViewController.swift in Sources */,
 				BBB9AAE31E57EE880078F91A /* SearchLyricsViewController.swift in Sources */,
 				E9E55138207C4CB000F9958A /* TouchBarLyricsController.swift in Sources */,
-				E97F2CFB2E757C19005466D1 /* AnyScheduler.swift in Sources */,
-				E97F2CFC2E757C19005466D1 /* IgnoreError.swift in Sources */,
 				E97F2CFD2E757C19005466D1 /* Signal.swift in Sources */,
-				E97F2CFE2E757C19005466D1 /* SelfRetainedCancellable.swift in Sources */,
-				E97F2CFF2E757C19005466D1 /* Blocking.swift in Sources */,
-				E97F2D002E757C19005466D1 /* DelayedAutoCancellable.swift in Sources */,
 				E97F2D012E757C19005466D1 /* Invoke.swift in Sources */,
-				E97F2D022E757C19005466D1 /* WeakAssign.swift in Sources */,
 				BB1B631B1E8CD7CA004CC9E0 /* ScrollLyricsView.swift in Sources */,
 				BB1B300520E87CC9002F1AF8 /* KaraokeLabel.swift in Sources */,
 				BBD03C371E9B2C7200EFB975 /* DragNDropView.swift in Sources */,
