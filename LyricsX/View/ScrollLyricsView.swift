@@ -1,5 +1,6 @@
 import AppKit
 import LyricsXFoundation
+import OpenCC
 
 protocol ScrollLyricsViewDelegate: AnyObject {
     func doubleClickLyricsLine(at position: TimeInterval)
@@ -57,7 +58,7 @@ class ScrollLyricsView: NSScrollView {
     private var ranges: [RenderedLineRange] = []
     private var highlightedRange: NSRange?
 
-    func setupTextContents(lyrics: Lyrics?) {
+    func setupTextContents(lyrics: Lyrics?, converter: ChineseConverter?) {
         guard let lyrics = lyrics else {
             ranges = []
             textView.string = ""
@@ -77,7 +78,8 @@ class ScrollLyricsView: NSScrollView {
                 line: line,
                 lyricsLanguage: lyrics.metadata.language,
                 translationLanguageCode: languageCode,
-                convert: .all
+                convert: .all,
+                converter: converter
             )
             var lineStr = mainContent
             if let trans = renderedTrans, displaySettings.preferBilingualLyrics {

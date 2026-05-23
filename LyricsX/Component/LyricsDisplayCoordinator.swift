@@ -20,13 +20,19 @@ final class LyricsDisplayCoordinator {
 
     private let player: PlayerHandle
     private let settings: DisplaySettings
+    private let chineseConverter: ChineseConverterProvider
     private var currentLyrics: Lyrics?
     private var currentIndex: Int?
     private var cancelBag = Set<AnyCancellable>()
 
-    init(player: PlayerHandle, settings: DisplaySettings = DisplaySettings()) {
+    init(
+        player: PlayerHandle,
+        settings: DisplaySettings = DisplaySettings(),
+        chineseConverter: ChineseConverterProvider
+    ) {
         self.player = player
         self.settings = settings
+        self.chineseConverter = chineseConverter
     }
 
     /// Wire the coordinator to the session's projected publishers. Called once
@@ -66,6 +72,13 @@ final class LyricsDisplayCoordinator {
                 self?.recompute()
             }
             .store(in: &cancelBag)
+
+        chineseConverter.converterPublisher
+            .receive(on: DispatchQueue.lyricsDisplay)
+            .sink { [weak self] _ in
+                self?.recompute()
+            }
+            .store(in: &cancelBag)
     }
 
     private func recompute() {
@@ -88,11 +101,13 @@ final class LyricsDisplayCoordinator {
         let nextEnabled = lyrics.lines[(index + 1)...].first { $0.enabled }
         let languageCode = lyrics.metadata.translationLanguages.first
 
+        let converter = chineseConverter.converter
         let (primaryText, translationText) = LineRenderer.render(
             line: currentLine,
             lyricsLanguage: lyrics.metadata.language,
             translationLanguageCode: languageCode,
-            convert: [.mainLine, .translation]
+            convert: [.mainLine, .translation],
+            converter: converter
         )
 
         let nextLineText: String? = nextEnabled.map {
@@ -100,7 +115,8 @@ final class LyricsDisplayCoordinator {
                 line: $0,
                 lyricsLanguage: lyrics.metadata.language,
                 translationLanguageCode: nil,
-                convert: .mainLine
+                convert: .mainLine,
+                converter: converter
             ).content
         }
 

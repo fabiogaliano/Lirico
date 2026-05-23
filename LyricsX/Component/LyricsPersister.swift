@@ -8,9 +8,7 @@ import Regex
 /// currently playing Apple Music track via its scripting bridge.
 ///
 /// Pulled out of the lyrics-management hub so that the session type owns
-/// state, not Apple-Music-specific formatting + scripting glue. Mirrors the
-/// pattern used by `LyricsPreparer` / `LocalLyricsLoader`: a small `enum`
-/// namespace of pure static functions.
+/// state, not Apple-Music-specific formatting + scripting glue.
 enum LyricsPersister {
     /// Shared base name `"Title - Artist"` used by both the saving-path loader and the writer.
     /// Slashes are replaced with colons so the composed name can't escape into a subdirectory.
@@ -85,7 +83,13 @@ enum LyricsPersister {
     /// The `settings` parameter carries the formatting policy (plain-LRC export
     /// vs. enhanced; include translation or not). Passing it in keeps this
     /// namespace defaults-free in the same shape as `saveToDisk(_:to:)`.
-    static func writeToiTunes(_ lyrics: Lyrics, player: PlayerHandle, overwrite: Bool, settings: ExportSettings) {
+    static func writeToiTunes(
+        _ lyrics: Lyrics,
+        player: PlayerHandle,
+        overwrite: Bool,
+        settings: ExportSettings,
+        converter: ChineseConverter?
+    ) {
         guard player.name == .appleMusic,
               let sbTrack = player.currentTrack?.originalTrack,
               overwrite || (sbTrack.value(forKey: "lyrics") as! String?)?.isEmpty != false else {
@@ -97,7 +101,7 @@ enum LyricsPersister {
             // For plain LRC export, preserve the legacy LRC formatting but still respect
             // the Chinese conversion setting for consistency with the non-plain branch.
             var legacy = lyrics.legacyDescription
-            if let converter = ChineseConverter.shared,
+            if let converter,
                lyrics.metadata.language?.hasPrefix("zh") == true {
                 legacy = converter.convert(legacy)
             }
@@ -115,7 +119,8 @@ enum LyricsPersister {
                     line: line,
                     lyricsLanguage: lyrics.metadata.language,
                     translationLanguageCode: translationCode,
-                    convert: .all
+                    convert: .all,
+                    converter: converter
                 )
                 if let translation {
                     return main + "\n" + translation

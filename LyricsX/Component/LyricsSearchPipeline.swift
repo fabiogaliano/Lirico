@@ -7,8 +7,8 @@ import LyricsXFoundation
 /// - rebuilds the `LyricsProvider` group from the no-auth services plus the
 ///   optional Musixmatch token whenever the token changes,
 /// - streams candidates for a `LyricsSearchRequest`,
-/// - prepares every candidate (`LyricsPreparer.prepare`) and marks it dirty
-///   so the caller can persist without re-running that policy,
+/// - prepares every candidate via the injected `LyricsPreparation` and marks
+///   it dirty so the caller can persist without re-running that policy,
 /// - optionally drops candidates that fail strict matching.
 ///
 /// Both automatic search (`LyricsSession.currentTrackChanged`) and manual
@@ -19,10 +19,12 @@ import LyricsXFoundation
 final class LyricsSearchPipeline {
     private var providerGroup: LyricsProvider = LyricsProviders.Group()
     private let settings: SearchSettings
+    private let preparation: LyricsPreparation
     private var cancelBag = Set<AnyCancellable>()
 
-    init(settings: SearchSettings = SearchSettings()) {
+    init(settings: SearchSettings = SearchSettings(), preparation: LyricsPreparation) {
         self.settings = settings
+        self.preparation = preparation
         settings.musixmatchTokenPublisher()
             .sink { [weak self] in
                 Task { @MainActor in
@@ -42,12 +44,13 @@ final class LyricsSearchPipeline {
         // out from under an in-flight search.
         let manager = providerGroup
         let settings = settings
+        let preparation = preparation
         return AsyncThrowingStream { continuation in
             let task = Task {
                 do {
                     for try await lyrics in manager.lyrics(for: request) {
                         if strict, settings.strictSearchEnabled, !lyrics.isMatched() { continue }
-                        LyricsPreparer.prepare(lyrics)
+                        preparation.prepare(lyrics)
                         lyrics.metadata.needsPersist = true
                         continuation.yield(lyrics)
                     }

@@ -17,6 +17,9 @@ final class AppContainer {
     let searchSettings: SearchSettings
     let exportSettings: ExportSettings
     let playerSettings: PlayerSettings
+    let lyricsFilter: LyricsFilter
+    let lyricsPreparation: LyricsPreparation
+    let chineseConverterProvider: ChineseConverterProvider
     let session: LyricsSession
     let menuBarController: MenuBarLyricsController
     let karaokeWindowController: KaraokeLyricsWindowController
@@ -42,12 +45,20 @@ final class AppContainer {
         self.searchSettings = searchSettings
         self.exportSettings = exportSettings
         self.playerSettings = playerSettings
-        let pipeline = LyricsSearchPipeline(settings: searchSettings)
+        let lyricsFilter = LyricsFilter()
+        let preparation = LyricsPreparation(filter: lyricsFilter)
+        let chineseConverter = ChineseConverterProvider()
+        self.lyricsFilter = lyricsFilter
+        self.lyricsPreparation = preparation
+        self.chineseConverterProvider = chineseConverter
+        let pipeline = LyricsSearchPipeline(settings: searchSettings, preparation: preparation)
         self.searchPipeline = pipeline
         self.session = LyricsSession(
             player: player,
             clock: clock,
             pipeline: pipeline,
+            preparation: preparation,
+            chineseConverter: chineseConverter,
             displaySettings: displaySettings,
             searchSettings: searchSettings,
             exportSettings: exportSettings,
@@ -90,7 +101,7 @@ final class AppContainer {
     private func makeLyricsHUD() -> LyricsHUDWindowController {
         let wc = LyricsHUDWindowController.create()
         if let vc = wc.contentViewController as? LyricsHUDViewController {
-            vc.configure(player: player, session: session)
+            vc.configure(player: player, session: session, chineseConverter: chineseConverterProvider)
         }
         return wc
     }

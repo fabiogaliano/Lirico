@@ -5,10 +5,12 @@ import MusicPlayer
 
 class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsViewDelegate, DragNDropDelegate {
     // Storyboard-instantiated; the owning window controller / AppContainer
-    // calls `configure(player:session:)` immediately after creation, so
-    // these IUOs are guaranteed populated before any subscription fires.
+    // calls `configure(player:session:chineseConverter:)` immediately after
+    // creation, so these IUOs are guaranteed populated before any
+    // subscription fires.
     private var player: PlayerHandle!
     private var session: LyricsSession!
+    private var chineseConverter: ChineseConverterProvider!
 
     @IBOutlet var dragNDropView: DragNDropView!
     @IBOutlet var lyricsScrollView: ScrollLyricsView!
@@ -70,11 +72,12 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
     /// call this immediately after instantiation; subscriptions live here
     /// rather than in `awakeFromNib` because the session isn't reachable from
     /// inside the storyboard's lifecycle.
-    func configure(player: PlayerHandle, session: LyricsSession) {
+    func configure(player: PlayerHandle, session: LyricsSession, chineseConverter: ChineseConverterProvider) {
         self.player = player
         self.session = session
+        self.chineseConverter = chineseConverter
 
-        lyricsScrollView.setupTextContents(lyrics: session.currentLyrics)
+        refreshTextContents()
 
         // The HUD owns full-scrollback layout, so it observes raw lyrics for now;
         // line-only surfaces consume `displayCoordinator` snapshots.
@@ -88,6 +91,11 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
             .sink { [unowned self] _ in
                 self.displayLyrics()
             }.store(in: &cancelBag)
+        chineseConverter.converterPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [unowned self] _ in
+                self.refreshTextContents()
+            }.store(in: &cancelBag)
     }
 
     override func viewWillAppear() {
@@ -99,11 +107,18 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
 
     private func lyricsChanged() {
         DispatchQueue.main.async {
-            let newLyrics = self.session.currentLyrics
-            self.lyricsScrollView.setupTextContents(lyrics: newLyrics)
-            self.noLyricsLabel.isHidden = newLyrics != nil
-            self.displayLyrics(animation: false)
+            self.refreshTextContents()
         }
+    }
+
+    private func refreshTextContents() {
+        let newLyrics = session.currentLyrics
+        lyricsScrollView.setupTextContents(
+            lyrics: newLyrics,
+            converter: chineseConverter.converter
+        )
+        noLyricsLabel.isHidden = newLyrics != nil
+        displayLyrics(animation: false)
     }
 
     private func displayLyrics(animation: Bool = true) {

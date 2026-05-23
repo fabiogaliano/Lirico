@@ -11,6 +11,8 @@ class LyricsSession: NSObject {
     private let searchSettings: SearchSettings
     private let exportSettings: ExportSettings
     private let playerSettings: PlayerSettings
+    private let preparation: LyricsPreparation
+    private let chineseConverter: ChineseConverterProvider
 
     /// Resolver for the per-surface `LyricsDisplaySnapshot`. Owned by the
     /// session so consumers reach one well-known place for display state.
@@ -49,6 +51,8 @@ class LyricsSession: NSObject {
         player: PlayerHandle,
         clock: PlaybackClock,
         pipeline: LyricsSearchPipeline,
+        preparation: LyricsPreparation,
+        chineseConverter: ChineseConverterProvider,
         displaySettings: DisplaySettings = DisplaySettings(),
         persistenceSettings: PersistenceSettings = PersistenceSettings(),
         searchSettings: SearchSettings = SearchSettings(),
@@ -62,7 +66,13 @@ class LyricsSession: NSObject {
         self.searchSettings = searchSettings
         self.exportSettings = exportSettings
         self.playerSettings = playerSettings
-        self.displayCoordinator = LyricsDisplayCoordinator(player: player, settings: displaySettings)
+        self.preparation = preparation
+        self.chineseConverter = chineseConverter
+        self.displayCoordinator = LyricsDisplayCoordinator(
+            player: player,
+            settings: displaySettings,
+            chineseConverter: chineseConverter
+        )
         super.init()
         displayCoordinator.observe(
             lyrics: $currentLyrics,
@@ -101,7 +111,13 @@ class LyricsSession: NSObject {
 
     func writeToiTunes(overwrite: Bool) {
         guard let currentLyrics else { return }
-        LyricsPersister.writeToiTunes(currentLyrics, player: player, overwrite: overwrite, settings: exportSettings)
+        LyricsPersister.writeToiTunes(
+            currentLyrics,
+            player: player,
+            overwrite: overwrite,
+            settings: exportSettings,
+            converter: chineseConverter.converter
+        )
     }
 
     // MARK: - Persistence policy
@@ -181,7 +197,13 @@ class LyricsSession: NSObject {
             return
         }
 
-        switch LocalLyricsLoader.load(track: track, title: title, artist: artist, settings: persistenceSettings) {
+        switch LocalLyricsLoader.load(
+            track: track,
+            title: title,
+            artist: artist,
+            preparation: preparation,
+            settings: persistenceSettings
+        ) {
         case .found(let lyrics):
             currentLyrics = lyrics
             return
@@ -262,7 +284,7 @@ extension LyricsSession {
         }
         lrc.metadata.title = track.title
         lrc.metadata.artist = track.artist
-        LyricsPreparer.prepare(lrc)
+        preparation.prepare(lrc)
         lrc.metadata.needsPersist = true
         currentLyrics = lrc
         SearchBlocklist.unblock(track: track)

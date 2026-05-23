@@ -1,7 +1,6 @@
 import AppKit
 import LyricsXFoundation
 import MusicPlayer
-import Regex
 
 extension MusicPlayerName {
     init?(index: Int) {
@@ -100,35 +99,6 @@ extension Lyrics {
     func associateWithTrack(_ track: MusicTrack) {
         metadata.title = track.title
         metadata.artist = track.artist
-    }
-}
-
-extension NSPredicate {
-    fileprivate static var lyricsPredicate: NSPredicate {
-        _ = NSPredicate.observer
-        return _lyricsPredicate
-    }
-
-    private static var _lyricsPredicate: NSPredicate!
-
-    private static let observer = defaults.observe(.lyricsFilterKeys, options: [.new, .initial]) { _, change in
-        let predicates = change.newValue.compactMap { (key: String) -> NSPredicate? in
-            let isRegex = key.hasPrefix("/")
-            let pattern = isRegex ? String(key.dropFirst()) : key
-            let options: NSRegularExpression.Options = isRegex ? [] : [.ignoreMetacharacters]
-            guard let regex = try? Regex(pattern, options: options) else { return nil }
-            return NSPredicate { object, _ in
-                guard let object = object as? LyricsLine else { return false }
-                return !regex.isMatch(object.content)
-            }
-        }
-        _lyricsPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
-    }
-}
-
-extension Lyrics {
-    func filtrate() {
-        filtrate(isIncluded: NSPredicate.lyricsPredicate)
     }
 }
 

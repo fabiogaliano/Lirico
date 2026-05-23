@@ -2,8 +2,9 @@ import LyricsXFoundation
 import OpenCC
 
 /// Converts a raw lyrics line (and optional translation) into the final strings
-/// that should appear on screen, applying Chinese character-set conversion according
-/// to the user's `chineseConversionIndex` preference.
+/// that should appear on screen, applying Chinese character-set conversion via the
+/// supplied `ChineseConverter` (resolved at call time from
+/// `ChineseConverterProvider.converter`).
 ///
 /// Each call site specifies which parts it wants converted — main line and/or translation —
 /// via the `convert` option set. This makes asymmetric rendering decisions explicit rather
@@ -15,7 +16,8 @@ import OpenCC
 ///     line: lrc,
 ///     lyricsLanguage: lyrics.metadata.language,
 ///     translationLanguageCode: lyrics.metadata.translationLanguages.first,
-///     convert: [.mainLine, .translation]
+///     convert: [.mainLine, .translation],
+///     converter: chineseConverterProvider.converter
 /// )
 /// ```
 enum LineRenderer {
@@ -50,12 +52,13 @@ enum LineRenderer {
         line: LyricsLine,
         lyricsLanguage: String?,
         translationLanguageCode: String?,
-        convert: ConvertOptions = .all
+        convert: ConvertOptions = .all,
+        converter: ChineseConverter?
     ) -> (content: String, translation: String?) {
         var content = line.content
         var translation = translationLanguageCode.flatMap { line.attachments[.translation(languageCode: $0)] }
 
-        if let converter = ChineseConverter.shared {
+        if let converter {
             if convert.contains(.mainLine), lyricsLanguage?.hasPrefix("zh") == true {
                 content = converter.convert(content)
             }
