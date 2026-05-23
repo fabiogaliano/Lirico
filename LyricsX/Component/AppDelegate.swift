@@ -1,6 +1,5 @@
 import AppKit
 import GenericID
-import MASShortcut
 import MusicPlayer
 import Sparkle
 import Semver
@@ -53,7 +52,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             options: [.continuouslyUpdatesValue: true]
         )
 
-        setupShortcuts()
+        ShortcutBindings.install(actionTarget: self)
 
         NSRunningApplication.runningApplications(withBundleIdentifier: lyricsXHelperIdentifier).forEach { $0.terminate() }
 
@@ -98,19 +97,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
                 }
             }
         }
-    }
-
-    private func setupShortcuts() {
-        let binder = MASShortcutBinder.shared()!
-        binder.bindBoolShortcut(.shortcutToggleMenuBarLyrics, target: .menuBarLyricsEnabled)
-        binder.bindBoolShortcut(.shortcutToggleKaraokeLyrics, target: .desktopLyricsEnabled)
-        binder.bindShortcut(.shortcutShowLyricsWindow, to: #selector(showLyricsHUD))
-        binder.bindShortcut(.shortcutOffsetIncrease, to: #selector(increaseOffset))
-        binder.bindShortcut(.shortcutOffsetDecrease, to: #selector(decreaseOffset))
-        binder.bindShortcut(.shortcutWriteToiTunes, to: #selector(writeToiTunes))
-        binder.bindShortcut(.shortcutWrongLyrics, to: #selector(wrongLyrics))
-        binder.bindShortcut(.shortcutSearchLyrics, to: #selector(searchLyrics))
-        binder.bindShortcut(.shortcutTogglePreferences, to: #selector(togglePreferences))
     }
 
     // MARK: - NSMenuDelegate
@@ -236,21 +222,3 @@ extension AppDelegate: SPUStandardUserDriverDelegate {
     }
 }
 
-extension MASShortcutBinder {
-    func bindShortcut<T>(_ defaultsKay: UserDefaults.DefaultsKey<T>, to action: @escaping () -> Void) {
-        bindShortcut(withDefaultsKey: defaultsKay.key, toAction: action)
-    }
-
-    func bindBoolShortcut<T>(_ defaultsKay: UserDefaults.DefaultsKey<T>, target: UserDefaults.DefaultsKey<Bool>) {
-        bindShortcut(withDefaultsKey: defaultsKay.key) {
-            defaults[target] = !defaults[target]
-        }
-    }
-
-    func bindShortcut<T>(_ defaultsKay: UserDefaults.DefaultsKey<T>, to action: Selector) {
-        bindShortcut(defaultsKay) {
-            let target = NSApplication.shared.target(forAction: action) as AnyObject?
-            _ = target?.perform(action, with: self)
-        }
-    }
-}
