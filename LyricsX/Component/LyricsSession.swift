@@ -4,8 +4,6 @@ import MusicPlayer
 import LyricsXFoundation
 
 class LyricsSession: NSObject {
-    static var shared: LyricsSession!
-
     var lyricsManager: LyricsProvider
     private let player: PlayerHandle
     private let clock: PlaybackClock
@@ -79,9 +77,20 @@ class LyricsSession: NSObject {
                     NSApplication.shared.terminate(self)
                 }
             }.store(in: &cancelBag)
-        // Defer the initial sync: setting currentLyrics here would re-enter
-        // LyricsSession.shared via PlaybackClock.tick() while dispatch_once is
-        // still in flight, which libdispatch traps as recursive locking.
+
+        // The token lives in `UserDefaults`; observe it here so the session
+        // owns its provider list and the preference UI only has to write the
+        // value, not reach across modules to nudge a refresh.
+        defaults.publisher(for: [.musixmatchToken])
+            .sink { [weak self] in
+                Task { @MainActor in
+                    try? await self?.updateLyricsManager()
+                }
+            }
+            .store(in: &cancelBag)
+
+        // Run the first track sync on the next runloop tick so callers have a
+        // chance to retain the session before subscribers start firing.
         DispatchQueue.main.async { [weak self] in
             self?.currentTrackChanged()
         }

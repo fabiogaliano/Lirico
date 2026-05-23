@@ -33,13 +33,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
     var karaokeLyricsWC: KaraokeLyricsWindowController?
 
-    lazy var searchLyricsWC = SearchLyricsWindowController(player: playerHandle)
+    lazy var searchLyricsWC = SearchLyricsWindowController(player: playerHandle, session: container.session)
 
     lazy var lyricsHUD: LyricsHUDWindowController = {
         let wc = LyricsHUDWindowController.create()
         if let vc = wc.contentViewController as? LyricsHUDViewController {
-            vc.player = playerHandle
-            vc.clock = container.playbackClock
+            vc.configure(player: playerHandle, session: container.session, clock: container.playbackClock)
         }
         return wc
     }()
@@ -51,16 +50,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
         let container = AppContainer()
         self.container = container
-        // Bridge the legacy `LyricsSession.shared` IUO until commit boundary C
-        // migrates remaining consumers to take the session explicitly.
-        LyricsSession.shared = container.session
         let controller = container.session
         _ = LyricsSelector.shared
 
-        karaokeLyricsWC = KaraokeLyricsWindowController(player: playerHandle, clock: container.playbackClock)
+        karaokeLyricsWC = KaraokeLyricsWindowController(player: playerHandle, session: container.session, clock: container.playbackClock)
         karaokeLyricsWC?.showWindow(nil)
 
-        MenuBarLyricsController.shared = MenuBarLyricsController(player: playerHandle)
+        MenuBarLyricsController.shared = MenuBarLyricsController(player: playerHandle, session: container.session)
         MenuBarLyricsController.shared.statusBarMenu = statusBarMenu
         statusBarMenu.delegate = self
 
@@ -96,7 +92,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
         observeDefaults(key: .touchBarLyricsEnabled, options: [.new, .initial]) { [self] _, change in
             if change.newValue, TouchBarLyricsController.shared == nil {
-                TouchBarLyricsController.shared = TouchBarLyricsController(player: playerHandle, clock: container.playbackClock)
+                TouchBarLyricsController.shared = TouchBarLyricsController(player: playerHandle, session: container.session, clock: container.playbackClock)
             } else if !change.newValue, TouchBarLyricsController.shared != nil {
                 TouchBarLyricsController.shared = nil
             }
@@ -117,7 +113,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
-        LyricsSession.shared.prepareForTermination()
+        container.session.prepareForTermination()
         if defaults[.launchAndQuitWithPlayer] {
             let url = Bundle.main.bundleURL
                 .appendingPathComponent("Contents/Library/LoginItems/LyricsXHelper.app")
@@ -151,7 +147,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         switch menuItem.action {
         case #selector(writeToiTunes(_:))?:
-            return playerHandle.name == .appleMusic && LyricsSession.shared.currentLyrics != nil
+            return playerHandle.name == .appleMusic && container.session.currentLyrics != nil
         case #selector(searchLyrics(_:))?:
             return playerHandle.currentTrack != nil
         default:
@@ -160,7 +156,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     func menuNeedsUpdate(_ menu: NSMenu) {
-        menu.item(withTag: 202)?.isEnabled = LyricsSession.shared.currentLyrics != nil
+        menu.item(withTag: 202)?.isEnabled = container.session.currentLyrics != nil
     }
 
     // MARK: - Menubar Action
@@ -206,19 +202,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     @IBAction func increaseOffset(_ sender: Any?) {
-        LyricsSession.shared.lyricsOffset += 100
+        container.session.lyricsOffset += 100
     }
 
     @IBAction func decreaseOffset(_ sender: Any?) {
-        LyricsSession.shared.lyricsOffset -= 100
+        container.session.lyricsOffset -= 100
     }
 
     @IBAction func showCurrentLyricsInFinder(_ sender: Any?) {
-        LyricsSession.shared.revealCurrentLyricsInFinder()
+        container.session.revealCurrentLyricsInFinder()
     }
 
     @IBAction func writeToiTunes(_ sender: Any?) {
-        LyricsSession.shared.writeToiTunes(overwrite: true)
+        container.session.writeToiTunes(overwrite: true)
     }
 
     @IBAction func searchLyrics(_ sender: Any?) {
@@ -231,7 +227,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             return
         }
         SearchBlocklist.block(track: track)
-        LyricsSession.shared.clear(deleteOnDisk: true)
+        container.session.clear(deleteOnDisk: true)
     }
 
     @IBAction func doNotSearchLyricsForThisAlbum(_ sender: Any?) {
@@ -240,7 +236,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             return
         }
         SearchBlocklist.block(album: album)
-        LyricsSession.shared.clear(deleteOnDisk: true)
+        container.session.clear(deleteOnDisk: true)
     }
 
     func registerUserDefaults() {

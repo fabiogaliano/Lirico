@@ -4,7 +4,15 @@ import MusicPlayer
 import UIFoundation
 
 class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTableViewDataSource, NSTextFieldDelegate, StoryboardViewController {
-    var player: PlayerHandle!
+    // Storyboard-instantiated; populated via `configure(player:session:)` by
+    // `SearchLyricsWindowController` immediately after creation.
+    private var player: PlayerHandle!
+    private var session: LyricsSession!
+
+    func configure(player: PlayerHandle, session: LyricsSession) {
+        self.player = player
+        self.session = session
+    }
 
     var imageCache = NSCache<NSURL, NSImage>()
 
@@ -15,7 +23,7 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
         }
     }
 
-    var lyricsManager: LyricsProvider { LyricsSession.shared.lyricsManager }
+    var lyricsManager: LyricsProvider { session.lyricsManager }
     var searchRequest: LyricsSearchRequest?
     var searchTask: Task<Void, Never>?
     var searchResult: [Lyrics] = []
@@ -100,7 +108,7 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
         SearchBlocklist.unblock(album: track.album ?? "")
 
         let lrc = searchResult[index]
-        LyricsSession.shared.select(lrc, writeToiTunesIfAuto: true)
+        session.select(lrc, writeToiTunesIfAuto: true)
     }
 
     // MARK: - LyricsSourceDelegate

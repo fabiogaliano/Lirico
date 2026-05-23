@@ -7,16 +7,18 @@ class TouchBarLyricsItem: NSCustomTouchBarItem {
 
     @objc dynamic var progressColor = #colorLiteral(red: 0.039, green: 0.518, blue: 1, alpha: 1)
 
+    private let session: LyricsSession
     private let clock: PlaybackClock
 
     private var cancelBag = Set<AnyCancellable>()
 
-    init(identifier: NSTouchBarItem.Identifier, clock: PlaybackClock) {
+    init(identifier: NSTouchBarItem.Identifier, session: LyricsSession, clock: PlaybackClock) {
+        self.session = session
         self.clock = clock
         super.init(identifier: identifier)
         view = lyricsTextField
         customizationLabel = "Lyrics"
-        LyricsSession.shared.displayCoordinator.$snapshot
+        session.displayCoordinator.$snapshot
             .receive(on: DispatchQueue.main)
             .sink { [weak self] snapshot in
                 self?.render(snapshot)

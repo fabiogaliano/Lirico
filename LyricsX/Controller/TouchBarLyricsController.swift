@@ -9,9 +9,9 @@ class TouchBarLyricsController: TouchBarSystemModalController {
     private let player: PlayerHandle
     private let lyricsItem: TouchBarLyricsItem
 
-    init(player: PlayerHandle, clock: PlaybackClock) {
+    init(player: PlayerHandle, session: LyricsSession, clock: PlaybackClock) {
         self.player = player
-        self.lyricsItem = TouchBarLyricsItem(identifier: .lyrics, clock: clock)
+        self.lyricsItem = TouchBarLyricsItem(identifier: .lyrics, session: session, clock: clock)
         super.init()
     }
 

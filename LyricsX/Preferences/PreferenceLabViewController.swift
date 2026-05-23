@@ -26,11 +26,8 @@ class PreferenceLabViewController: PreferenceViewController {
         } else {
             defaults[.musixmatchToken] = value
         }
-        
-        // Update lyrics manager when token changes
-        Task { @MainActor in
-            try await LyricsSession.shared.updateLyricsManager()
-        }
+        // `LyricsSession` observes `.musixmatchToken` and rebuilds its provider
+        // list itself, so no direct call is needed here.
     }
 
     @IBAction func customizeAllowsNowPlayingApplicationsAction(_ sender: NSButton) {

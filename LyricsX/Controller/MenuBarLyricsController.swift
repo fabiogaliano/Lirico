@@ -12,6 +12,7 @@ class MenuBarLyricsController {
     static var shared: MenuBarLyricsController!
 
     private let player: PlayerHandle
+    private let session: LyricsSession
 
     var statusBarMenu: NSMenu? {
         didSet {
@@ -51,12 +52,13 @@ class MenuBarLyricsController {
 
     private var cancelBag = Set<AnyCancellable>()
 
-    init(player: PlayerHandle) {
+    init(player: PlayerHandle, session: LyricsSession) {
         self.player = player
+        self.session = session
         if !defaults[.hideMenuBarItems] {
             updateStatusItems()
         }
-        LyricsSession.shared.displayCoordinator.$snapshot
+        session.displayCoordinator.$snapshot
             .receive(on: DispatchQueue.main)
             .sink { [weak self] snapshot in
                 self?.handle(snapshot: snapshot)

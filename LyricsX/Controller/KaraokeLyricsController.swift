@@ -13,12 +13,14 @@ class KaraokeLyricsWindowController: NSWindowController {
     private var lyricsView = KaraokeLyricsView(frame: .zero)
 
     private let player: PlayerHandle
+    private let session: LyricsSession
     private let clock: PlaybackClock
 
     private var cancelBag = Set<AnyCancellable>()
 
-    init(player: PlayerHandle, clock: PlaybackClock) {
+    init(player: PlayerHandle, session: LyricsSession, clock: PlaybackClock) {
         self.player = player
+        self.session = session
         self.clock = clock
         let window = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: true)
         window.backgroundColor = .clear
@@ -39,7 +41,7 @@ class KaraokeLyricsWindowController: NSWindowController {
         lyricsView.displayLrc("LyricsX")
         splashActive = true
 
-        LyricsSession.shared.displayCoordinator.$snapshot
+        session.displayCoordinator.$snapshot
             .receive(on: DispatchQueue.main)
             .sink { [weak self] snapshot in
                 guard let self = self else { return }

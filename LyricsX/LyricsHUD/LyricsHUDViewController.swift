@@ -4,12 +4,12 @@ import GenericID
 import MusicPlayer
 
 class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsViewDelegate, DragNDropDelegate {
-    var player: PlayerHandle!
-    /// Injected by the owning window controller after instantiation; required
-    /// before the window is displayed so that `displayLyrics(animation:)` has a
-    /// clock to read from. Boundary C migrates `LyricsSession.shared` use here
-    /// to the same configure path.
-    var clock: PlaybackClock!
+    // Storyboard-instantiated; the owning window controller / AppContainer
+    // calls `configure(player:session:clock:)` immediately after creation, so
+    // these IUOs are guaranteed populated before any subscription fires.
+    private var player: PlayerHandle!
+    private var session: LyricsSession!
+    private var clock: PlaybackClock!
 
     @IBOutlet var dragNDropView: DragNDropView!
     @IBOutlet var lyricsScrollView: ScrollLyricsView!
@@ -36,7 +36,6 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
         view.window?.do {
             $0.title = "Lyrics Window"
             $0.titlebarAppearsTransparent = true
-//            $0.titleVisibility = .hidden
             $0.styleMask.insert(.borderless)
             $0.delegate = self
         }
@@ -47,7 +46,6 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
 
         dragNDropView.dragDelegate = self
         lyricsScrollView.delegate = self
-        lyricsScrollView.setupTextContents(lyrics: LyricsSession.shared.currentLyrics)
 
         lyricsScrollView.bind(\.fontName, withDefaultName: .lyricsWindowFontName)
         lyricsScrollView.bind(\.fontSize, withUnmatchedDefaultName: .lyricsWindowFontSize)
@@ -61,19 +59,6 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
             self.displayLyrics(animation: false)
         }
 
-        // The HUD owns full-scrollback layout, so it observes raw lyrics for now;
-        // line-only surfaces consume `displayCoordinator` snapshots.
-        LyricsSession.shared.$currentLyrics
-            .signal()
-            .receive(on: DispatchQueue.main)
-            .invoke(LyricsHUDViewController.lyricsChanged, weaklyOn: self)
-            .store(in: &cancelBag)
-        LyricsSession.shared.$currentLineIndex
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] _ in
-                self.displayLyrics()
-            }.store(in: &cancelBag)
-
         observeNotification(
             name: NSScrollView.willStartLiveScrollNotification,
             object: lyricsScrollView,
@@ -82,8 +67,33 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
         NotificationCenter.default.addObserver(self, selector: #selector(applicationWillTerminate(_:)), name: NSApplication.willTerminateNotification, object: nil)
     }
 
+    /// Wire the HUD to its data sources. The owning window controller must
+    /// call this immediately after instantiation; subscriptions live here
+    /// rather than in `awakeFromNib` because the session isn't reachable from
+    /// inside the storyboard's lifecycle.
+    func configure(player: PlayerHandle, session: LyricsSession, clock: PlaybackClock) {
+        self.player = player
+        self.session = session
+        self.clock = clock
+
+        lyricsScrollView.setupTextContents(lyrics: session.currentLyrics)
+
+        // The HUD owns full-scrollback layout, so it observes raw lyrics for now;
+        // line-only surfaces consume `displayCoordinator` snapshots.
+        session.$currentLyrics
+            .signal()
+            .receive(on: DispatchQueue.main)
+            .invoke(LyricsHUDViewController.lyricsChanged, weaklyOn: self)
+            .store(in: &cancelBag)
+        session.$currentLineIndex
+            .receive(on: DispatchQueue.main)
+            .sink { [unowned self] _ in
+                self.displayLyrics()
+            }.store(in: &cancelBag)
+    }
+
     override func viewWillAppear() {
-        noLyricsLabel.isHidden = LyricsSession.shared.currentLyrics != nil
+        noLyricsLabel.isHidden = session?.currentLyrics != nil
         displayLyrics(animation: false)
     }
 
@@ -91,7 +101,7 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
 
     private func lyricsChanged() {
         DispatchQueue.main.async {
-            let newLyrics = LyricsSession.shared.currentLyrics
+            let newLyrics = self.session.currentLyrics
             self.lyricsScrollView.setupTextContents(lyrics: newLyrics)
             self.noLyricsLabel.isHidden = newLyrics != nil
             self.displayLyrics(animation: false)
@@ -99,6 +109,7 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
     }
 
     private func displayLyrics(animation: Bool = true) {
+        guard let clock else { return }
         let pos = clock.adjustedPlaybackTime
         lyricsScrollView.highlight(position: pos)
         guard isTracking else {
@@ -119,7 +130,7 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
     // MARK: ScrollLyricsViewDelegate
 
     func doubleClickLyricsLine(at position: TimeInterval) {
-        let rawTime = LyricsSession.shared.currentLyrics?.playbackTime(from: position) ?? position
+        let rawTime = session.currentLyrics?.playbackTime(from: position) ?? position
         player.playbackTime = rawTime
         isTracking = true
     }
@@ -142,7 +153,7 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
 
     func dragFinished(content: String) {
         do {
-            try LyricsSession.shared.importLyrics(content)
+            try session.importLyrics(content)
         } catch {
             let alert = NSAlert(error: error)
             alert.beginSheetModal(for: view.window!)
