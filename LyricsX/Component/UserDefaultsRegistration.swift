@@ -3,6 +3,7 @@ import GenericID
 
 enum UserDefaultsRegistration {
     static func register(defaults: UserDefaults = .standard) {
+        ArchivedColorBindingTransformer.register()
         let currentLang = NSLocale.preferredLanguages.first ?? "en"
         let isZh = currentLang.hasPrefix("zh") || currentLang.hasPrefix("yue")
         let isHant = isZh && (currentLang.contains("-Hant") || currentLang.contains("-HK"))

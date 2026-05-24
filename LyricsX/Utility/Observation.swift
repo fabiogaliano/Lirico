@@ -1,6 +1,48 @@
 import AppKit
 import GenericID
 
+final class ArchivedColorBindingTransformer: ValueTransformer {
+    static let name = NSValueTransformerName("ArchivedColorBindingTransformer")
+
+    static func register() {
+        ValueTransformer.setValueTransformer(ArchivedColorBindingTransformer(), forName: name)
+    }
+
+    override class func transformedValueClass() -> AnyClass {
+        NSColor.self
+    }
+
+    override class func allowsReverseTransformation() -> Bool {
+        true
+    }
+
+    override func transformedValue(_ value: Any?) -> Any? {
+        guard let data = value as? Data else { return nil }
+        return try? NSKeyedUnarchiver.unarchivedObject(ofClass: NSColor.self, from: data)
+    }
+
+    override func reverseTransformedValue(_ value: Any?) -> Any? {
+        guard let color = value as? NSColor else { return nil }
+        return try? NSKeyedArchiver.archivedData(withRootObject: color, requiringSecureCoding: true)
+    }
+}
+
+extension UserDefaults.DefaultsKeys {
+    fileprivate var usesArchivedColorBindingTransformer: Bool {
+        switch key {
+        case UserDefaults.DefaultsKeys.desktopLyricsColor.key,
+             UserDefaults.DefaultsKeys.desktopLyricsProgressColor.key,
+             UserDefaults.DefaultsKeys.desktopLyricsShadowColor.key,
+             UserDefaults.DefaultsKeys.desktopLyricsBackgroundColor.key,
+             UserDefaults.DefaultsKeys.lyricsWindowTextColor.key,
+             UserDefaults.DefaultsKeys.lyricsWindowHighlightColor.key:
+            return true
+        default:
+            return false
+        }
+    }
+}
+
 private class NotificationObservationToken {
     var center: NotificationCenter?
     var token: NSObjectProtocol?
@@ -108,8 +150,10 @@ extension NSObject {
         options: [NSBindingOption: Any] = [:]
     ) {
         var options = options
-        if defaultName.valueTransformer != nil {
-            options[.valueTransformerName] = NSValueTransformerName.keyedUnarchiveFromDataTransformerName
+        if defaultName.usesArchivedColorBindingTransformer {
+            options[.valueTransformerName] = ArchivedColorBindingTransformer.name
+        } else if defaultName.valueTransformer != nil {
+            options[.valueTransformerName] = NSValueTransformerName("NSKeyedUnarchiveFromData")
         }
         bind(binding, to: observable, withKeyPath: defaultName.key, options: options)
     }

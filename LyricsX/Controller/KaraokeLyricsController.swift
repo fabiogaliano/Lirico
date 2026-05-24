@@ -77,6 +77,13 @@ class KaraokeLyricsWindowController: NSWindowController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func showWindow(_ sender: Any?) {
+        // The desktop karaoke surface is a borderless overlay. Asking AppKit
+        // to make it key produces a warning because borderless windows cannot
+        // become key; we only need it visible.
+        window?.orderFront(sender)
+    }
+
     private func addObserver() {
         lyricsView.bind(\.textColor, withDefaultName: .desktopLyricsColor)
         lyricsView.bind(\.progressColor, withDefaultName: .desktopLyricsProgressColor)
