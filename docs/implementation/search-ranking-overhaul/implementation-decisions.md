@@ -47,3 +47,15 @@ implementation-discovered ambiguities belong below.
 - **Impact:** `Group.swift` cancellation path. Relevant context for SR-05 (manual 30s timeout) and SR-07 (automatic 15s deadline), which key off the presence/absence of `completed`.
 - **Alternatives considered:** Explicit completion flag guarded by a lock/actor (added complexity for an unobservable race).
 - **Follow-up:** Revisit only if SR-05/SR-07 cancellation/deadline handling shows a real defect traceable to this window.
+
+## DEC-004 — LyricsX builds against local LyricsKit by default (temporary build scaffolding)
+
+- **Date:** 2026-05-25
+- **Story:** SR-03
+- **Status:** accepted
+- **Problem:** SR-03's code requires the SR-01 `LyricsProviders.Group(descriptors:)` / `ProviderDescriptor` API, which exists only in the local LyricsKit checkout (`/Users/f/Core/dev/projects/LyricsKit`, commit `ba93db6`), not in the remote-pinned LyricsKit `1.9.0`. The existing `LyricsXPackage/Package.swift` local override was opt-in (`isEnabled: useLocalDependency`, default off), so a normal build would fail against the remote API. The plan (Phase 0.5) sanctioned either default-on local or a documented env toggle.
+- **Decision:** Added a dedicated `useLocalLyricsKit` flag, **default-on**, expressed as the negation of an opt-out env var: `useLocalLyricsKit = !envEnable("LYRICSX_USE_REMOTE_LYRICSKIT", default: false)`. The LyricsKit dependency entry now gates on this flag. MusicPlayer's dependency is untouched (still the opt-in `LYRICSX_USE_LOCAL_DEPENDENCY`). Escape hatch: `LYRICSX_USE_REMOTE_LYRICSKIT=1` restores the remote package. The existing `isClonedDependency` guard still forces remote when built as a cloned dependency.
+- **Why:** Default-on local is required for every contributor to build the overhaul branch without per-machine env setup; a negated opt-out flag keeps the default correct while preserving a CI/release escape hatch. Local path overrides are intentionally not pinned in `Package.resolved`.
+- **Impact:** `LyricsXPackage/Package.swift`. A clone WITHOUT the sibling `../../LyricsKit` checkout falls back to remote `1.9.0` and will fail to build SR-03+ code (expected during this overhaul). This is the inverse default-risk of the old opt-in flag.
+- **Alternatives considered:** Keep opt-in + document `LYRICSX_USE_LOCAL_DEPENDENCY=1` (rejected: easy to forget, breaks default build for the overhaul branch); vendor the LyricsKit changes (out of scope).
+- **Follow-up:** **Must reconcile before merge/release.** When SR-01/SR-02 LyricsKit changes are published and the remote pin is bumped, revert `useLocalLyricsKit` to the opt-in toggle (or remove it) and update `Package.resolved`. Track in SR-08 cleanup.
