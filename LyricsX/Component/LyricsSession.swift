@@ -218,7 +218,19 @@ class LyricsSession: NSObject {
         }
 
         let duration = track.duration ?? 0
-        let request = LyricsSearchRequest(searchTerm: .info(title: title, artist: artist), duration: duration, limit: 5)
+        // Album metadata is included in automatic-track requests so providers
+        // like LRCLIB can attempt an exact-match lookup (SR-02). Manual
+        // searches omit album to avoid over-constraining user-initiated queries.
+        var autoUserInfo: [String: String] = [:]
+        if let album = track.album, !album.isEmpty {
+            autoUserInfo[LyricsSearchRequest.UserInfoKey.albumName] = album
+        }
+        let request = LyricsSearchRequest(
+            searchTerm: .info(title: title, artist: artist),
+            duration: duration,
+            limit: 5,
+            userInfo: autoUserInfo
+        )
         searchRequest = request
         searchTask = Task { @MainActor in
             do {

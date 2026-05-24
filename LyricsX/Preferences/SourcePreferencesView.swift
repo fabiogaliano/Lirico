@@ -122,14 +122,14 @@ struct SourcePreferencesView: View {
 
     private func commitOrder() {
         searchSettings.sourcePriorityOrder = sources
-        LyricsSelector.shared.normalize(against: availableLyricsSources, settings: searchSettings)
+        LyricsSelector.shared.normalize(against: availableLyricsSources(for: searchSettings), settings: searchSettings)
         sources = searchSettings.sourcePriorityOrder
     }
 
     // MARK: - Load
 
     private func loadSettings() {
-        LyricsSelector.shared.normalize(against: availableLyricsSources, settings: searchSettings)
+        LyricsSelector.shared.normalize(against: availableLyricsSources(for: searchSettings), settings: searchSettings)
         sourcePriorityEnabled = searchSettings.sourcePriorityEnabled
         sources = searchSettings.sourcePriorityOrder
     }

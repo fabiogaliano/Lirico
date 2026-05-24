@@ -1,8 +1,16 @@
 import Foundation
 import LyricsXFoundation
 
-/// The canonical list of available lyrics source names, derived from the known provider registry.
-let availableLyricsSources: [String] = LyricsProviders.Service.allCases.map(\.displayName)
+/// Returns the canonical list of available lyrics source names for the given settings.
+///
+/// Derived from the same `makeDescriptors` path that `LyricsSearchPipeline`
+/// uses to build the active provider group, so source-priority preferences
+/// and emitted candidate source names always refer to the same strings.
+/// Musixmatch is included only when a non-empty token is present in `settings`,
+/// exactly matching the provider group `LyricsSearchPipeline.rebuildProviders()` builds.
+func availableLyricsSources(for settings: SearchSettings) -> [String] {
+    makeDescriptors(musixmatchToken: settings.musixmatchToken).map(\.source)
+}
 
 /// `LyricsSelector` owns the "which lyrics wins?" concept end-to-end.
 ///

@@ -78,7 +78,7 @@ final class AppContainer {
     /// side effects on the container (rather than inside individual inits)
     /// means the constructor stays free of "and now show a window" magic.
     func start(statusBarMenu: NSMenu) {
-        LyricsSelector.shared.normalize(against: availableLyricsSources, settings: searchSettings)
+        LyricsSelector.shared.normalize(against: availableLyricsSources(for: searchSettings), settings: searchSettings)
         karaokeWindowController.showWindow(nil)
         menuBarController.statusBarMenu = statusBarMenu
         observeTouchBarPreference()

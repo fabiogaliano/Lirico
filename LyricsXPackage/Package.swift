@@ -18,6 +18,10 @@ func envEnable(_ key: String, default defaultValue: Bool = false) -> Bool {
 }
 
 let useLocalDependency = envEnable("LYRICSX_USE_LOCAL_DEPENDENCY")
+// SR-03: enable local LyricsKit checkout unconditionally so this build
+// resolves the descriptor/Group(descriptors:) API from the local SR-01 commit.
+// Set LYRICSX_USE_REMOTE_LYRICSKIT=1 to force the remote package instead.
+let useLocalLyricsKit = !envEnable("LYRICSX_USE_REMOTE_LYRICSKIT", default: false)
 
 extension Package.Dependency {
     enum LocalSearchPath {
@@ -66,7 +70,7 @@ let package = Package(
             local: .package(
                 path: "../../LyricsKit",
                 isRelative: true,
-                isEnabled: useLocalDependency
+                isEnabled: useLocalLyricsKit
             ),
             remote: .package(
                 url: "https://github.com/MxIris-LyricsX-Project/LyricsKit",

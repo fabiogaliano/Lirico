@@ -64,11 +64,45 @@ final class LyricsSearchPipeline {
     }
 
     private func rebuildProviders() {
-        var providers: [LyricsProvider] = LyricsProviders.Service.noAuthenticationRequiredServices
-            .map { $0.create() }
-        if let token = settings.musixmatchToken, !token.isEmpty {
-            providers.append(LyricsProviders.Musixmatch(usertoken: token))
-        }
-        providerGroup = LyricsProviders.Group(providers: providers)
+        let descriptors = makeDescriptors(musixmatchToken: settings.musixmatchToken)
+        providerGroup = LyricsProviders.Group(descriptors: descriptors)
     }
+}
+
+// MARK: - Descriptor construction
+
+/// The single source of truth for which providers are active and what their
+/// canonical source names are. Both `LyricsSearchPipeline.rebuildProviders()`
+/// and `availableLyricsSources(for:)` derive from this path so the source-priority
+/// preference list and the emitted candidate source strings can never drift.
+///
+/// Musixmatch is included only when a non-empty token is provided, per DEC-001.
+internal func makeDescriptors(musixmatchToken: String?) -> [LyricsProviders.ProviderDescriptor] {
+    var descriptors: [LyricsProviders.ProviderDescriptor] = [
+        LyricsProviders.ProviderDescriptor(
+            source: LyricsProviders.ServiceID.netease.displayName,
+            provider: LyricsProviders.Service.netease.create()
+        ),
+        LyricsProviders.ProviderDescriptor(
+            source: LyricsProviders.ServiceID.qq.displayName,
+            provider: LyricsProviders.Service.qq.create()
+        ),
+        LyricsProviders.ProviderDescriptor(
+            source: LyricsProviders.ServiceID.kugou.displayName,
+            provider: LyricsProviders.Service.kugou.create()
+        ),
+        LyricsProviders.ProviderDescriptor(
+            source: LyricsProviders.ServiceID.lrclib.displayName,
+            provider: LyricsProviders.Service.lrclib.create()
+        ),
+    ]
+    if let token = musixmatchToken, !token.isEmpty {
+        descriptors.append(LyricsProviders.ProviderDescriptor(
+            source: LyricsProviders.ServiceID.musixmatch.displayName,
+            provider: LyricsProviders.Service.musixmatch.create(
+                LyricsProviders.MusixmatchOptions(usertoken: token)
+            )
+        ))
+    }
+    return descriptors
 }
