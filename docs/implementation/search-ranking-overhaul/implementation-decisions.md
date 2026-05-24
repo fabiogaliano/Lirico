@@ -59,3 +59,15 @@ implementation-discovered ambiguities belong below.
 - **Impact:** `LyricsXPackage/Package.swift`. A clone WITHOUT the sibling `../../LyricsKit` checkout falls back to remote `1.9.0` and will fail to build SR-03+ code (expected during this overhaul). This is the inverse default-risk of the old opt-in flag.
 - **Alternatives considered:** Keep opt-in + document `LYRICSX_USE_LOCAL_DEPENDENCY=1` (rejected: easy to forget, breaks default build for the overhaul branch); vendor the LyricsKit changes (out of scope).
 - **Follow-up:** **Must reconcile before merge/release.** When SR-01/SR-02 LyricsKit changes are published and the remote pin is bumped, revert `useLocalLyricsKit` to the opt-in toggle (or remove it) and update `Package.resolved`. Track in SR-08 cleanup.
+
+## DEC-005 — LRCLIB dual-path via a LRCLIB-only `lyrics(for:)` override
+
+- **Date:** 2026-05-25
+- **Story:** SR-02
+- **Status:** accepted
+- **Problem:** The exact `/api/get` signature lookup must run concurrently with the existing `/api/search` broad path, but the shared `_LyricsProvider.lyrics(for:)` default calls `search(for:)` then awaits per-item fetches serially. Adding a second concurrent path without restructuring the provider protocol required a provider-specific entry point.
+- **Decision:** Override `lyrics(for:)` on the concrete `LyricsProviders.LRCLIB` type only. It starts both paths via `async let` (broad + exact), dedupes by LRCLIB `id` (exact wins ties by being inserted first), then reuses the base's per-item fetch fan-out. The shared `_LyricsProvider` contract and all other providers are untouched. Because LRCLIB is stored in `Group` as a `LyricsProvider` existential, both `Group.lyrics(for:)` and SR-01's `Group.events(for:)` dispatch to this override, so dual-path applies uniformly.
+- **Why:** A LRCLIB-only override is the smallest change that delivers concurrent dual-path without forcing every provider to adopt a new multi-path contract.
+- **Impact:** `LRCLIB.swift`. Also widened `LyricsProviderLog` from `private` to `internal` (module-scoped, no behavior change) so the override logs per-item fetch failures identically to the base. Partial-failure semantics: one-path-fail + one-path-success yields results without throwing; an empty-but-successful broad response is NOT a failure (no throw), per the plan's "failed only when all attempted paths fail before yielding usable candidates"; the provider throws only when both paths error before yielding. Exact-lookup duration is sent rounded to whole seconds (`%.0f`).
+- **Alternatives considered:** Make `gatherTokens` the new `search(for:)` contract for all providers (rejected: forces unrelated providers to change); serialize the two paths (rejected: violates the non-blocking concurrency rule).
+- **Follow-up:** The token-level `fromExactLookup` flag is set but not surfaced into `Lyrics.metadata`. If source-trace diagnostics are wanted, surface it in SR-08; not required by SR-02's contract.
