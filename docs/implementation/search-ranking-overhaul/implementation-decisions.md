@@ -1,0 +1,49 @@
+# Search Ranking Overhaul — Implementation Decision Log
+
+This log captures **implementation-time decisions** that were not already explicitly
+resolved in the plan/phases/stories. The orchestrator owns and normalizes this file;
+implementation subagents may propose entries.
+
+See `search-ranking-overhaul.md` (**Resolved decisions**) for decisions already fixed by
+the plan — those are not repeated here. Only deviations, newly-forced choices, and
+implementation-discovered ambiguities belong below.
+
+---
+
+<!-- New entries appended below in DEC-00X order. -->
+
+## DEC-001 — `events(for:)` ordinal source-name fallback for the legacy initializer
+
+- **Date:** 2026-05-25
+- **Story:** SR-01
+- **Status:** accepted
+- **Problem:** `LyricsProviders.Group` keeps two initializers: the legacy `init(providers:plugins:)` and the new `init(descriptors:plugins:)`. Only the descriptor path knows canonical source names. `events(for:)` could be called on a group built either way.
+- **Decision:** When `descriptors` is empty (legacy init), `events(for:)` emits synthetic ordinal source names (`"Provider0"`, `"Provider1"`, …) instead of crashing or returning an empty stream. The descriptor init echoes canonical names verbatim.
+- **Why:** Graceful degradation keeps `events(for:)` usable for tests/legacy callers without a hard precondition, while the descriptor path remains the single source of truth for canonical names.
+- **Impact:** **SR-03 MUST construct the LyricsX provider group via `init(descriptors:plugins:)` before consuming `events(for:)` source names.** If SR-03 consumes events from a legacy-initialized group, source-priority logic in SR-05/SR-07 would silently compare against ordinal names and break. No code compiling today breaks (purely additive).
+- **Alternatives considered:** `precondition`/`fatalError` on legacy init + events (too aggressive for a compatibility window); making `events(for:)` unavailable on legacy groups (would complicate the type).
+- **Follow-up:** SR-03 to migrate construction to the descriptor initializer and verify canonical source names flow into `lyrics.metadata.service` / `sourcePriorityOrder`.
+
+## DEC-002 — `lyrics(for:)` and `events(for:)` are independent paths sharing a fan-out helper
+
+- **Date:** 2026-05-25
+- **Story:** SR-01
+- **Status:** accepted
+- **Problem:** The plan describes `lyrics(for:)` as a "candidate-only convenience wrapper" over the event substrate. Reimplementing `lyrics(for:)` on top of `events(for:)` risked changing existing callers' ordering/cancellation/error model (events are non-throwing; `lyrics(for:)` is an `AsyncThrowingStream`).
+- **Decision:** Keep `lyrics(for:)` as its own unchanged code path. `events(for:)` mirrors its plugin-expansion structure (run original-request providers immediately + concurrently expand plugins and run derived-request providers) and both share a single `runProviders(_:for:continuation:)` fan-out helper so per-request provider iteration cannot drift.
+- **Why:** Preserves exact legacy behavior for `lyrics(for:)` callers while keeping the two paths structurally aligned via the shared helper.
+- **Impact:** `Group.swift`. Future behavioral changes to one path are not automatically inherited by the other; the shared helper covers per-request fan-out only, not the top-level orchestration (original-vs-plugin task structure is duplicated and must be kept in sync by hand).
+- **Alternatives considered:** Reimplement `lyrics(for:)` over `events(for:)` (rejected: behavioral-drift risk for existing callers).
+- **Follow-up:** none for SR-01. Revisit if a future story needs `lyrics(for:)` to gain event-only behavior.
+
+## DEC-003 — `completed` suppression relies on a post-taskgroup `Task.isCancelled` check
+
+- **Date:** 2026-05-25
+- **Story:** SR-01
+- **Status:** accepted
+- **Problem:** `events(for:)` suppresses `.completed` when the wrapping task is cancelled, checked after `withTaskGroup` returns. A narrow race exists: if a consumer breaks the stream in the window between all providers finishing and the `isCancelled` check, `.completed` can be suppressed even though work finished normally.
+- **Decision:** Accept this as a known, benign limitation. The only reachable failure direction is "false cancelled" (never "spurious completed after a real cancel"), and it can only occur once the consumer has already stopped iterating, so the suppressed `.completed` would not be observed anyway.
+- **Why:** The safe failure direction plus the unobservable-by-construction window make a heavier synchronization mechanism unjustified for this pass.
+- **Impact:** `Group.swift` cancellation path. Relevant context for SR-05 (manual 30s timeout) and SR-07 (automatic 15s deadline), which key off the presence/absence of `completed`.
+- **Alternatives considered:** Explicit completion flag guarded by a lock/actor (added complexity for an unobservable race).
+- **Follow-up:** Revisit only if SR-05/SR-07 cancellation/deadline handling shows a real defect traceable to this window.
