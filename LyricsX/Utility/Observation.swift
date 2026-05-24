@@ -109,7 +109,7 @@ extension NSObject {
     ) {
         var options = options
         if defaultName.valueTransformer != nil {
-            options[.valueTransformerName] = NSValueTransformerName.secureUnarchiveFromDataTransformerName
+            options[.valueTransformerName] = NSValueTransformerName.keyedUnarchiveFromDataTransformerName
         }
         bind(binding, to: observable, withKeyPath: defaultName.key, options: options)
     }
