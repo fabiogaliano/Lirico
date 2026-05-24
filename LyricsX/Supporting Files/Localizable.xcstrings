@@ -1,7 +1,17 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "" : {
+
+    },
+    ".*" : {
+
+    },
+    "%lld" : {
+
+    },
     "About LyricsX" : {
+      "comment" : "menu",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -111,6 +121,7 @@
 
     },
     "Always on top" : {
+      "comment" : "HUD accessory",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -218,16 +229,6 @@
     },
     "Apple Music" : {
 
-    },
-    "Application" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Application"
-          }
-        }
-      }
     },
     "Apply" : {
       "localizations" : {
@@ -451,6 +452,7 @@
 
     },
     "Check For Update..." : {
+      "comment" : "menu",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -560,6 +562,7 @@
 
     },
     "Close" : {
+      "comment" : "menu",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -576,6 +579,7 @@
 
     },
     "Copy" : {
+      "comment" : "menu",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -592,6 +596,7 @@
 
     },
     "Cut" : {
+      "comment" : "menu",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -608,6 +613,7 @@
 
     },
     "Disable Lyrics for Entire Album" : {
+      "comment" : "menu",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -834,6 +840,7 @@
 
     },
     "Edit" : {
+      "comment" : "menu",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -847,6 +854,7 @@
 
     },
     "Enable Karaoke Lyrics" : {
+      "comment" : "menu",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -956,6 +964,7 @@
 
     },
     "Enable Menu Bar Lyrics" : {
+      "comment" : "menu",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -1189,6 +1198,7 @@
 
     },
     "Hide Application" : {
+      "comment" : "menu",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1202,6 +1212,7 @@
 
     },
     "Hide Others" : {
+      "comment" : "menu",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1230,6 +1241,7 @@
 
     },
     "Lyrics" : {
+      "comment" : "menu",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -1336,6 +1348,7 @@
       }
     },
     "Lyrics Delay Setter" : {
+      "comment" : "menu",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1346,6 +1359,7 @@
       }
     },
     "Lyrics Offset:" : {
+      "comment" : "menu",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -1558,17 +1572,8 @@
         }
       }
     },
-    "Main Menu" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Main Menu"
-          }
-        }
-      }
-    },
     "Minimize" : {
+      "comment" : "menu",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1584,20 +1589,11 @@
     "Move selected source up" : {
 
     },
-    "ms" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "ms"
-          }
-        }
-      }
-    },
     "No Conversion" : {
 
     },
     "No Lyrics\n\nDrag & Drop to import LRC file" : {
+      "comment" : "HUD empty state",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -1820,6 +1816,7 @@
 
     },
     "Paste" : {
+      "comment" : "menu",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1830,6 +1827,7 @@
       }
     },
     "Paste and Match Style" : {
+      "comment" : "menu",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1843,6 +1841,7 @@
 
     },
     "Preferences..." : {
+      "comment" : "menu",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -1952,6 +1951,7 @@
 
     },
     "Quit Application" : {
+      "comment" : "app menu",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1962,6 +1962,7 @@
       }
     },
     "Quit LyricsX" : {
+      "comment" : "menu",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2068,6 +2069,7 @@
       }
     },
     "Redo" : {
+      "comment" : "menu",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2300,6 +2302,7 @@
       }
     },
     "Search Lyrics..." : {
+      "comment" : "menu",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2409,6 +2412,7 @@
 
     },
     "Select All" : {
+      "comment" : "menu",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2425,6 +2429,7 @@
 
     },
     "Show In Finder" : {
+      "comment" : "menu",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2531,6 +2536,7 @@
       }
     },
     "Show Lyrics Window" : {
+      "comment" : "menu",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2758,6 +2764,7 @@
 
     },
     "Synchronism" : {
+      "comment" : "HUD button",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3200,6 +3207,7 @@
       }
     },
     "Undo" : {
+      "comment" : "menu",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3219,6 +3227,7 @@
 
     },
     "Window" : {
+      "comment" : "menu",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3232,6 +3241,7 @@
 
     },
     "Write to iTunes" : {
+      "comment" : "menu",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3338,6 +3348,7 @@
       }
     },
     "Wrong Lyrics" : {
+      "comment" : "menu",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

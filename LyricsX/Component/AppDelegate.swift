@@ -3,7 +3,6 @@ import GenericID
 import MusicPlayer
 import Semver
 
-@main
 class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenuDelegate {
     static var shared: AppDelegate? {
         return NSApplication.shared.delegate as? AppDelegate

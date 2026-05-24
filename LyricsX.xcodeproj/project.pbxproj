@@ -92,6 +92,7 @@
 		E967A20C2D2AD6DB00982E06 /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = E967A20B2D2AD6DB00982E06 /* LaunchAtLogin */; };
 		E975C5BC2D380B920059BE92 /* PreferenceWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E975C5BA2D380B920059BE92 /* PreferenceWindowController.swift */; };
 		F1D0000100000000000A0001 /* MainMenuBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D0000000000000000A0001 /* MainMenuBuilder.swift */; };
+		F1D0000300000000000A0002 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D0000200000000000A0002 /* main.swift */; };
 		FA0000012F200000000A0001 /* SettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0001 /* SettingsSection.swift */; };
 		FA0000012F200000000A0002 /* LabPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0002 /* LabPreferencesView.swift */; };
 		FA0000012F200000000A0003 /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0003 /* PreferencesView.swift */; };
@@ -215,6 +216,7 @@
 		E9A38A6A2D7337E700DEFE0E /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		E9A38A6D2D7337E700DEFE0E /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		F1D0000000000000000A0001 /* MainMenuBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenuBuilder.swift; sourceTree = "<group>"; };
+		F1D0000200000000000A0002 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		E9C5763A2DEDF135009107B5 /* LyricsXPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = LyricsXPackage; sourceTree = "<group>"; };
 		E9E55137207C4CB000F9958A /* TouchBarLyricsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchBarLyricsController.swift; sourceTree = "<group>"; };
 		E9EBDA2421115A150019FDF9 /* Observation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observation.swift; sourceTree = "<group>"; };
@@ -288,6 +290,7 @@
 		BB4141AC1E458BA800A51775 /* LyricsX */ = {
 			isa = PBXGroup;
 			children = (
+				F1D0000200000000000A0002 /* main.swift */,
 				E9C49A8E2110490700159ADC /* Component */,
 				E9C4E8B02D7845DD00E3D8CA /* TouchBar */,
 				BB063B2F1E8A93CE00A25C3E /* View */,
@@ -722,6 +725,7 @@
 				BB7EC7B21E4E018C00A0AC3F /* LyricsHUDViewController.swift in Sources */,
 				E9EF0D4E2D6F5E0A00D45E0F /* LyricsHUDWindowController.swift in Sources */,
 				F1D0000100000000000A0001 /* MainMenuBuilder.swift in Sources */,
+				F1D0000300000000000A0002 /* main.swift in Sources */,
 				F1A5EA0100000000000A0001 /* SearchLyricsView.swift in Sources */,
 				F1A5EA0100000000000A0002 /* SearchLyricsViewModel.swift in Sources */,
 				E9E55138207C4CB000F9958A /* TouchBarLyricsController.swift in Sources */,
