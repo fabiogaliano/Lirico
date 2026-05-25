@@ -833,6 +833,9 @@
         }
       }
     },
+    "Drag lyrics text" : {
+
+    },
     "Drag rows to reorder. When enabled, higher-priority sources are preferred over lower-quality results from lower-priority sources." : {
 
     },
@@ -1079,7 +1082,7 @@
     "Enable Touch Bar lyrics" : {
 
     },
-    "Enter a song title to search" : {
+    "Enter a title, artist, or both to search" : {
 
     },
     "Filter" : {
@@ -1226,6 +1229,9 @@
 
     },
     "Include translation" : {
+
+    },
+    "Karaoke (word-timed) lyrics" : {
 
     },
     "Keyword or /pattern/" : {
@@ -1592,6 +1598,9 @@
     "No Conversion" : {
 
     },
+    "No likely matches found" : {
+
+    },
     "No Lyrics\n\nDrag & Drop to import LRC file" : {
       "comment" : "HUD empty state",
       "localizations" : {
@@ -1699,10 +1708,7 @@
         }
       }
     },
-    "No results yet" : {
-
-    },
-    "No track is playing" : {
+    "No matching lyrics found" : {
 
     },
     "OK" : {
@@ -2089,6 +2095,7 @@
 
     },
     "Search" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2193,6 +2200,12 @@
           }
         }
       }
+    },
+    "Search cancelled" : {
+
+    },
+    "Search failed. Check your connection and try again." : {
+
     },
     "Search Lyrics" : {
       "comment" : "window title",
@@ -2407,6 +2420,9 @@
           }
         }
       }
+    },
+    "Search timed out. Try again." : {
+
     },
     "Searching…" : {
 
@@ -2641,6 +2657,9 @@
           }
         }
       }
+    },
+    "Show unlikely results (%lld)" : {
+
     },
     "Simplified Chinese" : {
 

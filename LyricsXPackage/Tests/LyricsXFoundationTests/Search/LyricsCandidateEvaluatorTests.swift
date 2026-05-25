@@ -221,6 +221,83 @@ struct TitleAndArtistEvaluatorTests {
         #expect(e.matchTier == .exactTitleArtist || e.matchTier == .strongTitleArtist)
     }
 
+    @Test("Comma-separated collaborator list preserves primary artist match")
+    func commaSeparatedCollaborators_preservePrimaryArtist() {
+        let l = makeLyrics(title: "All I Did Was Dream of You", artist: "beabadoobee,The Marías")
+        let e = evaluator.evaluate(
+            lyrics: l,
+            mode: .titleAndArtist(title: "All I Did Was Dream of You", artist: "beabadoobee"),
+            requestedDuration: nil,
+            requestedAlbum: nil
+        )
+        #expect(e.visibility == .normal)
+        #expect(e.matchTier == .exactTitleArtist)
+    }
+
+    @Test("Ideographic comma collaborator list preserves primary artist match")
+    func ideographicCommaCollaborators_preservePrimaryArtist() {
+        let l = makeLyrics(title: "All I Did Was Dream of You", artist: "beabadoobee、 The Marías")
+        let e = evaluator.evaluate(
+            lyrics: l,
+            mode: .titleAndArtist(title: "All I Did Was Dream of You", artist: "beabadoobee"),
+            requestedDuration: nil,
+            requestedAlbum: nil
+        )
+        #expect(e.visibility == .normal)
+        #expect(e.matchTier == .exactTitleArtist)
+    }
+
+    @Test("Polluted leading artist segment still matches later collaborator")
+    func pollutedLeadingArtistSegment_matchesNonPrimary() {
+        let l = makeLyrics(
+            title: "All I Did Was Dream of You (feat. The Marías)",
+            artist: "Song, beabadoobee"
+        )
+        let e = evaluator.evaluate(
+            lyrics: l,
+            mode: .titleAndArtist(
+                title: "All I Did Was Dream of You (feat. The Marías)",
+                artist: "beabadoobee"
+            ),
+            requestedDuration: nil,
+            requestedAlbum: nil
+        )
+        #expect(e.visibility == .normal)
+        #expect(e.matchTier == .exactTitleArtist)
+    }
+
+    @Test("Missing feat suffix in query still treats title variant as strong")
+    func missingFeatSuffixInQuery_stillStrongVariant() {
+        let l = makeLyrics(
+            title: "All I Did Was Dream of You (feat. The Marías)",
+            artist: "beabadoobee, The Marías"
+        )
+        let e = evaluator.evaluate(
+            lyrics: l,
+            mode: .titleAndArtist(title: "All I Did Was Dream of You", artist: "beabadoobee"),
+            requestedDuration: nil,
+            requestedAlbum: nil
+        )
+        #expect(e.visibility == .normal)
+        #expect(e.matchTier == .strongTitleArtist)
+    }
+
+    @Test("Missing feat suffix in candidate still treats title variant as strong")
+    func missingFeatSuffixInCandidate_stillStrongVariant() {
+        let l = makeLyrics(title: "All I Did Was Dream of You", artist: "beabadoobee")
+        let e = evaluator.evaluate(
+            lyrics: l,
+            mode: .titleAndArtist(
+                title: "All I Did Was Dream of You (feat. The Marías)",
+                artist: "beabadoobee"
+            ),
+            requestedDuration: nil,
+            requestedAlbum: nil
+        )
+        #expect(e.visibility == .normal)
+        #expect(e.matchTier == .strongTitleArtist)
+    }
+
     /// FIX 2: exactPrimary band (96–100) must be strictly above exactNonPrimary band (92–95),
     /// so a primary artist always ranks above a non-primary/featured artist match for the same
     /// title, even when the non-primary has perfect duration+album tiebreakers.

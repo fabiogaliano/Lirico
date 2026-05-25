@@ -5,7 +5,9 @@ import Foundation
 
 /// Returns a lowercased, diacritic-folded, punctuation-collapsed token array.
 ///
-/// This is the shared preprocessing step for both title and artist matching.
+/// This is the shared preprocessing step for generic title/string matching.
+/// Artist splitting uses a separator-preserving path so collaboration markers
+/// such as "," and "&" survive long enough to define artist groups.
 /// The goal is practical comparability, not equivalence — "lacy" and
 /// "drivers license" must NOT become identical tokens.
 func normalizedTokens(_ string: String) -> [String] {
@@ -34,6 +36,39 @@ func normalizedTokens(_ string: String) -> [String] {
 /// Rejoins normalized tokens into a single string for whole-string comparison.
 func normalizedString(_ string: String) -> String {
     normalizedTokens(string).joined(separator: " ")
+}
+
+private let collaborationSuffixPatterns: [String] = [
+    #"\s*(?:\(|\[)\s*(?:feat|ft|featuring|with|x)\.?\b[^\)\]]*(?:\)|\])\s*$"#,
+    #"\s*[-–—]\s*(?:feat|ft|featuring|with|x)\.?\b.*$"#,
+]
+
+private func strippedTrailingCollaborationSuffix(_ title: String) -> String? {
+    let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+
+    for pattern in collaborationSuffixPatterns {
+        let stripped = trimmedTitle.replacingOccurrences(
+            of: pattern,
+            with: "",
+            options: [.regularExpression, .caseInsensitive]
+        ).trimmingCharacters(in: .whitespacesAndNewlines)
+        if stripped != trimmedTitle, !stripped.isEmpty {
+            return stripped
+        }
+    }
+
+    return nil
+}
+
+private func normalizedTitleVariants(_ title: String) -> [String] {
+    var variants = [normalizedString(title)]
+    if let stripped = strippedTrailingCollaborationSuffix(title) {
+        let normalized = normalizedString(stripped)
+        if !normalized.isEmpty, !variants.contains(normalized) {
+            variants.append(normalized)
+        }
+    }
+    return variants
 }
 
 // MARK: - Version-marker stripping
@@ -98,7 +133,9 @@ enum TitleMatchLevel {
 ///
 /// Matching rules:
 /// 1. Exact: normalized strings are identical.
-/// 2. Strong: core token sets are identical (e.g. "lacy" matches "lacy acoustic").
+/// 2. Strong: titles differ only by a trailing collaboration suffix
+///    (e.g. "song" vs "song (feat. artist)") OR core tokens are identical
+///    (e.g. "lacy" matches "lacy acoustic").
 /// 3. Loose: all query tokens appear as whole tokens in the candidate token set.
 ///    For single-token queries (short one-word titles) the query token must
 ///    appear verbatim in the candidate token set — no substring/fuzzy matching.
@@ -115,7 +152,12 @@ func titleMatchLevel(query: String, candidate: String) -> TitleMatchLevel {
     // 1. Exact
     if qNorm == cNorm { return .exact }
 
-    // 2. Strong: core tokens identical
+    // 2a. Strong: differ only by a trailing collaboration suffix.
+    let qVariants = Set(normalizedTitleVariants(query))
+    let cVariants = Set(normalizedTitleVariants(candidate))
+    if !qVariants.isDisjoint(with: cVariants) { return .strong }
+
+    // 2b. Strong: core tokens identical
     let qCore = coreTokens(qTokens)
     let cCore = coreTokens(cTokens)
     if !qCore.isEmpty, !cCore.isEmpty, qCore.joined(separator: " ") == cCore.joined(separator: " ") {
@@ -181,12 +223,51 @@ private let symmetricSeparators: Set<String> = [",", "、", "&", "and", "/"]
 /// Feature separators — tokens after these are non-primary featured artists.
 private let featureSeparators: Set<String> = ["feat", "ft", "featuring", "with", "x"]
 
+private let preservedArtistSeparators: Set<Character> = [",", "、", "&", "/"]
+
+private func normalizedArtistTokens(_ artist: String) -> [String] {
+    var s = artist
+        .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .init(identifier: "en"))
+        .lowercased()
+    s = s
+        .replacingOccurrences(of: "\u{2018}", with: "'")
+        .replacingOccurrences(of: "\u{2019}", with: "'")
+        .replacingOccurrences(of: "\u{201C}", with: "\"")
+        .replacingOccurrences(of: "\u{201D}", with: "\"")
+        .replacingOccurrences(of: "\u{2013}", with: "-")
+        .replacingOccurrences(of: "\u{2014}", with: "-")
+
+    var tokens: [String] = []
+    var current = ""
+
+    func flushCurrent() {
+        guard !current.isEmpty else { return }
+        tokens.append(current)
+        current.removeAll(keepingCapacity: true)
+    }
+
+    for scalar in s.unicodeScalars {
+        let character = Character(scalar)
+        if character.isLetter || character.isNumber {
+            current.append(character)
+        } else if preservedArtistSeparators.contains(character) {
+            flushCurrent()
+            tokens.append(String(character))
+        } else {
+            flushCurrent()
+        }
+    }
+    flushCurrent()
+
+    return tokens
+}
+
 /// Splits an artist string into (primaryToken, [allNormalizedTokens]).
 ///
 /// "Primary" is defined as the first normalized token before any separator.
 /// Collaboration/feature separators are used to divide multi-artist strings.
 func splitArtistTokens(_ artist: String) -> (primary: String, all: [String]) {
-    let tokens = normalizedTokens(artist)
+    let tokens = normalizedArtistTokens(artist)
     var artistGroups: [[String]] = [[]]
 
     for token in tokens {

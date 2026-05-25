@@ -25,22 +25,17 @@ struct SearchLyricsView: View {
                 .padding(20)
         }
         .frame(minWidth: 720, minHeight: 480)
-        // Invisible button wired to Command-Return so the shortcut applies lyrics
-        // without interfering with plain Return in the text fields.
         .background(
             Button("") { if viewModel.canApply { viewModel.apply() } }
                 .keyboardShortcut(.return, modifiers: .command)
                 .hidden()
         )
-        // Escape cancels the active search.
         .background(
             Button("") { viewModel.cancelSearch() }
                 .keyboardShortcut(.escape, modifiers: [])
                 .hidden()
         )
     }
-
-    // MARK: - Search form
 
     private var searchForm: some View {
         HStack(spacing: 8) {
@@ -52,7 +47,6 @@ struct SearchLyricsView: View {
                 .onSubmit { handleReturn() }
             Button(buttonTitle) { viewModel.performButtonAction() }
                 .disabled(!viewModel.canSearch && viewModel.buttonLabel == .search)
-            // Subtle spinner visible while a search is running.
             ProgressView()
                 .controlSize(.small)
                 .opacity(viewModel.isSearching ? 1 : 0)
@@ -68,9 +62,6 @@ struct SearchLyricsView: View {
         }
     }
 
-    // MARK: - Status line
-
-    /// One compact line below the search row, above the table.
     @ViewBuilder
     private var statusLine: some View {
         Text(statusCopy)
@@ -119,8 +110,6 @@ struct SearchLyricsView: View {
         }
     }
 
-    // MARK: - Results and preview
-
     private var resultsAndPreview: some View {
         HStack(alignment: .top, spacing: 16) {
             resultsTable
@@ -130,11 +119,16 @@ struct SearchLyricsView: View {
         }
     }
 
-    // MARK: - Results table
-
     private var resultsTable: some View {
         Table(viewModel.visibleRows, selection: $viewModel.selectionID) {
-            // Mic indicator column: narrow, shows mic.fill SF Symbol for karaoke rows.
+            TableColumn("") { result in
+                Image(systemName: "line.3.horizontal")
+                    .foregroundStyle(Color.secondary)
+                    .help("Drag lyrics text")
+                    .draggable(viewModel.lrcText(for: result))
+            }
+            .width(20)
+
             TableColumn("") { result in
                 if !result.syncIconName.isEmpty {
                     Image(systemName: result.syncIconName)
@@ -147,7 +141,6 @@ struct SearchLyricsView: View {
             TableColumn("Title") { result in
                 Text(result.title)
                     .foregroundStyle(result.isUnlikely ? Color.secondary : Color.primary)
-                    .draggable(viewModel.lrcText(for: result))
             }
 
             TableColumn("Artist") { result in
@@ -163,7 +156,6 @@ struct SearchLyricsView: View {
         .onChange(of: viewModel.selectionID) { _, _ in
             viewModel.updatePreview()
         }
-        // Double-click applies when Apply is enabled.
         .simultaneousGesture(
             TapGesture(count: 2).onEnded {
                 if viewModel.canApply { viewModel.apply() }
@@ -175,8 +167,6 @@ struct SearchLyricsView: View {
             }
         }
     }
-
-    // MARK: - Empty / loading / error overlay
 
     @ViewBuilder
     private var emptyResultsView: some View {
@@ -206,31 +196,14 @@ struct SearchLyricsView: View {
         .foregroundStyle(.secondary)
     }
 
-    // MARK: - Unlikely toggle
-
     @ViewBuilder
     private var unlikelyToggle: some View {
-        // Hidden when there are zero unlikely candidates; default OFF for each new search.
         if viewModel.unlikelyCount > 0 {
-            Toggle(
-                "Show unlikely results (\(viewModel.unlikelyCount))",
-                isOn: Binding(
-                    get: { viewModel.showUnlikelyResults },
-                    set: { newValue in
-                        viewModel.showUnlikelyResults = newValue
-                        // When toggled OFF, invalidate hidden-row selection.
-                        if !newValue {
-                            viewModel.unlikelyToggleChanged()
-                        }
-                    }
-                )
-            )
-            .controlSize(.small)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            Toggle("Show unlikely results (\(viewModel.unlikelyCount))", isOn: $viewModel.showUnlikelyResults)
+                .controlSize(.small)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
-
-    // MARK: - Preview pane
 
     private var previewPane: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -277,8 +250,6 @@ struct SearchLyricsView: View {
         )
     }
 
-    // MARK: - Footer
-
     private var footer: some View {
         HStack {
             Spacer()
@@ -287,11 +258,6 @@ struct SearchLyricsView: View {
         }
     }
 
-    // MARK: - Keyboard helpers
-
-    /// Return in a text field starts search when idle; starts Search Again when fields
-    /// changed during an active search; does nothing when searching with unchanged fields.
-    /// Plain Return never applies lyrics.
     private func handleReturn() {
         switch viewModel.buttonLabel {
         case .search:
@@ -299,7 +265,6 @@ struct SearchLyricsView: View {
         case .searchAgain:
             viewModel.search()
         case .cancel:
-            // Fields unchanged while searching — Return does nothing.
             break
         }
     }
