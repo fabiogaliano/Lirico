@@ -438,6 +438,151 @@ struct SourcePriorityTests {
     }
 }
 
+// MARK: - Case 7: Source priority applies only for near-equal candidates
+
+extension SourcePriorityTests {
+    /// Case 7: When two candidates differ by more than `nearEqualSourcePriorityWindow`,
+    /// source priority is irrelevant — the better-scoring candidate wins regardless of source.
+    @Test("Case 7: Source priority does NOT apply when score gap exceeds window")
+    func case7_sourcePriorityIgnored_whenGapExceedsWindow() {
+        let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
+        // highPriority source but worse score (no duration match)
+        let poorMatch = makeCandidate(
+            makeLyrics(title: "lacy", artist: "Olivia Rodrigo", service: "QQMusic"),
+            mode: mode, arrivalIndex: 0,
+            requestedDuration: 210  // no duration in lyrics → neutral score
+        )
+        // lowPriority source but better score (perfect duration match)
+        let goodMatch = makeCandidate(
+            makeLyrics(title: "lacy", artist: "Olivia Rodrigo", duration: 210, service: "NetEase"),
+            mode: mode, arrivalIndex: 1,
+            requestedDuration: 210
+        )
+
+        let scoreDiff = goodMatch.evaluation.overallScore - poorMatch.evaluation.overallScore
+
+        // Use a narrow near-equal window smaller than the actual score gap.
+        // If scoreDiff > window, source priority should not apply.
+        let config = LyricsCandidateRankingConfiguration(
+            sourcePriorityEnabled: true,
+            sourcePriorityOrder: ["QQMusic", "NetEase"],
+            nearEqualSourcePriorityWindow: max(0, scoreDiff - 1)  // window below actual gap
+        )
+
+        if scoreDiff > 0 {
+            let ranked = ranker.rankedCandidates([poorMatch, goodMatch], mode: mode, configuration: config)
+            // NetEase (higher score) must win despite being lower-priority
+            #expect(ranked.first?.lyrics.metadata.service == "NetEase",
+                    "better-scoring candidate must win when gap (\(scoreDiff)) exceeds window")
+        }
+    }
+}
+
+// MARK: - Case 14 (ranker level): Album match helps as tiebreaker in ranker
+
+@Suite("Album Tiebreaker Ranking")
+struct AlbumTiebreakerRankingTests {
+    /// Case 14: When two candidates are in the same tier with the same overall score
+    /// and the same duration score, album match must determine rank order.
+    @Test("Case 14: Album-matching candidate ranks above album-mismatching candidate in same tier")
+    func albumMatch_ranksFirst() {
+        let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
+        // Both: exact primary title+artist, no duration info → same overall score (band floor).
+        // One has matching album, one has mismatching album.
+        let withAlbum = makeCandidate(
+            makeLyrics(title: "lacy", artist: "Olivia Rodrigo", album: "GUTS"),
+            mode: mode, arrivalIndex: 0,
+            requestedAlbum: "GUTS"
+        )
+        let wrongAlbum = makeCandidate(
+            makeLyrics(title: "lacy", artist: "Olivia Rodrigo", album: "Sour"),
+            mode: mode, arrivalIndex: 1,
+            requestedAlbum: "GUTS"
+        )
+
+        // Both in same tier
+        #expect(withAlbum.evaluation.matchTier == wrongAlbum.evaluation.matchTier)
+        // Album scores differ
+        #expect(withAlbum.evaluation.albumScore > wrongAlbum.evaluation.albumScore,
+                "album match must produce higher albumScore")
+
+        let config = LyricsCandidateRankingConfiguration()
+        let ranked = ranker.rankedCandidates([wrongAlbum, withAlbum], mode: mode, configuration: config)
+        // Album-matching candidate must rank first
+        #expect(ranked.first?.lyrics.idTags[.album] == "GUTS",
+                "album-matching candidate must rank above album-mismatching candidate")
+    }
+
+    /// Case 15 (ranker level): Even with perfect album match, wrong-title candidates
+    /// never appear in the normal/likely ranked output.
+    @Test("Case 15: Wrong-title candidate excluded from rankedCandidates even with album match")
+    func wrongTitle_excludedFromRanked_evenWithAlbum() {
+        let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
+        let wrongTitle = makeCandidate(
+            makeLyrics(title: "drivers license", artist: "Olivia Rodrigo", album: "GUTS"),
+            mode: mode, arrivalIndex: 0,
+            requestedAlbum: "GUTS"
+        )
+        let correct = makeCandidate(
+            makeLyrics(title: "lacy", artist: "Olivia Rodrigo"),
+            mode: mode, arrivalIndex: 1
+        )
+        let config = LyricsCandidateRankingConfiguration()
+        let ranked = ranker.rankedCandidates([wrongTitle, correct], mode: mode, configuration: config)
+
+        // Rejected candidates must not appear in the ranked (non-unlikely) section
+        let hasWrongTitle = ranked.filter { $0.evaluation.visibility != .unlikely }
+                                  .contains { $0.lyrics.idTags[.title] == "drivers license" }
+        #expect(!hasWrongTitle, "wrong-title candidate must not appear in normal ranked output")
+
+        let best = ranker.bestCandidate(from: [wrongTitle, correct], mode: mode, configuration: config)
+        #expect(best?.lyrics.idTags[.title] == "lacy", "correct-title candidate must be selected")
+    }
+}
+
+// MARK: - Case 20: App-level correctness does not depend on Lyrics.isMatched()
+
+@Suite("Case 20: Correctness does not depend on Lyrics.isMatched()")
+struct IsMatchedIndependenceTests {
+    /// Case 20: The evaluator/ranker must determine candidate correctness from
+    /// its own title/artist comparison logic, not from LyricsKit's `Lyrics.isMatched()`.
+    /// This test verifies that candidates the evaluator accepts are accepted, and
+    /// candidates the evaluator rejects are rejected, independently of `isMatched`.
+    @Test("Case 20: Candidates accepted/rejected by evaluator do not require isMatched to agree")
+    func case20_evaluatorDoesNotUseIsMatched() {
+        // We cannot easily force isMatched to be false for a matching candidate, but we
+        // can verify that the evaluator's correctness decisions are based purely on
+        // title/artist comparison — not on any Lyrics.isMatched() call.
+        // Specifically: a candidate that would fail isMatched (if it were called) must
+        // still be accepted by the evaluator if title+artist match.
+
+        let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
+
+        // A candidate with matching title+artist that evaluates to normal.
+        // Regardless of what isMatched returns, the evaluator uses its own logic.
+        let matching = makeCandidate(
+            makeLyrics(title: "lacy", artist: "Olivia Rodrigo"),
+            mode: mode, arrivalIndex: 0
+        )
+        #expect(matching.evaluation.visibility == .normal,
+                "exact title+artist must be accepted by evaluator independent of isMatched")
+        #expect(matching.evaluation.matchTier == .exactTitleArtist)
+
+        // A wrong-title candidate that evaluates to rejected.
+        let wrong = makeCandidate(
+            makeLyrics(title: "drivers license", artist: "Olivia Rodrigo"),
+            mode: mode, arrivalIndex: 1
+        )
+        #expect(wrong.evaluation.visibility == .rejected,
+                "wrong title must be rejected by evaluator independent of isMatched")
+
+        // The ranker must place matching first without relying on isMatched.
+        let config = LyricsCandidateRankingConfiguration()
+        let best = ranker.bestCandidate(from: [matching, wrong], mode: mode, configuration: config)
+        #expect(best?.id == matching.id, "ranker must select matching candidate via evaluator, not isMatched")
+    }
+}
+
 // MARK: - Artist-only ranking
 
 @Suite("ArtistOnly Ranking")

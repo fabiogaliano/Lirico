@@ -31,12 +31,6 @@ struct SearchSettings {
         nonmutating set { defaults[.lyricsSourcePriorityOrder] = newValue }
     }
 
-    /// Seconds the automatic-search loop keeps collecting candidates after
-    /// accepting the first match. Defaults to 5 when unset.
-    var priorityWindow: TimeInterval {
-        defaults[.lyricsPriorityWindow] ?? 5
-    }
-
     /// Musixmatch user token. Nil/empty means the Musixmatch provider is not
     /// included in the active provider group.
     var musixmatchToken: String? {

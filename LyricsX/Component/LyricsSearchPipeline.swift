@@ -52,32 +52,6 @@ final class LyricsSearchPipeline {
         rebuildProviders()
     }
 
-    /// Returns a stream of prepared, dirty-marked lyrics for `request`.
-    ///
-    /// Strict-search filtering is no longer applied here — the evaluated
-    /// pipeline (`events(for:)`) is the correctness gate going forward.
-    func candidates(for request: LyricsSearchRequest) -> AsyncThrowingStream<Lyrics, Error> {
-        // Snapshot the group so a mid-stream token change can't swap providers
-        // out from under an in-flight search.
-        let manager = providerGroup
-        let preparation = preparation
-        return AsyncThrowingStream { continuation in
-            let task = Task {
-                do {
-                    for try await lyrics in manager.lyrics(for: request) {
-                        preparation.prepare(lyrics)
-                        lyrics.metadata.needsPersist = true
-                        continuation.yield(lyrics)
-                    }
-                    continuation.finish()
-                } catch {
-                    continuation.finish(throwing: error)
-                }
-            }
-            continuation.onTermination = { _ in task.cancel() }
-        }
-    }
-
     /// Returns a non-throwing app-level event stream for `request`.
     ///
     /// Every raw `ProviderEvent.candidate` is:

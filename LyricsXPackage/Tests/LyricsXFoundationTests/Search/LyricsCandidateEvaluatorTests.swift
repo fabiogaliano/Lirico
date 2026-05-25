@@ -301,6 +301,81 @@ struct TitleAndArtistEvaluatorTests {
         // The evaluator must not crash; result must be a valid evaluation
         #expect(e.overallScore.isFinite)
     }
+
+    // MARK: - Case 14: Album match helps only as a tiebreaker
+
+    /// Case 14: Album score is a positive tiebreaker — the evaluator records a
+    /// higher albumScore when the album matches, which the ranker uses as a
+    /// sort step after duration. This test verifies that albumScore is correctly
+    /// set (not overall score, which can be clamped to the band floor).
+    @Test("Case 14: Album match gives a higher albumScore than album mismatch within same tier")
+    func albumMatch_higherAlbumScore() {
+        let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
+        // Same title+artist → same tier; only album differs
+        let withAlbum  = makeLyrics(title: "lacy", artist: "Olivia Rodrigo", album: "GUTS")
+        let wrongAlbum = makeLyrics(title: "lacy", artist: "Olivia Rodrigo", album: "Sour")
+        let eWithAlbum  = evaluator.evaluate(lyrics: withAlbum,  mode: mode, requestedDuration: nil, requestedAlbum: "GUTS")
+        let eWrongAlbum = evaluator.evaluate(lyrics: wrongAlbum, mode: mode, requestedDuration: nil, requestedAlbum: "GUTS")
+
+        // Both must be in the same tier and visibility
+        #expect(eWithAlbum.matchTier == eWrongAlbum.matchTier, "same tier required")
+        #expect(eWithAlbum.visibility == .normal)
+        #expect(eWrongAlbum.visibility == .normal)
+
+        // albumScore must reflect the match (album score is what the ranker uses as tiebreaker)
+        #expect(eWithAlbum.albumScore > eWrongAlbum.albumScore,
+                "album match (albumScore=\(eWithAlbum.albumScore)) must exceed album mismatch (albumScore=\(eWrongAlbum.albumScore))")
+    }
+
+    /// Case 14 (continued): Album is a tiebreaker only — it does not affect match tier.
+    @Test("Case 14: Album match does not change the match tier")
+    func albumMatch_doesNotChangeTier() {
+        let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
+        let withAlbum    = makeLyrics(title: "lacy", artist: "Olivia Rodrigo", album: "GUTS")
+        let withoutAlbum = makeLyrics(title: "lacy", artist: "Olivia Rodrigo")
+        let eWith    = evaluator.evaluate(lyrics: withAlbum,    mode: mode, requestedDuration: nil, requestedAlbum: "GUTS")
+        let eWithout = evaluator.evaluate(lyrics: withoutAlbum, mode: mode, requestedDuration: nil, requestedAlbum: "GUTS")
+
+        // Album availability must not change tier/visibility
+        #expect(eWith.matchTier == eWithout.matchTier)
+        #expect(eWith.visibility == eWithout.visibility)
+    }
+
+    // MARK: - Case 15: Album mismatch cannot make a wrong song valid
+
+    /// Case 15: A perfect album match does not rescue a wrong-title candidate from rejection.
+    @Test("Case 15: Perfect album match cannot make a wrong-title candidate valid")
+    func albumMatch_cannotRescueWrongTitle() {
+        let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
+        // Wrong title, matching album — album should not change the rejection outcome
+        let wrongTitleRightAlbum = makeLyrics(title: "drivers license", artist: "Olivia Rodrigo", album: "GUTS")
+        let e = evaluator.evaluate(
+            lyrics: wrongTitleRightAlbum,
+            mode: mode,
+            requestedDuration: nil,
+            requestedAlbum: "GUTS"
+        )
+        // Must still be rejected despite perfect album match
+        #expect(e.visibility == .rejected, "wrong title must be rejected even with matching album")
+        #expect(e.rejectionReason == .titleMismatch)
+    }
+
+    /// Case 15 (continued): Album match cannot make a wrong-artist candidate valid.
+    @Test("Case 15: Perfect album match cannot make a wrong-artist candidate normal")
+    func albumMatch_cannotRescueWrongArtist() {
+        let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
+        // Correct title but completely wrong artist — album matches.
+        // Per evaluator: exact title + wrong artist → unlikely (not normal).
+        let rightTitleWrongArtist = makeLyrics(title: "lacy", artist: "Ed Sheeran", album: "GUTS")
+        let e = evaluator.evaluate(
+            lyrics: rightTitleWrongArtist,
+            mode: mode,
+            requestedDuration: nil,
+            requestedAlbum: "GUTS"
+        )
+        // Must remain unlikely — album match cannot promote to normal
+        #expect(e.visibility != .normal, "wrong-artist candidate must not become normal even with matching album")
+    }
 }
 
 // MARK: - Version marker / core-title stripping tests (FIX 4)

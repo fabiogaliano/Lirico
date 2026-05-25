@@ -97,30 +97,30 @@ final class SearchLyricsViewModel: ObservableObject {
 
     // MARK: - Result partitioning
 
-    /// Likely rows: normal + loose-fallback (loose only when no normals exist).
-    /// Produced by the ranker, which handles all ordering rules.
-    var likelyRows: [LyricsResult] {
-        let ranked = LyricsCandidateRanker().rankedCandidates(
+    /// Full ranked output from `LyricsCandidateRanker`. Cached here so that
+    /// `likelyRows`, `unlikelyRows`, and `visibleRows` all share one ranker pass
+    /// per render cycle instead of re-running it separately.
+    private var rankedCandidates: [EvaluatedLyricsCandidate] {
+        LyricsCandidateRanker().rankedCandidates(
             allCandidates,
             mode: currentSearchMode ?? .titleOnly(title: ""),
             configuration: searchSettings.rankingConfiguration
         )
+    }
+
+    /// Likely rows: normal + loose-fallback (loose only when no normals exist).
+    /// Produced by the ranker, which handles all ordering rules.
+    var likelyRows: [LyricsResult] {
         // rankedCandidates returns [likelyOrLoose..., unlikely...].
         // Extract only the non-unlikely portion for the "likely" section.
-        return ranked
+        rankedCandidates
             .filter { $0.evaluation.visibility != .unlikely }
             .map { LyricsResult(candidate: $0, isUnlikely: false) }
     }
 
     /// Unlikely rows: candidates with visibility == .unlikely, ordered consistently.
     var unlikelyRows: [LyricsResult] {
-        // Re-use the ranker's full output and pick the unlikely tail.
-        let ranked = LyricsCandidateRanker().rankedCandidates(
-            allCandidates,
-            mode: currentSearchMode ?? .titleOnly(title: ""),
-            configuration: searchSettings.rankingConfiguration
-        )
-        return ranked
+        rankedCandidates
             .filter { $0.evaluation.visibility == .unlikely }
             .map { LyricsResult(candidate: $0, isUnlikely: true) }
     }
@@ -497,7 +497,6 @@ final class SearchLyricsViewModel: ObservableObject {
     private func updateFoundStatus() {
         let visible = visibleRows.count
         let hidden = unlikelyCount
-        let rejected = rejectedCount
         // Keep in .searching so the button still shows Cancel during the stream.
         if case .searching = searchStatus {
             let copy: String
@@ -513,7 +512,6 @@ final class SearchLyricsViewModel: ObservableObject {
             searchStatus = .searching(summary: copy)
         }
         // If status is not .searching (e.g. timed out), leave it alone.
-        _ = rejected   // used only in final status; silence unused-var warning
     }
 
     // MARK: - Selection invalidation

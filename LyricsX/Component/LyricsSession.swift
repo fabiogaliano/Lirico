@@ -517,9 +517,10 @@ class LyricsSession: NSObject {
     /// Returns whether `candidate` is acceptable given the current policy.
     ///
     /// For `.normal` policy: any `.normal` or eligible `.looseFallback` candidate
-    /// is accepted. For `.localUpgradeOnly`: only exact/strong-tier remote
-    /// candidates may replace local line-synced, and then only when materially
-    /// better (karaoke within window or line-synced +5 points).
+    /// is accepted. For `.localUpgradeOnly`: delegates to the pure package-level
+    /// `shouldRemoteUpgradeLocal(candidate:local:configuration:)` function
+    /// (see `LyricsLocalUpgradePolicy.swift`). The upstream karaoke-local
+    /// short-circuit (isKaraokeTimed early-return) stays in `currentTrackChanged`.
     private func shouldAccept(
         candidate: EvaluatedLyricsCandidate,
         policy: AutomaticAcceptancePolicy,
@@ -534,24 +535,15 @@ class LyricsSession: NSObject {
                 || candidate.evaluation.visibility == .looseFallback
 
         case .localUpgradeOnly(_, let localEval):
-            // Must be a normal (not loose/unlikely/rejected) remote candidate
-            // in an exact or strong correctness tier.
-            let eval = candidate.evaluation
-            guard eval.visibility == .normal else { return false }
-            guard eval.matchTier == .exactTitleArtist || eval.matchTier == .strongTitleArtist else {
-                return false
-            }
-
-            // Karaoke upgrade: the remote candidate may replace local line-synced
-            // when it scores no more than `karaokePreferenceWindow` points BELOW the
-            // local. A negative gap means the remote scored higher — always accept.
-            if eval.syncKind == .karaoke {
-                let gap = localEval.overallScore - eval.overallScore
-                return gap <= configuration.karaokePreferenceWindow
-            }
-
-            // Line-synced upgrade: only when materially better by at least 5 points.
-            return eval.overallScore >= localEval.overallScore + 5
+            // Delegate to the pure package-level function (LyricsLocalUpgradePolicy).
+            // The upstream karaoke-local short-circuit (isKaraokeTimed early-return in
+            // currentTrackChanged) is kept in LyricsSession; this path only governs
+            // the line-synced-local case.
+            return shouldRemoteUpgradeLocal(
+                candidate: candidate.evaluation,
+                local: localEval,
+                configuration: configuration
+            )
         }
     }
 

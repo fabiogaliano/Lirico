@@ -169,6 +169,10 @@ public struct LyricsCandidateRanker: Sendable {
             // 4. Duration tiebreaker
             if ae.durationScore != be.durationScore { return ae.durationScore > be.durationScore }
 
+            // 4.5. Album tiebreaker — applied after duration because it is the weaker signal.
+            //      This handles cases where band clamping erases small blend differences.
+            if ae.albumScore != be.albumScore { return ae.albumScore > be.albumScore }
+
             // 5. Source priority — only for near-equal candidates and only when enabled
             if configuration.sourcePriorityEnabled,
                abs(ae.overallScore - be.overallScore) <= configuration.nearEqualSourcePriorityWindow {

@@ -47,12 +47,17 @@ func normalizedString(_ string: String) -> String {
 /// appear in real song titles (e.g. "you and i", "you and me") and would make
 /// different songs produce the same core token set, causing false strong matches.
 /// Those separators are handled in the artist-relation logic instead.
+// Only single-token markers belong here. Multi-word markers such as
+// "radio edit", "original mix", "sped up", and "speed up" are unreachable
+// because coreTokens() matches one token at a time — they were stripped out
+// in SR-08. The remaining entries are all genuine single-word format/variant
+// descriptors.
 private let versionMarkers: [String] = [
     "acoustic", "live", "remix", "remaster", "remastered",
-    "instrumental", "karaoke", "radio edit", "radio", "edit",
-    "extended", "original mix", "original", "version", "ver",
+    "instrumental", "karaoke", "radio", "edit",
+    "extended", "original", "version", "ver",
     "bonus", "demo", "reprise", "interlude", "intro", "outro",
-    "slowed", "reverb", "sped up", "speed up", "nightcore",
+    "slowed", "reverb", "nightcore",
     "stereo", "mono",
 ]
 
