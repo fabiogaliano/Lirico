@@ -84,6 +84,7 @@ final class SearchLyricsViewModel: ObservableObject {
     private var searchTask: Task<Void, Never>?
     private var fieldCancellable: AnyCancellable?
     private let imageCache = NSCache<NSURL, NSImage>()
+    private let albumArtworkCache = NSCache<NSString, NSImage>()
     private let candidateFlushBatchSize = 6
     private let candidateFlushIntervalNanoseconds: UInt64 = 75_000_000
     private var lastCandidateFlushUptime: UInt64 = 0
@@ -239,10 +240,6 @@ final class SearchLyricsViewModel: ObservableObject {
         }
         preview = result.lyrics.description
         loadArtwork(for: result.lyrics)
-    }
-
-    func lrcText(for result: LyricsResult) -> String {
-        result.lyrics.description
     }
 
     private func runSearch(
@@ -466,24 +463,48 @@ final class SearchLyricsViewModel: ObservableObject {
     }
 
     private func loadArtwork(for lyrics: Lyrics) {
+        let albumKey = albumIdentityKey(for: lyrics)
+
+        // Another likely match from the same album already loaded its cover —
+        // reuse it as-is, even when this result points at a different source URL.
+        if let albumKey, let cached = albumArtworkCache.object(forKey: albumKey) {
+            artwork = cached
+            return
+        }
+
         guard let url = lyrics.metadata.artworkURL else {
             artwork = nil
             return
         }
         if let cached = imageCache.object(forKey: url as NSURL) {
             artwork = cached
+            if let albumKey { albumArtworkCache.setObject(cached, forKey: albumKey) }
             return
         }
         artwork = nil
         fetchArtwork(url: url) { [weak self] image in
             guard let self, let image else { return }
             self.imageCache.setObject(image, forKey: url as NSURL)
-            if let id = self.selectionID,
-               let selected = self.visibleRows.first(where: { $0.id == id }),
-               selected.lyrics.metadata.artworkURL == url {
+            if let albumKey { self.albumArtworkCache.setObject(image, forKey: albumKey) }
+            guard let id = self.selectionID,
+                  let selected = self.visibleRows.first(where: { $0.id == id })
+            else { return }
+            let matchesURL = selected.lyrics.metadata.artworkURL == url
+            let matchesAlbum = albumKey != nil && self.albumIdentityKey(for: selected.lyrics) == albumKey
+            if matchesURL || matchesAlbum {
                 self.artwork = image
             }
         }
+    }
+
+    /// A normalized `artist␟album` key shared by every result for the same album.
+    /// Returns nil when either tag is missing so callers fall back to per-URL
+    /// fetching rather than grouping unrelated results under an empty key.
+    private func albumIdentityKey(for lyrics: Lyrics) -> NSString? {
+        let album = (lyrics.idTags[.album] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let artist = (lyrics.idTags[.artist] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !album.isEmpty, !artist.isEmpty else { return nil }
+        return "\(artist)\u{1f}\(album)" as NSString
     }
 }
 
@@ -499,7 +520,7 @@ struct LyricsResult: Identifiable, Hashable {
     var title: String { lyrics.idTags[.title] ?? "[lacking]" }
     var artist: String { lyrics.idTags[.artist] ?? "[lacking]" }
     var source: String { lyrics.metadata.service ?? "[lacking]" }
-    var syncIconName: String { evaluation.syncKind == .karaoke ? "mic.fill" : "" }
+    var syncIconName: String { evaluation.syncKind == .karaoke ? "music.mic" : "" }
 
     init(candidate: EvaluatedLyricsCandidate, isUnlikely: Bool) {
         self.lyrics = candidate.lyrics

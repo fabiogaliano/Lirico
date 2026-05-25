@@ -122,17 +122,9 @@ struct SearchLyricsView: View {
     private var resultsTable: some View {
         Table(viewModel.visibleRows, selection: $viewModel.selectionID) {
             TableColumn("") { result in
-                Image(systemName: "line.3.horizontal")
-                    .foregroundStyle(Color.secondary)
-                    .help("Drag lyrics text")
-                    .draggable(viewModel.lrcText(for: result))
-            }
-            .width(20)
-
-            TableColumn("") { result in
                 if !result.syncIconName.isEmpty {
                     Image(systemName: result.syncIconName)
-                        .foregroundStyle(Color.accentColor)
+                        .foregroundStyle(result.isUnlikely ? Color.secondary : Color.primary)
                         .help("Karaoke (word-timed) lyrics")
                 }
             }
