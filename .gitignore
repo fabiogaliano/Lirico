@@ -4,5 +4,6 @@ xcuserdata
 project.xcworkspace
 .claude
 .derivedData/
+build/
 .pi/
 LyricsXPackage/Package.resolved
