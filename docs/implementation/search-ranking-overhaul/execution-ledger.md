@@ -29,5 +29,5 @@ Critical path: SR-01 -> SR-03 -> SR-04 -> SR-05 -> SR-07 -> SR-08
 | SR-04 | LyricsX (pkg) | committed | SR-03 | LyricsX a3ea11d8 | DEC-006 | pure evaluator/ranker core; review caught 4 ranking bugs (karaoke window inert, band overlap, loose leak, marker over-broad) all fixed; 48 tests pass |
 | SR-05 | LyricsX | committed | SR-03, SR-04 | LyricsX 82bfba3a | DEC-007 | evaluated pipeline events + ranking config + strict removed; review APPROVE w/ nits; build clean, 48 pkg tests; cancellation chains fully; transient no-gate window for auto search until SR-07 |
 | SR-06 | LyricsX | committed | SR-05 | LyricsX 94876776 | DEC-008 | manual search overhaul (VM+View rewrite); review APPROVE w/ nits; suspected unlikely bug was false; corrected DEC-006 ranker-contract wording; build clean, 48 pkg tests |
-| SR-07 | LyricsX | not started | SR-05 (+SR-06 merge order) | — | — | automatic search overhaul |
+| SR-07 | LyricsX | committed | SR-05, SR-06 | LyricsX 3b2bbeaa | DEC-009 (closes DEC-007) | automatic overhaul; review APPROVE; caught+fixed karaoke gap>=0 upgrade bug + importLyrics override gap; build clean, 48 pkg tests; SR-08 follow-ups: lyricsDisplay threading, dead-code removal |
 | SR-08 | both | not started | SR-02, SR-06, SR-07 | — | — | hardening, tuning, cleanup |
