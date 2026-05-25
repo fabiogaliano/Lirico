@@ -236,7 +236,7 @@ class LyricsSession: NSObject {
             do {
                 var collector = LyricsSelector.shared.makeCollector(window: searchSettings.priorityWindow)
 
-                search: for try await lyrics in pipeline.candidates(for: request, strict: true) {
+                search: for try await lyrics in pipeline.candidates(for: request) {
                     switch collector.nextDecision() {
                     case .accept:
                         if accept(lyrics: lyrics, request: request) {

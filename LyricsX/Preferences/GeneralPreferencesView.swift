@@ -14,7 +14,6 @@ struct GeneralPreferencesView: View {
 
     // Search & Display
     @AppStorage("GlobalLyricsOffset") private var globalLyricsOffset = 0
-    @AppStorage("StrictSearchEnabled") private var strictSearchEnabled = false
     @AppStorage("PreferBilingualLyrics") private var preferBilingualLyrics = false
     @AppStorage("ChineseConversionIndex") private var chineseConversionIndex = 0
     @AppStorage("CombinedMenubarLyrics") private var combinedMenubarLyrics = false
@@ -120,7 +119,6 @@ struct GeneralPreferencesView: View {
                         .labelsHidden()
                 }
             }
-            Toggle("Strict search", isOn: $strictSearchEnabled)
             Toggle("Prefer bilingual lyrics", isOn: $preferBilingualLyrics)
             SettingsRow(label: "Auto Chinese conversion") {
                 Picker("", selection: $chineseConversionIndex) {

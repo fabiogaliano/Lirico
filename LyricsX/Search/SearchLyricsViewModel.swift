@@ -95,7 +95,7 @@ final class SearchLyricsViewModel: ObservableObject {
                 }
             }
             do {
-                for try await lyrics in pipeline.candidates(for: req, strict: false) {
+                for try await lyrics in pipeline.candidates(for: req) {
                     receive(lyrics: lyrics)
                 }
             } catch is CancellationError {

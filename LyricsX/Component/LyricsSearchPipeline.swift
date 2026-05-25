@@ -1,6 +1,24 @@
 import Combine
 import Foundation
+@preconcurrency import LyricsKit
 import LyricsXFoundation
+
+// MARK: - LyricsSearchEvent
+
+/// App-level lifecycle events produced by `LyricsSearchPipeline.events(for:)`.
+///
+/// Maps raw `LyricsProviders.ProviderEvent` payloads into types the app cares
+/// about: the `request` field on raw events is dropped (the caller holds it),
+/// and raw `candidate` events are enriched with an `EvaluatedLyricsCandidate`.
+enum LyricsSearchEvent {
+    case providerStarted(source: String)
+    case candidate(EvaluatedLyricsCandidate)
+    case providerFinished(source: String, yieldedCount: Int)
+    case providerFailed(source: String, message: String, yieldedCount: Int)
+    case completed
+}
+
+// MARK: - LyricsSearchPipeline
 
 /// One-stop owner for lyrics search:
 ///
@@ -8,8 +26,7 @@ import LyricsXFoundation
 ///   optional Musixmatch token whenever the token changes,
 /// - streams candidates for a `LyricsSearchRequest`,
 /// - prepares every candidate via the injected `LyricsPreparation` and marks
-///   it dirty so the caller can persist without re-running that policy,
-/// - optionally drops candidates that fail strict matching.
+///   it dirty so the caller can persist without re-running that policy.
 ///
 /// Both automatic search (`LyricsSession.currentTrackChanged`) and manual
 /// search (`SearchLyricsViewModel.search`) go through this single type.
@@ -17,7 +34,7 @@ import LyricsXFoundation
 /// priority comparison, collection windows, and UI updates.
 @MainActor
 final class LyricsSearchPipeline {
-    private var providerGroup: LyricsProvider = LyricsProviders.Group()
+    private var providerGroup: LyricsProviders.Group = LyricsProviders.Group()
     private let settings: SearchSettings
     private let preparation: LyricsPreparation
     private var cancelBag = Set<AnyCancellable>()
@@ -35,21 +52,19 @@ final class LyricsSearchPipeline {
         rebuildProviders()
     }
 
-    /// Returns a stream of prepared, dirty-marked lyrics for `request`. When
-    /// `strict` is true, candidates that don't pass `Lyrics.isMatched()` while
-    /// strict search is currently enabled are dropped before reaching the
-    /// caller.
-    func candidates(for request: LyricsSearchRequest, strict: Bool) -> AsyncThrowingStream<Lyrics, Error> {
-        // Snapshot the manager so a mid-stream token change can't swap providers
+    /// Returns a stream of prepared, dirty-marked lyrics for `request`.
+    ///
+    /// Strict-search filtering is no longer applied here — the evaluated
+    /// pipeline (`events(for:)`) is the correctness gate going forward.
+    func candidates(for request: LyricsSearchRequest) -> AsyncThrowingStream<Lyrics, Error> {
+        // Snapshot the group so a mid-stream token change can't swap providers
         // out from under an in-flight search.
         let manager = providerGroup
-        let settings = settings
         let preparation = preparation
         return AsyncThrowingStream { continuation in
             let task = Task {
                 do {
                     for try await lyrics in manager.lyrics(for: request) {
-                        if strict, settings.strictSearchEnabled, !lyrics.isMatched() { continue }
                         preparation.prepare(lyrics)
                         lyrics.metadata.needsPersist = true
                         continuation.yield(lyrics)
@@ -58,6 +73,81 @@ final class LyricsSearchPipeline {
                 } catch {
                     continuation.finish(throwing: error)
                 }
+            }
+            continuation.onTermination = { _ in task.cancel() }
+        }
+    }
+
+    /// Returns a non-throwing app-level event stream for `request`.
+    ///
+    /// Every raw `ProviderEvent.candidate` is:
+    ///   1. Canonicalized: `lyrics.metadata.service` is set to the event's
+    ///      `source` before any further processing (source stamped first so
+    ///      evaluation and the ranker always see the canonical name).
+    ///   2. Prepared: `LyricsPreparation.prepare(_:)` is applied.
+    ///   3. Evaluated: `LyricsCandidateEvaluator` assigns correctness/tier.
+    ///   4. Wrapped: emitted as `.candidate(EvaluatedLyricsCandidate(...))`.
+    ///      `.unlikely` and `.rejected` evaluations are included — consumers
+    ///      decide what to show or select.
+    ///
+    /// `arrivalIndex` is a zero-based counter incremented for each candidate
+    /// emitted to THIS app stream (not the raw provider stream), giving the
+    /// ranker a stable final tiebreaker per search session.
+    ///
+    /// `.completed` is forwarded only when the raw stream emits it (i.e. all
+    /// providers finished normally). If the consumer cancels the task or breaks
+    /// out of the `for await`, the raw stream suppresses `.completed` per SR-01
+    /// (DEC-003), so we never synthesize one — no `.completed` after cancellation.
+    func events(
+        for request: LyricsSearchRequest,
+        mode: LyricsSearchMode,
+        requestedDuration: TimeInterval?,
+        requestedAlbum: String?
+    ) -> AsyncStream<LyricsSearchEvent> {
+        let group = providerGroup
+        let preparation = preparation
+        let evaluator = LyricsCandidateEvaluator()
+
+        return AsyncStream { continuation in
+            let task = Task {
+                var arrivalIndex = 0
+                for await rawEvent in group.events(for: request) {
+                    switch rawEvent {
+                    case .providerStarted(let source, _):
+                        continuation.yield(.providerStarted(source: source))
+
+                    case .candidate(let source, let lyrics):
+                        // Canonicalize before preparation or evaluation so that
+                        // source-priority ranking always compares against the same strings.
+                        lyrics.metadata.service = source
+                        preparation.prepare(lyrics)
+                        lyrics.metadata.needsPersist = true
+                        let evaluation = evaluator.evaluate(
+                            lyrics: lyrics,
+                            mode: mode,
+                            requestedDuration: requestedDuration,
+                            requestedAlbum: requestedAlbum
+                        )
+                        let candidate = EvaluatedLyricsCandidate(
+                            lyrics: lyrics,
+                            evaluation: evaluation,
+                            arrivalIndex: arrivalIndex
+                        )
+                        arrivalIndex += 1
+                        continuation.yield(.candidate(candidate))
+
+                    case .providerFinished(let source, _, let count):
+                        continuation.yield(.providerFinished(source: source, yieldedCount: count))
+
+                    case .providerFailed(let source, _, let message, let count):
+                        continuation.yield(.providerFailed(source: source, message: message, yieldedCount: count))
+
+                    case .completed:
+                        // Forward only when the raw stream emitted it; never synthesize.
+                        continuation.yield(.completed)
+                    }
+                }
+                continuation.finish()
             }
             continuation.onTermination = { _ in task.cancel() }
         }
