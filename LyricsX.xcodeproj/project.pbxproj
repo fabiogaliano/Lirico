@@ -974,7 +974,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.fabiogaliano.LyricsX;
-				PRODUCT_NAME = "$(TARGET_NAME)-Debug";
+				PRODUCT_NAME = "Lirico-Debug";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Debug;
@@ -1000,6 +1000,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.fabiogaliano.LyricsX;
+				PRODUCT_NAME = Lirico;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Release;

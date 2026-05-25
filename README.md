@@ -1,65 +1,70 @@
-# LyricsX
-
-> [!IMPORTANT]  
-> This is the version of LyricsX that I personally maintain. The original author seems to have stopped maintaining it. I will fix some remaining bugs and add some new features in my spare time.
-
+# Lirico
 
 <img src="docs/img/icon.png" width="128px">
 
-Ultimate lyrics app for macOS.
+**Press play. The lyrics follow.**
 
-[LyricsX for iOS](https://github.com/ddddxxx/LyricsX-iOS) and [lyricsx-cli for Linux](https://github.com/ddddxxx/lyricsx-cli) is in early development.
+Lirico automatically finds and displays beautifully synced lyrics for whatever's
+playing on your Mac — right on your desktop and in your menu bar, in time with every line.
+
+## What's different
+
+Lirico changes how lyrics get picked. When a karaoke version exists that highlights each word as it's sung, that's
+what you get instead of plain scrolling lyrics. Lirico also keeps looking for a beat after the first result, quietly
+upgrading to a better match if one shows up, and it never replaces lyrics you've saved by hand.
 
 ## Installation
 
-### Homebrew
+There's no packaged release yet, so build Lirico from source:
 
+```bash
+git clone https://github.com/fabiogaliano/Lirico.git
+cd Lirico
+make install
 ```
-brew tap brewforge/extras
-brew install brewforge/extras/lyricsx-mxiris
-```
 
-### Manual
+`make install` builds the Release app and copies `Lirico.app` to `/Applications`. Run `make help` for the other targets (`build`, `run`, `clean`), or open `LyricsX.xcodeproj` in Xcode and press Cmd+R.
 
-Download from [releases](https://github.com/MxIris-LyricsX-Project/LyricsX/releases).
-
-To use **Musixmatch** as lyrics source, you need to follow the steps provided [here](https://gist.github.com/TrueMyst/0461aea999e347182486934fd83a4cf9) or [here](https://spicetify.app/docs/faq#sometimes-popup-lyrics-andor-lyrics-plus-seem-to-not-work) to obtain a **usertoken** and fill it in LyricsX's preferences.
+To use **Musixmatch** as a lyrics source, follow [these steps](https://gist.github.com/TrueMyst/0461aea999e347182486934fd83a4cf9) or [these](https://spicetify.app/docs/faq#sometimes-popup-lyrics-andor-lyrics-plus-seem-to-not-work) to obtain a **usertoken**, then add it in Lirico's preferences.
 
 ### Requirements
 
 - macOS 15+
+- Xcode 26+ (to build from source)
 
 ## Features
 
-- Work perfectly with your favorite music players. [List of supported players](https://github.com/ddddxxx/MusicPlayer#supported-players)
-- Automatically search & download live lyrics from various lyrics sources. [List of supported sources](https://github.com/ddddxxx/LyricsKit#supported-sources)
-- Display lyrics on desktop and menubar. you can customize font, color and position.
-- Adjust lyrics offset on status menu.
-- Navigate the song with lyrics - Double click a line to jump to specific position.
-- Drag & Drop to import/export lyrics file.
-- Auto launch & quit with music player.
-- Automatic conversion between Traditional Chinese and Simplified Chinese.
+- Works with your favorite music players. [List of supported players](https://github.com/MxIris-LyricsX-Project/MusicPlayer#supported-players)
+- Automatically searches and downloads synced lyrics from multiple sources. [List of supported sources](https://github.com/MxIris-LyricsX-Project/LyricsKit#supported-sources)
+- Always tries to match the song you're playing, not just pull from a favorite source.
+- Prefers karaoke lyrics, where each word lights up as it's sung, and upgrades plain lyrics to karaoke when a good version appears. Lyrics you saved by hand are never overwritten.
+- Displays lyrics on your desktop and in the menu bar, with customizable font, color, and position.
+- Adjust lyric timing offset from the status menu.
+- Jump to any point in a song by double-clicking a line.
+- Drag and drop to import or export lyrics files.
+- Steerable manual search: search by title, artist, or both, with wrong-song results filtered out, karaoke matches marked with a 🎤, a toggle to show unlikely results, and cancel support that keeps partial results.
+- Launches and quits automatically with your music player.
+- Converts automatically between Traditional and Simplified Chinese.
 
 ### Lyrics Editor
 
-LyricsX use custom lyrics file format "LRCX" which support word time tag, multi-language translation and more. Currently there's no official LRCX editor. You can use [Lrcx_Creator](https://github.com/Doublefire-Chen/Lrcx_Creator) for now (see [#544](https://github.com/ddddxxx/LyricsX/issues/544), thanks to [@Doublefire-Chen](https://github.com/Doublefire-Chen)). Or use normal LRC editor, as LRCX is compatible with LRC.
+Lirico uses a custom lyrics file format, "LRCX", that supports word timing tags, translations in multiple languages, and more. Currently there's no official LRCX editor. You can use [Lrcx_Creator](https://github.com/Doublefire-Chen/Lrcx_Creator) for now (see [#544](https://github.com/ddddxxx/LyricsX/issues/544), thanks to [@Doublefire-Chen](https://github.com/Doublefire-Chen)). Or use a normal LRC editor, as LRCX is compatible with LRC.
 
 ## Screenshot
 
-<img src="docs/img/desktop_lyrics.gif" width="480px">
+<img src="docs/img/screenshot.jpg" width="900px" alt="Lirico showing karaoke lyrics over a playing track, with the search window listing matches marked by a mic icon">
 
-<img src="docs/img/preview_1.jpg" width="1280px">
-
-<img src="docs/img/preview_2.jpg" width="1280px">
-
-<img src="docs/img/preview_3.jpg" width="1280px">
 
 ## Credit
 
+Lirico is a fork of [LyricsX by the MxIris-LyricsX-Project](https://github.com/MxIris-LyricsX-Project/LyricsX),
+which builds on the original [LyricsX by ddddxxx](https://github.com/ddddxxx/LyricsX). Deep thanks to both for the
+foundation Lirico is built on.
+
 #### Components
 
-- [LyricsKit](https://github.com/ddddxxx/LyricsKit)
-- [MusicPlayer](https://github.com/ddddxxx/MusicPlayer)
+- [LyricsKit](https://github.com/MxIris-LyricsX-Project/LyricsKit)
+- [MusicPlayer](https://github.com/MxIris-LyricsX-Project/MusicPlayer)
 
 #### Open Source Libraries
 

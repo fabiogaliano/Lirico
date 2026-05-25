@@ -139,7 +139,7 @@
 	<key>SUEnableInstallerLauncherService</key>
 	<true/>
 	<key>SUFeedURL</key>
-	<string>https://fabiogaliano.github.io/LyricsX/appcast.xml</string>
+	<string>https://fabiogaliano.github.io/Lirico/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string></string>
 </dict>
