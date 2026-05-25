@@ -150,6 +150,10 @@ class KaraokeLabel: NSTextField {
 //        image.draw(in: dirtyRect)
         guard let context = NSGraphicsContext.current else { return }
         let cgContext = context.cgContext
+        // The label layer is transparent (the dark pill is a separate view), so subpixel font
+        // smoothing has no backdrop to blend against and bleeds light subpixels into a white halo
+        // around the glyphs. Grayscale antialiasing writes clean coverage with no color fringe.
+        cgContext.setShouldSmoothFonts(false)
         cgContext.textMatrix = .identity
         cgContext.translateBy(x: 0, y: bounds.height)
         cgContext.scaleBy(x: 1.0, y: -1.0)
@@ -198,6 +202,9 @@ class KaraokeLabel: NSTextField {
         mask.frame = progressLayer.bounds
         let img = NSImage(size: progressLayer.bounds.size, flipped: false) { _ in
             let context = NSGraphicsContext.current!.cgContext
+            // Same as draw(_:): grayscale AA keeps the alpha channel clean so this image is a crisp
+            // mask. Subpixel smoothing would taint the per-channel coverage and fringe the highlight.
+            context.setShouldSmoothFonts(false)
             let ori = lineBounds.applying(.flip(height: self.bounds.height)).origin
             context.concatenate(.translate(x: -ori.x, y: -ori.y))
             CTFrameDraw(self.ctFrame(), context)
