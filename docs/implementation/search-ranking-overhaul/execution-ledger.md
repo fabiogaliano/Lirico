@@ -27,7 +27,7 @@ Critical path: SR-01 -> SR-03 -> SR-04 -> SR-05 -> SR-07 -> SR-08
 | SR-02 | LyricsKit | committed | SR-01 | LyricsKit 7551897 | DEC-005 | LRCLIB exact+broad lookup, dedupe, partial-failure; review APPROVED; 63 tests pass |
 | SR-03 | LyricsX | committed | SR-01 | LyricsX 35868700 | DEC-004 | local LyricsKit integration + canonical sources; review caught & fixed Musixmatch source-list regression; build clean |
 | SR-04 | LyricsX (pkg) | committed | SR-03 | LyricsX a3ea11d8 | DEC-006 | pure evaluator/ranker core; review caught 4 ranking bugs (karaoke window inert, band overlap, loose leak, marker over-broad) all fixed; 48 tests pass |
-| SR-05 | LyricsX | not started | SR-03, SR-04 | — | — | evaluated pipeline + strict-search removal |
+| SR-05 | LyricsX | committed | SR-03, SR-04 | LyricsX 82bfba3a | DEC-007 | evaluated pipeline events + ranking config + strict removed; review APPROVE w/ nits; build clean, 48 pkg tests; cancellation chains fully; transient no-gate window for auto search until SR-07 |
 | SR-06 | LyricsX | not started | SR-05 | — | — | manual search overhaul |
 | SR-07 | LyricsX | not started | SR-05 (+SR-06 merge order) | — | — | automatic search overhaul |
 | SR-08 | both | not started | SR-02, SR-06, SR-07 | — | — | hardening, tuning, cleanup |
