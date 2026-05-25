@@ -71,6 +71,7 @@
 		E9FA2B162E900000000BEE16 /* LyricsPersister.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B152E900000000BEE15 /* LyricsPersister.swift */; };
 		E9FA2B182E900000000CDD18 /* LyricsDisplayState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B172E900000000CDD17 /* LyricsDisplayState.swift */; };
 		E9FA2B1A2E900000000DDD1A /* LyricsDisplayCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B192E900000000DDD19 /* LyricsDisplayCoordinator.swift */; };
+		E9FA2C012E900000000DDE01 /* ExplicitLyricsResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2C002E900000000DDE00 /* ExplicitLyricsResolver.swift */; };
 		E9FA2B1C2E900000000EEE1C /* DisplaySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B1B2E900000000EEE1B /* DisplaySettings.swift */; };
 		E9FA2B1E2E900000000FFF1E /* PersistenceSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B1D2E900000000FFF1D /* PersistenceSettings.swift */; };
 		F1B0001100000000000A0001 /* AppIdentifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0001 /* AppIdentifiers.swift */; };
@@ -184,6 +185,7 @@
 		E9FA2B152E900000000BEE15 /* LyricsPersister.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsPersister.swift; sourceTree = "<group>"; };
 		E9FA2B172E900000000CDD17 /* LyricsDisplayState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsDisplayState.swift; sourceTree = "<group>"; };
 		E9FA2B192E900000000DDD19 /* LyricsDisplayCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsDisplayCoordinator.swift; sourceTree = "<group>"; };
+		E9FA2C002E900000000DDE00 /* ExplicitLyricsResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExplicitLyricsResolver.swift; sourceTree = "<group>"; };
 		E9FA2B1B2E900000000EEE1B /* DisplaySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplaySettings.swift; sourceTree = "<group>"; };
 		E9FA2B1D2E900000000FFF1D /* PersistenceSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceSettings.swift; sourceTree = "<group>"; };
 		F1B0001000000000000A0001 /* AppIdentifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIdentifiers.swift; sourceTree = "<group>"; };
@@ -421,6 +423,7 @@
 				E9FA2B152E900000000BEE15 /* LyricsPersister.swift */,
 				E9FA2B172E900000000CDD17 /* LyricsDisplayState.swift */,
 				E9FA2B192E900000000DDD19 /* LyricsDisplayCoordinator.swift */,
+				E9FA2C002E900000000DDE00 /* ExplicitLyricsResolver.swift */,
 				E9FA2B1B2E900000000EEE1B /* DisplaySettings.swift */,
 				E9FA2B1D2E900000000FFF1D /* PersistenceSettings.swift */,
 				F1B0002000000000000B0001 /* SearchSettings.swift */,
@@ -790,6 +793,7 @@
 				E9FA2B162E900000000BEE16 /* LyricsPersister.swift in Sources */,
 				E9FA2B182E900000000CDD18 /* LyricsDisplayState.swift in Sources */,
 				E9FA2B1A2E900000000DDD1A /* LyricsDisplayCoordinator.swift in Sources */,
+				E9FA2C012E900000000DDE01 /* ExplicitLyricsResolver.swift in Sources */,
 				E9FA2B1C2E900000000EEE1C /* DisplaySettings.swift in Sources */,
 				E9FA2B1E2E900000000FFF1E /* PersistenceSettings.swift in Sources */,
 				BB89089E21ED69410078F522 /* Lyrics+Language.swift in Sources */,

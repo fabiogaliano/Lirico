@@ -20,6 +20,7 @@ final class AppContainer {
     let lyricsFilter: LyricsFilter
     let lyricsPreparation: LyricsPreparation
     let chineseConverterProvider: ChineseConverterProvider
+    let explicitResolver: ExplicitLyricsResolver
     let session: LyricsSession
     let menuBarController: MenuBarLyricsController
     let karaokeWindowController: KaraokeLyricsWindowController
@@ -27,7 +28,8 @@ final class AppContainer {
     private(set) lazy var lyricsHUD: LyricsHUDWindowController = LyricsHUDWindowController(
         player: player,
         session: session,
-        chineseConverter: chineseConverterProvider
+        chineseConverter: chineseConverterProvider,
+        explicitResolver: explicitResolver
     )
     private(set) lazy var searchLyricsWindowController: SearchLyricsWindowController =
         SearchLyricsWindowController(player: player, session: session, pipeline: searchPipeline, searchSettings: searchSettings)
@@ -52,9 +54,11 @@ final class AppContainer {
         let lyricsFilter = LyricsFilter()
         let preparation = LyricsPreparation(filter: lyricsFilter)
         let chineseConverter = ChineseConverterProvider()
+        let explicitResolver = ExplicitLyricsResolver()
         self.lyricsFilter = lyricsFilter
         self.lyricsPreparation = preparation
         self.chineseConverterProvider = chineseConverter
+        self.explicitResolver = explicitResolver
         let pipeline = LyricsSearchPipeline(settings: searchSettings, preparation: preparation)
         self.searchPipeline = pipeline
         self.session = LyricsSession(
@@ -63,6 +67,7 @@ final class AppContainer {
             pipeline: pipeline,
             preparation: preparation,
             chineseConverter: chineseConverter,
+            explicitResolver: explicitResolver,
             displaySettings: displaySettings,
             searchSettings: searchSettings,
             exportSettings: exportSettings,

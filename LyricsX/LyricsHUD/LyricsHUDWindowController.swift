@@ -11,7 +11,12 @@ final class LyricsHUDWindowController: NSWindowController, NSWindowDelegate {
 
     private static let windowFrame = NSWindow.FrameAutosaveName("LyricsHUD")
 
-    init(player: PlayerHandle, session: LyricsSession, chineseConverter: ChineseConverterProvider) {
+    init(
+        player: PlayerHandle,
+        session: LyricsSession,
+        chineseConverter: ChineseConverterProvider,
+        explicitResolver: ExplicitLyricsResolving
+    ) {
         // Matches the storyboard's `NSPanel` config: HUD style, utility, non-
         // activating, full-size content view, hidden title, persistent frame.
         let styleMask: NSWindow.StyleMask = [
@@ -34,7 +39,8 @@ final class LyricsHUDWindowController: NSWindowController, NSWindowDelegate {
         let viewController = LyricsHUDViewController(
             player: player,
             session: session,
-            chineseConverter: chineseConverter
+            chineseConverter: chineseConverter,
+            explicitResolver: explicitResolver
         )
         panel.contentViewController = viewController
 

@@ -227,7 +227,13 @@ final class SearchLyricsViewModel: ObservableObject {
             SearchBlocklist.unblock(track: track)
             SearchBlocklist.unblock(album: track.album ?? "")
         }
-        session.select(result.lyrics, writeToiTunesIfAuto: true)
+        // Hand the other same-song results to the session as restoration evidence
+        // for the chosen lyrics (the session bounds and de-dupes them).
+        let supporting = allCandidates
+            .filter { $0.evaluation.visibility == .normal }
+            .map(\.lyrics)
+            .filter { $0 !== result.lyrics }
+        session.select(result.lyrics, writeToiTunesIfAuto: true, supporting: supporting)
     }
 
     func updatePreview() {

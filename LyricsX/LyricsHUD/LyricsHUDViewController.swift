@@ -14,6 +14,7 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
     private let player: PlayerHandle
     private let session: LyricsSession
     private let chineseConverter: ChineseConverterProvider
+    private let explicitResolver: ExplicitLyricsResolving
 
     private let dragNDropView = DragNDropView(frame: .zero)
     private let lyricsScrollView = ScrollLyricsView(frame: .zero)
@@ -34,10 +35,16 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
     private var isWillTerminate = false
     private var cancelBag = Set<AnyCancellable>()
 
-    init(player: PlayerHandle, session: LyricsSession, chineseConverter: ChineseConverterProvider) {
+    init(
+        player: PlayerHandle,
+        session: LyricsSession,
+        chineseConverter: ChineseConverterProvider,
+        explicitResolver: ExplicitLyricsResolving
+    ) {
         self.player = player
         self.session = session
         self.chineseConverter = chineseConverter
+        self.explicitResolver = explicitResolver
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -165,6 +172,18 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
             .sink { [unowned self] _ in
                 self.refreshTextContents()
             }.store(in: &cancelBag)
+        // Restoration evidence and the lexicon/toggle both affect the full
+        // scrollback text, so rebuild contents when either changes.
+        session.$supportingLyrics
+            .receive(on: DispatchQueue.main)
+            .sink { [unowned self] _ in
+                self.refreshTextContents()
+            }.store(in: &cancelBag)
+        explicitResolver.settingsDidChange
+            .receive(on: DispatchQueue.main)
+            .sink { [unowned self] in
+                self.refreshTextContents()
+            }.store(in: &cancelBag)
     }
 
     override func viewWillAppear() {
@@ -182,9 +201,13 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
 
     private func refreshTextContents() {
         let newLyrics = session.currentLyrics
+        let restoreExplicit = explicitResolver.makeRenderRestoration(
+            context: ExplicitRestorationContext(supportingCandidates: session.supportingLyrics)
+        )
         lyricsScrollView.setupTextContents(
             lyrics: newLyrics,
-            converter: chineseConverter.converter
+            converter: chineseConverter.converter,
+            restoreExplicit: restoreExplicit
         )
         noLyricsLabel.isHidden = newLyrics != nil
         displayLyrics(animation: false)

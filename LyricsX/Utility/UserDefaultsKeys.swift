@@ -78,6 +78,10 @@ extension UserDefaults.DefaultsKeys {
     static let lyricsSmartFilterEnabled = Key<Bool>("LyricsSmartFilterEnabled")
     static let lyricsFilterKeys = Key<[String]>("LyricsFilterKeys")
 
+    // Explicit-word restoration
+    static let lyricsExplicitRestorationEnabled = Key<Bool>("LyricsExplicitRestorationEnabled")
+    static let lyricsExplicitLexiconEntries = Key<[String]>("LyricsExplicitLexiconEntries")
+
     // Lab
     static let useSystemWideNowPlaying = Key<Bool>("UseSystemWideNowPlaying")
     static let systemWideNowPlayingAppList = Key<[String]>("SystemWideNowPlayingAppList")

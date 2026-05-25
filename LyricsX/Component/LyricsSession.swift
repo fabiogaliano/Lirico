@@ -49,6 +49,16 @@ class LyricsSession: NSObject {
 
     @Published var currentLineIndex: Int?
 
+    /// Other same-song candidates kept as evidence for display-time explicit-word
+    /// restoration. This is request-dependent display state, not persisted lyrics
+    /// metadata, and is bounded to keep memory predictable. Written only by the
+    /// session (automatic search collection, manual select); reset on track change.
+    @Published private(set) var supportingLyrics: [Lyrics] = []
+
+    /// Upper bound on retained supporting candidates. A handful is plenty for
+    /// cross-candidate consensus; more would only add memory and noise.
+    private let maxSupportingLyrics = 10
+
     private var searchRequest: LyricsSearchRequest?
     private var searchTask: Task<Void, Never>?
 
@@ -77,6 +87,7 @@ class LyricsSession: NSObject {
         pipeline: LyricsSearchPipeline,
         preparation: LyricsPreparation,
         chineseConverter: ChineseConverterProvider,
+        explicitResolver: ExplicitLyricsResolving = ExplicitLyricsResolver(),
         displaySettings: DisplaySettings = DisplaySettings(),
         persistenceSettings: PersistenceSettings = PersistenceSettings(),
         searchSettings: SearchSettings = SearchSettings(),
@@ -95,12 +106,14 @@ class LyricsSession: NSObject {
         self.displayCoordinator = LyricsDisplayCoordinator(
             player: player,
             settings: displaySettings,
-            chineseConverter: chineseConverter
+            chineseConverter: chineseConverter,
+            explicitResolver: explicitResolver
         )
         super.init()
         displayCoordinator.observe(
             lyrics: $currentLyrics,
-            index: $currentLineIndex
+            index: $currentLineIndex,
+            supporting: $supportingLyrics
         )
         player.currentTrackWillChange
             .signal()
@@ -189,7 +202,7 @@ class LyricsSession: NSObject {
     /// current generation token. Late automatic events arriving after this call
     /// are silently dropped, so automatic finalization/export can never replace
     /// a user-selected result.
-    func select(_ lyrics: Lyrics, writeToiTunesIfAuto: Bool = false) {
+    func select(_ lyrics: Lyrics, writeToiTunesIfAuto: Bool = false, supporting: [Lyrics] = []) {
         // Invalidate the current automatic search generation so any pending
         // automatic finalize/export becomes a no-op.
         automaticSearchGeneration &+= 1
@@ -201,6 +214,9 @@ class LyricsSession: NSObject {
         }
         lyrics.metadata.persistenceAllowed = true
         currentLyrics = lyrics
+        // Retain the manual search's other same-song results as restoration
+        // evidence for the chosen lyrics.
+        supportingLyrics = boundedSupporting(supporting, excluding: lyrics)
         if writeToiTunesIfAuto, exportSettings.writeToiTunesAutomatically {
             writeToiTunes(overwrite: true)
         }
@@ -226,6 +242,7 @@ class LyricsSession: NSObject {
             }
         }
         currentLyrics = nil
+        supportingLyrics = []
     }
 
     @MainActor
@@ -233,6 +250,7 @@ class LyricsSession: NSObject {
         persistCurrentLyricsIfNeeded()
         currentLyrics = nil
         currentLineIndex = nil
+        supportingLyrics = []
 
         // Invalidate the previous search so late events from the old track are
         // no-ops even if they arrive after the new task starts.
@@ -470,6 +488,10 @@ class LyricsSession: NSObject {
             }
         }
 
+        // Final restoration evidence: the other same-song candidates for whatever
+        // lyrics ended up displayed (the new pick, or retained local lyrics).
+        supportingLyrics = boundedSupporting(from: collectedCandidates, selected: currentLyrics)
+
         // Persist and export after finalization — never on interim updates.
         persistCurrentLyricsIfNeeded()
         if exportSettings.writeToiTunesAutomatically {
@@ -514,6 +536,10 @@ class LyricsSession: NSObject {
             generation: generation
         ) else { return }
 
+        // Refresh restoration evidence as the collection grows, even when the
+        // displayed candidate itself is unchanged.
+        supportingLyrics = boundedSupporting(from: collected, selected: best.lyrics)
+
         // Only update if this candidate is actually different from what's displayed.
         guard currentLyrics !== best.lyrics else { return }
 
@@ -555,6 +581,32 @@ class LyricsSession: NSObject {
                 configuration: configuration
             )
         }
+    }
+
+    // MARK: - Supporting candidate retention
+
+    /// Same-song alternates (normal visibility only — never loose fallback or
+    /// wrong-song candidates) from a completed collection, excluding the
+    /// displayed lyrics, bounded.
+    private func boundedSupporting(
+        from collected: [EvaluatedLyricsCandidate],
+        selected: Lyrics?
+    ) -> [Lyrics] {
+        let sameSong = collected
+            .filter { $0.evaluation.visibility == .normal }
+            .map(\.lyrics)
+        return boundedSupporting(sameSong, excluding: selected)
+    }
+
+    private func boundedSupporting(_ lyrics: [Lyrics], excluding selected: Lyrics?) -> [Lyrics] {
+        var result: [Lyrics] = []
+        for item in lyrics {
+            if let selected, item === selected { continue }
+            if result.contains(where: { $0 === item }) { continue }
+            result.append(item)
+            if result.count >= maxSupportingLyrics { break }
+        }
+        return result
     }
 
     // MARK: - Local lyrics evaluation
@@ -642,6 +694,7 @@ extension LyricsSession {
         lrc.metadata.needsPersist = true
         lrc.metadata.persistenceAllowed = true
         currentLyrics = lrc
+        supportingLyrics = []
         SearchBlocklist.unblock(track: track)
         SearchBlocklist.unblock(album: track.album ?? "")
     }

@@ -58,7 +58,11 @@ class ScrollLyricsView: NSScrollView {
     private var ranges: [RenderedLineRange] = []
     private var highlightedRange: NSRange?
 
-    func setupTextContents(lyrics: Lyrics?, converter: ChineseConverter?) {
+    func setupTextContents(
+        lyrics: Lyrics?,
+        converter: ChineseConverter?,
+        restoreExplicit: ExplicitRenderRestoration? = nil
+    ) {
         guard let lyrics = lyrics else {
             ranges = []
             textView.string = ""
@@ -79,7 +83,8 @@ class ScrollLyricsView: NSScrollView {
                 lyricsLanguage: lyrics.metadata.language,
                 translationLanguageCode: languageCode,
                 convert: .all,
-                converter: converter
+                converter: converter,
+                restoreExplicit: restoreExplicit
             )
             var lineStr = mainContent
             if let trans = renderedTrans, displaySettings.preferBilingualLyrics {

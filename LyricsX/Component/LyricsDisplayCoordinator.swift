@@ -21,18 +21,22 @@ final class LyricsDisplayCoordinator {
     private let player: PlayerHandle
     private let settings: DisplaySettings
     private let chineseConverter: ChineseConverterProvider
+    private let explicitResolver: ExplicitLyricsResolving
     private var currentLyrics: Lyrics?
     private var currentIndex: Int?
+    private var currentSupporting: [Lyrics] = []
     private var cancelBag = Set<AnyCancellable>()
 
     init(
         player: PlayerHandle,
         settings: DisplaySettings = DisplaySettings(),
-        chineseConverter: ChineseConverterProvider
+        chineseConverter: ChineseConverterProvider,
+        explicitResolver: ExplicitLyricsResolving = ExplicitLyricsResolver()
     ) {
         self.player = player
         self.settings = settings
         self.chineseConverter = chineseConverter
+        self.explicitResolver = explicitResolver
     }
 
     /// Wire the coordinator to the session's projected publishers. Called once
@@ -41,7 +45,8 @@ final class LyricsDisplayCoordinator {
     /// the session having to hand them to its own initializer.
     func observe(
         lyrics: Published<Lyrics?>.Publisher,
-        index: Published<Int?>.Publisher
+        index: Published<Int?>.Publisher,
+        supporting: Published<[Lyrics]>.Publisher
     ) {
         lyrics
             .receive(on: DispatchQueue.lyricsDisplay)
@@ -57,6 +62,21 @@ final class LyricsDisplayCoordinator {
                 self?.currentIndex = value
                 self?.recompute()
             }
+            .store(in: &cancelBag)
+
+        supporting
+            .receive(on: DispatchQueue.lyricsDisplay)
+            .sink { [weak self] value in
+                self?.currentSupporting = value
+                self?.recompute()
+            }
+            .store(in: &cancelBag)
+
+        // Toggling the feature or editing the lexicon must refresh visible text
+        // without reloading lyrics.
+        explicitResolver.settingsDidChange
+            .receive(on: DispatchQueue.lyricsDisplay)
+            .sink { [weak self] in self?.recompute() }
             .store(in: &cancelBag)
 
         player.playbackStateWillChange
@@ -102,12 +122,16 @@ final class LyricsDisplayCoordinator {
         let languageCode = lyrics.metadata.translationLanguages.first
 
         let converter = chineseConverter.converter
+        let restoreExplicit = explicitResolver.makeRenderRestoration(
+            context: ExplicitRestorationContext(supportingCandidates: currentSupporting)
+        )
         let (primaryText, translationText) = LineRenderer.render(
             line: currentLine,
             lyricsLanguage: lyrics.metadata.language,
             translationLanguageCode: languageCode,
             convert: [.mainLine, .translation],
-            converter: converter
+            converter: converter,
+            restoreExplicit: restoreExplicit
         )
 
         let nextLineText: String? = nextEnabled.map {
@@ -116,7 +140,8 @@ final class LyricsDisplayCoordinator {
                 lyricsLanguage: lyrics.metadata.language,
                 translationLanguageCode: nil,
                 convert: .mainLine,
-                converter: converter
+                converter: converter,
+                restoreExplicit: restoreExplicit
             ).content
         }
 
