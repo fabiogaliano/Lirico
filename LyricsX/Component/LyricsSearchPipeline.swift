@@ -25,13 +25,15 @@ enum LyricsSearchEvent {
 /// - rebuilds the `LyricsProvider` group from the no-auth services plus the
 ///   optional Musixmatch token whenever the token changes,
 /// - streams candidates for a `LyricsSearchRequest`,
-/// - prepares every candidate via the injected `LyricsPreparation` and marks
-///   it dirty so the caller can persist without re-running that policy.
+/// - prepares every candidate via the injected `LyricsPreparation`, marks it
+///   dirty, and keeps automatic-persistence gated until the caller explicitly
+///   accepts the result.
 ///
 /// Both automatic search (`LyricsSession.currentTrackChanged`) and manual
 /// search (`SearchLyricsViewModel.search`) go through this single type.
 /// Callers stay responsible for things only they know — request freshness,
-/// priority comparison, collection windows, and UI updates.
+/// priority comparison, collection windows, UI updates, and when persistence
+/// becomes allowed.
 @MainActor
 final class LyricsSearchPipeline {
     private var providerGroup: LyricsProviders.Group = LyricsProviders.Group()
@@ -96,6 +98,7 @@ final class LyricsSearchPipeline {
                         lyrics.metadata.service = source
                         preparation.prepare(lyrics)
                         lyrics.metadata.needsPersist = true
+                        lyrics.metadata.persistenceAllowed = false
                         let evaluation = evaluator.evaluate(
                             lyrics: lyrics,
                             mode: mode,

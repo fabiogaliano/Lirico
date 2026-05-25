@@ -104,8 +104,11 @@ class LyricsSession: NSObject {
         )
         player.currentTrackWillChange
             .signal()
-            .receive(on: DispatchQueue.lyricsDisplay)
-            .invoke(LyricsSession.currentTrackChanged, weaklyOn: self)
+            .sink { [weak self] in
+                Task { @MainActor in
+                    self?.currentTrackChanged()
+                }
+            }
             .store(in: &cancelBag)
 
         clock.dedupTarget = { [weak self] in self?.currentLineIndex }
@@ -125,7 +128,9 @@ class LyricsSession: NSObject {
         // Run the first track sync on the next runloop tick so callers have a
         // chance to retain the session before subscribers start firing.
         DispatchQueue.main.async { [weak self] in
-            self?.currentTrackChanged()
+            Task { @MainActor in
+                self?.currentTrackChanged()
+            }
         }
     }
 
@@ -146,11 +151,13 @@ class LyricsSession: NSObject {
 
     // MARK: - Persistence policy
 
-    /// Flush the current lyrics to disk when they've been marked dirty
-    /// (`metadata.needsPersist == true`). This is the only place in the app
-    /// that should drive a disk write — everywhere else asks the session.
+    /// Flush the current lyrics to disk when they've been marked dirty and are
+    /// eligible for persistence. This is the only place in the app that should
+    /// drive a disk write — everywhere else asks the session.
     func persistCurrentLyricsIfNeeded() {
-        guard let lyrics = currentLyrics, lyrics.metadata.needsPersist else { return }
+        guard let lyrics = currentLyrics,
+              lyrics.metadata.needsPersist,
+              lyrics.metadata.persistenceAllowed else { return }
         LyricsPersister.saveToDisk(lyrics, to: persistenceSettings.storageDirectory())
     }
 
@@ -192,6 +199,7 @@ class LyricsSession: NSObject {
         if let track = player.currentTrack {
             lyrics.associateWithTrack(track)
         }
+        lyrics.metadata.persistenceAllowed = true
         currentLyrics = lyrics
         if writeToiTunesIfAuto, exportSettings.writeToiTunesAutomatically {
             writeToiTunes(overwrite: true)
@@ -220,6 +228,7 @@ class LyricsSession: NSObject {
         currentLyrics = nil
     }
 
+    @MainActor
     func currentTrackChanged() {
         persistCurrentLyricsIfNeeded()
         currentLyrics = nil
@@ -456,6 +465,7 @@ class LyricsSession: NSObject {
                 if let track = player.currentTrack {
                     bestCandidate.lyrics.associateWithTrack(track)
                 }
+                bestCandidate.lyrics.metadata.persistenceAllowed = true
                 currentLyrics = bestCandidate.lyrics
             }
         }
@@ -630,6 +640,7 @@ extension LyricsSession {
         lrc.metadata.artist = track.artist
         preparation.prepare(lrc)
         lrc.metadata.needsPersist = true
+        lrc.metadata.persistenceAllowed = true
         currentLyrics = lrc
         SearchBlocklist.unblock(track: track)
         SearchBlocklist.unblock(album: track.album ?? "")

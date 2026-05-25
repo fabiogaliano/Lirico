@@ -6,6 +6,7 @@ extension Lyrics.Metadata.Key {
     static var title = Lyrics.Metadata.Key("title")
     static var artist = Lyrics.Metadata.Key("artist")
     static var needsPersist = Lyrics.Metadata.Key("needsPersist")
+    static var persistenceAllowed = Lyrics.Metadata.Key("persistenceAllowed")
     static var language = Lyrics.Metadata.Key("language")
 }
 
@@ -28,6 +29,11 @@ extension Lyrics.Metadata {
     var needsPersist: Bool {
         get { return data[.needsPersist] as? Bool ?? false }
         set { data[.needsPersist] = newValue }
+    }
+
+    var persistenceAllowed: Bool {
+        get { return data[.persistenceAllowed] as? Bool ?? true }
+        set { data[.persistenceAllowed] = newValue }
     }
 
     var language: String? {

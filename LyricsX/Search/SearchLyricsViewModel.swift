@@ -155,6 +155,9 @@ final class SearchLyricsViewModel: ObservableObject {
     private var searchedTitle: String = ""
     private var searchedArtist: String = ""
 
+    /// Monotonically increasing identity for the active manual search.
+    private var searchGeneration: Int = 0
+
     private var searchTask: Task<Void, Never>?
     private var fieldCancellable: AnyCancellable?
     private let imageCache = NSCache<NSURL, NSImage>()
@@ -175,11 +178,14 @@ final class SearchLyricsViewModel: ObservableObject {
             .dropFirst()
             .sink { [weak self] newTitle, newArtist in
                 guard let self, self.isSearching else { return }
-                if newTitle != self.searchedTitle || newArtist != self.searchedArtist {
-                    self.fieldsChangedSinceSearch = true
-                    // Changing fields does NOT clear partial results — Search Again does that.
-                }
+                self.fieldsChangedSinceSearch = self.trimmedFieldValue(newTitle) != self.searchedTitle
+                    || self.trimmedFieldValue(newArtist) != self.searchedArtist
+                // Changing fields does NOT clear partial results — Search Again does that.
             }
+    }
+
+    private func trimmedFieldValue(_ value: String) -> String {
+        value.trimmingCharacters(in: .whitespaces)
     }
 
     // MARK: - Public API
@@ -189,7 +195,9 @@ final class SearchLyricsViewModel: ObservableObject {
     func reloadFromCurrentTrack() {
         guard let track = player.currentTrack else {
             // No track: clear everything but leave the search available for manual lookup.
+            searchGeneration &+= 1
             searchTask?.cancel()
+            searchTask = nil
             allCandidates = []
             selectionID = nil
             preview = ""
@@ -221,8 +229,8 @@ final class SearchLyricsViewModel: ObservableObject {
         // Cancel any in-flight search before clearing state.
         searchTask?.cancel()
 
-        let trimmedTitle = title.trimmingCharacters(in: .whitespaces)
-        let trimmedArtist = artist.trimmingCharacters(in: .whitespaces)
+        let trimmedTitle = trimmedFieldValue(title)
+        let trimmedArtist = trimmedFieldValue(artist)
 
         // Derive the search mode and request from the trimmed fields.
         let mode: LyricsSearchMode
@@ -251,6 +259,7 @@ final class SearchLyricsViewModel: ObservableObject {
 
         // Persist the mode for result partitioning during the search.
         currentSearchMode = mode
+        searchGeneration &+= 1
 
         // Reset all result/selection/toggle state for the new search.
         allCandidates = []
@@ -267,13 +276,15 @@ final class SearchLyricsViewModel: ObservableObject {
         // could change mid-search).
         let requestedDuration: TimeInterval? = trackDuration
         let requestedAlbum: String? = nil   // Manual search never passes album (plan §Manual search behavior)
+        let generation = searchGeneration
 
         searchTask = Task { @MainActor in
             await runSearch(
                 request: request,
                 mode: mode,
                 requestedDuration: requestedDuration,
-                requestedAlbum: requestedAlbum
+                requestedAlbum: requestedAlbum,
+                generation: generation
             )
         }
     }
@@ -281,6 +292,7 @@ final class SearchLyricsViewModel: ObservableObject {
     /// Cancel the current in-flight search. Partial results remain visible.
     func cancelSearch() {
         guard isSearching else { return }
+        searchGeneration &+= 1
         searchTask?.cancel()
         searchTask = nil
         let visible = visibleRows.count
@@ -340,7 +352,8 @@ final class SearchLyricsViewModel: ObservableObject {
         request: LyricsSearchRequest,
         mode: LyricsSearchMode,
         requestedDuration: TimeInterval?,
-        requestedAlbum: String?
+        requestedAlbum: String?,
+        generation: Int
     ) async {
         // Race the event-stream consumer against a 30 s timeout.
         // Using TaskGroup: the first child to finish cancels the other.
@@ -355,7 +368,8 @@ final class SearchLyricsViewModel: ObservableObject {
                     request: request,
                     mode: mode,
                     requestedDuration: requestedDuration,
-                    requestedAlbum: requestedAlbum
+                    requestedAlbum: requestedAlbum,
+                    generation: generation
                 )
                 return true
             }
@@ -369,16 +383,16 @@ final class SearchLyricsViewModel: ObservableObject {
                     // Cancelled before 30 s — stream finished first.
                     return false
                 }
-                // Only apply timeout if we are still in the searching state
-                // (not already cancelled or superseded by a newer search).
-                if self.isSearching {
-                    let visible = self.visibleRows.count
-                    self.searchStatus = .timedOut(
-                        visibleCount: visible,
-                        hiddenUnlikely: self.unlikelyCount,
-                        rejected: self.rejectedCount
-                    )
+                // Only apply timeout if we are still the active search.
+                guard self.searchGeneration == generation, self.isSearching else {
+                    return false
                 }
+                let visible = self.visibleRows.count
+                self.searchStatus = .timedOut(
+                    visibleCount: visible,
+                    hiddenUnlikely: self.unlikelyCount,
+                    rejected: self.rejectedCount
+                )
                 return false
             }
 
@@ -392,7 +406,8 @@ final class SearchLyricsViewModel: ObservableObject {
         request: LyricsSearchRequest,
         mode: LyricsSearchMode,
         requestedDuration: TimeInterval?,
-        requestedAlbum: String?
+        requestedAlbum: String?,
+        generation: Int
     ) async {
         let stream = pipeline.events(
             for: request,
@@ -407,7 +422,7 @@ final class SearchLyricsViewModel: ObservableObject {
         for await event in stream {
             // Bail early if a newer search has been launched (task cancel propagates,
             // but guard against any race between the cancel and the next yield).
-            guard isSearching else { break }
+            guard searchGeneration == generation, isSearching else { break }
 
             switch event {
             case .providerStarted(let source):
@@ -415,6 +430,7 @@ final class SearchLyricsViewModel: ObservableObject {
 
             case .candidate(let candidate):
                 allCandidates.append(candidate)
+                invalidateSelectionIfHidden()
                 updateFoundStatus()
 
             case .providerFinished(let source, _):
@@ -431,7 +447,7 @@ final class SearchLyricsViewModel: ObservableObject {
 
         // After the stream finishes (normally, cancelled, or timeout-cancelled):
         // Only update status if we are still the active search (i.e. not superseded).
-        guard isSearching else { return }
+        guard searchGeneration == generation, isSearching else { return }
 
         let visible = visibleRows.count
         let hidden = unlikelyCount
@@ -516,16 +532,24 @@ final class SearchLyricsViewModel: ObservableObject {
 
     // MARK: - Selection invalidation
 
+    private func clearSelectionPreview() {
+        selectionID = nil
+        preview = ""
+        artwork = nil
+    }
+
+    private func invalidateSelectionIfHidden() {
+        guard let id = selectionID,
+              !visibleRows.contains(where: { $0.id == id })
+        else { return }
+        clearSelectionPreview()
+    }
+
     /// Called by the view when the unlikely toggle changes.
     /// If the toggle was turned OFF and the selected row is now hidden, clear selection.
     func unlikelyToggleChanged() {
-        guard !showUnlikelyResults, let id = selectionID else { return }
-        // The selected row is unlikely if it's not in likelyRows.
-        if !likelyRows.contains(where: { $0.id == id }) {
-            selectionID = nil
-            preview = ""
-            artwork = nil
-        }
+        guard !showUnlikelyResults else { return }
+        invalidateSelectionIfHidden()
     }
 
     // MARK: - Artwork loading
