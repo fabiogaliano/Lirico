@@ -20,10 +20,10 @@ There's no packaged release yet, so build Lirico from source:
 ```bash
 git clone https://github.com/fabiogaliano/Lirico.git
 cd Lirico
-make install
+make install-release
 ```
 
-`make install` builds the Release app and copies `Lirico.app` to `/Applications`. Run `make help` for the other targets (`build`, `run`, `clean`), or open `LyricsX.xcodeproj` in Xcode and press Cmd+R.
+`make install-release` builds the optimized Release app and copies `Lirico.app` to `/Applications`. Or open `LyricsX.xcodeproj` in Xcode and press Cmd+R. See [Building from source](#building-from-source) for the development targets.
 
 To use **Musixmatch** as a lyrics source, follow [these steps](https://gist.github.com/TrueMyst/0461aea999e347182486934fd83a4cf9) or [these](https://spicetify.app/docs/faq#sometimes-popup-lyrics-andor-lyrics-plus-seem-to-not-work) to obtain a **usertoken**, then add it in Lirico's preferences.
 
@@ -31,6 +31,22 @@ To use **Musixmatch** as a lyrics source, follow [these steps](https://gist.gith
 
 - macOS 15+
 - Xcode 26+ (to build from source)
+
+### Building from source
+
+Builds default to the **Debug** configuration, which skips whole-module
+optimization — a one-file change rebuilds in ~20s instead of ~85s. Debug
+installs as `Lirico-Debug.app` (bundle id `dev.fabiogaliano.LyricsX`), so it
+runs side-by-side with the real `Lirico.app` without conflict.
+
+| Command | Configuration | What it does |
+|---|---|---|
+| `make build` | Debug | Fast (~20s) compile — the normal dev loop |
+| `make install` | Debug | Build, copy `Lirico-Debug.app` to `/Applications`, relaunch — fast dev iteration |
+| `make release` | Release | Optimized build — for distribution |
+| `make install-release` | Release | Build, copy `Lirico.app` to `/Applications`, relaunch — final testing before shipping |
+
+Run `make help` for the full list, or override the configuration on any target with `CONFIG=Release`.
 
 ## Features
 

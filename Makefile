@@ -3,32 +3,58 @@
 # The built product is "Lirico" (set via PRODUCT_NAME in the Xcode project).
 # The Xcode project and scheme files are still named "LyricsX" internally;
 # update the vars below if those are ever renamed too.
+#
+# Builds default to the Debug configuration: it skips whole-module
+# optimization, so a one-file change rebuilds in ~20s instead of ~85s, and it
+# fans compilation out across all cores. Use the `release` targets only when
+# producing an optimized build to distribute. Debug and Release products live
+# in separate subfolders of the same DERIVED dir, so the two configurations
+# keep independent caches and never force each other to rebuild.
 PROJECT  := LyricsX.xcodeproj
 SCHEME   := LyricsX
-APP_NAME := Lirico
+
+# The product name is configuration-specific: Debug builds to "Lirico-Debug"
+# (bundle id dev.fabiogaliano.LyricsX) so a dev build installs and runs
+# side-by-side with the real "Lirico" Release app without conflict.
+APP_NAME       := Lirico
+APP_NAME_Debug := Lirico-Debug
 
 DERIVED := build
-APP     := $(DERIVED)/Build/Products/Release/$(APP_NAME).app
-DEST    := /Applications/$(APP_NAME).app
+CONFIG  ?= Debug
+PRODUCT := $(if $(APP_NAME_$(CONFIG)),$(APP_NAME_$(CONFIG)),$(APP_NAME))
+APP     := $(DERIVED)/Build/Products/$(CONFIG)/$(PRODUCT).app
+DEST    := /Applications/$(PRODUCT).app
 
-.PHONY: help build install run clean
+.PHONY: help build release install install-release run clean
 
 help:
 	@echo "Targets:"
-	@echo "  make build     Build the Release app into $(DERIVED)/"
-	@echo "  make install   Build, copy to $(DEST), relaunch"
-	@echo "  make run       Open the installed app"
-	@echo "  make clean     Remove $(DERIVED)/"
+	@echo "  make build            Build (Debug) into $(DERIVED)/ — fast dev loop"
+	@echo "  make release          Build (Release, optimized) — for distribution"
+	@echo "  make install          Build (Debug), copy to $(DEST), relaunch"
+	@echo "  make install-release  Build (Release), copy to $(DEST), relaunch"
+	@echo "  make run              Open the installed app"
+	@echo "  make clean            Remove $(DERIVED)/"
+	@echo ""
+	@echo "Override the configuration on any target with CONFIG=Release."
 
 build:
 	xcodebuild -project $(PROJECT) -scheme $(SCHEME) \
-	  -configuration Release -derivedDataPath $(DERIVED) -quiet build
+	  -configuration $(CONFIG) -derivedDataPath $(DERIVED) -quiet build
+
+release:
+	$(MAKE) build CONFIG=Release
 
 install: build
-	-killall $(APP_NAME) 2>/dev/null || true
+	-killall $(PRODUCT) 2>/dev/null || true
+	@i=0; while pgrep -x $(PRODUCT) >/dev/null 2>&1 && [ $$i -lt 50 ]; do sleep 0.1; i=$$((i+1)); done
+	-killall -9 $(PRODUCT) 2>/dev/null || true
 	rm -rf $(DEST)
 	cp -R $(APP) $(DEST)
 	open $(DEST)
+
+install-release:
+	$(MAKE) install CONFIG=Release
 
 run:
 	open $(DEST)
