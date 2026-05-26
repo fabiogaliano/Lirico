@@ -1,7 +1,6 @@
 import Foundation
 import GenericID
 import LyricsXFoundation
-import Regex
 
 final class LyricsFilter {
     private let defaults: UserDefaults
@@ -24,23 +23,12 @@ final class LyricsFilter {
     }
 
     private func rebuild() {
-        let newPredicate: NSPredicate
-
-        if defaults[.lyricsFilterEnabled] {
-            let predicates = defaults[.lyricsFilterKeys].compactMap { (key: String) -> NSPredicate? in
-                let isRegex = key.hasPrefix("/")
-                let pattern = isRegex ? String(key.dropFirst()) : key
-                let options: NSRegularExpression.Options = isRegex ? [] : [.ignoreMetacharacters]
-                guard let regex = try? Regex(pattern, options: options) else { return nil }
-                return NSPredicate { object, _ in
-                    guard let object = object as? LyricsLine else { return false }
-                    return !regex.isMatch(object.content)
-                }
-            }
-            newPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
-        } else {
-            newPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [])
-        }
+        // Predicate construction lives in `LyricsXFoundation` (`makeLyricsFilterPredicate`)
+        // so the app and out-of-app tooling filter lines by one definition.
+        let newPredicate = makeLyricsFilterPredicate(
+            keys: defaults[.lyricsFilterKeys],
+            enabled: defaults[.lyricsFilterEnabled]
+        )
 
         lock.lock()
         predicate = newPredicate

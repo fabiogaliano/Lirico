@@ -3,13 +3,13 @@ import LyricsXFoundation
 
 /// Returns the canonical list of available lyrics source names for the given settings.
 ///
-/// Derived from the same `makeDescriptors` path that `LyricsSearchPipeline`
+/// Derived from the same `makeProviderDescriptors` path that `LyricsSearchPipeline`
 /// uses to build the active provider group, so source-priority preferences
 /// and emitted candidate source names always refer to the same strings.
 /// Musixmatch is included only when a non-empty token is present in `settings`,
 /// exactly matching the provider group `LyricsSearchPipeline.rebuildProviders()` builds.
 func availableLyricsSources(for settings: SearchSettings) -> [String] {
-    makeDescriptors(musixmatchToken: settings.musixmatchToken).map(\.source)
+    makeProviderDescriptors(musixmatchToken: settings.musixmatchToken).map(\.source)
 }
 
 /// `LyricsSelector` owns source-order normalization for the preferences UI.

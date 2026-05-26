@@ -83,7 +83,7 @@ final class LyricsSearchPipeline {
     }
 
     private func rebuildProviders() {
-        let descriptors = makeDescriptors(musixmatchToken: settings.musixmatchToken)
+        let descriptors = makeProviderDescriptors(musixmatchToken: settings.musixmatchToken)
         providerGroup = LyricsProviders.Group(descriptors: descriptors)
     }
 }
@@ -122,34 +122,6 @@ private actor LyricsSearchCandidateProcessor {
     }
 }
 
-// MARK: - Descriptor construction
-
-internal func makeDescriptors(musixmatchToken: String?) -> [LyricsProviders.ProviderDescriptor] {
-    var descriptors: [LyricsProviders.ProviderDescriptor] = [
-        LyricsProviders.ProviderDescriptor(
-            source: LyricsProviders.ServiceID.netease.displayName,
-            provider: LyricsProviders.Service.netease.create()
-        ),
-        LyricsProviders.ProviderDescriptor(
-            source: LyricsProviders.ServiceID.qq.displayName,
-            provider: LyricsProviders.Service.qq.create()
-        ),
-        LyricsProviders.ProviderDescriptor(
-            source: LyricsProviders.ServiceID.kugou.displayName,
-            provider: LyricsProviders.Service.kugou.create()
-        ),
-        LyricsProviders.ProviderDescriptor(
-            source: LyricsProviders.ServiceID.lrclib.displayName,
-            provider: LyricsProviders.Service.lrclib.create()
-        ),
-    ]
-    if let token = musixmatchToken, !token.isEmpty {
-        descriptors.append(LyricsProviders.ProviderDescriptor(
-            source: LyricsProviders.ServiceID.musixmatch.displayName,
-            provider: LyricsProviders.Service.musixmatch.create(
-                LyricsProviders.MusixmatchOptions(usertoken: token)
-            )
-        ))
-    }
-    return descriptors
-}
+// Provider descriptor construction lives in `LyricsXFoundation`
+// (`makeProviderDescriptors`) so the app and out-of-app tooling share one
+// canonical source list.

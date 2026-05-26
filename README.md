@@ -48,6 +48,10 @@ runs side-by-side with the real `Lirico.app` without conflict.
 
 Run `make help` for the full list, or override the configuration on any target with `CONFIG=Release`.
 
+### Diagnosing lyrics selection
+
+To debug *why* a particular lyric was chosen for the playing song — all candidates, their ranks/scores, the auto-pick, and how their timing/metadata differ — run `scripts/lyrics-diag/diag.sh`. It reuses the app's real evaluator/ranker and your live settings. See [`scripts/lyrics-diag/README.md`](scripts/lyrics-diag/README.md).
+
 ## Features
 
 - Works with your favorite music players. [List of supported players](https://github.com/MxIris-LyricsX-Project/MusicPlayer#supported-players)
