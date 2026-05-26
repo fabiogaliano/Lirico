@@ -38,9 +38,14 @@ help:
 	@echo ""
 	@echo "Override the configuration on any target with CONFIG=Release."
 
+# -allowProvisioningUpdates lets xcodebuild create/refresh the managed
+# development provisioning profile (Xcode.app does this implicitly; xcodebuild
+# does not). Required because the app's entitlements (App Groups, keychain
+# access groups) only resolve through a real signed profile.
 build:
 	xcodebuild -project $(PROJECT) -scheme $(SCHEME) \
-	  -configuration $(CONFIG) -derivedDataPath $(DERIVED) -quiet build
+	  -configuration $(CONFIG) -derivedDataPath $(DERIVED) \
+	  -allowProvisioningUpdates -quiet build
 
 release:
 	$(MAKE) build CONFIG=Release
