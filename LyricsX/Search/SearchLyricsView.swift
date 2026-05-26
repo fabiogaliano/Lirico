@@ -148,11 +148,14 @@ struct SearchLyricsView: View {
         .onChange(of: viewModel.selectionID) { _, _ in
             viewModel.updatePreview()
         }
-        .simultaneousGesture(
-            TapGesture(count: 2).onEnded {
-                if viewModel.canApply { viewModel.apply() }
-            }
-        )
+        .contextMenu(forSelectionType: LyricsResult.ID.self) { _ in
+            // No context menu items; this overload is used solely for its
+            // double-click `primaryAction`, which Table routes through row hit-testing.
+        } primaryAction: { ids in
+            guard let id = ids.first else { return }
+            viewModel.selectionID = id
+            if viewModel.canApply { viewModel.apply() }
+        }
         .overlay {
             if viewModel.visibleRows.isEmpty {
                 emptyResultsView
