@@ -87,22 +87,34 @@ foundation Lirico is built on.
 
 #### Components
 
-- [LyricsKit](https://github.com/MxIris-LyricsX-Project/LyricsKit)
-- [MusicPlayer](https://github.com/MxIris-LyricsX-Project/MusicPlayer)
+- [LyricsKit](https://github.com/fabiogaliano/LyricsKit) — MPL-2.0
+- [MusicPlayer](https://github.com/MxIris-LyricsX-Project/MusicPlayer) — MPL-2.0
 
 #### Open Source Libraries
 
-- [SwiftyOpenCC](https://github.com/ddddxxx/SwiftyOpenCC)
-- [GenericID](https://github.com/ddddxxx/GenericID)
-- [SwiftCF](https://github.com/ddddxxx/SwiftCF)
-- [Regex](https://github.com/ddddxxx/Regex)
-- [Semver](https://github.com/ddddxxx/Semver)
-- [TouchBarHelper](https://github.com/ddddxxx/TouchBarHelper)
-- [CombineX](https://github.com/cx-org/CombineX)
-- [SnapKit](https://github.com/SnapKit/SnapKit)
-- [MASShortcut](https://github.com/shpakovski/MASShortcut)
-- [Sparkle](https://github.com/sparkle-project/Sparkle)
-- [Then](https://github.com/devxoul/Then)
+- [SwiftyOpenCC](https://github.com/ddddxxx/SwiftyOpenCC) — MIT
+- [GenericID](https://github.com/MxIris-LyricsX-Project/GenericID) — MIT
+- [SwiftCF](https://github.com/MxIris-Library-Forks/SwiftCF) — MIT
+- [Regex](https://github.com/ddddxxx/Regex) — MIT
+- [Semver](https://github.com/ddddxxx/Semver) — MIT
+- [TouchBarHelper](https://github.com/ddddxxx/TouchBarHelper) — MIT
+- [SnapKit](https://github.com/SnapKit/SnapKit) — MIT
+- [MarqueeLabel](https://github.com/MxIris-LyricsX-Project/MarqueeLabel) — MIT
+- [BigInt](https://github.com/attaswift/BigInt) — MIT
+- [LaunchAtLogin](https://github.com/sindresorhus/LaunchAtLogin-Legacy) — MIT
+- [UIFoundation](https://github.com/Mx-Iris/UIFoundation) — MIT
+- [FrameworkToolbox](https://github.com/Mx-Iris/FrameworkToolbox) — MIT
+- [CombineX](https://github.com/cx-org/CombineX) — MIT (vendored)
+- [Then](https://github.com/devxoul/Then) — MIT (vendored)
+- [Sparkle](https://github.com/sparkle-project/Sparkle) — MIT
+- [Swift Collections](https://github.com/apple/swift-collections) — Apache-2.0
+- [Swift Async Algorithms](https://github.com/apple/swift-async-algorithms) — Apache-2.0
+- [MASShortcut](https://github.com/shpakovski/MASShortcut) — BSD-2-Clause
+- [mediaremote-adapter](https://github.com/MxIris-LyricsX-Project/mediaremote-adapter) — BSD-3-Clause
+- [CryptoSwift](https://github.com/krzyzanowskim/CryptoSwift) — custom (attribution); see [NOTICE](NOTICE)
+
+This product includes software developed by Marcin Krzyżanowski (http://krzyzanowskim.com/).
+See [NOTICE](NOTICE) for the full third-party attributions and license notices.
 
 #### Special Thanks
 

@@ -1,0 +1,95 @@
+Lirico
+Copyright (c) the Lirico and LyricsX contributors.
+Licensed under the Mozilla Public License 2.0 (see LICENSE).
+
+This product bundles the third-party software listed below. Each component
+remains the property of its respective copyright holders and is used under its
+own license.
+
+================================================================================
+REQUIRED ATTRIBUTION
+================================================================================
+
+CryptoSwift — Copyright (c) 2014 Marcin Krzyżanowski <marcin.krzyzanowski@gmail.com>
+https://github.com/krzyzanowskim/CryptoSwift
+
+CryptoSwift is distributed under a zlib-style license whose terms require the
+following acknowledgment to be retained in product documentation:
+
+    This product includes software developed by Marcin Krzyżanowski
+    (http://krzyzanowskim.com/).
+
+The origin of this software must not be misrepresented; altered source versions
+must be plainly marked as such; and this notice may not be removed or altered.
+
+================================================================================
+COMPONENTS — Mozilla Public License 2.0
+================================================================================
+
+LyricsKit     https://github.com/fabiogaliano/LyricsKit
+MusicPlayer   https://github.com/MxIris-LyricsX-Project/MusicPlayer
+
+================================================================================
+LIBRARIES — MIT License
+================================================================================
+
+SwiftyOpenCC       Copyright (c) 2017 DengXiang
+GenericID          Copyright (c) 2017 Xander Deng
+SwiftCF            Copyright (c) 2019 Xander Deng
+Regex              Copyright (c) 2019 Xander Deng
+Semver             Copyright (c) 2017 Xander Deng
+TouchBarHelper     Copyright (c) Xander Deng  (no license file in repo; treated
+                   as MIT, consistent with the author's other libraries)
+SnapKit            Copyright (c) 2011-Present SnapKit Team
+MarqueeLabel       Copyright (c) Charles Powell  (fork carries no license file;
+                   upstream is MIT)
+BigInt             Copyright (c) 2016-2017 Károly Lőrentey
+LaunchAtLogin      Copyright (c) Sindre Sorhus
+UIFoundation       Copyright (c) 2024 Mx-Iris
+FrameworkToolbox   Copyright (c) 2025 Mx-Iris
+CombineX           Copyright (c) 2019 Quentin Jin  (vendored in
+                   Lirico/Utility/CXExtensions/)
+Then               Copyright (c) 2015 Suyeol Jeon  (vendored in
+                   Lirico/Utility/Then.swift)
+Sparkle            Copyright (c) 2006 Andy Matuschak and the Sparkle contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+================================================================================
+LIBRARIES — Apache License 2.0
+================================================================================
+
+Swift Collections        Copyright (c) Apple Inc. and the Swift project authors
+Swift Async Algorithms   Copyright (c) Apple Inc. and the Swift project authors
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the
+license at https://www.apache.org/licenses/LICENSE-2.0.
+
+================================================================================
+LIBRARIES — BSD
+================================================================================
+
+MASShortcut          Copyright (c) 2012-2013 Vadim Shpakovski  (BSD-2-Clause)
+mediaremote-adapter  Copyright (c) 2025 Jonas van den Berg      (BSD-3-Clause)
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the conditions of the respective
+2-Clause / 3-Clause BSD licenses are met. The 3-Clause variant additionally
+forbids using the copyright holder's name to endorse derived products without
+prior written permission. The above copyright notices and license conditions are
+retained for both.
