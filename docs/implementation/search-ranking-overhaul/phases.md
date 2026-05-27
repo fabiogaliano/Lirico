@@ -1,6 +1,6 @@
 # Search Ranking Overhaul — Implementation Phases
 
-Derived from `docs/implementation/search-ranking-overhaul.md` plus the current LyricsX and local LyricsKit codebase. This breakdown is dependency-driven, not section-driven.
+Derived from `docs/implementation/search-ranking-overhaul.md` plus the current Lirico and local LyricsKit codebase. This breakdown is dependency-driven, not section-driven.
 
 ## Shared-contract gates before parallel work
 
@@ -26,13 +26,13 @@ These contracts should land before downstream work splits into parallel branches
 - **Inputs / dependencies:**
   - Plan decisions around provider events, descriptors, album metadata, LRCLIB exact lookup.
   - Current code in `LyricsKit/Sources/LyricsService/Provider/Group.swift`, `Service.swift`, `LyricsSearchRequest.swift`, `Services/LRCLIB/LRCLIB.swift`.
-  - Current LyricsX provider setup in `LyricsX/Component/LyricsSearchPipeline.swift`, `LyricsSelector.swift`, `SearchSettings.swift`, `AppContainer.swift`, `SourcePreferencesView.swift`, `LyricsXPackage/Package.swift`.
+  - Current Lirico provider setup in `Lirico/Component/LyricsSearchPipeline.swift`, `LyricsSelector.swift`, `SearchSettings.swift`, `AppContainer.swift`, `SourcePreferencesView.swift`, `LiricoPackage/Package.swift`.
 - **Outputs:**
   - LyricsKit `ProviderDescriptor` + non-throwing `Group.events(for:)`.
   - `lyrics(for:)` preserved as a compatibility wrapper.
   - `LyricsSearchRequest.albumName` convention.
   - LRCLIB `/api/get` exact lookup alongside `/api/search`, with dedupe and partial-failure behavior.
-  - LyricsX provider construction migrated to descriptor / `ServiceID`-based APIs.
+  - Lirico provider construction migrated to descriptor / `ServiceID`-based APIs.
   - Canonical source list derived from the same descriptor construction used by the pipeline.
 - **Key touchpoints:**
   - `/Users/f/Core/dev/projects/LyricsKit/Sources/LyricsService/Provider/Group.swift`
@@ -41,21 +41,21 @@ These contracts should land before downstream work splits into parallel branches
   - `/Users/f/Core/dev/projects/LyricsKit/Sources/LyricsService/Provider/Services/LRCLIB/LRCLIB.swift`
   - `/Users/f/Core/dev/projects/LyricsKit/Tests/LyricsKitTests/Providers/GroupProviderTests.swift`
   - `/Users/f/Core/dev/projects/LyricsKit/Tests/LyricsKitTests/Providers/LRCLIBProviderTests.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/LyricsSearchPipeline.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/LyricsSelector.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/SearchSettings.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Preferences/SourcePreferencesView.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsXPackage/Package.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Component/LyricsSearchPipeline.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Component/LyricsSelector.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Component/SearchSettings.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Preferences/SourcePreferencesView.swift`
+  - `/Users/f/Core/dev/projects/Lirico/LiricoPackage/Package.swift`
 - **Risks:**
   - Source-name drift between provider events, preferences, and UI.
-  - Cross-repo API mismatch while LyricsX still points at the resolved remote package.
+  - Cross-repo API mismatch while Lirico still points at the resolved remote package.
   - Regressing current search behavior while compatibility wrappers still exist.
 - **Parallelizable within the phase:**
   - LyricsKit event API + tests.
   - LRCLIB exact-lookup path + dedupe tests.
-  - LyricsX provider-construction/source-list migration **after** the descriptor/source contract is fixed.
+  - Lirico provider-construction/source-list migration **after** the descriptor/source contract is fixed.
 - **Exit criteria:**
-  - LyricsX builds against the local LyricsKit API for this work.
+  - Lirico builds against the local LyricsKit API for this work.
   - Provider events, canonical source names, and album metadata are available.
   - Existing caller flows can still fetch candidates through a compatibility path.
 
@@ -68,7 +68,7 @@ These contracts should land before downstream work splits into parallel branches
   - Existing preparation path in `LyricsSearchPipeline`.
   - Current `Lyrics.quality` / `Lyrics.isMatched()` behavior in LyricsKit and current `LyricsSelector` ordering logic.
 - **Outputs:**
-  - New `LyricsXFoundation/Search/` module for search mode, sync kind, evaluation, evaluator, and ranker.
+  - New `LiricoFoundation/Search/` module for search mode, sync kind, evaluation, evaluator, and ranker.
   - Normalization/tokenization helpers and karaoke detection helpers on `Lyrics`.
   - `SearchSettings.rankingConfiguration` mapper.
   - Non-throwing `LyricsSearchPipeline.events(...)` yielding app-level `LyricsSearchEvent` values with `EvaluatedLyricsCandidate` payloads.
@@ -76,13 +76,13 @@ These contracts should land before downstream work splits into parallel branches
   - Strict-search preference and old `strict` / `Lyrics.isMatched()` gating removed once the evaluated path is live.
   - `LyricsSelector` reduced, replaced, or repurposed around ranker-driven behavior instead of source-priority/quality-only comparison.
 - **Key touchpoints:**
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsXPackage/Sources/LyricsXFoundation/`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsXPackage/Tests/LyricsXFoundationTests/`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/LyricsSearchPipeline.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/SearchSettings.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/LyricsSelector.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Preferences/GeneralPreferencesView.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Utility/UserDefaultsKeys.swift`
+  - `/Users/f/Core/dev/projects/Lirico/LiricoPackage/Sources/LiricoFoundation/`
+  - `/Users/f/Core/dev/projects/Lirico/LiricoPackage/Tests/LiricoFoundationTests/`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Component/LyricsSearchPipeline.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Component/SearchSettings.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Component/LyricsSelector.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Preferences/GeneralPreferencesView.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Utility/UserDefaultsKeys.swift`
 - **Risks:**
   - Title/artist normalization rules are easy to over-broaden.
   - Set-level rank rules do not fit the current pairwise-only selector model.
@@ -113,11 +113,11 @@ These contracts should land before downstream work splits into parallel branches
   - Search / Cancel / Search Again button behavior and keyboard handling.
   - Apply enabled only for visible rows with a current track; no-track manual search still supports search/preview/drag.
 - **Key touchpoints:**
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Search/SearchLyricsViewModel.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Search/SearchLyricsView.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Search/SearchLyricsWindowController.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/LyricsSearchPipeline.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/SearchSettings.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Search/SearchLyricsViewModel.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Search/SearchLyricsView.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Search/SearchLyricsWindowController.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Component/LyricsSearchPipeline.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Component/SearchSettings.swift`
 - **Risks:**
   - `SearchLyricsViewModel.swift` and `SearchLyricsView.swift` are merge hot spots.
   - Filtered visibility can desync selection, preview, artwork, and Apply enablement.
@@ -150,11 +150,11 @@ These contracts should land before downstream work splits into parallel branches
   - Manual `select(...)` / Apply cancellation boundary so user choice cannot be replaced by later automatic finalization/export.
   - Final-only persistence/export behavior for dirty remote results.
 - **Key touchpoints:**
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/LyricsSession.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/LocalLyricsLoader.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/LyricsSearchPipeline.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/SearchSettings.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Search/SearchLyricsViewModel.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Component/LyricsSession.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Component/LocalLyricsLoader.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Component/LyricsSearchPipeline.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Component/SearchSettings.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Search/SearchLyricsViewModel.swift`
 - **Risks:**
   - Race conditions between track changes, manual selection, deadlines, and late provider events.
   - Accidentally exporting/persisting interim results.
@@ -177,29 +177,29 @@ These contracts should land before downstream work splits into parallel branches
 - **Inputs / dependencies:**
   - Phases 1–4 merged.
 - **Outputs:**
-  - Full `LyricsXFoundation` evaluator/ranker tests.
+  - Full `LiricoFoundation` evaluator/ranker tests.
   - Full LyricsKit provider-event/LRCLIB tests.
   - Threshold tuning against real examples.
   - Removal of obsolete strict-search UI/defaults and any remaining compatibility shims.
   - Cleanup of `priorityWindow` if it no longer serves any real path.
   - Relevant package tests and app build verification.
 - **Key touchpoints:**
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsXPackage/Tests/LyricsXFoundationTests/`
+  - `/Users/f/Core/dev/projects/Lirico/LiricoPackage/Tests/LiricoFoundationTests/`
   - `/Users/f/Core/dev/projects/LyricsKit/Tests/LyricsKitTests/Providers/`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/SearchSettings.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Utility/UserDefaultsKeys.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Preferences/GeneralPreferencesView.swift`
-  - `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/LyricsSelector.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Component/SearchSettings.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Utility/UserDefaultsKeys.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Preferences/GeneralPreferencesView.swift`
+  - `/Users/f/Core/dev/projects/Lirico/Lirico/Component/LyricsSelector.swift`
 - **Risks:**
   - Regressions only becoming visible after manual and automatic branches merge.
   - Threshold tuning churning behavior without enough fixture coverage.
 - **Parallelizable within the phase:**
   - LyricsKit tests.
-  - LyricsXFoundation tests.
+  - LiricoFoundation tests.
   - Cleanup PRs for dead settings/shims after test coverage is in place.
 - **Exit criteria:**
   - Relevant package tests pass.
-  - LyricsX builds cleanly against the intended LyricsKit dependency.
+  - Lirico builds cleanly against the intended LyricsKit dependency.
   - No legacy strict-search path remains active.
   - Final ranking behavior is covered by automated tests instead of only manual verification.
 

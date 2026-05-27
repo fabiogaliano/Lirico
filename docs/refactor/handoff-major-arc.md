@@ -1,10 +1,10 @@
 # Handoff — Major Architectural Arc: Lyrics State as a Single Concept
 
-Multi-session architectural transformation that collapses LyricsX's
+Multi-session architectural transformation that collapses Lirico's
 fragmented lyrics-state ownership into one well-bounded type.
 
-You are continuing architectural work on LyricsX at
-`/Users/f/Core/dev/projects/LyricsX`. Read CLAUDE.md in the repo root, and
+You are continuing architectural work on Lirico at
+`/Users/f/Core/dev/projects/Lirico`. Read CLAUDE.md in the repo root, and
 read `claudedocs/handoff-surgical-pass.md` if it exists — that handoff
 should be done first since it tidies a few items that make this arc
 cleaner.
@@ -20,7 +20,7 @@ who plays them, who searches for them) is fragmented across:
 - `PlaybackClock.shared` — writes BACK to `AppController.shared.currentLineIndex`
   directly (see `PlaybackClock.swift:62-63`). Two singletons in a cycle.
 - `let selectedPlayer = MusicPlayers.Selected.shared` — module-level global
-  in `LyricsX/Utility/Global.swift:29`. Implicitly visible to every Swift
+  in `Lirico/Utility/Global.swift:29`. Implicitly visible to every Swift
   file in the project.
 - Three external writers of `AppController.shared.currentLyrics`:
   `SearchLyricsViewController` (user picks a search result),
@@ -30,12 +30,12 @@ who plays them, who searches for them) is fragmented across:
 **After this arc** the architecture passes three deterministic tests:
 
 1. **Single-writer test**:
-   `grep -rn "\.currentLyrics =" --include="*.swift" /Users/f/Core/dev/projects/LyricsX/LyricsX/`
+   `grep -rn "\.currentLyrics =" --include="*.swift" /Users/f/Core/dev/projects/Lirico/Lirico/`
    returns hits only inside `LyricsSession.swift` (renamed from
    `AppController.swift`).
 
 2. **No-global test**:
-   `grep -rn "let selectedPlayer" --include="*.swift" /Users/f/Core/dev/projects/LyricsX/LyricsX/`
+   `grep -rn "let selectedPlayer" --include="*.swift" /Users/f/Core/dev/projects/Lirico/Lirico/`
    returns zero hits. Every consumer holds an injected `PlayerHandle`
    reference instead.
 
@@ -112,7 +112,7 @@ For each session, for each piece of work:
 
 3. **You commit** (not the agent). Before each commit:
    ```
-   git -C /Users/f/Core/dev/projects/LyricsX checkout -- "LyricsX/Supporting Files/Info.plist"
+   git -C /Users/f/Core/dev/projects/Lirico checkout -- "Lirico/Supporting Files/Info.plist"
    ```
 
 4. Commit subject: `refactor: <verb> <noun>`. Body explains why in 2-3
@@ -121,8 +121,8 @@ For each session, for each piece of work:
 ## Verification (every session ends with this green)
 
 ```
-xcodebuild -project /Users/f/Core/dev/projects/LyricsX/LyricsX.xcodeproj \
-  -scheme LyricsX -configuration Debug build 2>&1 | \
+xcodebuild -project /Users/f/Core/dev/projects/Lirico/Lirico.xcodeproj \
+  -scheme Lirico -configuration Debug build 2>&1 | \
   grep -E "(BUILD|error:|warning:)" | tail -10
 ```
 
@@ -160,7 +160,7 @@ green-build state with all behavior preserved.
 
 Today `PlaybackClock.shared.tick()` updates
 `AppController.shared.currentLineIndex` directly (file
-`LyricsX/Component/PlaybackClock.swift`, lines 62-63):
+`Lirico/Component/PlaybackClock.swift`, lines 62-63):
 
 ```swift
 if AppController.shared.currentLineIndex != index {
@@ -195,10 +195,10 @@ init() {
 ```
 
 ### Files affected
-- `LyricsX/Component/PlaybackClock.swift` — exposes a new
+- `Lirico/Component/PlaybackClock.swift` — exposes a new
   `CurrentValueSubject<Int?, Never>` internally, vended as
   `AnyPublisher`. Remove the direct AppController write.
-- `LyricsX/Component/AppController.swift` — add the subscription in
+- `Lirico/Component/AppController.swift` — add the subscription in
   `init`. The existing `@Published var currentLineIndex` stays — it's
   still the canonical state holder, just sourced from the publisher
   now.
@@ -269,7 +269,7 @@ one diff. Either is fine.
 ### Vision
 
 Today `let selectedPlayer = MusicPlayers.Selected.shared` lives in
-`LyricsX/Utility/Global.swift:29`. Every Swift file in the project can
+`Lirico/Utility/Global.swift:29`. Every Swift file in the project can
 reference `selectedPlayer` without declaring a dependency. Hidden
 dependencies are AI-navigability landmines.
 
@@ -282,7 +282,7 @@ it into every consumer. The global is deleted.
 
 Grep first:
 ```
-grep -rn "selectedPlayer" --include="*.swift" /Users/f/Core/dev/projects/LyricsX/LyricsX/
+grep -rn "selectedPlayer" --include="*.swift" /Users/f/Core/dev/projects/Lirico/Lirico/
 ```
 
 Expect ~10-15 hits. For each hit, note which method/property is accessed.
@@ -291,7 +291,7 @@ ACTUALLY USED appear in the protocol.
 
 ### Step 2 — Define the protocol
 
-`LyricsX/Component/PlayerHandle.swift`:
+`Lirico/Component/PlayerHandle.swift`:
 
 ```swift
 import Combine
@@ -478,7 +478,7 @@ post-A-and-B baseline.
 
 ## Project guardrails
 
-- Swift 5 in the Xcode project setting, Swift 6.2 in `LyricsXPackage/Package.swift`.
+- Swift 5 in the Xcode project setting, Swift 6.2 in `LiricoPackage/Package.swift`.
   Prefer Combine over modern Concurrency in the main app.
 - LyricsKit and MusicPlayer come from external SPM packages — don't modify them.
 - No tests exist; do not invent a test suite mid-arc unless explicitly asked.

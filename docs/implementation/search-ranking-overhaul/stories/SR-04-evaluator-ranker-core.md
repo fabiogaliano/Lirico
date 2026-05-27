@@ -1,8 +1,8 @@
-# SR-04 — Pure evaluator/ranker core in LyricsXFoundation
+# SR-04 — Pure evaluator/ranker core in LiricoFoundation
 
 ## Goal
 
-Introduce the shared pure search-domain model in `LyricsXFoundation`: search modes, karaoke detection, evaluation, ranking, and enough package tests to make downstream app integration safe.
+Introduce the shared pure search-domain model in `LiricoFoundation`: search modes, karaoke detection, evaluation, ranking, and enough package tests to make downstream app integration safe.
 
 ## Depends on / blocks
 
@@ -21,15 +21,15 @@ Introduce the shared pure search-domain model in `LyricsXFoundation`: search mod
 ## Out of scope
 
 - LyricsKit provider events.
-- LyricsX pipeline event mapping.
+- Lirico pipeline event mapping.
 - Search window or session integration.
 - Strict-search preference removal from the app target.
 
 ## Likely touchpoints
 
-- `/Users/f/Core/dev/projects/LyricsX/LyricsXPackage/Sources/LyricsXFoundation/Search/`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsXPackage/Tests/LyricsXFoundationTests/Search/`
-- Possibly exported entry points in `/Users/f/Core/dev/projects/LyricsX/LyricsXPackage/Sources/LyricsXFoundation/LyricsXFoundation.swift`
+- `/Users/f/Core/dev/projects/Lirico/LiricoPackage/Sources/LiricoFoundation/Search/`
+- `/Users/f/Core/dev/projects/Lirico/LiricoPackage/Tests/LiricoFoundationTests/Search/`
+- Possibly exported entry points in `/Users/f/Core/dev/projects/Lirico/LiricoPackage/Sources/LiricoFoundation/LiricoFoundation.swift`
 
 ## Constraints and decisions to honor
 
@@ -46,7 +46,7 @@ Must honor:
 
 ## Acceptance criteria
 
-- The new search-domain types exist in `LyricsXFoundation` with stable public shapes suitable for app integration.
+- The new search-domain types exist in `LiricoFoundation` with stable public shapes suitable for app integration.
 - The evaluator rejects wrong-title candidates in title-based modes according to the plan rules.
 - Artist-only evaluation and ranking follow the exact/loose catalog rules and title A–Z ordering.
 - Karaoke detection requires meaningful inline-timing coverage rather than one stray `[tt]` line.

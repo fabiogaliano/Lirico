@@ -43,7 +43,7 @@ SR-06 ~> SR-07   (shared `SearchLyricsViewModel.swift`; SR-07 also touches manua
 SR-03 ~> SR-08   (shared `SearchSettings.swift` / `LyricsSelector.swift` cleanup zone)
 SR-05 ~> SR-08   (shared strict-search cleanup files)
 SR-01 ~> SR-08   (shared LyricsKit provider-test surface)
-SR-04 ~> SR-08   (shared LyricsXFoundation test surface)
+SR-04 ~> SR-08   (shared LiricoFoundation test surface)
 ```
 
 Legend:
@@ -60,7 +60,7 @@ SR-01 -> SR-03 -> SR-04 -> SR-05 -> SR-07 -> SR-08
 
 Why this is longest and most constraining:
 - `SR-01` establishes the shared LyricsKit contracts.
-- `SR-03` moves LyricsX onto the dependency/source substrate needed by downstream app work.
+- `SR-03` moves Lirico onto the dependency/source substrate needed by downstream app work.
 - `SR-04` establishes the evaluator/ranker core consumed by the pipeline.
 - `SR-05` is the shared evaluated-pipeline migration point for both manual and automatic work.
 - `SR-07` carries the highest-risk runtime correctness path: automatic selection, deadline handling, persistence/export, and local-upgrade policy.
@@ -86,12 +86,12 @@ Why first:
 ### Second gate: `SR-03`
 
 Shared integration substrate established here:
-- LyricsX uses the intended local LyricsKit API.
+- Lirico uses the intended local LyricsKit API.
 - Provider construction moves to the descriptor / `ServiceID` path.
 - Canonical source list and source-priority normalization come from one construction path.
 
 Why next:
-- `SR-04` and `SR-05` both assume LyricsX is on the correct dependency/source substrate.
+- `SR-04` and `SR-05` both assume Lirico is on the correct dependency/source substrate.
 
 ### Third gate: `SR-05`
 
@@ -110,29 +110,29 @@ Based on the story touchpoints, these are the highest-conflict files and directo
 
 ### Highest-risk files
 
-- `LyricsX/Component/SearchSettings.swift`
+- `Lirico/Component/SearchSettings.swift`
   - touched by `SR-03`, `SR-05`, `SR-06`, `SR-07`, `SR-08`
   - risk: source-list normalization, ranking config, legacy-setting cleanup, branch drift
 
-- `LyricsX/Component/LyricsSearchPipeline.swift`
+- `Lirico/Component/LyricsSearchPipeline.swift`
   - touched by `SR-03`, `SR-05`, `SR-06`, `SR-07`
   - risk: provider construction, event mapping, candidate preparation/evaluation, consumer migration
 
-- `LyricsX/Component/LyricsSelector.swift`
+- `Lirico/Component/LyricsSelector.swift`
   - touched by `SR-03`, `SR-05`, `SR-08`
   - risk: changing role from source-priority/quality selector into a reduced or obsolete adapter
 
-- `LyricsX/Search/SearchLyricsViewModel.swift`
+- `Lirico/Search/SearchLyricsViewModel.swift`
   - touched by `SR-06`, `SR-07`
   - risk: manual-search state overhaul and automatic-search cancellation/override semantics collide here
 
 ### Medium-risk cleanup files
 
-- `LyricsX/Preferences/GeneralPreferencesView.swift`
+- `Lirico/Preferences/GeneralPreferencesView.swift`
   - touched by `SR-05`, `SR-08`
   - risk: strict-search toggle removal and late cleanup conflict
 
-- `LyricsX/Utility/UserDefaultsKeys.swift`
+- `Lirico/Utility/UserDefaultsKeys.swift`
   - touched by `SR-05`, `SR-08`
   - risk: dead defaults removal before final cleanup is complete
 
@@ -142,7 +142,7 @@ Based on the story touchpoints, these are the highest-conflict files and directo
   - touched by `SR-01`, `SR-02`, `SR-08`
   - risk: provider-event and LRCLIB test expansion colliding with later hardening
 
-- `LyricsXPackage/Tests/LyricsXFoundationTests/`
+- `LiricoPackage/Tests/LiricoFoundationTests/`
   - touched by `SR-04`, `SR-08`
   - risk: early core tests vs. final full matrix expansion
 
@@ -154,7 +154,7 @@ Based on the story touchpoints, these are the highest-conflict files and directo
 
 Why safe enough:
 - `SR-02` is LyricsKit LRCLIB-specific.
-- `SR-03` is LyricsX-side dependency/provider-construction work.
+- `SR-03` is Lirico-side dependency/provider-construction work.
 - No direct file overlap across repos from the declared touchpoints.
 
 Recommended note:
@@ -169,9 +169,9 @@ Logical independence:
 - `SR-07` is the automatic-search branch.
 
 Why they are **not** safely parallel by default:
-- both touch `LyricsX/Search/SearchLyricsViewModel.swift`
-- both touch `LyricsX/Component/SearchSettings.swift`
-- both consume the newly changed `LyricsX/Component/LyricsSearchPipeline.swift`
+- both touch `Lirico/Search/SearchLyricsViewModel.swift`
+- both touch `Lirico/Component/SearchSettings.swift`
+- both consume the newly changed `Lirico/Component/LyricsSearchPipeline.swift`
 - `SR-07` crosses into manual apply/select cancellation semantics, which couples it back to the manual surface
 
 Practical recommendation:
@@ -198,7 +198,7 @@ Reason:
 
 Reason:
 - explicit dependency
-- `SR-04` is meant to build against the integrated LyricsX/LyricsKit substrate from `SR-03`
+- `SR-04` is meant to build against the integrated Lirico/LyricsKit substrate from `SR-03`
 
 ### `SR-03` and `SR-05`
 

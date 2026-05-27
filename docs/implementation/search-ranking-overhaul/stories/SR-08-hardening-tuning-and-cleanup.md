@@ -11,7 +11,7 @@ Finish the overhaul by expanding automated coverage, tuning thresholds against r
 
 ## Scope
 
-- Fill out the required LyricsXFoundation evaluator/ranker tests from the plan.
+- Fill out the required LiricoFoundation evaluator/ranker tests from the plan.
 - Fill out the required LyricsKit provider-event/LRCLIB tests from the plan.
 - Tune threshold constants with real examples if implementation findings require adjustment.
 - Remove leftover compatibility shims, dead strict-search UI/defaults, and obsolete `priorityWindow` behavior if still present.
@@ -25,12 +25,12 @@ Finish the overhaul by expanding automated coverage, tuning thresholds against r
 
 ## Likely touchpoints
 
-- `/Users/f/Core/dev/projects/LyricsX/LyricsXPackage/Tests/LyricsXFoundationTests/`
+- `/Users/f/Core/dev/projects/Lirico/LiricoPackage/Tests/LiricoFoundationTests/`
 - `/Users/f/Core/dev/projects/LyricsKit/Tests/LyricsKitTests/Providers/`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/SearchSettings.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Utility/UserDefaultsKeys.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Preferences/GeneralPreferencesView.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/LyricsSelector.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Component/SearchSettings.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Utility/UserDefaultsKeys.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Preferences/GeneralPreferencesView.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Component/LyricsSelector.swift`
 
 ## Constraints and decisions to honor
 
@@ -47,7 +47,7 @@ Must honor:
 
 - The required evaluator/ranker cases from the plan are covered by package tests.
 - The required LyricsKit provider-event/LRCLIB cases from the plan are covered by tests.
-- LyricsX builds cleanly against the intended dependency setup.
+- Lirico builds cleanly against the intended dependency setup.
 - No active strict-search path remains.
 - Final ranking behavior is verified by automated tests, not only manual checks.
 

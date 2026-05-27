@@ -1,8 +1,8 @@
 # lyrics-diag
 
-Diagnostic that shows **which lyrics candidates the app finds, how they rank, which one gets auto-picked, and how their timing/metadata differ** — for whatever is playing in the music player Lirico/LyricsX is configured to use.
+Diagnostic that shows **which lyrics candidates the app finds, how they rank, which one gets auto-picked, and how their timing/metadata differ** — for whatever is playing in the music player Lirico/Lirico is configured to use.
 
-It reuses the app's real ranking brain (`LyricsXFoundation`: `LyricsCandidateEvaluator` + `LyricsCandidateRanker`) and the same pinned `LyricsKit 1.9.0` providers, so results match the shipping app. It also reads your **real app settings** (`com.fabiogaliano.LyricsX`): source-priority order/toggle, Musixmatch token, and the line filter.
+It reuses the app's real ranking brain (`LiricoFoundation`: `LyricsCandidateEvaluator` + `LyricsCandidateRanker`) and the same pinned `LyricsKit 1.9.0` providers, so results match the shipping app. It also reads your **real app settings** (`com.fabiogaliano.Lirico`): source-priority order/toggle, Musixmatch token, and the line filter.
 
 ## Usage
 
@@ -79,7 +79,7 @@ Run `./diag.sh` with the suspect song playing, then:
 
 ## Shared with the app (no drift)
 
-To avoid re-implementing app logic that could silently diverge, the two pieces most likely to change live in the `LyricsXFoundation` package and are used by **both** the app and this tool:
+To avoid re-implementing app logic that could silently diverge, the two pieces most likely to change live in the `LiricoFoundation` package and are used by **both** the app and this tool:
 
 - **`makeProviderDescriptors(musixmatchToken:)`** — the canonical lyrics-source list/order (app's `LyricsSearchPipeline`/`LyricsSelector` and this tool call it).
 - **`makeLyricsFilterPredicate(keys:enabled:)`** — the line-filter predicate (app's `LyricsFilter` and this tool call it).

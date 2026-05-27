@@ -31,14 +31,14 @@ Total: 27 files changed, 2592 insertions(+), 18489 deletions(-)
 
 | File | Purpose |
 |---|---|
-| `LyricsX/Preferences/PreferencesView.swift` | Root `TabView` with 6 tabs (General, Display, Shortcut, Filter, Lab, Source) |
-| `LyricsX/Preferences/SettingsSection.swift` | Reusable `SettingsSection<Content>` and `SettingsRow<Content>` layout primitives |
-| `LyricsX/Preferences/GeneralPreferencesView.swift` | General pane: player picker, saving path, search/display settings, language picker |
-| `LyricsX/Preferences/DisplayPreferencesView.swift` | Display pane: desktop lyrics + HUD fonts/colors/toggles; `DisplayPreferencesViewModel` for NSColor/NSFont bridging |
-| `LyricsX/Preferences/ShortcutPreferencesView.swift` | Shortcut pane: 9 `MASShortcutView` instances via `ShortcutRecorderView: NSViewRepresentable` |
-| `LyricsX/Preferences/FilterPreferencesView.swift` | Filter pane: filter toggles + editable keyword list with add/remove/reset |
-| `LyricsX/Preferences/LabPreferencesView.swift` | Lab pane: Touch Bar, Now Playing app list, Japanese furigana/romaji, Apple Music export, Musixmatch token |
-| `LyricsX/Preferences/SourcePreferencesView.swift` | Source pane: priority enable toggle + draggable/movable source list |
+| `Lirico/Preferences/PreferencesView.swift` | Root `TabView` with 6 tabs (General, Display, Shortcut, Filter, Lab, Source) |
+| `Lirico/Preferences/SettingsSection.swift` | Reusable `SettingsSection<Content>` and `SettingsRow<Content>` layout primitives |
+| `Lirico/Preferences/GeneralPreferencesView.swift` | General pane: player picker, saving path, search/display settings, language picker |
+| `Lirico/Preferences/DisplayPreferencesView.swift` | Display pane: desktop lyrics + HUD fonts/colors/toggles; `DisplayPreferencesViewModel` for NSColor/NSFont bridging |
+| `Lirico/Preferences/ShortcutPreferencesView.swift` | Shortcut pane: 9 `MASShortcutView` instances via `ShortcutRecorderView: NSViewRepresentable` |
+| `Lirico/Preferences/FilterPreferencesView.swift` | Filter pane: filter toggles + editable keyword list with add/remove/reset |
+| `Lirico/Preferences/LabPreferencesView.swift` | Lab pane: Touch Bar, Now Playing app list, Japanese furigana/romaji, Apple Music export, Musixmatch token |
+| `Lirico/Preferences/SourcePreferencesView.swift` | Source pane: priority enable toggle + draggable/movable source list |
 
 ### Added — Documentation (2 files)
 
@@ -51,28 +51,28 @@ Total: 27 files changed, 2592 insertions(+), 18489 deletions(-)
 
 | File | Purpose |
 |---|---|
-| `LyricsX/Preferences/PreferenceWindowController.swift` | Replaced `StoryboardWindowController` conformance with programmatic `NSWindow` + `NSHostingController`; `static func create()` preserved |
-| `LyricsX/Component/LyricsSelector.swift` | Removed stale reference to `PreferenceSourceViewController` in a comment |
-| `LyricsX/Component/PersistenceSettings.swift` | Removed stale reference to `PreferenceGeneralViewController` in a comment |
-| `LyricsX.xcodeproj/project.pbxproj` | Added new SwiftUI file references; removed all deleted file references; `PBXVariantGroup` for storyboard removed |
-| `LyricsX/Supporting Files/Localizable.xcstrings` | New SwiftUI string labels extracted (+813 line diff); `mul.lproj/Preferences.xcstrings` content not migrated here |
+| `Lirico/Preferences/PreferenceWindowController.swift` | Replaced `StoryboardWindowController` conformance with programmatic `NSWindow` + `NSHostingController`; `static func create()` preserved |
+| `Lirico/Component/LyricsSelector.swift` | Removed stale reference to `PreferenceSourceViewController` in a comment |
+| `Lirico/Component/PersistenceSettings.swift` | Removed stale reference to `PreferenceGeneralViewController` in a comment |
+| `Lirico.xcodeproj/project.pbxproj` | Added new SwiftUI file references; removed all deleted file references; `PBXVariantGroup` for storyboard removed |
+| `Lirico/Supporting Files/Localizable.xcstrings` | New SwiftUI string labels extracted (+813 line diff); `mul.lproj/Preferences.xcstrings` content not migrated here |
 
 ### Deleted — Legacy storyboard controllers and views (12 files)
 
 | File | Purpose (was) |
 |---|---|
-| `LyricsX/Base.lproj/Preferences.storyboard` | Storyboard housing all 6 AppKit preference panes (2759 lines) |
-| `LyricsX/mul.lproj/Preferences.xcstrings` | Storyboard string catalog with translated preference strings (14891 lines, all locales) |
-| `LyricsX/Preferences/PreferenceViewController.swift` | Base classes `PreferenceViewController` and `PreferenceTabViewController` |
-| `LyricsX/Preferences/PreferenceGeneralViewController.swift` | AppKit General pane VC (134 lines) |
-| `LyricsX/Preferences/PreferenceDisplayViewController.swift` | AppKit Display pane VC (56 lines) |
-| `LyricsX/Preferences/PreferenceShortcutViewController.swift` | AppKit Shortcut pane VC (5 lines, empty body) |
-| `LyricsX/Preferences/PreferenceFilterViewController.swift` | AppKit Filter pane VC (30 lines) |
-| `LyricsX/Preferences/PreferenceLabViewController.swift` | AppKit Lab pane VC (38 lines) |
-| `LyricsX/Preferences/PreferenceSourceViewController.swift` | AppKit Source pane VC (111 lines) |
-| `LyricsX/Preferences/AlphaColorWell.swift` | Custom NSColorWell subclass supporting alpha; replaced by `ColorPicker(supportsOpacity: true)` |
-| `LyricsX/Preferences/FilterKey.swift` | `LyricsFilterKeyword: NSObject` for NSArrayController bindings; replaced by plain `[String]` |
-| `LyricsX/View/FontSelectTextField.swift` | Custom NSTextField+NSFontManager for font selection; replaced by `FontPickerCoordinator`/`FontPickerButton` |
+| `Lirico/Base.lproj/Preferences.storyboard` | Storyboard housing all 6 AppKit preference panes (2759 lines) |
+| `Lirico/mul.lproj/Preferences.xcstrings` | Storyboard string catalog with translated preference strings (14891 lines, all locales) |
+| `Lirico/Preferences/PreferenceViewController.swift` | Base classes `PreferenceViewController` and `PreferenceTabViewController` |
+| `Lirico/Preferences/PreferenceGeneralViewController.swift` | AppKit General pane VC (134 lines) |
+| `Lirico/Preferences/PreferenceDisplayViewController.swift` | AppKit Display pane VC (56 lines) |
+| `Lirico/Preferences/PreferenceShortcutViewController.swift` | AppKit Shortcut pane VC (5 lines, empty body) |
+| `Lirico/Preferences/PreferenceFilterViewController.swift` | AppKit Filter pane VC (30 lines) |
+| `Lirico/Preferences/PreferenceLabViewController.swift` | AppKit Lab pane VC (38 lines) |
+| `Lirico/Preferences/PreferenceSourceViewController.swift` | AppKit Source pane VC (111 lines) |
+| `Lirico/Preferences/AlphaColorWell.swift` | Custom NSColorWell subclass supporting alpha; replaced by `ColorPicker(supportsOpacity: true)` |
+| `Lirico/Preferences/FilterKey.swift` | `LyricsFilterKeyword: NSObject` for NSArrayController bindings; replaced by plain `[String]` |
+| `Lirico/View/FontSelectTextField.swift` | Custom NSTextField+NSFontManager for font selection; replaced by `FontPickerCoordinator`/`FontPickerButton` |
 
 ## Decisions
 
@@ -83,7 +83,7 @@ No production decisions made in Phase 0. Decisions will be added by Phase 1+ sub
 **D1.1 — Upstream dependency platform minimums**
 
 - Phase: Phase 1
-- Decision: Confirmed both upstream SPM dependencies support macOS platforms well below 15. LyricsKit (pinned `44588c2c`, v1.8.0) declares `.macOS(.v11)`; MusicPlayer (pinned `f220ac6c`, v1.8.0) declares `.macOS(.v10_15)`. A downstream consumer may set a higher minimum than its dependencies, so bumping `LyricsXPackage/Package.swift` to `.macOS(.v15)` is valid.
+- Decision: Confirmed both upstream SPM dependencies support macOS platforms well below 15. LyricsKit (pinned `44588c2c`, v1.8.0) declares `.macOS(.v11)`; MusicPlayer (pinned `f220ac6c`, v1.8.0) declares `.macOS(.v10_15)`. A downstream consumer may set a higher minimum than its dependencies, so bumping `LiricoPackage/Package.swift` to `.macOS(.v15)` is valid.
 - Alternatives considered: Block the bump if any dependency declared a minimum > 15 (not the case here).
 - Rationale: Both deps are at v11 or v10.15; bumping to v15 is purely a consumer-side restriction with no impact on dependency resolution.
 - Risk: Low. If a future dependency version raises its own minimum above 15, SPM will flag it at that time.
@@ -144,8 +144,8 @@ No production decisions made in Phase 0. Decisions will be added by Phase 1+ sub
 **D4.1 — Junk keys removed from Localizable.xcstrings**
 
 - Phase: Phase 4
-- Decision: Removed exactly 3 keys from `LyricsX/Supporting Files/Localizable.xcstrings`: `""` (empty string), `".*"`, and `"%lld"`. All three had empty entries `{}` with no localizations.
-  - `""` (empty string): No source-code reference as a `Text("")` or `String(localized: "")` literal anywhere in `LyricsX/`, `LyricsXHelper/`, or `LyricsXPackage/`. Pure extraction artifact.
+- Decision: Removed exactly 3 keys from `Lirico/Supporting Files/Localizable.xcstrings`: `""` (empty string), `".*"`, and `"%lld"`. All three had empty entries `{}` with no localizations.
+  - `""` (empty string): No source-code reference as a `Text("")` or `String(localized: "")` literal anywhere in `Lirico/`, `LiricoHelper/`, or `LiricoPackage/`. Pure extraction artifact.
   - `".*"`: Referenced as `Text(".*")` in `FilterPreferencesView.swift` line 88 — a monospace regex-badge visual indicator. It is user-facing text in the sense that it is displayed, but it is a fixed technical notation (a regex wildcard symbol) that is not translatable and has no localizations. Removing it from the catalog is safe; SwiftUI will fall back to the literal string itself.
   - `"%lld"`: Found only in the xcstrings file itself (the key being deleted). No Swift source reference. Likely extracted by Xcode from a NumberFormatter or `%lld`-format string in a `LocalizedStringKey` context. Not intentionally user-facing.
 - Alternatives considered: Keep `".*"` since it is referenced from source. Rejected — the key has no translations, the displayed string is a fixed technical symbol with no meaningful localization surface, and removing the xcstrings entry causes SwiftUI to display the literal `".*"` string unchanged (identical runtime behavior).
@@ -156,20 +156,20 @@ No production decisions made in Phase 0. Decisions will be added by Phase 1+ sub
 **D4.2 — Deferred translation salvage for deleted mul.lproj/Preferences.xcstrings**
 
 - Phase: Phase 4
-- Decision: Did NOT attempt automated translation salvage from the deleted `LyricsX/mul.lproj/Preferences.xcstrings`. The old file is recoverable from git at commit `e9e1398bada999be8280bb0e67f50b16d53fa27f~1` (the commit just before the migration commit `e9e1398b`). The 18 affected locales are: `ar`, `base`, `de`, `en`, `es`, `fa`, `fr`, `id`, `it`, `ja`, `ko`, `nl`, `pl`, `pt`, `ru`, `uk`, `zh-Hans`, `zh-Hant`.
+- Decision: Did NOT attempt automated translation salvage from the deleted `Lirico/mul.lproj/Preferences.xcstrings`. The old file is recoverable from git at commit `e9e1398bada999be8280bb0e67f50b16d53fa27f~1` (the commit just before the migration commit `e9e1398b`). The 18 affected locales are: `ar`, `base`, `de`, `en`, `es`, `fa`, `fr`, `id`, `it`, `ja`, `ko`, `nl`, `pl`, `pt`, `ru`, `uk`, `zh-Hans`, `zh-Hant`.
   - The old file used storyboard-specific string identifiers (e.g. `atC-aF-Wgo.title`) as keys. The new SwiftUI views use plain English source strings as keys. There is no safe automated mapping between the two key formats.
   - Attempting to map old translations to new keys would require manually matching English source strings between the storyboard IDs and the new SwiftUI literals — a high-risk task prone to mismatches and silent corruption of translations.
 - Alternatives considered: Attempt automated salvage via {storyboard-id → english-text} lookup against the old file's English locale. Rejected — too risky given the key-format mismatch; no tooling in the current workflow supports this.
 - Rationale: Preserving localization correctness over attempting incomplete salvage. After junk-key cleanup, `Localizable.xcstrings` contains 65 keys; only a small existing/general subset has localizations, and the bulk of the new SwiftUI Preferences strings still need a dedicated localization pass. A future salvage pass can recover old translations properly.
 - Risk: Low. The app's Preferences UI was previously translated but the new SwiftUI panes are not yet translated. This is a known regression from the migration; this phase does not worsen it. The old translations are fully preserved in git history.
-- Deferred follow-up: A future salvage pass should: (1) `git show e9e1398bada999be8280bb0e67f50b16d53fa27f~1:'LyricsX/mul.lproj/Preferences.xcstrings'` to recover the old file; (2) build a `{source_english → {locale: translation}}` dict using the old file's English locale as the source-language lookup; (3) walk `LyricsX/Supporting Files/Localizable.xcstrings` and merge translations where the new SwiftUI source string exactly matches the old storyboard English text; (4) manually verify all merged translations before committing.
+- Deferred follow-up: A future salvage pass should: (1) `git show e9e1398bada999be8280bb0e67f50b16d53fa27f~1:'Lirico/mul.lproj/Preferences.xcstrings'` to recover the old file; (2) build a `{source_english → {locale: translation}}` dict using the old file's English locale as the source-language lookup; (3) walk `Lirico/Supporting Files/Localizable.xcstrings` and merge translations where the new SwiftUI source string exactly matches the old storyboard English text; (4) manually verify all merged translations before committing.
 
 ### Phase 5 decisions
 
 **D5.1 — Stale `<!--Preferences-->` scene removed from Main.storyboard**
 
 - Phase: Phase 5
-- Decision: Removed the entire `<scene sceneID="TYy-pe-r3R">` block (8 lines) from `LyricsX/Base.lproj/Main.storyboard`. The block contained a `<controllerPlaceholder storyboardName="Preferences" id="W7f-Zh-TfF">` — a reference to the deleted `Preferences.storyboard`. This was the source of the `"Preferences" is unreachable` build warning seen in Phase 1–4 build logs. The scene had no connections from any other scene (confirmed by grepping for both scene ID `TYy-pe-r3R` and controller ID `W7f-Zh-TfF` — zero external references).
+- Decision: Removed the entire `<scene sceneID="TYy-pe-r3R">` block (8 lines) from `Lirico/Base.lproj/Main.storyboard`. The block contained a `<controllerPlaceholder storyboardName="Preferences" id="W7f-Zh-TfF">` — a reference to the deleted `Preferences.storyboard`. This was the source of the `"Preferences" is unreachable` build warning seen in Phase 1–4 build logs. The scene had no connections from any other scene (confirmed by grepping for both scene ID `TYy-pe-r3R` and controller ID `W7f-Zh-TfF` — zero external references).
 - Alternatives considered: Leave in place (keep the warning). Rejected — dead XML that causes a build warning and is misleading to maintainers.
 - Rationale: The `Preferences.storyboard` it referenced was deleted in the migration. The scene is entirely unreachable dead code. Removing it eliminates the warning and improves storyboard clarity.
 - Risk: Zero. The scene was unreachable and unconnected. No segues, no menu items, no programmatic references to any of its IDs.
@@ -259,8 +259,8 @@ Goal: raise minimum deployment target from macOS 11 to macOS 15.
 
 | File | Change | Rationale |
 |---|---|---|
-| `LyricsX.xcodeproj/project.pbxproj` | Change `MACOSX_DEPLOYMENT_TARGET` from `11.0` to `15.0` for LyricsX (Debug + Release) and LyricsXHelper (Debug + Release) configs (lines 989, 1015, 1036, 1057) | Main app and helper both at 11.0; both need bump |
-| `LyricsXPackage/Package.swift` | Change `.macOS(.v11)` to `.macOS(.v15)` (line 57) | Package platform must match or stay below app target; bumping to 15 enables modern Swift concurrency in the package if needed |
+| `Lirico.xcodeproj/project.pbxproj` | Change `MACOSX_DEPLOYMENT_TARGET` from `11.0` to `15.0` for Lirico (Debug + Release) and LiricoHelper (Debug + Release) configs (lines 989, 1015, 1036, 1057) | Main app and helper both at 11.0; both need bump |
+| `LiricoPackage/Package.swift` | Change `.macOS(.v11)` to `.macOS(.v15)` (line 57) | Package platform must match or stay below app target; bumping to 15 enables modern Swift concurrency in the package if needed |
 | `README.md` | Update "macOS 11+" to "macOS 15+" in Requirements section (line 30) | Docs must reflect new minimum |
 | `CLAUDE.md` | Update "macOS 11+ only" (line 9) to "macOS 15+ only" | Project instructions must reflect new minimum |
 | `docs/implementation/preferences-swiftui-modernization-followup.md` | Record Phase 1 complete | State doc update |
@@ -273,8 +273,8 @@ Goal: fix two known bugs and mark migration doc Phase 0 review.
 
 | File | Change | Rationale |
 |---|---|---|
-| `LyricsX/Preferences/ShortcutPreferencesView.swift` | Add conditional view hiding for `ShortcutSearchLyrics` row when `#if IS_FOR_MAS` and `defaults[.isInMASReview] != false` | Old storyboard had `isRemovedDuringMASReview` runtime attribute on the `MASShortcutView` for this key; semantics from `IBInspection.swift` lines 33–43 must be reproduced |
-| `LyricsX/Utility/Extension.swift` | Fix `lyricsWindowFont` fallback at line 94: change `defaults[.desktopLyricsFontSize]` to `defaults[.lyricsWindowFontSize]` | Pre-existing bug confirmed at line 94: fallback uses wrong size key |
+| `Lirico/Preferences/ShortcutPreferencesView.swift` | Add conditional view hiding for `ShortcutSearchLyrics` row when `#if IS_FOR_MAS` and `defaults[.isInMASReview] != false` | Old storyboard had `isRemovedDuringMASReview` runtime attribute on the `MASShortcutView` for this key; semantics from `IBInspection.swift` lines 33–43 must be reproduced |
+| `Lirico/Utility/Extension.swift` | Fix `lyricsWindowFont` fallback at line 94: change `defaults[.desktopLyricsFontSize]` to `defaults[.lyricsWindowFontSize]` | Pre-existing bug confirmed at line 94: fallback uses wrong size key |
 | `docs/implementation/preferences-swiftui-migration.md` | Mark Phase 0 review checkbox as `[x]` (was `[ ]`) with a note that it was reviewed during the follow-up pass | Migration marked complete but Phase 0 review checkbox left unchecked |
 | `docs/implementation/preferences-swiftui-modernization-followup.md` | Record Phase 2 decisions/unknowns | State doc update |
 
@@ -286,17 +286,17 @@ Goal: replace deprecated `onChange(of:)` single-argument form; remove macOS 11/1
 
 | File | Count | Lines |
 |---|---|---|
-| `LyricsX/Preferences/GeneralPreferencesView.swift` | 6 | 76, 81, 108, 157, 180, 197 |
-| `LyricsX/Preferences/DisplayPreferencesView.swift` | 6 | 211, 216, 221, 226, 252, 257 |
-| `LyricsX/Preferences/SourcePreferencesView.swift` | 1 | 25 |
+| `Lirico/Preferences/GeneralPreferencesView.swift` | 6 | 76, 81, 108, 157, 180, 197 |
+| `Lirico/Preferences/DisplayPreferencesView.swift` | 6 | 211, 216, 221, 226, 252, 257 |
+| `Lirico/Preferences/SourcePreferencesView.swift` | 1 | 25 |
 
 **macOS 11/12 compatibility branches to remove:**
 
 | File | Line | Change |
 |---|---|---|
-| `LyricsX/Preferences/LabPreferencesView.swift` | 11, 46, 150–159 | Remove `if #available(macOS 12, *)` guard; use `onSubmit` unconditionally (macOS 15 always has it); remove else branch and comment |
-| `LyricsX/Preferences/LabPreferencesView.swift` | 11, 46 | Remove macOS 11–12 dismissal workaround comment once target is 15+ |
-| `LyricsX/Preferences/SourcePreferencesView.swift` | 44–46 | Remove macOS 11–12 drag-handles comment; keep Up/Down buttons (still useful for keyboard reordering) |
+| `Lirico/Preferences/LabPreferencesView.swift` | 11, 46, 150–159 | Remove `if #available(macOS 12, *)` guard; use `onSubmit` unconditionally (macOS 15 always has it); remove else branch and comment |
+| `Lirico/Preferences/LabPreferencesView.swift` | 11, 46 | Remove macOS 11–12 dismissal workaround comment once target is 15+ |
+| `Lirico/Preferences/SourcePreferencesView.swift` | 44–46 | Remove macOS 11–12 drag-handles comment; keep Up/Down buttons (still useful for keyboard reordering) |
 
 **`onChange(of:)` migration pattern** (macOS 14+ two-argument form):
 ```swift
@@ -309,10 +309,10 @@ Goal: replace deprecated `onChange(of:)` single-argument form; remove macOS 11/1
 ```
 
 Files to edit in Phase 3:
-- `LyricsX/Preferences/GeneralPreferencesView.swift`
-- `LyricsX/Preferences/DisplayPreferencesView.swift`
-- `LyricsX/Preferences/SourcePreferencesView.swift`
-- `LyricsX/Preferences/LabPreferencesView.swift`
+- `Lirico/Preferences/GeneralPreferencesView.swift`
+- `Lirico/Preferences/DisplayPreferencesView.swift`
+- `Lirico/Preferences/SourcePreferencesView.swift`
+- `Lirico/Preferences/LabPreferencesView.swift`
 - `docs/implementation/preferences-swiftui-modernization-followup.md`
 
 ### Phase 4 — Localization cleanup
@@ -330,7 +330,7 @@ Goal: remove junk keys from `Localizable.xcstrings`; decide fate of deleted `mul
 **Note on `mul.lproj/Preferences.xcstrings` deletion:** The 14891-line storyboard string catalog was deleted as part of the migration. Its keys were storyboard-specific identifiers (e.g. `atC-aF-Wgo.title`) not plain-English keys. The new SwiftUI views use plain-English strings directly. There is no safe automated mapping between old catalog IDs and new SwiftUI strings. Deferred translation migration for the post-cleanup `Localizable.xcstrings` keys (65 total after the 3 junk-key removals) is the safe path.
 
 Files to edit in Phase 4:
-- `LyricsX/Supporting Files/Localizable.xcstrings`
+- `Lirico/Supporting Files/Localizable.xcstrings`
 - `docs/implementation/preferences-swiftui-modernization-followup.md`
 
 ### Phase 5 — Final cleanup and verification
@@ -339,16 +339,16 @@ Goal: verify no stale references; run final build; record outcome.
 
 Checks to run:
 - Stale Swift refs to deleted classes/files (use narrow, unique identifiers — `FilterKey` as a bare word falsely matches live `lyricsFilterKeys` usages):
-  `grep -REn 'AlphaColorWell|LyricsFilterKeyword|FontSelectTextField|PreferenceViewController|PreferenceTabViewController|PreferenceGeneralViewController|PreferenceDisplayViewController|PreferenceShortcutViewController|PreferenceFilterViewController|PreferenceLabViewController|PreferenceSourceViewController' LyricsX/ LyricsXHelper/ LyricsXPackage/ --include='*.swift'` → expect 0 hits
+  `grep -REn 'AlphaColorWell|LyricsFilterKeyword|FontSelectTextField|PreferenceViewController|PreferenceTabViewController|PreferenceGeneralViewController|PreferenceDisplayViewController|PreferenceShortcutViewController|PreferenceFilterViewController|PreferenceLabViewController|PreferenceSourceViewController' Lirico/ LiricoHelper/ LiricoPackage/ --include='*.swift'` → expect 0 hits
 - Stale storyboard reference (separate check, including non-Swift files):
-  `grep -REn 'Preferences\.storyboard|Preferences\.xcstrings|mul\.lproj/Preferences' LyricsX/ LyricsX.xcodeproj/` → expect 0 hits (the `mul.lproj/Main.xcstrings` line in `project.pbxproj` is legitimate and intentionally not matched)
+  `grep -REn 'Preferences\.storyboard|Preferences\.xcstrings|mul\.lproj/Preferences' Lirico/ Lirico.xcodeproj/` → expect 0 hits (the `mul.lproj/Main.xcstrings` line in `project.pbxproj` is legitimate and intentionally not matched)
 - Deprecated single-argument `onChange(of:)` forms (CANNOT use a bare `grep -n 'onChange(of:)'` — the modern macOS 14+ two-arg `{ _, newValue in ... }` and zero-arg forms still contain the literal `onChange(of:)`; instead verify via build warnings):
   `xcodebuild ... build 2>&1 | grep -E "onChange.*deprecated"` → expect 0 hits
-  Optionally also list all sites for manual shape inspection: `grep -REn '\.onChange\(of:' LyricsX/Preferences/` → expect every closure to be `{ _, name in ... }` or `{ ... }` (no bare `{ name in ... }` single-arg form)
-- `grep -REn 'macOS 1[12]' LyricsX/Preferences/` → expect 0 hits
-- `grep -n MACOSX_DEPLOYMENT_TARGET LyricsX.xcodeproj/project.pbxproj` → expect only `15.0` for all targets
-- `python3 -m json.tool "LyricsX/Supporting Files/Localizable.xcstrings" >/dev/null` → expect OK
-- `plutil -lint LyricsX.xcodeproj/project.pbxproj` → expect OK
+  Optionally also list all sites for manual shape inspection: `grep -REn '\.onChange\(of:' Lirico/Preferences/` → expect every closure to be `{ _, name in ... }` or `{ ... }` (no bare `{ name in ... }` single-arg form)
+- `grep -REn 'macOS 1[12]' Lirico/Preferences/` → expect 0 hits
+- `grep -n MACOSX_DEPLOYMENT_TARGET Lirico.xcodeproj/project.pbxproj` → expect only `15.0` for all targets
+- `python3 -m json.tool "Lirico/Supporting Files/Localizable.xcstrings" >/dev/null` → expect OK
+- `plutil -lint Lirico.xcodeproj/project.pbxproj` → expect OK
 - Full build → expect BUILD SUCCEEDED, 0 errors
 
 Files to edit in Phase 5:
@@ -365,8 +365,8 @@ Files to edit in Phase 5:
 
 | File | Change | Rationale |
 |---|---|---|
-| `LyricsX.xcodeproj/project.pbxproj` | `MACOSX_DEPLOYMENT_TARGET`: 6 occurrences changed — 4× `11.0` (LyricsX + LyricsXHelper Debug/Release) → `15.0`; 2× `10.11` (SwiftLint aggregate Debug/Release) → `15.0` | App and helper require macOS 15+; SwiftLint aggregate bumped for consistency |
-| `LyricsXPackage/Package.swift` | `platforms: [.macOS(.v11)]` → `platforms: [.macOS(.v15)]` | Package must declare at least the minimum the app requires |
+| `Lirico.xcodeproj/project.pbxproj` | `MACOSX_DEPLOYMENT_TARGET`: 6 occurrences changed — 4× `11.0` (Lirico + LiricoHelper Debug/Release) → `15.0`; 2× `10.11` (SwiftLint aggregate Debug/Release) → `15.0` | App and helper require macOS 15+; SwiftLint aggregate bumped for consistency |
+| `LiricoPackage/Package.swift` | `platforms: [.macOS(.v11)]` → `platforms: [.macOS(.v15)]` | Package must declare at least the minimum the app requires |
 | `CLAUDE.md` | `macOS 11+ only` → `macOS 15+ only` in Platform line | Project instructions must reflect current minimum |
 | `README.md` | `macOS 11+` → `macOS 15+` in Requirements section | User-facing docs must reflect current minimum |
 | `docs/implementation/preferences-swiftui-modernization-followup.md` | Phase 1 status, checklist, decisions, verification log, resume instructions updated | State doc update |
@@ -375,8 +375,8 @@ Files to edit in Phase 5:
 
 | File | Change | Rationale |
 |---|---|---|
-| `LyricsX/Preferences/ShortcutPreferencesView.swift` | Added `#if IS_FOR_MAS` / `if defaults[.isInMASReview] != false` conditional around the "Search lyrics" shortcut row in `lyricsActionsSection` | Restores `isRemovedDuringMASReview` storyboard behavior lost during migration; exact semantic match to IBInspection.swift lines 33–43 |
-| `LyricsX/Utility/Extension.swift` | Fixed `lyricsWindowFont` fallback at line 94: `defaults[.desktopLyricsFontSize]` → `defaults[.lyricsWindowFontSize]` | Pre-existing bug: fallback was using the desktop lyrics font size instead of the lyrics window font size |
+| `Lirico/Preferences/ShortcutPreferencesView.swift` | Added `#if IS_FOR_MAS` / `if defaults[.isInMASReview] != false` conditional around the "Search lyrics" shortcut row in `lyricsActionsSection` | Restores `isRemovedDuringMASReview` storyboard behavior lost during migration; exact semantic match to IBInspection.swift lines 33–43 |
+| `Lirico/Utility/Extension.swift` | Fixed `lyricsWindowFont` fallback at line 94: `defaults[.desktopLyricsFontSize]` → `defaults[.lyricsWindowFontSize]` | Pre-existing bug: fallback was using the desktop lyrics font size instead of the lyrics window font size |
 | `docs/implementation/preferences-swiftui-migration.md` | Added corrective blockquote note below `[ ] Phase 0 review` checkbox pointing to the modernization follow-up doc | Phase 0 review was deferred at migration time; note records accurate history without falsifying the checkbox |
 | `docs/implementation/preferences-swiftui-modernization-followup.md` | Phase 2 status, checklist, decisions (D2.1–D2.3), verification log, resume instructions updated | State doc update |
 
@@ -384,24 +384,24 @@ Files to edit in Phase 5:
 
 | File | onChange sites updated | Compat branches removed | Comments removed |
 |---|---|---|---|
-| `LyricsX/Preferences/GeneralPreferencesView.swift` | 6 (all → two-arg `{ _, newValue in }`) | 0 | 0 |
-| `LyricsX/Preferences/DisplayPreferencesView.swift` | 6 (all → zero-arg `{}`) | 0 | 0 |
-| `LyricsX/Preferences/SourcePreferencesView.swift` | 1 (→ two-arg `{ _, enabled in }`) | 0 | 1 (macOS 11–12 drag-handles comment) |
-| `LyricsX/Preferences/LabPreferencesView.swift` | 0 | 1 (`if #available(macOS 12, *)` guard around `.onSubmit`) | 2 (macOS 11–12 comments in doc + inline) |
+| `Lirico/Preferences/GeneralPreferencesView.swift` | 6 (all → two-arg `{ _, newValue in }`) | 0 | 0 |
+| `Lirico/Preferences/DisplayPreferencesView.swift` | 6 (all → zero-arg `{}`) | 0 | 0 |
+| `Lirico/Preferences/SourcePreferencesView.swift` | 1 (→ two-arg `{ _, enabled in }`) | 0 | 1 (macOS 11–12 drag-handles comment) |
+| `Lirico/Preferences/LabPreferencesView.swift` | 0 | 1 (`if #available(macOS 12, *)` guard around `.onSubmit`) | 2 (macOS 11–12 comments in doc + inline) |
 | `docs/implementation/preferences-swiftui-modernization-followup.md` | — | — | State doc update |
 
 ### Phase 4
 
 | File | Change | Rationale |
 |---|---|---|
-| `LyricsX/Supporting Files/Localizable.xcstrings` | Removed 3 junk keys: `""`, `".*"`, `"%lld"` (all had empty `{}` entries, no localizations); key count 68 → 65 | Extraction artifacts from SwiftUI migration with no translations; catalog is now clean |
+| `Lirico/Supporting Files/Localizable.xcstrings` | Removed 3 junk keys: `""`, `".*"`, `"%lld"` (all had empty `{}` entries, no localizations); key count 68 → 65 | Extraction artifacts from SwiftUI migration with no translations; catalog is now clean |
 | `docs/implementation/preferences-swiftui-modernization-followup.md` | Phase 4 status, checklist, decisions (D4.1, D4.2), unknowns (U4.1), verification log, resume instructions updated | State doc update |
 
 ### Phase 5
 
 | File | Change | Rationale |
 |---|---|---|
-| `LyricsX/Base.lproj/Main.storyboard` | Removed stale `<!--Preferences-->` scene (8 lines): `<scene sceneID="TYy-pe-r3R">` containing `<controllerPlaceholder storyboardName="Preferences" id="W7f-Zh-TfF">` | Eliminated `"Preferences" is unreachable` build warning; the scene had no connections from any other scene (see D5.1) |
+| `Lirico/Base.lproj/Main.storyboard` | Removed stale `<!--Preferences-->` scene (8 lines): `<scene sceneID="TYy-pe-r3R">` containing `<controllerPlaceholder storyboardName="Preferences" id="W7f-Zh-TfF">` | Eliminated `"Preferences" is unreachable` build warning; the scene had no connections from any other scene (see D5.1) |
 | `CLAUDE.md` | Updated `Preferences/` architecture line: "Preference pane ViewControllers" → "Preference pane SwiftUI views; `PreferenceWindowController` creates the window programmatically via `NSHostingController`" | Reflects post-migration architecture (see D5.2) |
 | `docs/implementation/preferences-swiftui-migration.md` | Added corrective blockquote note to Phase 6 review `onChange` observation (line 392) pointing to modernization follow-up | Flags that deprecated forms were eliminated in modernization follow-up Phase 3 (see D5.5) |
 | `docs/implementation/preferences-swiftui-modernization-followup.md` | Phase 5 status, checklist, decisions (D5.1–D5.5), verification log, resume instructions | State doc update |
@@ -423,23 +423,23 @@ git show --stat e9e1398b
 Result: 27 files changed, 2592 insertions(+), 18489 deletions(-). Confirmed migration commit is `e9e1398b`.
 
 ```
-grep -n MACOSX_DEPLOYMENT_TARGET LyricsX.xcodeproj/project.pbxproj
+grep -n MACOSX_DEPLOYMENT_TARGET Lirico.xcodeproj/project.pbxproj
 ```
 Result:
 - Line 899: `10.11` — SwiftLint aggregate target (Debug)
 - Line 958: `10.11` — SwiftLint aggregate target (Release)
-- Line 989: `11.0` — LyricsX Debug
-- Line 1015: `11.0` — LyricsX Release
-- Line 1036: `11.0` — LyricsXHelper Debug
-- Line 1057: `11.0` — LyricsXHelper Release
+- Line 989: `11.0` — Lirico Debug
+- Line 1015: `11.0` — Lirico Release
+- Line 1036: `11.0` — LiricoHelper Debug
+- Line 1057: `11.0` — LiricoHelper Release
 
 ```
-grep -RnE 'if #available\(macOS|@available\(macOS' LyricsX/Preferences/
+grep -RnE 'if #available\(macOS|@available\(macOS' Lirico/Preferences/
 ```
 Result: 1 hit — `LabPreferencesView.swift:150` — `if #available(macOS 12, *)` guarding `TextField.onSubmit`.
 
 ```
-grep -RnE '\.onChange\(of:' LyricsX/Preferences/
+grep -RnE '\.onChange\(of:' Lirico/Preferences/
 ```
 Result: 13 hits total:
 - `GeneralPreferencesView.swift`: 7 sites (lines 76, 81, 108, 157, 180, 197, ~208)
@@ -448,7 +448,7 @@ Result: 13 hits total:
 All use deprecated single-argument closure form (`{ newValue in }` or `{ _ in }`).
 
 ```
-grep -Rn 'macOS 1[12]' LyricsX/Preferences/ LyricsX/Component/ LyricsX/Utility/
+grep -Rn 'macOS 1[12]' Lirico/Preferences/ Lirico/Component/ Lirico/Utility/
 ```
 Result:
 - `LabPreferencesView.swift:11` — comment about macOS 11–12 dismissal unreliability
@@ -468,18 +468,18 @@ Result:
 Additional inspection: `'Lab'` and `'Vox'` are short but legitimate; `'OK'` has translations across 17 locales (legitimate).
 
 ```
-python3 -m json.tool "LyricsX/Supporting Files/Localizable.xcstrings" >/dev/null
+python3 -m json.tool "Lirico/Supporting Files/Localizable.xcstrings" >/dev/null
 ```
 Not run explicitly; string catalog confirmed valid JSON by python3 json.load succeeding.
 
 ```
-xcodebuild -project LyricsX.xcodeproj -scheme LyricsX -configuration Debug build 2>&1 | tail -30
+xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Debug build 2>&1 | tail -30
 ```
 Result: `** BUILD SUCCEEDED **` (exit code 0). No errors. Notes about unconditional run-script phases (Copy "Launch at Login Helper", Bump Build, Update Build Time) are pre-existing and unrelated to this work.
 
 **Bug confirmations:**
 
-1. `lyricsWindowFont` fallback bug — **CONFIRMED** at `LyricsX/Utility/Extension.swift` line 94:
+1. `lyricsWindowFont` fallback bug — **CONFIRMED** at `Lirico/Utility/Extension.swift` line 94:
    ```swift
    ?? NSFont.labelFont(ofSize: CGFloat(defaults[.desktopLyricsFontSize]))
    ```
@@ -512,7 +512,7 @@ git log --oneline -5
 Result: HEAD is `e9e1398b feat(prefs): migrate preferences to SwiftUI`. Consistent with state doc.
 
 ```
-grep -RnE '\.onChange\(of:' LyricsX/Preferences/ | wc -l
+grep -RnE '\.onChange\(of:' Lirico/Preferences/ | wc -l
 ```
 Result: **13 total** — consistent with state doc claim of 13.
 
@@ -522,19 +522,19 @@ Per-file breakdown verified:
 - `SourcePreferencesView.swift`: 1 (line 25) — consistent.
 
 ```
-grep -RnE 'if #available\(macOS|@available\(macOS' LyricsX/Preferences/
+grep -RnE 'if #available\(macOS|@available\(macOS' Lirico/Preferences/
 ```
 Result: 1 hit — `LabPreferencesView.swift:150` — consistent with state doc.
 
 ```
-grep -RnE 'macOS 1[12]' LyricsX/Preferences/ LyricsX/Component/ LyricsX/Utility/
+grep -RnE 'macOS 1[12]' Lirico/Preferences/ Lirico/Component/ Lirico/Utility/
 ```
 Results: `LabPreferencesView.swift` lines 11, 46, 150; `SourcePreferencesView.swift` line 45; `AppDelegate.swift:176` (macOS 11, out of scope). Consistent with state doc.
 
 ```
-grep -n MACOSX_DEPLOYMENT_TARGET LyricsX.xcodeproj/project.pbxproj
+grep -n MACOSX_DEPLOYMENT_TARGET Lirico.xcodeproj/project.pbxproj
 ```
-Result: Lines 899/958 = 10.11 (SwiftLint aggregate), lines 989/1015/1036/1057 = 11.0 (LyricsX + LyricsXHelper Debug + Release). Consistent with state doc.
+Result: Lines 899/958 = 10.11 (SwiftLint aggregate), lines 989/1015/1036/1057 = 11.0 (Lirico + LiricoHelper Debug + Release). Consistent with state doc.
 
 ```
 python3 -c "import json; d=json.load(…); …"
@@ -543,7 +543,7 @@ Result: total=68, has_empty=True, has_dotstar=True, has_lld=True. Consistent wit
 
 **Bug confirmations (independent re-verification):**
 
-1. `lyricsWindowFont` fallback bug — **CONFIRMED** at `LyricsX/Utility/Extension.swift` line 94: `?? NSFont.labelFont(ofSize: CGFloat(defaults[.desktopLyricsFontSize]))`. Should be `defaults[.lyricsWindowFontSize]`. Consistent with state doc.
+1. `lyricsWindowFont` fallback bug — **CONFIRMED** at `Lirico/Utility/Extension.swift` line 94: `?? NSFont.labelFont(ofSize: CGFloat(defaults[.desktopLyricsFontSize]))`. Should be `defaults[.lyricsWindowFontSize]`. Consistent with state doc.
 
 2. `ShortcutSearchLyrics` MAS review hiding — **CONFIRMED MISSING**. Full read of `ShortcutPreferencesView.swift` confirms no `IS_FOR_MAS`, `isInMASReview`, or conditional hiding at the `ShortcutSearchLyrics` row. `IBInspection.swift` lines 33–43 define `isRemovedDuringMASReview` as `#if IS_FOR_MAS` + `defaults[.isInMASReview] != false` + `removeFromSuperview()`. State doc describes this accurately.
 
@@ -578,7 +578,7 @@ grep -c 'MACOSX_DEPLOYMENT_TARGET = 10.11' project.pbxproj → 2
 
 **Edits made:**
 - `project.pbxproj`: 6 `MACOSX_DEPLOYMENT_TARGET` entries changed to `15.0` (4× from `11.0`, 2× from `10.11`)
-- `LyricsXPackage/Package.swift`: `.macOS(.v11)` → `.macOS(.v15)`
+- `LiricoPackage/Package.swift`: `.macOS(.v11)` → `.macOS(.v15)`
 - `CLAUDE.md`: `macOS 11+ only` → `macOS 15+ only`
 - `README.md`: `macOS 11+` → `macOS 15+`
 
@@ -591,8 +591,8 @@ grep -c 'MACOSX_DEPLOYMENT_TARGET = 10.11' project.pbxproj → 0
 
 **plutil lint:**
 ```
-plutil -lint LyricsX.xcodeproj/project.pbxproj
-→ LyricsX.xcodeproj/project.pbxproj: OK
+plutil -lint Lirico.xcodeproj/project.pbxproj
+→ Lirico.xcodeproj/project.pbxproj: OK
 ```
 
 **Sanity sweep — remaining macOS 11 references:**
@@ -602,7 +602,7 @@ plutil -lint LyricsX.xcodeproj/project.pbxproj
 
 **Build result:**
 ```
-xcodebuild -project LyricsX.xcodeproj -scheme LyricsX -configuration Debug build 2>&1 | tee /tmp/lyricsx-phase1-build.log
+xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Debug build 2>&1 | tee /tmp/lyricsx-phase1-build.log
 → ** BUILD SUCCEEDED **
 ```
 
@@ -623,7 +623,7 @@ No errors. No new warnings introduced by Phase 1.
 
 **IS_FOR_MAS flag investigation:**
 ```
-grep -n 'SWIFT_ACTIVE_COMPILATION_CONDITIONS\|GCC_PREPROCESSOR_DEFINITIONS' LyricsX.xcodeproj/project.pbxproj
+grep -n 'SWIFT_ACTIVE_COMPILATION_CONDITIONS\|GCC_PREPROCESSOR_DEFINITIONS' Lirico.xcodeproj/project.pbxproj
 find . -name '*.xcconfig' -exec grep -In 'IS_FOR_MAS' {} \;
 ```
 Result: `SWIFT_ACTIVE_COMPILATION_CONDITIONS = ""` at project Debug level; `""` at project Release level (via OTHER_SWIFT_FLAGS). No `.xcconfig` files in the repository. `IS_FOR_MAS` is not defined in any build configuration. The flag only exists as `#if IS_FOR_MAS` in `IBInspection.swift` (3 occurrences). See D2.3.
@@ -635,7 +635,7 @@ Result: `SWIFT_ACTIVE_COMPILATION_CONDITIONS = ""` at project Debug level; `""` 
 
 **Build result:**
 ```
-xcodebuild -project LyricsX.xcodeproj -scheme LyricsX -configuration Debug build 2>&1 | tee /tmp/lyricsx-phase2-build.log | tail -30
+xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Debug build 2>&1 | tee /tmp/lyricsx-phase2-build.log | tail -30
 → ** BUILD SUCCEEDED **
 ```
 
@@ -648,7 +648,7 @@ grep -cE '\bwarning:' /tmp/lyricsx-phase2-build.log → 2 (incremental build; on
 
 **MAS condition sanity grep:**
 ```
-grep -n 'IS_FOR_MAS\|isInMASReview' LyricsX/Preferences/ShortcutPreferencesView.swift LyricsX/Utility/IBInspection.swift
+grep -n 'IS_FOR_MAS\|isInMASReview' Lirico/Preferences/ShortcutPreferencesView.swift Lirico/Utility/IBInspection.swift
 ```
 Result:
 - `ShortcutPreferencesView.swift:54`: `#if IS_FOR_MAS`
@@ -663,7 +663,7 @@ Condition matches. `newValue` was always `true` (storyboard set `isRemovedDuring
 
 **Font fix sanity grep:**
 ```
-grep -n 'lyricsWindowFontSize\|desktopLyricsFontSize' LyricsX/Utility/Extension.swift
+grep -n 'lyricsWindowFontSize\|desktopLyricsFontSize' Lirico/Utility/Extension.swift
 ```
 Result:
 - Line 83: `desktopLyricsFont` uses `desktopLyricsFontSize` (x2) — correct, unchanged
@@ -679,7 +679,7 @@ Result:
 ```
 git status --short
 ```
-Result: `M CLAUDE.md`, `M LyricsX.xcodeproj/project.pbxproj`, `M LyricsXPackage/Package.swift`, `M README.md`, `?? docs/implementation/preferences-swiftui-modernization-followup.md`. No LyricsX/* source files modified. Consistent with state doc claim.
+Result: `M CLAUDE.md`, `M Lirico.xcodeproj/project.pbxproj`, `M LiricoPackage/Package.swift`, `M README.md`, `?? docs/implementation/preferences-swiftui-modernization-followup.md`. No Lirico/* source files modified. Consistent with state doc claim.
 
 ```
 git diff --stat
@@ -687,12 +687,12 @@ git diff --stat
 Result: 4 files changed, 3 insertions(+), 3 deletions(-). Binary delta on project.pbxproj (72816 → 72814 bytes, 6 target strings replaced). Consistent with a clean 6-entry deployment-target bump only.
 
 ```
-grep -n MACOSX_DEPLOYMENT_TARGET LyricsX.xcodeproj/project.pbxproj
+grep -n MACOSX_DEPLOYMENT_TARGET Lirico.xcodeproj/project.pbxproj
 ```
 Result: **6 entries, all at `15.0`** (lines 899, 958, 989, 1015, 1036, 1057). Zero entries at `11.0` or `10.11`. Consistent with state doc AFTER counts.
 
 ```
-cat LyricsXPackage/Package.swift
+cat LiricoPackage/Package.swift
 ```
 Result: `platforms: [.macOS(.v15)]` at line 57. No `.v11` / `.v10_15` remaining. Consistent with state doc.
 
@@ -706,12 +706,12 @@ Result: zero hits. Both documents now say macOS 15+. No stale minimum-version cl
 - `README.md` line 30: `- macOS 15+` in Requirements section — correct.
 
 ```
-plutil -lint LyricsX.xcodeproj/project.pbxproj
+plutil -lint Lirico.xcodeproj/project.pbxproj
 ```
-Result: `LyricsX.xcodeproj/project.pbxproj: OK`
+Result: `Lirico.xcodeproj/project.pbxproj: OK`
 
 ```
-xcodebuild -project LyricsX.xcodeproj -scheme LyricsX -configuration Debug build 2>&1 | tee /tmp/lyricsx-phase1-review-build.log | tail -40
+xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Debug build 2>&1 | tee /tmp/lyricsx-phase1-review-build.log | tail -40
 ```
 Result: `** BUILD SUCCEEDED **`
 
@@ -750,10 +750,10 @@ Both match the commits recorded in state doc D1.1 exactly.
 
 **Fresh grep results:**
 ```
-grep -RnE 'macOS 1[1234]|if #available' LyricsX/Preferences/
+grep -RnE 'macOS 1[1234]|if #available' Lirico/Preferences/
 → (no output)
 
-grep -RnE '\.onChange\(of:' LyricsX/Preferences/ | grep -v '_, '
+grep -RnE '\.onChange\(of:' Lirico/Preferences/ | grep -v '_, '
 → (no output — all calls use modern form)
 ```
 
@@ -805,23 +805,23 @@ ShortcutPreferencesView.swift not touched in Phase 3. Phase 2 MAS block unaffect
 
 ```
 for cls in AlphaColorWell FilterKey PreferenceDisplayViewController ... FontSelectTextField; do
-    grep -RInE "\b$cls\b" LyricsX/ LyricsXHelper/ LyricsXPackage/
+    grep -RInE "\b$cls\b" Lirico/ LiricoHelper/ LiricoPackage/
 done
 ```
 Result: **0 hits for all 10 deleted class names.** No stale Swift references.
 
 ```
-grep -RInE 'Preferences\.storyboard|Preferences\.xcstrings|mul\.lproj' LyricsX/ LyricsXHelper/ LyricsXPackage/ LyricsX.xcodeproj/
+grep -RInE 'Preferences\.storyboard|Preferences\.xcstrings|mul\.lproj' Lirico/ LiricoHelper/ LiricoPackage/ Lirico.xcodeproj/
 ```
 Result: 1 hit — `project.pbxproj:221` for `mul.lproj/Main.xcstrings` (the app's main storyboard string catalog, not Preferences). No Preferences storyboard/xcstrings refs.
 
 ```
-grep -n 'Preferences' LyricsX/Base.lproj/Main.storyboard
+grep -n 'Preferences' Lirico/Base.lproj/Main.storyboard
 ```
 Result: 3 hits — line 357 (menu item "Preferences..." — legitimate), line 462 `<!--Preferences-->` comment, line 465 `<controllerPlaceholder storyboardName="Preferences" id="W7f-Zh-TfF">` — **stale reference confirmed.**
 
 ```
-grep -n 'W7f-Zh-TfF\|TYy-pe-r3R' LyricsX/Base.lproj/Main.storyboard
+grep -n 'W7f-Zh-TfF\|TYy-pe-r3R' Lirico/Base.lproj/Main.storyboard
 ```
 Result: only lines 463 and 465 themselves — **no external connections to this scene.** Safe to remove.
 
@@ -837,13 +837,13 @@ Result: **0 for all files.** pbxproj is clean.
 **Goal 2 — Stale macOS 11/12 compatibility code:**
 
 ```
-grep -RnIE 'macOS 1[12]([^4-9]|$)' LyricsX/ LyricsXHelper/ LyricsXPackage/
+grep -RnIE 'macOS 1[12]([^4-9]|$)' Lirico/ LiricoHelper/ LiricoPackage/
 ```
 Result: 1 hit — `AppDelegate.swift:176`: `if #available(macOS 11, *)` — out of Preferences scope. Logged as D5.3 (deferred).
 
 ```
-grep -RnIE 'if #available\(macOS 1[1-4]' LyricsX/ LyricsXHelper/ LyricsXPackage/
-grep -RnIE '@available\(macOS 1[1-4]' LyricsX/ LyricsXHelper/ LyricsXPackage/
+grep -RnIE 'if #available\(macOS 1[1-4]' Lirico/ LiricoHelper/ LiricoPackage/
+grep -RnIE '@available\(macOS 1[1-4]' Lirico/ LiricoHelper/ LiricoPackage/
 ```
 Result: Same 1 hit — `AppDelegate.swift:176`. No Preferences files have any remaining macOS 11/12/13/14 availability guards. Phase 3 successfully removed all Preferences-related guards.
 
@@ -855,7 +855,7 @@ Result: Same 1 hit — `AppDelegate.swift:176`. No Preferences files have any re
 **Goal 4 — Final build + checks:**
 
 ```
-xcodebuild -project LyricsX.xcodeproj -scheme LyricsX -configuration Debug clean build
+xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Debug clean build
 → ** BUILD SUCCEEDED **
 grep -cE '\berror:' /tmp/lyricsx-phase5-build.log   → 0
 grep -cE '\bwarning:' /tmp/lyricsx-phase5-build.log → 30
@@ -871,13 +871,13 @@ grep -cE '\berror:' /tmp/lyricsx-phase5-mas.log → 0
 
 ```
 git diff --check → (no output — no whitespace issues)
-plutil -lint LyricsX.xcodeproj/project.pbxproj → OK
-python3 -m json.tool 'LyricsX/Supporting Files/Localizable.xcstrings' >/dev/null → XCSTRINGS_OK
+plutil -lint Lirico.xcodeproj/project.pbxproj → OK
+python3 -m json.tool 'Lirico/Supporting Files/Localizable.xcstrings' >/dev/null → XCSTRINGS_OK
 ```
 
 **onChange non-Preferences final check:**
 ```
-grep -RnIE '\.onChange\(of:' LyricsX/ LyricsXHelper/ | grep -v 'Preferences/'
+grep -RnIE '\.onChange\(of:' Lirico/ LiricoHelper/ | grep -v 'Preferences/'
 ```
 Result: **0 hits outside Preferences.** No non-Preferences deprecated onChange sites exist.
 
@@ -892,16 +892,16 @@ git status --short
 Result:
 ```
  M CLAUDE.md
- M LyricsX.xcodeproj/project.pbxproj
- M LyricsX/Base.lproj/Main.storyboard
- M LyricsX/Preferences/DisplayPreferencesView.swift
- M LyricsX/Preferences/GeneralPreferencesView.swift
- M LyricsX/Preferences/LabPreferencesView.swift
- M LyricsX/Preferences/ShortcutPreferencesView.swift
- M LyricsX/Preferences/SourcePreferencesView.swift
- M "LyricsX/Supporting Files/Localizable.xcstrings"
- M LyricsX/Utility/Extension.swift
- M LyricsXPackage/Package.swift
+ M Lirico.xcodeproj/project.pbxproj
+ M Lirico/Base.lproj/Main.storyboard
+ M Lirico/Preferences/DisplayPreferencesView.swift
+ M Lirico/Preferences/GeneralPreferencesView.swift
+ M Lirico/Preferences/LabPreferencesView.swift
+ M Lirico/Preferences/ShortcutPreferencesView.swift
+ M Lirico/Preferences/SourcePreferencesView.swift
+ M "Lirico/Supporting Files/Localizable.xcstrings"
+ M Lirico/Utility/Extension.swift
+ M LiricoPackage/Package.swift
  M README.md
  M docs/implementation/preferences-swiftui-migration.md
 ?? docs/implementation/preferences-swiftui-modernization-followup.md
@@ -912,14 +912,14 @@ Scope is fully contained. Sanity-checks:
 - Phase 5 files: `Main.storyboard` and `CLAUDE.md` are present.
 - Only untracked file is the state doc itself — correct (no commit).
 - No surprises: no DerivedData, no .DS_Store, no random Swift files.
-- `LyricsX/Component/LyricsSelector.swift` and `LyricsX/Component/PersistenceSettings.swift` from the migration are NOT in the modified set — correct, they were modified by the migration commit (now committed), not by this follow-up pass.
+- `Lirico/Component/LyricsSelector.swift` and `Lirico/Component/PersistenceSettings.swift` from the migration are NOT in the modified set — correct, they were modified by the migration commit (now committed), not by this follow-up pass.
 
 **Stale-reference sweep — deleted class names (expect 0 each):**
 ```
 for cls in AlphaColorWell FilterKey PreferenceDisplayViewController PreferenceFilterViewController
          PreferenceGeneralViewController PreferenceLabViewController PreferenceShortcutViewController
          PreferenceSourceViewController PreferenceViewController FontSelectTextField; do
-    hits=$(grep -RInE "\b$cls\b" LyricsX/ LyricsXHelper/ LyricsXPackage/ 2>/dev/null | wc -l)
+    hits=$(grep -RInE "\b$cls\b" Lirico/ LiricoHelper/ LiricoPackage/ 2>/dev/null | wc -l)
     echo "$cls -> $hits"
 done
 ```
@@ -928,13 +928,13 @@ Result: **0 for all 10 deleted class names.** No stale Swift references anywhere
 **Stale storyboard/xcstrings/mul.lproj references:**
 ```
 grep -RInE 'Preferences\.storyboard|Preferences\.xcstrings|mul\.lproj' \
-    LyricsX/ LyricsXHelper/ LyricsXPackage/ LyricsX.xcodeproj/ 2>/dev/null
+    Lirico/ LiricoHelper/ LiricoPackage/ Lirico.xcodeproj/ 2>/dev/null
 ```
 Result: 1 hit — `project.pbxproj:221: mul.lproj/Main.xcstrings` — this is the `Main.xcstrings` string catalog for `Main.storyboard`, not a Preferences file. Expected and legitimate.
 
 **Main.storyboard scene removal verification:**
 ```
-grep -n 'Preferences\|TYy-pe-r3R\|W7f-Zh-TfF' LyricsX/Base.lproj/Main.storyboard
+grep -n 'Preferences\|TYy-pe-r3R\|W7f-Zh-TfF' Lirico/Base.lproj/Main.storyboard
 ```
 Result:
 - Line 357: `<menuItem title="Preferences..." ...>` — menu item title, legitimate.
@@ -944,15 +944,15 @@ Result:
 
 **Main.storyboard XML validity:**
 ```
-xmllint --noout LyricsX/Base.lproj/Main.storyboard 2>&1
+xmllint --noout Lirico/Base.lproj/Main.storyboard 2>&1
 ```
 Result: **(no output — XML is valid)**
 
 **macOS 11/12 full sweep (expect only AppDelegate.swift:176):**
 ```
-grep -RnIE 'macOS 1[12]([^4-9]|$)' LyricsX/ LyricsXHelper/ LyricsXPackage/ 2>/dev/null
-grep -RnIE 'if #available\(macOS 1[1-4]' LyricsX/ LyricsXHelper/ LyricsXPackage/ 2>/dev/null
-grep -RnIE '@available\(macOS 1[1-4]' LyricsX/ LyricsXHelper/ LyricsXPackage/ 2>/dev/null
+grep -RnIE 'macOS 1[12]([^4-9]|$)' Lirico/ LiricoHelper/ LiricoPackage/ 2>/dev/null
+grep -RnIE 'if #available\(macOS 1[1-4]' Lirico/ LiricoHelper/ LiricoPackage/ 2>/dev/null
+grep -RnIE '@available\(macOS 1[1-4]' Lirico/ LiricoHelper/ LiricoPackage/ 2>/dev/null
 ```
 Result: **1 hit only** — `AppDelegate.swift:176: if #available(macOS 11, *)` — logged as D5.3 (deferred cleanup). No Preferences files have any remaining macOS 11/12/13/14 availability guards. Zero `@available` hits. All expected.
 
@@ -960,12 +960,12 @@ Note: `AppDelegate.swift` also contains `if #available(OSX 10.13, *)` at line 10
 
 **Deployment target consistency:**
 ```
-grep -n MACOSX_DEPLOYMENT_TARGET LyricsX.xcodeproj/project.pbxproj
+grep -n MACOSX_DEPLOYMENT_TARGET Lirico.xcodeproj/project.pbxproj
 ```
 Result: **6 entries, all `15.0`** (lines 899, 958, 989, 1015, 1036, 1057). No `11.0` or `10.11` remaining.
 
 ```
-grep -n 'macOS' LyricsXPackage/Package.swift
+grep -n 'macOS' LiricoPackage/Package.swift
 ```
 Result: `platforms: [.macOS(.v15)]` — correct.
 
@@ -976,12 +976,12 @@ Result: `README.md:30: - macOS 15+`, `CLAUDE.md:9: - **Platform**: macOS 15+ onl
 
 **String catalog:**
 ```
-python3 -m json.tool 'LyricsX/Supporting Files/Localizable.xcstrings' >/dev/null
+python3 -m json.tool 'Lirico/Supporting Files/Localizable.xcstrings' >/dev/null
 ```
 Result: **XCSTRINGS_OK**
 
 ```
-python3 -c "import json; d=json.load(open('LyricsX/Supporting Files/Localizable.xcstrings')); \
+python3 -c "import json; d=json.load(open('Lirico/Supporting Files/Localizable.xcstrings')); \
     s=d['strings']; print('total:', len(s)); print('junk:', any(k in s for k in ('', '.*', '%lld')))"
 ```
 Result: `total: 65`, `junk: False`. Correct.
@@ -995,7 +995,7 @@ Result: `total: 65`, `junk: False`. Correct.
 
 **Full clean build — default Debug:**
 ```
-xcodebuild -project LyricsX.xcodeproj -scheme LyricsX -configuration Debug clean build 2>&1 | tee /tmp/lyricsx-phase5-review.log
+xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Debug clean build 2>&1 | tee /tmp/lyricsx-phase5-review.log
 ```
 Result: `** BUILD SUCCEEDED **`
 - Error count: **0**
@@ -1021,7 +1021,7 @@ Error count: **0**. MAS compilation conditions compile correctly. `ShortcutPrefe
 **Other integrity checks:**
 ```
 git diff --check → (no output — no whitespace issues)
-plutil -lint LyricsX.xcodeproj/project.pbxproj → OK
+plutil -lint Lirico.xcodeproj/project.pbxproj → OK
 ```
 
 **State doc audit:**
@@ -1054,22 +1054,22 @@ Result: TOTAL: 68, VERSION: 1.0, SRC_LANG: en. Suspicious keys `''`, `'.*'`, `'%
 
 **Source-code reference check:**
 ```
-grep -RIn '"\\.*"' LyricsX/ LyricsXHelper/ LyricsXPackage/  → no Swift hits
-grep -RIn '"%lld"' LyricsX/ LyricsXHelper/ LyricsXPackage/  → hit only in xcstrings file itself
-grep -RIn 'String(localized: "")' LyricsX/ LyricsXHelper/ LyricsXPackage/  → 0 hits
-grep -RIn 'Text("")\|Text("\\.*")\|Text("%lld")' LyricsX/ ...  → 0 hits
-grep -RIn '\\.*' LyricsX/Preferences/  → FilterPreferencesView.swift:88: Text(".*")
+grep -RIn '"\\.*"' Lirico/ LiricoHelper/ LiricoPackage/  → no Swift hits
+grep -RIn '"%lld"' Lirico/ LiricoHelper/ LiricoPackage/  → hit only in xcstrings file itself
+grep -RIn 'String(localized: "")' Lirico/ LiricoHelper/ LiricoPackage/  → 0 hits
+grep -RIn 'Text("")\|Text("\\.*")\|Text("%lld")' Lirico/ ...  → 0 hits
+grep -RIn '\\.*' Lirico/Preferences/  → FilterPreferencesView.swift:88: Text(".*")
 ```
 `Text(".*")` at line 88 is a regex-badge visual indicator — a fixed technical symbol, not a linguistically translatable string. Key safe to remove per D4.1.
 
 **Deleted file recovery check:**
 ```
-git log --diff-filter=D --format='%H %s' -- 'LyricsX/mul.lproj/Preferences.xcstrings'
+git log --diff-filter=D --format='%H %s' -- 'Lirico/mul.lproj/Preferences.xcstrings'
 ```
 Result: `e9e1398bada999be8280bb0e67f50b16d53fa27f feat(prefs): migrate preferences to SwiftUI`
 
 ```
-git show e9e1398b~1:'LyricsX/mul.lproj/Preferences.xcstrings' | python3 (language extraction)
+git show e9e1398b~1:'Lirico/mul.lproj/Preferences.xcstrings' | python3 (language extraction)
 ```
 Result: 18 locales: `['ar', 'base', 'de', 'en', 'es', 'fa', 'fr', 'id', 'it', 'ja', 'ko', 'nl', 'pl', 'pt', 'ru', 'uk', 'zh-Hans', 'zh-Hant']`
 
@@ -1102,7 +1102,7 @@ All non-Preferences translations survived intact.
 
 **Build result:**
 ```
-xcodebuild -project LyricsX.xcodeproj -scheme LyricsX -configuration Debug clean build
+xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Debug clean build
 → ** BUILD SUCCEEDED **
 grep -cE '\berror:' /tmp/lyricsx-phase4-build.log   → 0
 grep -cE '\bwarning:' /tmp/lyricsx-phase4-build.log → 31
@@ -1117,11 +1117,11 @@ grep -cE '\bwarning:' /tmp/lyricsx-phase4-build.log → 31
 ```
 git status --short
 ```
-Result: `M "LyricsX/Supporting Files/Localizable.xcstrings"` present (Phase 4 modification). State doc (`?? docs/implementation/preferences-swiftui-modernization-followup.md`) is the only other new artifact. Phase 1/2/3 modified files (CLAUDE.md, project.pbxproj, Preferences views, Extension.swift, Package.swift, README.md, migration.md) remain modified — all expected from prior phases. No extra production files touched in Phase 4.
+Result: `M "Lirico/Supporting Files/Localizable.xcstrings"` present (Phase 4 modification). State doc (`?? docs/implementation/preferences-swiftui-modernization-followup.md`) is the only other new artifact. Phase 1/2/3 modified files (CLAUDE.md, project.pbxproj, Preferences views, Extension.swift, Package.swift, README.md, migration.md) remain modified — all expected from prior phases. No extra production files touched in Phase 4.
 
 **JSON validity:**
 ```
-python3 -m json.tool 'LyricsX/Supporting Files/Localizable.xcstrings' >/dev/null
+python3 -m json.tool 'Lirico/Supporting Files/Localizable.xcstrings' >/dev/null
 ```
 Result: **JSON_OK**
 
@@ -1159,11 +1159,11 @@ Read `FilterPreferencesView.swift` lines 83–95: `Text(".*")` appears at line 8
 
 **Deleted `Preferences.xcstrings` recoverability:**
 ```
-git log --diff-filter=D --format='%H' -- LyricsX/mul.lproj/Preferences.xcstrings
+git log --diff-filter=D --format='%H' -- Lirico/mul.lproj/Preferences.xcstrings
 ```
 Result: deletion commit `e9e1398bada999be8280bb0e67f50b16d53fa27f`
 ```
-git show e9e1398bada999be8280bb0e67f50b16d53fa27f~1:LyricsX/mul.lproj/Preferences.xcstrings | python3 (locale extraction)
+git show e9e1398bada999be8280bb0e67f50b16d53fa27f~1:Lirico/mul.lproj/Preferences.xcstrings | python3 (locale extraction)
 ```
 Result: **18 locales confirmed**: `['ar', 'base', 'de', 'en', 'es', 'fa', 'fr', 'id', 'it', 'ja', 'ko', 'nl', 'pl', 'pt', 'ru', 'uk', 'zh-Hans', 'zh-Hant']` — matches implementor's D4.2 list exactly. File is recoverable.
 
@@ -1176,7 +1176,7 @@ Result: **18 locales confirmed**: `['ar', 'base', 'de', 'en', 'es', 'fa', 'fr', 
 
 **Default Debug clean build:**
 ```
-xcodebuild -project LyricsX.xcodeproj -scheme LyricsX -configuration Debug clean build
+xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Debug clean build
 → ** BUILD SUCCEEDED **
 ```
 - Error count: **0**
@@ -1209,23 +1209,23 @@ xcodebuild ... SWIFT_ACTIVE_COMPILATION_CONDITIONS='DEBUG IS_FOR_MAS'
 ```
 git status --short
 ```
-Result: Modified files include all four Phase 3 Preferences views (GeneralPreferencesView.swift, DisplayPreferencesView.swift, SourcePreferencesView.swift, LabPreferencesView.swift) plus Phase 1/2 files (CLAUDE.md, project.pbxproj, LyricsXPackage/Package.swift, README.md, ShortcutPreferencesView.swift, Extension.swift, preferences-swiftui-migration.md). State doc is untracked `??`. No files outside `LyricsX/Preferences/` and expected Phase 1/2 files were modified in Phase 3.
+Result: Modified files include all four Phase 3 Preferences views (GeneralPreferencesView.swift, DisplayPreferencesView.swift, SourcePreferencesView.swift, LabPreferencesView.swift) plus Phase 1/2 files (CLAUDE.md, project.pbxproj, LiricoPackage/Package.swift, README.md, ShortcutPreferencesView.swift, Extension.swift, preferences-swiftui-migration.md). State doc is untracked `??`. No files outside `Lirico/Preferences/` and expected Phase 1/2 files were modified in Phase 3.
 
 **Legacy single-arg onChange grep (expect 0 hits):**
 ```
-grep -RnE '\.onChange\(of:[^)]+\)[[:space:]]*\{[[:space:]]*[A-Za-z_][A-Za-z0-9_]*[[:space:]]+in' LyricsX/Preferences/
+grep -RnE '\.onChange\(of:[^)]+\)[[:space:]]*\{[[:space:]]*[A-Za-z_][A-Za-z0-9_]*[[:space:]]+in' Lirico/Preferences/
 ```
 Result: **0 hits**. No legacy single-argument closures remaining.
 
 **Total onChange grep (expect 13 modern-form hits):**
 ```
-grep -RnE '\.onChange\(of:' LyricsX/Preferences/
+grep -RnE '\.onChange\(of:' Lirico/Preferences/
 ```
 Result: **13 hits** — 6 in GeneralPreferencesView.swift, 6 in DisplayPreferencesView.swift, 1 in SourcePreferencesView.swift. Zero in LabPreferencesView.swift (no onChange in that file).
 
 **macOS availability grep (expect 0 hits):**
 ```
-grep -RnE 'macOS 1[1234]|if #available\(macOS' LyricsX/Preferences/
+grep -RnE 'macOS 1[1234]|if #available\(macOS' Lirico/Preferences/
 ```
 Result: **0 hits**. All compat guards and comments removed.
 
@@ -1241,7 +1241,7 @@ Read lines 143–150 on disk: `musixmatchTextField` computes to a single `TextFi
 
 **Default Debug clean build:**
 ```
-xcodebuild -project LyricsX.xcodeproj -scheme LyricsX -configuration Debug clean build
+xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Debug clean build
 → ** BUILD SUCCEEDED **
 grep -cE '\berror:' /tmp/lyricsx-phase3-review.log   → 0
 grep -cE '\bwarning:' /tmp/lyricsx-phase3-review.log → 31
@@ -1295,7 +1295,7 @@ Note: first IS_FOR_MAS run failed with database lock error due to concurrent bui
 ```
 git status --short
 ```
-Result: `M CLAUDE.md`, `M LyricsX.xcodeproj/project.pbxproj`, `M LyricsX/Preferences/ShortcutPreferencesView.swift`, `M LyricsX/Utility/Extension.swift`, `M LyricsXPackage/Package.swift`, `M README.md`, `M docs/implementation/preferences-swiftui-migration.md`, `?? docs/implementation/preferences-swiftui-modernization-followup.md`. Exactly the expected Phase 1 + Phase 2 files. No stray modifications.
+Result: `M CLAUDE.md`, `M Lirico.xcodeproj/project.pbxproj`, `M Lirico/Preferences/ShortcutPreferencesView.swift`, `M Lirico/Utility/Extension.swift`, `M LiricoPackage/Package.swift`, `M README.md`, `M docs/implementation/preferences-swiftui-migration.md`, `?? docs/implementation/preferences-swiftui-modernization-followup.md`. Exactly the expected Phase 1 + Phase 2 files. No stray modifications.
 
 **Fix 1 — MAS hiding condition (ShortcutPreferencesView.swift):**
 
@@ -1356,13 +1356,13 @@ Checkbox unchecked, corrective blockquote note present and unambiguous. Accurate
 
 **IS_FOR_MAS flag context:**
 ```
-grep -RIn 'IS_FOR_MAS' LyricsX.xcodeproj/project.pbxproj LyricsX/ LyricsXHelper/ LyricsXPackage/
+grep -RIn 'IS_FOR_MAS' Lirico.xcodeproj/project.pbxproj Lirico/ LiricoHelper/ LiricoPackage/
 ```
 Result: `ShortcutPreferencesView.swift:54` (1 occurrence), `IBInspection.swift:10`, `IBInspection.swift:22`, `IBInspection.swift:36` (3 occurrences). No `.xcconfig` files in the project tree (only in DerivedData dependency checkouts). `SWIFT_ACTIVE_COMPILATION_CONDITIONS = ""` at project level (line 905). Flag not defined in any build configuration. Consistent with D2.3.
 
 **Default Debug build:**
 ```
-xcodebuild -project LyricsX.xcodeproj -scheme LyricsX -configuration Debug build
+xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Debug build
 → ** BUILD SUCCEEDED **
 grep -cE '\berror:' → 0
 grep -cE '\bwarning:' → 0 (incremental)

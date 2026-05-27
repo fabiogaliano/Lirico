@@ -1,8 +1,8 @@
-# SR-03 — LyricsX local LyricsKit integration and canonical source list
+# SR-03 — Lirico local LyricsKit integration and canonical source list
 
 ## Goal
 
-Move LyricsX onto the local LyricsKit API for this work and make LyricsX source preferences use the same canonical source names and provider-descriptor construction as the pipeline.
+Move Lirico onto the local LyricsKit API for this work and make Lirico source preferences use the same canonical source names and provider-descriptor construction as the pipeline.
 
 ## Depends on / blocks
 
@@ -11,7 +11,7 @@ Move LyricsX onto the local LyricsKit API for this work and make LyricsX source 
 
 ## Scope
 
-- Point `LyricsXPackage`/Xcode resolution at the intended local LyricsKit dependency path for this implementation effort.
+- Point `LiricoPackage`/Xcode resolution at the intended local LyricsKit dependency path for this implementation effort.
 - Migrate provider construction from the old service API to the current `ServiceID`/service factory API.
 - Build provider descriptors once and derive the canonical source list from the same construction path.
 - Normalize source-priority settings against that canonical list.
@@ -26,13 +26,13 @@ Move LyricsX onto the local LyricsKit API for this work and make LyricsX source 
 
 ## Likely touchpoints
 
-- `/Users/f/Core/dev/projects/LyricsX/LyricsXPackage/Package.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/LyricsSearchPipeline.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/LyricsSelector.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/SearchSettings.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/AppContainer.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Preferences/SourcePreferencesView.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`
+- `/Users/f/Core/dev/projects/Lirico/LiricoPackage/Package.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Component/LyricsSearchPipeline.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Component/LyricsSelector.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Component/SearchSettings.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Component/AppContainer.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Preferences/SourcePreferencesView.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`
 
 ## Constraints and decisions to honor
 
@@ -48,7 +48,7 @@ Must honor:
 
 ## Acceptance criteria
 
-- LyricsX builds against the intended local LyricsKit API for this work.
+- Lirico builds against the intended local LyricsKit API for this work.
 - Provider construction uses the current service/descriptors API rather than the removed old API.
 - The Source preferences list and emitted remote candidate source names are canonicalized from one shared source list.
 - Automatic request construction has a path to include album metadata; manual request construction does not.

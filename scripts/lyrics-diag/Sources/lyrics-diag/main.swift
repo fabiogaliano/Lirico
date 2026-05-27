@@ -1,5 +1,5 @@
 import Foundation
-import LyricsXFoundation
+import LiricoFoundation
 
 // MARK: - Argument & environment parsing
 //

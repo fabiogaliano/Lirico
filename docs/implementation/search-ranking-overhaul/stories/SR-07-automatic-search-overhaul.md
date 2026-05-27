@@ -27,11 +27,11 @@ Replace the current automatic accept-first flow with evaluated candidate collect
 
 ## Likely touchpoints
 
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/LyricsSession.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/LocalLyricsLoader.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/LyricsSearchPipeline.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/SearchSettings.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Search/SearchLyricsViewModel.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Component/LyricsSession.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Component/LocalLyricsLoader.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Component/LyricsSearchPipeline.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Component/SearchSettings.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Search/SearchLyricsViewModel.swift`
 
 ## Constraints and decisions to honor
 

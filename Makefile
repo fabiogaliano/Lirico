@@ -1,8 +1,6 @@
 # Build and install Lirico from source.
 #
 # The built product is "Lirico" (set via PRODUCT_NAME in the Xcode project).
-# The Xcode project and scheme files are still named "LyricsX" internally;
-# update the vars below if those are ever renamed too.
 #
 # Builds default to the Debug configuration: it skips whole-module
 # optimization, so a one-file change rebuilds in ~20s instead of ~85s, and it
@@ -10,11 +8,11 @@
 # producing an optimized build to distribute. Debug and Release products live
 # in separate subfolders of the same DERIVED dir, so the two configurations
 # keep independent caches and never force each other to rebuild.
-PROJECT  := LyricsX.xcodeproj
-SCHEME   := LyricsX
+PROJECT  := Lirico.xcodeproj
+SCHEME   := Lirico
 
 # The product name is configuration-specific: Debug builds to "Lirico-Debug"
-# (bundle id dev.fabiogaliano.LyricsX) so a dev build installs and runs
+# (bundle id dev.fabiogaliano.Lirico) so a dev build installs and runs
 # side-by-side with the real "Lirico" Release app without conflict.
 APP_NAME       := Lirico
 APP_NAME_Debug := Lirico-Debug

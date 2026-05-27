@@ -2,28 +2,28 @@
 tasks = ["interfaces", "code", "normalize"]
 
 [update.interfaces]
-path = "./LyricsX"
+path = "./Lirico"
 defaultToBase = true
 ignoreEmptyStrings = false
 unstripped = false
 
 [update.code]
-codePath = "./LyricsX"
-localizablePath = "./LyricsX/Supporting Files"
+codePath = "./Lirico"
+localizablePath = "./Lirico/Supporting Files"
 defaultToKeys = false
 additive = true
 unstripped = false
 
 [update.transform]
-codePath = "./LyricsX"
-localizablePath = "./LyricsX/Supporting Files"
+codePath = "./Lirico"
+localizablePath = "./Lirico/Supporting Files"
 transformer = "foundation"
 supportedLanguageEnumPath = "."
 typeName = "BartyCrouch"
 translateMethodName = "translate"
 
 [update.normalize]
-path = "./LyricsX"
+path = "./Lirico"
 sourceLocale = "en"
 harmonizeWithSource = true
 sortByKeys = true

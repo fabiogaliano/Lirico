@@ -1,5 +1,5 @@
 files:
-  - source: /LyricsX/Supporting Files/en.lproj/*.strings
-    translation: /LyricsX/Supporting Files/%osx_code%/%original_file_name%
-  - source: LyricsX/en.lproj/*.strings
-    translation: /LyricsX/%osx_code%/%original_file_name%
+  - source: /Lirico/Supporting Files/en.lproj/*.strings
+    translation: /Lirico/Supporting Files/%osx_code%/%original_file_name%
+  - source: Lirico/en.lproj/*.strings
+    translation: /Lirico/%osx_code%/%original_file_name%

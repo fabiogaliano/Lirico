@@ -2,7 +2,7 @@
 
 ## Goal
 
-Add the shared LyricsKit contracts that downstream LyricsX work depends on:
+Add the shared LyricsKit contracts that downstream Lirico work depends on:
 - provider descriptors with canonical source names,
 - a non-throwing group event stream,
 - the shared request album metadata convention.
@@ -24,9 +24,9 @@ Add the shared LyricsKit contracts that downstream LyricsX work depends on:
 ## Out of scope
 
 - LRCLIB `/api/get` exact lookup logic.
-- LyricsX provider-construction migration.
+- Lirico provider-construction migration.
 - App-level evaluation/ranking.
-- Manual or automatic LyricsX behavior changes.
+- Manual or automatic Lirico behavior changes.
 
 ## Likely touchpoints
 

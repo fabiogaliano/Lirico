@@ -1,8 +1,8 @@
 # Orchestrator prompt — SwiftUI Preferences follow-up and macOS 15 modernization
 
-You are the main AI coding-agent orchestrator for a follow-up pass on the SwiftUI Preferences migration in LyricsX, a macOS menu-bar lyrics app at:
+You are the main AI coding-agent orchestrator for a follow-up pass on the SwiftUI Preferences migration in Lirico, a macOS menu-bar lyrics app at:
 
-/Users/f/Core/dev/projects/LyricsX
+/Users/f/Core/dev/projects/Lirico
 
 The previous migration replaced the old storyboard Preferences UI with SwiftUI. This follow-up pass should review, patch, and modernize that work, with permission to raise the app's minimum deployment target up to **macOS 15+** when doing so simplifies the code and improves maintainability.
 
@@ -26,7 +26,7 @@ From review of current git changes:
 
 1. `ShortcutSearchLyrics` no longer respects the old storyboard `isRemovedDuringMASReview` behavior.
 2. `docs/implementation/preferences-swiftui-migration.md` says migration complete but still has Phase 0 review unchecked.
-3. Pre-existing bug in `LyricsX/Utility/Extension.swift`: `lyricsWindowFont` fallback uses `desktopLyricsFontSize` instead of `lyricsWindowFontSize`.
+3. Pre-existing bug in `Lirico/Utility/Extension.swift`: `lyricsWindowFont` fallback uses `desktopLyricsFontSize` instead of `lyricsWindowFontSize`.
 4. SwiftUI uses deprecated `onChange(of:)` single-argument closures. This is acceptable for macOS 11, but should be modernized if the deployment target is raised.
 5. Several macOS 11/12 compatibility branches/comments remain in Preferences SwiftUI code.
 6. Localization needs a deliberate decision: old `mul.lproj/Preferences.xcstrings` was removed and new SwiftUI labels were added to `Localizable.xcstrings`, including likely extraction junk keys like `""`, `".*"`, and `"%lld"`.
@@ -137,35 +137,35 @@ Read before Phase 0 planning:
 - `CLAUDE.md`
 - `docs/implementation/preferences-swiftui-migration.md`
 - current SwiftUI Preferences files:
-  - `LyricsX/Preferences/PreferenceWindowController.swift`
-  - `LyricsX/Preferences/PreferencesView.swift`
-  - `LyricsX/Preferences/SettingsSection.swift`
-  - `LyricsX/Preferences/GeneralPreferencesView.swift`
-  - `LyricsX/Preferences/DisplayPreferencesView.swift`
-  - `LyricsX/Preferences/ShortcutPreferencesView.swift`
-  - `LyricsX/Preferences/FilterPreferencesView.swift`
-  - `LyricsX/Preferences/LabPreferencesView.swift`
-  - `LyricsX/Preferences/SourcePreferencesView.swift`
-  - `LyricsX/Preferences/NowPlayingApplicationListViewController.swift`
+  - `Lirico/Preferences/PreferenceWindowController.swift`
+  - `Lirico/Preferences/PreferencesView.swift`
+  - `Lirico/Preferences/SettingsSection.swift`
+  - `Lirico/Preferences/GeneralPreferencesView.swift`
+  - `Lirico/Preferences/DisplayPreferencesView.swift`
+  - `Lirico/Preferences/ShortcutPreferencesView.swift`
+  - `Lirico/Preferences/FilterPreferencesView.swift`
+  - `Lirico/Preferences/LabPreferencesView.swift`
+  - `Lirico/Preferences/SourcePreferencesView.swift`
+  - `Lirico/Preferences/NowPlayingApplicationListViewController.swift`
 - relevant utilities/settings:
-  - `LyricsX/Utility/Extension.swift`
-  - `LyricsX/Utility/IBInspection.swift`
-  - `LyricsX/Utility/UserDefaultsKeys.swift`
-  - `LyricsX/Component/UserDefaultsRegistration.swift`
-  - `LyricsX/Component/PersistenceSettings.swift`
-  - `LyricsX/Component/SearchSettings.swift`
-  - `LyricsX/Component/PlayerSettings.swift`
-  - `LyricsX/Component/DisplaySettings.swift`
-  - `LyricsX/Component/ExportSettings.swift`
+  - `Lirico/Utility/Extension.swift`
+  - `Lirico/Utility/IBInspection.swift`
+  - `Lirico/Utility/UserDefaultsKeys.swift`
+  - `Lirico/Component/UserDefaultsRegistration.swift`
+  - `Lirico/Component/PersistenceSettings.swift`
+  - `Lirico/Component/SearchSettings.swift`
+  - `Lirico/Component/PlayerSettings.swift`
+  - `Lirico/Component/DisplaySettings.swift`
+  - `Lirico/Component/ExportSettings.swift`
 - project/package/docs that mention deployment target:
-  - `LyricsX.xcodeproj/project.pbxproj`
-  - `LyricsXPackage/Package.swift`
+  - `Lirico.xcodeproj/project.pbxproj`
+  - `LiricoPackage/Package.swift`
   - `README.md`
   - `CLAUDE.md`
   - release notes that mention minimum macOS version
 - localization files touched by the migration:
-  - `LyricsX/Supporting Files/Localizable.xcstrings`
-  - deleted/current `LyricsX/mul.lproj/Preferences.xcstrings` via git history if needed
+  - `Lirico/Supporting Files/Localizable.xcstrings`
+  - deleted/current `Lirico/mul.lproj/Preferences.xcstrings` via git history if needed
 
 Also run:
 
@@ -237,15 +237,15 @@ Implementation subagent goal:
 
 - Raise minimum macOS deployment target to macOS 15+ where relevant.
 - Update Xcode project deployment targets for app/helper/package targets as appropriate.
-- Update `LyricsXPackage/Package.swift` platform from macOS 11 to macOS 15 if compatible with dependencies.
+- Update `LiricoPackage/Package.swift` platform from macOS 11 to macOS 15 if compatible with dependencies.
 - Update docs that state macOS 11+ minimum requirement.
 - Remove or update prompt/state references that incorrectly say macOS 11+ is still required.
 - Do not change runtime preference behavior in this phase except what is necessary for the target bump.
 
 Likely files:
 
-- `LyricsX.xcodeproj/project.pbxproj`
-- `LyricsXPackage/Package.swift`
+- `Lirico.xcodeproj/project.pbxproj`
+- `LiricoPackage/Package.swift`
 - `README.md`
 - `CLAUDE.md`
 - release notes if they state current minimum requirement
@@ -268,7 +268,7 @@ Patch known behavior issues:
    - Old storyboard used `isRemovedDuringMASReview` on the `ShortcutSearchLyrics` label/view.
    - Implement explicit SwiftUI conditional hiding equivalent.
    - Preserve non-MAS behavior.
-2. Fix `lyricsWindowFont` fallback bug in `LyricsX/Utility/Extension.swift`.
+2. Fix `lyricsWindowFont` fallback bug in `Lirico/Utility/Extension.swift`.
    - Fallback should use `lyricsWindowFontSize`, not `desktopLyricsFontSize`.
 3. Mark Phase 0 review complete in `docs/implementation/preferences-swiftui-migration.md` if review truly happened, or record a corrective note if it did not.
 
@@ -279,8 +279,8 @@ Non-goals:
 
 Likely files:
 
-- `LyricsX/Preferences/ShortcutPreferencesView.swift`
-- `LyricsX/Utility/Extension.swift`
+- `Lirico/Preferences/ShortcutPreferencesView.swift`
+- `Lirico/Utility/Extension.swift`
 - `docs/implementation/preferences-swiftui-migration.md`
 - follow-up state document
 
@@ -303,10 +303,10 @@ Implementation subagent goal:
 
 Likely files:
 
-- `LyricsX/Preferences/GeneralPreferencesView.swift`
-- `LyricsX/Preferences/DisplayPreferencesView.swift`
-- `LyricsX/Preferences/LabPreferencesView.swift`
-- `LyricsX/Preferences/SourcePreferencesView.swift`
+- `Lirico/Preferences/GeneralPreferencesView.swift`
+- `Lirico/Preferences/DisplayPreferencesView.swift`
+- `Lirico/Preferences/LabPreferencesView.swift`
+- `Lirico/Preferences/SourcePreferencesView.swift`
 - maybe `SettingsSection.swift`
 
 Review subagent goal:
@@ -319,12 +319,12 @@ Review subagent goal:
 
 Implementation subagent goal:
 
-- Review `LyricsX/Supporting Files/Localizable.xcstrings` changes from migration.
+- Review `Lirico/Supporting Files/Localizable.xcstrings` changes from migration.
 - Remove accidental/junk extraction keys introduced by SwiftUI migration, especially keys like:
   - empty string `""`,
   - `".*"`,
   - numeric/string-format artifacts such as `"%lld"` if not intentionally user-facing.
-- Decide what to do with deleted `LyricsX/mul.lproj/Preferences.xcstrings`:
+- Decide what to do with deleted `Lirico/mul.lproj/Preferences.xcstrings`:
   - If the SwiftUI Preferences no longer uses storyboard string-catalog IDs, deletion may be valid.
   - Preserve old translations only if they can be mapped safely to new plain-English keys without corrupting localization.
   - If full mapping is too risky, record deferred localization migration clearly.
@@ -368,21 +368,21 @@ Review subagent goal:
 Preferred build:
 
 ```bash
-xcodebuild -project LyricsX.xcodeproj -scheme LyricsX -configuration Debug build 2>&1 | xcsift
+xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Debug build 2>&1 | xcsift
 ```
 
 If `xcsift` is unavailable:
 
 ```bash
-xcodebuild -project LyricsX.xcodeproj -scheme LyricsX -configuration Debug build
+xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Debug build
 ```
 
 Also run when practical:
 
 ```bash
 git diff --check
-plutil -lint LyricsX.xcodeproj/project.pbxproj
-python3 -m json.tool "LyricsX/Supporting Files/Localizable.xcstrings" >/dev/null
+plutil -lint Lirico.xcodeproj/project.pbxproj
+python3 -m json.tool "Lirico/Supporting Files/Localizable.xcstrings" >/dev/null
 ```
 
 For warning scan after build:

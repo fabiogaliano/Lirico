@@ -5,8 +5,8 @@ project's stated objectives: elegant codebase, easy to edit by humans AND
 AI agents (navigability via grep / file names / signatures), future
 bullet-proof. None of these items individually take more than ~30 minutes.
 
-You are continuing architectural work on LyricsX at
-`/Users/f/Core/dev/projects/LyricsX` — a macOS menu-bar lyrics app (Swift 5
+You are continuing architectural work on Lirico at
+`/Users/f/Core/dev/projects/Lirico` — a macOS menu-bar lyrics app (Swift 5
 Xcode project, Combine-driven, singletons as house style). Read CLAUDE.md in
 the repo root before starting; it documents the architecture and the build
 command.
@@ -25,7 +25,7 @@ fa0b70a5 fix: convert Chinese main lines in HUD scroll view to match other displ
 2cb5b55a refactor: inline AutoActivateWindowController pass-through
 ```
 
-The `LyricsX/Component/` directory holds extracted modules:
+The `Lirico/Component/` directory holds extracted modules:
 `LineRenderer`, `LyricsPreparer`, `LyricsSelector`, `PlaybackClock`,
 `LocalLyricsLoader`, `SearchBlocklist`. Match their established style:
 doc-comment header explaining what the module owns and why, `// MARK:`
@@ -52,9 +52,9 @@ For each item below:
 
 4. **You commit** (not the agent). Before each commit:
    ```
-   git -C /Users/f/Core/dev/projects/LyricsX checkout -- "LyricsX/Supporting Files/Info.plist"
+   git -C /Users/f/Core/dev/projects/Lirico checkout -- "Lirico/Supporting Files/Info.plist"
    ```
-   `xcodebuild` bumps `CFBundleVersion` and `LX_BUILD_TIME` as a build-script
+   `xcodebuild` bumps `CFBundleVersion` and `LIRICO_BUILD_TIME` as a build-script
    side effect; those belong in separate `chore: bump build number`
    commits, not in refactor commits.
 
@@ -65,8 +65,8 @@ For each item below:
 ## Verification
 
 ```
-xcodebuild -project /Users/f/Core/dev/projects/LyricsX/LyricsX.xcodeproj \
-  -scheme LyricsX -configuration Debug build 2>&1 | \
+xcodebuild -project /Users/f/Core/dev/projects/Lirico/Lirico.xcodeproj \
+  -scheme Lirico -configuration Debug build 2>&1 | \
   grep -E "(BUILD|error:|warning:)" | tail -10
 ```
 
@@ -88,18 +88,18 @@ For IB-referenced classes, either:
 ### Item 1 — Move AlphaColorWell to its own file
 
 **Why**: `class AlphaColorWell: NSColorWell` is buried at line 58 of
-`LyricsX/Preferences/PreferenceDisplayViewController.swift`. Hidden classes
+`Lirico/Preferences/PreferenceDisplayViewController.swift`. Hidden classes
 inside unrelated VCs are a navigability landmine — file naming is the
 primary index for both humans and grep-driven agents.
 
 **Steps**:
-1. Read `LyricsX/Preferences/PreferenceDisplayViewController.swift` to
+1. Read `Lirico/Preferences/PreferenceDisplayViewController.swift` to
    understand AlphaColorWell's class declaration boundaries and any imports
    it relies on.
 2. Verify no IB references by grepping `customClass="AlphaColorWell"` and
    `customClass=\"AlphaColorWell\"` in `.storyboard` and `.xib` files. If
    present, the move preserves them (we're moving the file, not renaming).
-3. Create `LyricsX/Preferences/AlphaColorWell.swift` with the class
+3. Create `Lirico/Preferences/AlphaColorWell.swift` with the class
    declaration verbatim and the minimal set of imports needed (likely just
    `AppKit`).
 4. Delete the class block from `PreferenceDisplayViewController.swift`.
@@ -118,7 +118,7 @@ descriptive — it's an NSColorWell that supports alpha. No rename.
 ### Item 2 — Move FilterKey to its own file (optionally rename)
 
 **Why**: Same rationale as Item 1. `FilterKey` is at the bottom of
-`LyricsX/Preferences/PreferenceFilterViewController.swift` (lines 32-56).
+`Lirico/Preferences/PreferenceFilterViewController.swift` (lines 32-56).
 
 **Critical trap warning**: FilterKey is load-bearing for the NSArrayController
 bindings in `Preferences.storyboard` (lines 1202-1209, references
@@ -129,7 +129,7 @@ break.
 **Steps**:
 1. Read the FilterKey class declaration in
    `PreferenceFilterViewController.swift` lines 32-56.
-2. Create `LyricsX/Preferences/FilterKey.swift`.
+2. Create `Lirico/Preferences/FilterKey.swift`.
 3. **Decision: rename or not.**
    - If keeping the name: move the declaration verbatim, `@objc(FilterKey)`
      line preserved.
@@ -152,14 +152,14 @@ break.
 
 ### Item 3 — Banner CXExtensions as vendored
 
-**Why**: `LyricsX/Utility/CXExtensions/` is ~972 lines vendored from the
-CombineX project. It currently weights like real LyricsX code in any
+**Why**: `Lirico/Utility/CXExtensions/` is ~972 lines vendored from the
+CombineX project. It currently weights like real Lirico code in any
 file-tree scan or grep, but it's third-party utility code. A one-line
 banner per file flips the agent's mental model in one glance: "vendored,
 don't fix."
 
 **Steps**:
-1. List the 8 files in `LyricsX/Utility/CXExtensions/`:
+1. List the 8 files in `Lirico/Utility/CXExtensions/`:
    `AnyScheduler.swift`, `Blocking.swift`, `DelayedAutoCancellable.swift`,
    `IgnoreError.swift`, `Invoke.swift`, `SelfRetainedCancellable.swift`,
    `Signal.swift`, `WeakAssign.swift`.
@@ -185,19 +185,19 @@ This is `chore:` not `refactor:` because no code logic changes.
 ### Item 4 — Extract artwork fetching from SearchLyricsViewController
 
 **Why**: `URLSession.shared.dataTask` is called from
-`LyricsX/Search/SearchLyricsViewController.swift:245` — a view controller
+`Lirico/Search/SearchLyricsViewController.swift:245` — a view controller
 making network calls is a layer leak. Concentrating network I/O in a named
 function makes the seam discoverable.
 
 **Steps**:
-1. Grep first: `grep -rn "URLSession" --include="*.swift" /Users/f/Core/dev/projects/LyricsX/LyricsX/` —
+1. Grep first: `grep -rn "URLSession" --include="*.swift" /Users/f/Core/dev/projects/Lirico/Lirico/` —
    confirm this is the only site. If there are more, decide whether to
    centralize them all or scope to just this one (default: just this one;
    note any other sites for a future pass).
 2. Read `SearchLyricsViewController.swift` around lines 240-270 to
    understand the full call shape: what's the completion expecting? Does
    it dispatch back to main queue? How is failure handled?
-3. Create `LyricsX/Search/ArtworkFetcher.swift` with a single FREE FUNCTION:
+3. Create `Lirico/Search/ArtworkFetcher.swift` with a single FREE FUNCTION:
    ```swift
    import AppKit
 
@@ -241,18 +241,18 @@ matching the prior session's wrap-up format:
 ## End-of-session checklist
 
 - [ ] All 4 commits landed on `main`
-- [ ] `git -C /Users/f/Core/dev/projects/LyricsX status` is clean
+- [ ] `git -C /Users/f/Core/dev/projects/Lirico status` is clean
 - [ ] `git log --oneline -5` shows the 4 new commits + prior `9b8386d0`
 - [ ] Build succeeds (`** BUILD SUCCEEDED **`)
 - [ ] Deletion-test greps confirm the moves:
-  - `grep -rn "class AlphaColorWell" --include="*.swift" /Users/f/Core/dev/projects/LyricsX/LyricsX/` → only `Preferences/AlphaColorWell.swift`
-  - `grep -rn "@objc(FilterKey)" --include="*.swift" /Users/f/Core/dev/projects/LyricsX/LyricsX/` → only `Preferences/FilterKey.swift`
-  - `grep -rn "URLSession.shared.dataTask" --include="*.swift" /Users/f/Core/dev/projects/LyricsX/LyricsX/` → only `Search/ArtworkFetcher.swift`
+  - `grep -rn "class AlphaColorWell" --include="*.swift" /Users/f/Core/dev/projects/Lirico/Lirico/` → only `Preferences/AlphaColorWell.swift`
+  - `grep -rn "@objc(FilterKey)" --include="*.swift" /Users/f/Core/dev/projects/Lirico/Lirico/` → only `Preferences/FilterKey.swift`
+  - `grep -rn "URLSession.shared.dataTask" --include="*.swift" /Users/f/Core/dev/projects/Lirico/Lirico/` → only `Search/ArtworkFetcher.swift`
 - [ ] Do NOT push or open a PR unless explicitly asked.
 
 ## Project guardrails (don't violate without asking)
 
-- Swift 5 in the Xcode project setting, Swift 6.2 in `LyricsXPackage/Package.swift`.
+- Swift 5 in the Xcode project setting, Swift 6.2 in `LiricoPackage/Package.swift`.
 - LyricsKit and MusicPlayer come from external SPM packages — don't modify them.
 - The MusicPlayer package's `playbackTime` and `playbackState.time` are
   LIVE values when playing (anchor + Date.now interpolation), SNAPSHOT

@@ -28,11 +28,11 @@ Rework manual search to consume evaluated candidates directly and deliver the ap
 
 ## Likely touchpoints
 
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Search/SearchLyricsViewModel.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Search/SearchLyricsView.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Search/SearchLyricsWindowController.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/LyricsSearchPipeline.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/SearchSettings.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Search/SearchLyricsViewModel.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Search/SearchLyricsView.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Search/SearchLyricsWindowController.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Component/LyricsSearchPipeline.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Component/SearchSettings.swift`
 
 ## Constraints and decisions to honor
 

@@ -228,63 +228,63 @@
 - Added: `docs/implementation/preferences-swiftui-migration.md` (this document)
 
 ### Phase 1
-- Added: `LyricsX/Preferences/SettingsSection.swift` — reusable `SettingsSection<Content>` and `SettingsRow<Content>` SwiftUI views
-- Added: `LyricsX/Preferences/LabPreferencesView.swift` — full SwiftUI Lab pane; bridges `NowPlayingApplicationListViewController` via `NSViewControllerRepresentable`
-- Added: `LyricsX/Preferences/PreferencesView.swift` — root `TabView` with Lab pane live and 5 placeholder panes
-- Modified: `LyricsX/Preferences/PreferenceWindowController.swift` — removed `StoryboardWindowController` / `UIFoundation` import; replaced with programmatic `NSWindow` + `NSHostingController`; kept `static func create()` factory
-- Modified: `LyricsX.xcodeproj/project.pbxproj` — added `PBXFileReference`, `PBXBuildFile`, Preferences group entry, and Sources build phase entry for all three new files
+- Added: `Lirico/Preferences/SettingsSection.swift` — reusable `SettingsSection<Content>` and `SettingsRow<Content>` SwiftUI views
+- Added: `Lirico/Preferences/LabPreferencesView.swift` — full SwiftUI Lab pane; bridges `NowPlayingApplicationListViewController` via `NSViewControllerRepresentable`
+- Added: `Lirico/Preferences/PreferencesView.swift` — root `TabView` with Lab pane live and 5 placeholder panes
+- Modified: `Lirico/Preferences/PreferenceWindowController.swift` — removed `StoryboardWindowController` / `UIFoundation` import; replaced with programmatic `NSWindow` + `NSHostingController`; kept `static func create()` factory
+- Modified: `Lirico.xcodeproj/project.pbxproj` — added `PBXFileReference`, `PBXBuildFile`, Preferences group entry, and Sources build phase entry for all three new files
 
 ### Phase 2
-- Added: `LyricsX/Preferences/ShortcutPreferencesView.swift` — private `ShortcutRecorderView: NSViewRepresentable` bridging `MASShortcutView`; `ShortcutPreferencesView` with 4 `SettingsSection` groups and 9 shortcut rows
-- Modified: `LyricsX/Preferences/PreferencesView.swift` — replaced Shortcut tab placeholder with `ShortcutPreferencesView()`
-- Modified: `LyricsX.xcodeproj/project.pbxproj` — added `PBXFileReference` (`FA0000002F200000000A0004`), `PBXBuildFile` (`FA0000012F200000000A0004`), Preferences group entry, and Sources build phase entry for `ShortcutPreferencesView.swift`
+- Added: `Lirico/Preferences/ShortcutPreferencesView.swift` — private `ShortcutRecorderView: NSViewRepresentable` bridging `MASShortcutView`; `ShortcutPreferencesView` with 4 `SettingsSection` groups and 9 shortcut rows
+- Modified: `Lirico/Preferences/PreferencesView.swift` — replaced Shortcut tab placeholder with `ShortcutPreferencesView()`
+- Modified: `Lirico.xcodeproj/project.pbxproj` — added `PBXFileReference` (`FA0000002F200000000A0004`), `PBXBuildFile` (`FA0000012F200000000A0004`), Preferences group entry, and Sources build phase entry for `ShortcutPreferencesView.swift`
 
 ### Phase 3
-- Added: `LyricsX/Preferences/FilterPreferencesView.swift` — `FilterPreferencesView` with two `SettingsSection`s: Filter Settings (two `@AppStorage` toggles) and Filter Keywords (scrollable custom keyword list with add/remove/reset, regex indicator badge)
-- Modified: `LyricsX/Preferences/PreferencesView.swift` — replaced Filter tab placeholder with `FilterPreferencesView()`
-- Modified: `LyricsX.xcodeproj/project.pbxproj` — added `PBXFileReference` (`FA0000002F200000000A0005`), `PBXBuildFile` (`FA0000012F200000000A0005`), Preferences group entry, and Sources build phase entry for `FilterPreferencesView.swift`
+- Added: `Lirico/Preferences/FilterPreferencesView.swift` — `FilterPreferencesView` with two `SettingsSection`s: Filter Settings (two `@AppStorage` toggles) and Filter Keywords (scrollable custom keyword list with add/remove/reset, regex indicator badge)
+- Modified: `Lirico/Preferences/PreferencesView.swift` — replaced Filter tab placeholder with `FilterPreferencesView()`
+- Modified: `Lirico.xcodeproj/project.pbxproj` — added `PBXFileReference` (`FA0000002F200000000A0005`), `PBXBuildFile` (`FA0000012F200000000A0005`), Preferences group entry, and Sources build phase entry for `FilterPreferencesView.swift`
 
 ### Phase 4
-- Added: `LyricsX/Preferences/GeneralPreferencesView.swift` — `GeneralPreferencesView` with four `SettingsSection`s: Music Player (radio-group picker + `LaunchAtLogin.Toggle`), Lyrics Files (saving path picker + Show in Finder + beside-track toggle), Search & Display (offset stepper, strict search, bilingual, Chinese conversion picker, combined menubar, hide menu bar), Language (locale picker + Crowdin link)
-- Modified: `LyricsX/Preferences/PreferencesView.swift` — replaced General tab placeholder with `GeneralPreferencesView()`
-- Modified: `LyricsX.xcodeproj/project.pbxproj` — added `PBXFileReference` (`FA0000002F200000000A0006`), `PBXBuildFile` (`FA0000012F200000000A0006`), Preferences group entry, and Sources build phase entry for `GeneralPreferencesView.swift`
+- Added: `Lirico/Preferences/GeneralPreferencesView.swift` — `GeneralPreferencesView` with four `SettingsSection`s: Music Player (radio-group picker + `LaunchAtLogin.Toggle`), Lyrics Files (saving path picker + Show in Finder + beside-track toggle), Search & Display (offset stepper, strict search, bilingual, Chinese conversion picker, combined menubar, hide menu bar), Language (locale picker + Crowdin link)
+- Modified: `Lirico/Preferences/PreferencesView.swift` — replaced General tab placeholder with `GeneralPreferencesView()`
+- Modified: `Lirico.xcodeproj/project.pbxproj` — added `PBXFileReference` (`FA0000002F200000000A0006`), `PBXBuildFile` (`FA0000012F200000000A0006`), Preferences group entry, and Sources build phase entry for `GeneralPreferencesView.swift`
 
 ### Phase 5
-- Added: `LyricsX/Preferences/DisplayPreferencesView.swift` — `DisplayPreferencesViewModel` (`ObservableObject`) managing NSColor↔SwiftUI Color round-trip and NSFont state; private `FontPickerCoordinator` (NSObject subclass handling NSFontManager/NSFontPanel lifecycle); private `FontPickerButton` (`NSViewRepresentable` wrapping an `NSButton` that opens `NSFontPanel`); `DisplayPreferencesView` with three `SettingsSection`s: Desktop Lyrics (font picker + fallback row + 4 ColorPickers + 3 toggles), Desktop Lyrics Behavior (3 toggles), HUD Lyrics Window (font picker + 2 ColorPickers)
-- Modified: `LyricsX/Preferences/PreferencesView.swift` — replaced Display tab placeholder with `DisplayPreferencesView()`
-- Modified: `LyricsX.xcodeproj/project.pbxproj` — added `PBXFileReference` (`FA0000002F200000000A0007`), `PBXBuildFile` (`FA0000012F200000000A0007`), Preferences group entry, and Sources build phase entry for `DisplayPreferencesView.swift`
+- Added: `Lirico/Preferences/DisplayPreferencesView.swift` — `DisplayPreferencesViewModel` (`ObservableObject`) managing NSColor↔SwiftUI Color round-trip and NSFont state; private `FontPickerCoordinator` (NSObject subclass handling NSFontManager/NSFontPanel lifecycle); private `FontPickerButton` (`NSViewRepresentable` wrapping an `NSButton` that opens `NSFontPanel`); `DisplayPreferencesView` with three `SettingsSection`s: Desktop Lyrics (font picker + fallback row + 4 ColorPickers + 3 toggles), Desktop Lyrics Behavior (3 toggles), HUD Lyrics Window (font picker + 2 ColorPickers)
+- Modified: `Lirico/Preferences/PreferencesView.swift` — replaced Display tab placeholder with `DisplayPreferencesView()`
+- Modified: `Lirico.xcodeproj/project.pbxproj` — added `PBXFileReference` (`FA0000002F200000000A0007`), `PBXBuildFile` (`FA0000012F200000000A0007`), Preferences group entry, and Sources build phase entry for `DisplayPreferencesView.swift`
 
 ### Phase 6
-- Added: `LyricsX/Preferences/SourcePreferencesView.swift` — `SourcePreferencesView` with one `SettingsSection`: toggle for `sourcePriorityEnabled`, description label, numbered source list (plain `List` with `ForEach` + `.onMove`), Move Up / Move Down buttons for macOS 11–12 compat. Loads via `onAppear` (normalize + load), saves on every mutation (toggle write-through to `SearchSettings`, `commitOrder()` after every move)
-- Modified: `LyricsX/Preferences/PreferencesView.swift` — replaced Source tab placeholder with `SourcePreferencesView()`
-- Modified: `LyricsX.xcodeproj/project.pbxproj` — added `PBXFileReference` (`FA0000002F200000000A0008`), `PBXBuildFile` (`FA0000012F200000000A0008`), Preferences group entry, and Sources build phase entry for `SourcePreferencesView.swift`
+- Added: `Lirico/Preferences/SourcePreferencesView.swift` — `SourcePreferencesView` with one `SettingsSection`: toggle for `sourcePriorityEnabled`, description label, numbered source list (plain `List` with `ForEach` + `.onMove`), Move Up / Move Down buttons for macOS 11–12 compat. Loads via `onAppear` (normalize + load), saves on every mutation (toggle write-through to `SearchSettings`, `commitOrder()` after every move)
+- Modified: `Lirico/Preferences/PreferencesView.swift` — replaced Source tab placeholder with `SourcePreferencesView()`
+- Modified: `Lirico.xcodeproj/project.pbxproj` — added `PBXFileReference` (`FA0000002F200000000A0008`), `PBXBuildFile` (`FA0000012F200000000A0008`), Preferences group entry, and Sources build phase entry for `SourcePreferencesView.swift`
 
 ### Phase 7
 **Files removed** (no remaining references outside storyboard):
-- `LyricsX/Base.lproj/Preferences.storyboard` — main storyboard; `PreferenceWindowController` now creates a programmatic `NSWindow` + `NSHostingController`
-- `LyricsX/mul.lproj/Preferences.xcstrings` — storyboard string catalog variant
-- `LyricsX/Preferences/PreferenceViewController.swift` — base classes `PreferenceViewController` and `PreferenceTabViewController`
-- `LyricsX/Preferences/PreferenceGeneralViewController.swift`
-- `LyricsX/Preferences/PreferenceDisplayViewController.swift`
-- `LyricsX/Preferences/PreferenceShortcutViewController.swift`
-- `LyricsX/Preferences/PreferenceFilterViewController.swift`
-- `LyricsX/Preferences/PreferenceLabViewController.swift`
-- `LyricsX/Preferences/PreferenceSourceViewController.swift`
-- `LyricsX/Preferences/AlphaColorWell.swift` — replaced by `ColorPicker(supportsOpacity: true)` in Phase 5
-- `LyricsX/Preferences/FilterKey.swift` — `LyricsFilterKeyword` was only needed for storyboard `NSArrayController` bindings; `FilterPreferencesView` works directly with `[String]`
-- `LyricsX/View/FontSelectTextField.swift` — replaced by `FontPickerCoordinator`/`FontPickerButton` in Phase 5; only referenced by `PreferenceDisplayViewController` and the storyboard
+- `Lirico/Base.lproj/Preferences.storyboard` — main storyboard; `PreferenceWindowController` now creates a programmatic `NSWindow` + `NSHostingController`
+- `Lirico/mul.lproj/Preferences.xcstrings` — storyboard string catalog variant
+- `Lirico/Preferences/PreferenceViewController.swift` — base classes `PreferenceViewController` and `PreferenceTabViewController`
+- `Lirico/Preferences/PreferenceGeneralViewController.swift`
+- `Lirico/Preferences/PreferenceDisplayViewController.swift`
+- `Lirico/Preferences/PreferenceShortcutViewController.swift`
+- `Lirico/Preferences/PreferenceFilterViewController.swift`
+- `Lirico/Preferences/PreferenceLabViewController.swift`
+- `Lirico/Preferences/PreferenceSourceViewController.swift`
+- `Lirico/Preferences/AlphaColorWell.swift` — replaced by `ColorPicker(supportsOpacity: true)` in Phase 5
+- `Lirico/Preferences/FilterKey.swift` — `LyricsFilterKeyword` was only needed for storyboard `NSArrayController` bindings; `FilterPreferencesView` works directly with `[String]`
+- `Lirico/View/FontSelectTextField.swift` — replaced by `FontPickerCoordinator`/`FontPickerButton` in Phase 5; only referenced by `PreferenceDisplayViewController` and the storyboard
 
 **Files kept**:
-- `LyricsX/Preferences/PreferenceWindowController.swift` — still used by `AppContainer`; creates the preferences window programmatically
-- `LyricsX/Preferences/NowPlayingApplicationListViewController.swift` — still used by `LabPreferencesView` via `NowPlayingApplicationListRepresentable`
+- `Lirico/Preferences/PreferenceWindowController.swift` — still used by `AppContainer`; creates the preferences window programmatically
+- `Lirico/Preferences/NowPlayingApplicationListViewController.swift` — still used by `LabPreferencesView` via `NowPlayingApplicationListRepresentable`
 - All SwiftUI preference pane files from Phases 1–6
 
 **pbxproj changes**: Removed `PBXBuildFile`, `PBXFileReference`, group children, Sources build phase entries, Resources build phase entry, and `PBXVariantGroup` for all deleted files. `plutil -lint`: OK.
 
 **Comment cleanup**:
-- `LyricsX/Component/PersistenceSettings.swift` line 60: removed reference to `PreferenceGeneralViewController`
-- `LyricsX/Component/LyricsSelector.swift` line 5: removed reference to `PreferenceSourceViewController`
-- `LyricsX/Preferences/GeneralPreferencesView.swift` line 291: removed reference to `PreferenceGeneralViewController`
+- `Lirico/Component/PersistenceSettings.swift` line 60: removed reference to `PreferenceGeneralViewController`
+- `Lirico/Component/LyricsSelector.swift` line 5: removed reference to `PreferenceSourceViewController`
+- `Lirico/Preferences/GeneralPreferencesView.swift` line 291: removed reference to `PreferenceGeneralViewController`
 
 ## Verification log
 
@@ -293,23 +293,23 @@
 - No production code modified
 
 ### Phase 1
-- `plutil -lint LyricsX.xcodeproj/project.pbxproj`: OK
+- `plutil -lint Lirico.xcodeproj/project.pbxproj`: OK
 - `xcodebuild … build | grep error:`: No errors
 - Final result: `** BUILD SUCCEEDED **`
 - Warnings: pre-existing storyboard `NSKeyedUnarchiveFromData` deprecation warnings (unrelated to Phase 1 changes); storyboard "unreachable" scenes warning (expected — storyboard is no longer the entry point)
 
 ### Phase 2
-- `plutil -lint LyricsX.xcodeproj/project.pbxproj`: OK
+- `plutil -lint Lirico.xcodeproj/project.pbxproj`: OK
 - `xcodebuild … build | grep error:`: No errors
 - Final result: `** BUILD SUCCEEDED **`
 
 ### Phase 3
-- `plutil -lint LyricsX.xcodeproj/project.pbxproj`: OK
+- `plutil -lint Lirico.xcodeproj/project.pbxproj`: OK
 - `xcodebuild … build | grep -E "error:|BUILD"`: No errors
 - Final result: `** BUILD SUCCEEDED **`
 
 ### Phase 4
-- `plutil -lint LyricsX.xcodeproj/project.pbxproj`: OK
+- `plutil -lint Lirico.xcodeproj/project.pbxproj`: OK
 - `xcodebuild … build | grep -E "error:|BUILD SUCCEEDED|BUILD FAILED"`: No errors
 - Final result: `** BUILD SUCCEEDED **`
 
@@ -327,13 +327,13 @@
 - `plutil -lint`: OK.
 
 **Bug found and fixed — `LaunchAtLogin.Toggle` semantic mismatch**:
-- The original storyboard has TWO separate controls in the General pane: (1) `autoLaunchButton` titled "Auto launch & quit with music player", bound to `values.LaunchAndQuitWithPlayer` AND connected to `toggleAutoLaunchAction:` which calls `SMLoginItemSetEnabled(lyricsXHelperIdentifier, ...)` to register/unregister `LyricsXHelper` as a login item; (2) a separate "Launch at login" checkbox bound to `launchAtLogin.isEnabled` (controls the main app's system-level launch at login via `LaunchAtLogin.kvo`).
-- The original `GeneralPreferencesView.swift` used a single `LaunchAtLogin.Toggle("Launch and quit with player")`, which controlled `LaunchAtLogin.observable.isEnabled` — a system login item using bundle ID `com.fabiogaliano.LyricsX-LaunchAtLoginHelper` (different from the actual `LyricsXHelper` bundle ID `com.fabiogaliano.LyricsXHelper`). The `@AppStorage("LaunchAndQuitWithPlayer")` binding was never written by that toggle.
+- The original storyboard has TWO separate controls in the General pane: (1) `autoLaunchButton` titled "Auto launch & quit with music player", bound to `values.LaunchAndQuitWithPlayer` AND connected to `toggleAutoLaunchAction:` which calls `SMLoginItemSetEnabled(lyricsXHelperIdentifier, ...)` to register/unregister `LiricoHelper` as a login item; (2) a separate "Launch at login" checkbox bound to `launchAtLogin.isEnabled` (controls the main app's system-level launch at login via `LaunchAtLogin.kvo`).
+- The original `GeneralPreferencesView.swift` used a single `LaunchAtLogin.Toggle("Launch and quit with player")`, which controlled `LaunchAtLogin.observable.isEnabled` — a system login item using bundle ID `com.fabiogaliano.Lirico-LaunchAtLoginHelper` (different from the actual `LiricoHelper` bundle ID `com.fabiogaliano.LiricoHelper`). The `@AppStorage("LaunchAndQuitWithPlayer")` binding was never written by that toggle.
 - Fixed: replaced `LaunchAtLogin.Toggle` with `Toggle("Auto launch & quit with music player", isOn: $launchAndQuitWithPlayer)` + two `onChange` handlers: one calls `SMLoginItemSetEnabled(lyricsXHelperIdentifier, enabled)` when the toggle changes; one enforces the constraint (set to false, unregister helper) when the player switches to Auto. Added a second `LaunchAtLogin.Toggle("Launch at login")` to restore the system-level launch-at-login control.
 - Build: no errors in `GeneralPreferencesView.swift` after fix. (`DisplayPreferencesView.swift` has pre-existing Phase 5 compile errors unrelated to Phase 4.)
 
 ### Phase 5
-- `plutil -lint LyricsX.xcodeproj/project.pbxproj`: OK
+- `plutil -lint Lirico.xcodeproj/project.pbxproj`: OK
 - `xcodebuild … build | grep -E "error:|BUILD SUCCEEDED|BUILD FAILED"`: No errors (one intermediate build failed due to Xcode IDE DB lock; retry succeeded)
 - Final result: `** BUILD SUCCEEDED **`
 
@@ -359,22 +359,22 @@
 
 ### Phase 7
 - All removed files verified to have no remaining Swift references before deletion
-- `plutil -lint LyricsX.xcodeproj/project.pbxproj`: OK
+- `plutil -lint Lirico.xcodeproj/project.pbxproj`: OK
 - Final result: `** BUILD SUCCEEDED **` (Debug, 2026-05-23)
 - No dangling references: `grep` for `PreferenceViewController|AlphaColorWell|FilterKey|LyricsFilterKeyword|FontSelectTextField` in `*.swift` returned zero results
 - Migration is complete
 
 **Phase 7 review findings (2026-05-23)**
 
-- Grep for all removed class/file names (`PreferenceViewController`, `PreferenceTabViewController`, `AlphaColorWell`, `FilterKey`, `LyricsFilterKeyword`, `FontSelectTextField`, and all 6 pane VCs) across `*.swift`, `*.storyboard`, `*.plist` in `LyricsX/`: zero hits. The only `FilterKey`/`lyricsFilterKeys` matches are the `UserDefaults.Key<[String]>` entry in `UserDefaultsKeys.swift` (line 80), `LyricsFilter.swift`, `FilterPreferencesView.swift`, and `UserDefaults.plist` — all legitimate, none related to the deleted `FilterKey.swift` type.
+- Grep for all removed class/file names (`PreferenceViewController`, `PreferenceTabViewController`, `AlphaColorWell`, `FilterKey`, `LyricsFilterKeyword`, `FontSelectTextField`, and all 6 pane VCs) across `*.swift`, `*.storyboard`, `*.plist` in `Lirico/`: zero hits. The only `FilterKey`/`lyricsFilterKeys` matches are the `UserDefaults.Key<[String]>` entry in `UserDefaultsKeys.swift` (line 80), `LyricsFilter.swift`, `FilterPreferencesView.swift`, and `UserDefaults.plist` — all legitimate, none related to the deleted `FilterKey.swift` type.
 - Project file (`project.pbxproj`): `grep -c` for all 6 removed class/file names returned 0. `plutil -lint`: OK.
-- Remaining `LyricsX/Preferences/` files: `GeneralPreferencesView.swift`, `PreferencesView.swift`, `SourcePreferencesView.swift`, `DisplayPreferencesView.swift`, `PreferenceWindowController.swift`, `FilterPreferencesView.swift`, `ShortcutPreferencesView.swift`, `LabPreferencesView.swift`, `SettingsSection.swift`, `NowPlayingApplicationListViewController.swift`. Correct — all new SwiftUI files plus the AppKit bridge (`NowPlayingApplicationListViewController`) and window controller.
-- `Info.plist` `NSMainStoryboardFile` key: points to `Main` (the app's main menu/status-item storyboard, not Preferences). `Main.storyboard` still exists at `LyricsX/Base.lproj/Main.storyboard`. `Preferences.storyboard` has no Info.plist or project-file reference.
+- Remaining `Lirico/Preferences/` files: `GeneralPreferencesView.swift`, `PreferencesView.swift`, `SourcePreferencesView.swift`, `DisplayPreferencesView.swift`, `PreferenceWindowController.swift`, `FilterPreferencesView.swift`, `ShortcutPreferencesView.swift`, `LabPreferencesView.swift`, `SettingsSection.swift`, `NowPlayingApplicationListViewController.swift`. Correct — all new SwiftUI files plus the AppKit bridge (`NowPlayingApplicationListViewController`) and window controller.
+- `Info.plist` `NSMainStoryboardFile` key: points to `Main` (the app's main menu/status-item storyboard, not Preferences). `Main.storyboard` still exists at `Lirico/Base.lproj/Main.storyboard`. `Preferences.storyboard` has no Info.plist or project-file reference.
 - Build: `** BUILD SUCCEEDED **` (Debug, 2026-05-23), no errors, no new warnings.
 - No fixes required.
 
 ### Phase 6
-- `plutil -lint LyricsX.xcodeproj/project.pbxproj`: OK
+- `plutil -lint Lirico.xcodeproj/project.pbxproj`: OK
 - `xcodebuild … build | grep -E "error:|BUILD SUCCEEDED|BUILD FAILED"`: No errors
 - Final result: `** BUILD SUCCEEDED **`
 
@@ -403,7 +403,7 @@
 - `ForEach(keywords.indices)` binding: getter has `index < keywords.count` bounds check; setter has the same guard. Safe against SwiftUI deferred view teardown.
 - `addKeyword()` saves immediately after appending `""` — `saveKeywords()` strips the empty entry, so only non-empty keywords land in defaults. The in-memory `keywords` retains the empty row for display. This is the intended behavior.
 - `defaults` global is defined in `UserDefaultsKeys.swift` line 4 as `let defaults = UserDefaults.standard`. Accessible from `FilterPreferencesView`.
-- `plutil -lint LyricsX.xcodeproj/project.pbxproj`: OK
+- `plutil -lint Lirico.xcodeproj/project.pbxproj`: OK
 - Build: BUILD SUCCEEDED (Debug, 2026-05-23), no errors.
 - No fixes required.
 
@@ -412,7 +412,7 @@
 - All 9 UserDefaults key strings verified against `UserDefaultsKeys.swift` lines 67–75 — all match exactly.
 - `ShortcutRecorderView.makeNSView` sets `associatedUserDefaultsKey` correctly; `updateNSView` is a correct no-op.
 - `ShortcutPreferencesView()` is at tag 2 in `PreferencesView.swift` — correct per D3 tab order.
-- `plutil -lint LyricsX.xcodeproj/project.pbxproj`: OK
+- `plutil -lint Lirico.xcodeproj/project.pbxproj`: OK
 - Build: BUILD SUCCEEDED (Debug, 2026-05-23), no errors.
 - No fixes required.
 - Noted: `ShortcutSearchLyrics` had an `isRemovedDuringMASReview` runtime attribute in the storyboard. Not implemented in SwiftUI view. The original VC was also empty (attribute was on the `MASShortcutView` instance directly). Deferred to Phase 7 cleanup.
@@ -476,7 +476,7 @@
 **Rationale**: `beginSheetModal` provides native sheet presentation attached to the preferences window. The `runModal()` fallback is safe and was also available in the original codebase's `chooseSavingPathAction`. In practice `NSApp.keyWindow` is the preferences window when the user clicks the button.
 
 ### Phase 4 — D3: Custom saving path popup with conditional second item
-**Decision**: The `Picker` for saving path shows "Default (~/Music/LyricsX)" always and shows the custom directory name as tag-1 item only when `customDirectoryName` is non-empty. When the user chooses a directory, `commitSavingDirectory(_:)` sets both `customDirectoryName` and `savingPathPopUpIndex = 1`. When custom path is absent on appear, `savingPathPopUpIndex` is forced to 0.
+**Decision**: The `Picker` for saving path shows "Default (~/Music/Lirico)" always and shows the custom directory name as tag-1 item only when `customDirectoryName` is non-empty. When the user chooses a directory, `commitSavingDirectory(_:)` sets both `customDirectoryName` and `savingPathPopUpIndex = 1`. When custom path is absent on appear, `savingPathPopUpIndex` is forced to 0.
 **Rationale**: The original storyboard had a hidden `userPathMenuItem` that became visible once a custom path was chosen. The SwiftUI approach conditionally includes the second picker item, which is a natural SwiftUI equivalent. The `@AppStorage` binding handles persistence of the selected index automatically.
 
 ### Phase 4 — D4: Language picker uses `@State var languagePickerIndex` with gap at index 1

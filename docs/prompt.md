@@ -1,8 +1,8 @@
 # Orchestrator prompt — SwiftUI Preferences migration
 
-You are the main AI coding-agent orchestrator for modernizing the Settings/Preferences UI of LyricsX, a macOS menu-bar lyrics app at:
+You are the main AI coding-agent orchestrator for modernizing the Settings/Preferences UI of Lirico, a macOS menu-bar lyrics app at:
 
-/Users/f/Core/dev/projects/LyricsX
+/Users/f/Core/dev/projects/Lirico
 
 Your job is to coordinate a phased migration of Preferences to SwiftUI using the quickest safe path. The orchestrator controls scope, sequencing, and review. Implementation work should be delegated phase-by-phase to subagents. After every implementation phase, launch a fresh review subagent to inspect the diff, build/check the app, and either patch small issues or report what needs a follow-up patch.
 
@@ -41,7 +41,7 @@ Subagents must also add their own decisions and unknowns to the same document. T
 Use a hybrid AppKit + SwiftUI migration.
 
 - Keep the existing AppKit app lifecycle.
-- Keep the rest of LyricsX AppKit.
+- Keep the rest of Lirico AppKit.
 - Do not use UIKit or Catalyst.
 - Replace or bypass the old Preferences storyboard internals with an `NSHostingController` hosting SwiftUI Preferences.
 - Migrate one slice at a time.
@@ -54,7 +54,7 @@ Primary outcome: Preferences should be easier to understand, faster to use, and 
 
 For SwiftUI, the modern first choice is `ColorPicker(..., supportsOpacity: true)` if it preserves the existing alpha behavior and saved color format correctly.
 
-However, LyricsX already has `AlphaColorWell`, which explicitly enables alpha in `NSColorPanel`. For the safest migration:
+However, Lirico already has `AlphaColorWell`, which explicitly enables alpha in `NSColorPanel`. For the safest migration:
 
 1. Try SwiftUI `ColorPicker` only if the pane can bind reliably to the existing stored color values including alpha.
 2. If color fidelity, alpha persistence, or `NSColor` bridging is uncertain, keep behavior by wrapping `AlphaColorWell` in `NSViewRepresentable`.
@@ -79,27 +79,27 @@ In short: `ColorPicker(supportsOpacity: true)` is the modern SwiftUI option; `Al
 Read before planning Phase 0:
 
 - `CLAUDE.md`
-- `LyricsX/Base.lproj/Preferences.storyboard`
-- `LyricsX/Preferences/PreferenceViewController.swift`
-- `LyricsX/Preferences/PreferenceWindowController.swift`
-- `LyricsX/Preferences/PreferenceGeneralViewController.swift`
-- `LyricsX/Preferences/PreferenceDisplayViewController.swift`
-- `LyricsX/Preferences/PreferenceShortcutViewController.swift`
-- `LyricsX/Preferences/PreferenceFilterViewController.swift`
-- `LyricsX/Preferences/PreferenceLabViewController.swift`
-- `LyricsX/Preferences/PreferenceSourceViewController.swift`
-- `LyricsX/Preferences/AlphaColorWell.swift`
-- `LyricsX/Preferences/FilterKey.swift`
-- `LyricsX/Preferences/NowPlayingApplicationListViewController.swift`
-- `LyricsX/View/FontSelectTextField.swift`
-- `LyricsX/Supporting Files/UserDefaults.plist`
+- `Lirico/Base.lproj/Preferences.storyboard`
+- `Lirico/Preferences/PreferenceViewController.swift`
+- `Lirico/Preferences/PreferenceWindowController.swift`
+- `Lirico/Preferences/PreferenceGeneralViewController.swift`
+- `Lirico/Preferences/PreferenceDisplayViewController.swift`
+- `Lirico/Preferences/PreferenceShortcutViewController.swift`
+- `Lirico/Preferences/PreferenceFilterViewController.swift`
+- `Lirico/Preferences/PreferenceLabViewController.swift`
+- `Lirico/Preferences/PreferenceSourceViewController.swift`
+- `Lirico/Preferences/AlphaColorWell.swift`
+- `Lirico/Preferences/FilterKey.swift`
+- `Lirico/Preferences/NowPlayingApplicationListViewController.swift`
+- `Lirico/View/FontSelectTextField.swift`
+- `Lirico/Supporting Files/UserDefaults.plist`
 - Settings wrappers:
-  - `LyricsX/Component/DisplaySettings.swift`
-  - `LyricsX/Component/PersistenceSettings.swift`
-  - `LyricsX/Component/SearchSettings.swift`
-  - `LyricsX/Component/ExportSettings.swift`
-  - `LyricsX/Component/PlayerSettings.swift`
-  - `LyricsX/Component/UserDefaultsRegistration.swift`
+  - `Lirico/Component/DisplaySettings.swift`
+  - `Lirico/Component/PersistenceSettings.swift`
+  - `Lirico/Component/SearchSettings.swift`
+  - `Lirico/Component/ExportSettings.swift`
+  - `Lirico/Component/PlayerSettings.swift`
+  - `Lirico/Component/UserDefaultsRegistration.swift`
 
 Also run before any implementation:
 
@@ -113,7 +113,7 @@ Do not overwrite unrelated user changes.
 
 Current storyboard shell:
 
-- `LyricsX/Base.lproj/Preferences.storyboard`
+- `Lirico/Base.lproj/Preferences.storyboard`
 - `PreferenceTabViewController`
 - storyboard id: `sV3-nO-PkZ`
 - `NSTabViewController`
@@ -132,7 +132,7 @@ SwiftUI Preferences should keep this order unless there is a strong UX reason to
 
 ## Architecture constraints
 
-Create a small SwiftUI Preferences module under `LyricsX/Preferences/`, for example:
+Create a small SwiftUI Preferences module under `Lirico/Preferences/`, for example:
 
 - `PreferencesView.swift`
 - `PreferenceControls.swift` or `SettingsControls.swift`
@@ -229,20 +229,20 @@ If replacing the storyboard-based Preferences window entirely is simpler and saf
 Preferred build:
 
 ```bash
-xcodebuild -project LyricsX.xcodeproj -scheme LyricsX -configuration Debug build 2>&1 | xcsift
+xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Debug build 2>&1 | xcsift
 ```
 
 If `xcsift` is unavailable:
 
 ```bash
-xcodebuild -project LyricsX.xcodeproj -scheme LyricsX -configuration Debug build
+xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Debug build
 ```
 
 Always run when practical:
 
 ```bash
 git diff --check
-plutil -lint LyricsX.xcodeproj/project.pbxproj
+plutil -lint Lirico.xcodeproj/project.pbxproj
 ```
 
 ## Persistent progress, decisions, and context safeguards
@@ -397,10 +397,10 @@ Implementation subagent goal:
 
 Likely files:
 
-- `LyricsX/Preferences/PreferenceWindowController.swift`
-- new `LyricsX/Preferences/PreferencesView.swift`
-- new `LyricsX/Preferences/SettingsControls.swift`
-- new `LyricsX/Preferences/LabPreferencesView.swift`
+- `Lirico/Preferences/PreferenceWindowController.swift`
+- new `Lirico/Preferences/PreferencesView.swift`
+- new `Lirico/Preferences/SettingsControls.swift`
+- new `Lirico/Preferences/LabPreferencesView.swift`
 - maybe a small Lab view model
 - Xcode project file for added Swift files
 

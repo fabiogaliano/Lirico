@@ -54,8 +54,8 @@ body:
   - type: input
     id: lyricsx-version
     attributes:
-      label: LyricsX 版本 / LyricsX Version
-      description: 您正在使用的LyricsX版本 / The LyricsX version you're using
+      label: Lirico 版本 / Lirico Version
+      description: 您正在使用的Lirico版本 / The Lirico version you're using
     validations:
       required: true
       

@@ -26,7 +26,7 @@ cd Lirico
 make install-release
 ```
 
-`make install-release` builds the optimized Release app and copies `Lirico.app` to `/Applications`. Or open `LyricsX.xcodeproj` in Xcode and press Cmd+R. See [Building from source](#building-from-source) for the development targets.
+`make install-release` builds the optimized Release app and copies `Lirico.app` to `/Applications`. Or open `Lirico.xcodeproj` in Xcode and press Cmd+R. See [Building from source](#building-from-source) for the development targets.
 
 To use **Musixmatch** as a lyrics source, follow [these steps](https://gist.github.com/TrueMyst/0461aea999e347182486934fd83a4cf9) or [these](https://spicetify.app/docs/faq#sometimes-popup-lyrics-andor-lyrics-plus-seem-to-not-work) to obtain a **usertoken**, then add it in Lirico's preferences.
 
@@ -39,7 +39,7 @@ To use **Musixmatch** as a lyrics source, follow [these steps](https://gist.gith
 
 Builds default to the **Debug** configuration, which skips whole-module
 optimization — a one-file change rebuilds in ~20s instead of ~85s. Debug
-installs as `Lirico-Debug.app` (bundle id `dev.fabiogaliano.LyricsX`), so it
+installs as `Lirico-Debug.app` (bundle id `dev.fabiogaliano.Lirico`), so it
 runs side-by-side with the real `Lirico.app` without conflict.
 
 | Command                | Configuration | What it does                                                                          |

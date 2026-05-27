@@ -2,7 +2,7 @@
 
 ## Framing note
 
-This is a future-state implementation plan for fixing LyricsX search correctness, karaoke prioritization, and manual-search feedback. The proposed evaluator/ranker does not exist yet. Current search relies mostly on provider output, `Lyrics.quality`, optional strict filtering, and source priority.
+This is a future-state implementation plan for fixing Lirico search correctness, karaoke prioritization, and manual-search feedback. The proposed evaluator/ranker does not exist yet. Current search relies mostly on provider output, `Lyrics.quality`, optional strict filtering, and source priority.
 
 The core product invariant for this work:
 
@@ -16,13 +16,13 @@ A secondary invariant:
 
 ### Search construction
 
-- `LyricsX/Component/AppContainer.swift` creates one shared `LyricsSearchPipeline` and injects it into both `LyricsSession` and `SearchLyricsWindowController`.
-- `LyricsX/Component/LyricsSearchPipeline.swift` owns provider setup and streams prepared `Lyrics` candidates.
-- `LyricsX/Component/LyricsSelector.swift` owns source-order normalization, priority comparison, and ordered insertion.
+- `Lirico/Component/AppContainer.swift` creates one shared `LyricsSearchPipeline` and injects it into both `LyricsSession` and `SearchLyricsWindowController`.
+- `Lirico/Component/LyricsSearchPipeline.swift` owns provider setup and streams prepared `Lyrics` candidates.
+- `Lirico/Component/LyricsSelector.swift` owns source-order normalization, priority comparison, and ordered insertion.
 
 ### Automatic search
 
-- `LyricsX/Component/LyricsSession.swift` runs automatic search from `currentTrackChanged()`.
+- `Lirico/Component/LyricsSession.swift` runs automatic search from `currentTrackChanged()`.
 - It first tries `LocalLyricsLoader.load(...)`.
 - If a complete local result is found, current behavior stops network search.
 - If a saved-path `.lrc` partial result is found, current behavior displays it and still runs network search.
@@ -31,8 +31,8 @@ A secondary invariant:
 
 ### Manual search
 
-- `LyricsX/Search/SearchLyricsWindowController.swift` calls `viewModel.reloadFromCurrentTrack()` whenever the window is shown.
-- `LyricsX/Search/SearchLyricsViewModel.swift` starts a search when title/artist changes on open.
+- `Lirico/Search/SearchLyricsWindowController.swift` calls `viewModel.reloadFromCurrentTrack()` whenever the window is shown.
+- `Lirico/Search/SearchLyricsViewModel.swift` starts a search when title/artist changes on open.
 - Manual search currently creates:
 
 ```swift
@@ -73,11 +73,11 @@ session.select(result.lyrics, writeToiTunesIfAuto: true)
 
 ### Karaoke support
 
-LyricsX already supports karaoke/word-timed lyrics.
+Lirico already supports karaoke/word-timed lyrics.
 
 - LyricsKit parses `[tt]` attachments into `LyricsLine.Attachments.InlineTimeTag`.
 - `LyricsLine.Attachments.Tag.timetag` is raw tag `"tt"`.
-- `LyricsX/Controller/KaraokeLyricsController.swift` checks:
+- `Lirico/Controller/KaraokeLyricsController.swift` checks:
 
 ```swift
 line.line.attachments.timetag
@@ -119,7 +119,7 @@ upperTextField.setProgressAnimation(...)
 
 ## Non-goals
 
-- Do not make provider-specific rich-timing work part of this overhaul. LyricsX should detect karaoke/word-timed lyrics generically from parsed inline time tags, regardless of source.
+- Do not make provider-specific rich-timing work part of this overhaul. Lirico should detect karaoke/word-timed lyrics generically from parsed inline time tags, regardless of source.
 - Do not add Musixmatch richsync work in this plan. Musixmatch remains an ordinary provider; if it returns only line-timed lyrics, the app treats it as line-synced.
 - Do not group duplicate results into expandable sections in this pass.
 - Do not remove source priority preferences.
@@ -127,13 +127,13 @@ upperTextField.setProgressAnimation(...)
 
 ## Cross-repo dependency plan
 
-This overhaul spans LyricsX and the local LyricsKit checkout at:
+This overhaul spans Lirico and the local LyricsKit checkout at:
 
 ```text
 /Users/f/Core/dev/projects/LyricsKit
 ```
 
-LyricsX currently pins LyricsKit through Xcode SPM resolution, but the local LyricsKit `main` branch is already ahead of the resolved dependency. It has HTTP-client injection, provider tests, concurrent group search, stream cancellation via `onTermination`, request identity/origin, and search plugins.
+Lirico currently pins LyricsKit through Xcode SPM resolution, but the local LyricsKit `main` branch is already ahead of the resolved dependency. It has HTTP-client injection, provider tests, concurrent group search, stream cancellation via `onTermination`, request identity/origin, and search plugins.
 
 Required LyricsKit work for this overhaul:
 
@@ -146,7 +146,7 @@ Required LyricsKit work for this overhaul:
 - Keep cancellation cooperative and covered by tests.
 - Add an LRCLIB exact lookup path without removing broad search: for title+artist searches with album and duration available, run `/api/get` alongside the existing `/api/search` path. Exact lookup improves precision, while broad search remains available for safety and alternatives.
 
-Required LyricsX integration work after the local LyricsKit update:
+Required Lirico integration work after the local LyricsKit update:
 
 - Update provider construction to the newer LyricsKit service API.
 - Pass album metadata through `LyricsSearchRequest.userInfo` when available so LRCLIB exact lookup can use it.
@@ -166,7 +166,7 @@ extension LyricsSearchRequest {
 }
 ```
 
-LyricsX should set this key from `MusicTrack.album` only for automatic current-track searches. Manual search requests must leave album unset, including the auto-search that runs when the Search Lyrics window opens.
+Lirico should set this key from `MusicTrack.album` only for automatic current-track searches. Manual search requests must leave album unset, including the auto-search that runs when the Search Lyrics window opens.
 
 Album metadata rules:
 
@@ -184,7 +184,7 @@ LRCLIB lookup rules:
 - If one LRCLIB path fails but the other yields or completes normally, keep the provider alive and report/yield what succeeded.
 - Treat LRCLIB as failed only when all attempted LRCLIB paths fail before yielding usable candidates.
 
-Provider-specific rich-timing improvements are explicitly deferred. QQMusic, NetEase, Kugou, or any future provider may return inline timing; LyricsX should prefer those results based only on parsed `LyricsLine.Attachments.InlineTimeTag` coverage, not provider identity.
+Provider-specific rich-timing improvements are explicitly deferred. QQMusic, NetEase, Kugou, or any future provider may return inline timing; Lirico should prefer those results based only on parsed `LyricsLine.Attachments.InlineTimeTag` coverage, not provider identity.
 
 ## Domain model changes
 
@@ -193,24 +193,24 @@ Add a pure app-level evaluator/ranker in the local Swift package so it can be te
 Required file/module placement for Phase 1:
 
 ```text
-LyricsXPackage/Sources/LyricsXFoundation/Search/LyricsSearchMode.swift
-LyricsXPackage/Sources/LyricsXFoundation/Search/LyricsCandidateEvaluation.swift
-LyricsXPackage/Sources/LyricsXFoundation/Search/LyricsCandidateEvaluator.swift
-LyricsXPackage/Sources/LyricsXFoundation/Search/LyricsCandidateRanker.swift
-LyricsXPackage/Sources/LyricsXFoundation/Search/LyricsSyncKind.swift
-LyricsXPackage/Tests/LyricsXFoundationTests/Search/LyricsCandidateEvaluatorTests.swift
-LyricsXPackage/Tests/LyricsXFoundationTests/Search/LyricsCandidateRankerTests.swift
+LiricoPackage/Sources/LiricoFoundation/Search/LyricsSearchMode.swift
+LiricoPackage/Sources/LiricoFoundation/Search/LyricsCandidateEvaluation.swift
+LiricoPackage/Sources/LiricoFoundation/Search/LyricsCandidateEvaluator.swift
+LiricoPackage/Sources/LiricoFoundation/Search/LyricsCandidateRanker.swift
+LiricoPackage/Sources/LiricoFoundation/Search/LyricsSyncKind.swift
+LiricoPackage/Tests/LiricoFoundationTests/Search/LyricsCandidateEvaluatorTests.swift
+LiricoPackage/Tests/LiricoFoundationTests/Search/LyricsCandidateRankerTests.swift
 ```
 
 App-side adapters/integration belong in:
 
 ```text
-LyricsX/Component/SearchSettings.swift
-LyricsX/Component/LyricsSearchPipeline.swift
-LyricsX/Component/LyricsSelector.swift
-LyricsX/Component/LyricsSession.swift
-LyricsX/Search/SearchLyricsViewModel.swift
-LyricsX/Search/SearchLyricsView.swift
+Lirico/Component/SearchSettings.swift
+Lirico/Component/LyricsSearchPipeline.swift
+Lirico/Component/LyricsSelector.swift
+Lirico/Component/LyricsSession.swift
+Lirico/Search/SearchLyricsViewModel.swift
+Lirico/Search/SearchLyricsView.swift
 ```
 
 The package code must not depend on app target types such as `SearchSettings`, `DisplaySettings`, or `UserDefaults` wrappers.
@@ -333,9 +333,9 @@ struct LyricsCandidateRankingConfiguration: Equatable {
 }
 ```
 
-`LyricsCandidateRankingConfiguration` belongs with the pure evaluator/ranker in `LyricsXFoundation`. Do not make package-level ranking code depend on app-side `SearchSettings` or `UserDefaults`.
+`LyricsCandidateRankingConfiguration` belongs with the pure evaluator/ranker in `LiricoFoundation`. Do not make package-level ranking code depend on app-side `SearchSettings` or `UserDefaults`.
 
-`LyricsX/Component/SearchSettings.swift` should expose a mapper such as:
+`Lirico/Component/SearchSettings.swift` should expose a mapper such as:
 
 ```swift
 extension SearchSettings {
@@ -752,7 +752,7 @@ Implement provider summary status with a first-class event stream. Do not infer 
 The preferred design is cross-repo:
 
 - LyricsKit exposes raw provider events and keeps its existing `lyrics(for:)` API as a convenience wrapper.
-- LyricsX maps LyricsKit raw provider events into app-level evaluated search events after candidate preparation and evaluation.
+- Lirico maps LyricsKit raw provider events into app-level evaluated search events after candidate preparation and evaluation.
 
 Required LyricsKit event API shape:
 
@@ -810,12 +810,12 @@ Implementation requirements:
 - LyricsKit should keep other providers running when one provider fails.
 - LyricsKit should cancel child provider work when the event stream is cancelled.
 - LyricsKit should not emit `completed` after cancellation.
-- LyricsX should set `lyrics.metadata.service` from the raw provider event `source`, then prepare and evaluate each raw lyric after receiving the raw candidate event.
-- LyricsX should emit `candidate` for every fetched, prepared, and evaluated lyrics candidate, including candidates whose evaluation is `.unlikely` or `.rejected`.
-- LyricsX should assign `arrivalIndex` at the pipeline boundary in the order candidates are yielded to the app stream.
-- LyricsX should emit `completed` only after all provider tasks finish normally.
-- LyricsX should not emit `completed` after cancellation or deadline termination; the consumer owns cancelled/timed-out status.
-- After stream cancellation or automatic deadline termination, LyricsX should emit no further provider or candidate events.
+- Lirico should set `lyrics.metadata.service` from the raw provider event `source`, then prepare and evaluate each raw lyric after receiving the raw candidate event.
+- Lirico should emit `candidate` for every fetched, prepared, and evaluated lyrics candidate, including candidates whose evaluation is `.unlikely` or `.rejected`.
+- Lirico should assign `arrivalIndex` at the pipeline boundary in the order candidates are yielded to the app stream.
+- Lirico should emit `completed` only after all provider tasks finish normally.
+- Lirico should not emit `completed` after cancellation or deadline termination; the consumer owns cancelled/timed-out status.
+- After stream cancellation or automatic deadline termination, Lirico should emit no further provider or candidate events.
 - Manual search should consume events directly and store all evaluated candidates for status/counting.
 - For title+artist/title-only manual searches, show normal exact/strong rows by default when any exist; show loose-fallback rows by default only when no normal rows exist.
 - For artist-only manual searches, use artist-only ranking rules instead of title-based loose-fallback suppression.
@@ -1150,9 +1150,9 @@ Per-provider timeouts are deferred for this pass.
 
 Testing expansion is a final hardening phase after the full implementation is wired. During implementation, still verify each phase with the smallest relevant build/typecheck/manual check so regressions are caught early.
 
-There are no app-wide automated tests configured in the Xcode scheme, but `LyricsXPackage` and LyricsKit both have Swift package test targets. Prefer pure evaluator placement that allows package-level tests.
+There are no app-wide automated tests configured in the Xcode scheme, but `LiricoPackage` and LyricsKit both have Swift package test targets. Prefer pure evaluator placement that allows package-level tests.
 
-Required LyricsXFoundation evaluator/ranker cases:
+Required LiricoFoundation evaluator/ranker cases:
 
 1. Exact title+artist beats wrong title same artist.
 2. Wrong title same artist is rejected for title+artist search.
@@ -1202,13 +1202,13 @@ Separate repo: `/Users/f/Core/dev/projects/LyricsKit`.
 - Add LRCLIB `/api/get` exact lookup for complete title+artist+album+duration requests while still running the existing `/api/search` path; deduplicate results by LRCLIB id/service token.
 - Do not add Musixmatch-specific richsync work.
 
-### Phase 0.5 — LyricsX local LyricsKit integration
+### Phase 0.5 — Lirico local LyricsKit integration
 
-- Point LyricsX at the local LyricsKit checkout for development.
-- Update `LyricsXPackage/Package.swift` to use the local LyricsKit checkout by default for this work, or document the required `LYRICSX_USE_LOCAL_DEPENDENCY=1` build/test environment if keeping the existing toggle.
-- Update Xcode SPM/package resolution so LyricsX builds against the local LyricsKit API during implementation.
-- Update `LyricsX/Component/LyricsSearchPipeline.swift` provider construction from the old `LyricsProviders.Service.noAuthenticationRequiredServices` / `LyricsProviders.Musixmatch(usertoken:)` API to the current local LyricsKit service API.
-- Update `LyricsX/Component/LyricsSelector.swift` source list construction from `LyricsProviders.Service.allCases` to `LyricsProviders.ServiceID.allCases`.
+- Point Lirico at the local LyricsKit checkout for development.
+- Update `LiricoPackage/Package.swift` to use the local LyricsKit checkout by default for this work, or document the required `LIRICO_USE_LOCAL_DEPENDENCY=1` build/test environment if keeping the existing toggle.
+- Update Xcode SPM/package resolution so Lirico builds against the local LyricsKit API during implementation.
+- Update `Lirico/Component/LyricsSearchPipeline.swift` provider construction from the old `LyricsProviders.Service.noAuthenticationRequiredServices` / `LyricsProviders.Musixmatch(usertoken:)` API to the current local LyricsKit service API.
+- Update `Lirico/Component/LyricsSelector.swift` source list construction from `LyricsProviders.Service.allCases` to `LyricsProviders.ServiceID.allCases`.
 - Build provider descriptors through LyricsKit service IDs/options and use the same descriptor source list for `availableLyricsSources` / source-priority normalization.
 - Continue supporting the existing Musixmatch token preference as ordinary provider configuration.
 - When the Musixmatch token is absent, keep Musixmatch out of the active descriptor list and out of normalized source-priority options; when the token becomes available, append/normalize it like any newly available source.
@@ -1219,14 +1219,14 @@ Separate repo: `/Users/f/Core/dev/projects/LyricsKit`.
 Expected provider API and strict-search cleanup targets:
 
 ```text
-LyricsX/Component/LyricsSearchPipeline.swift
-LyricsX/Component/LyricsSelector.swift
-LyricsX/Component/SearchSettings.swift
-LyricsX/Component/AppContainer.swift
-LyricsX/Preferences/GeneralPreferencesView.swift
-LyricsX/Utility/UserDefaultsKeys.swift
-LyricsXPackage/Package.swift
-LyricsX.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+Lirico/Component/LyricsSearchPipeline.swift
+Lirico/Component/LyricsSelector.swift
+Lirico/Component/SearchSettings.swift
+Lirico/Component/AppContainer.swift
+Lirico/Preferences/GeneralPreferencesView.swift
+Lirico/Utility/UserDefaultsKeys.swift
+LiricoPackage/Package.swift
+Lirico.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 ```
 
 Current known old-API usages:
@@ -1252,8 +1252,8 @@ LyricsProviders.Group(descriptors:plugins:)
 
 Implementation order decision:
 
-- Complete LyricsKit Phase 0 before wiring evaluator/ranker into LyricsX search.
-- Complete LyricsX Phase 0.5 before changing manual or automatic ranking behavior.
+- Complete LyricsKit Phase 0 before wiring evaluator/ranker into Lirico search.
+- Complete Lirico Phase 0.5 before changing manual or automatic ranking behavior.
 - Keep the pure evaluator/ranker independent of LyricsKit provider events; it should depend only on `Lyrics`, search mode, requested duration, and ranking configuration.
 
 ### Phase 1 — Pure evaluator
@@ -1309,7 +1309,7 @@ No UI or search behavior changes yet. Full automated test expansion is deferred 
 
 ### Phase 7 — Final automated test hardening
 
-- Add the required LyricsXFoundation evaluator/ranker tests.
+- Add the required LiricoFoundation evaluator/ranker tests.
 - Add the required LyricsKit provider-event and LRCLIB tests.
 - Run the relevant package tests and app build checks.
 - Fix implementation defects found by tests; do not weaken tests to match broken behavior.
@@ -1342,8 +1342,8 @@ No UI or search behavior changes yet. Full automated test expansion is deferred 
 - Album metadata: set only for automatic current-track searches; manual search requests do not include album in this pass.
 - Manual search without current track: search, preview, and drag/export stay available; Apply is disabled.
 - Strict search setting: remove it; the evaluator/ranker replaces `Lyrics.isMatched()` as the only correctness gate.
-- Implementation order: update LyricsKit and LyricsX local dependency integration before wiring evaluator/ranker into search.
+- Implementation order: update LyricsKit and Lirico local dependency integration before wiring evaluator/ranker into search.
 - Evaluator/ranker purity: do not depend on LyricsKit provider events.
 - Automated test expansion: final hardening phase after implementation is wired, with build/typecheck/manual checks during earlier phases.
-- Provider-specific rich-timing work: deferred; LyricsX detects karaoke generically from inline timing, not from provider identity.
+- Provider-specific rich-timing work: deferred; Lirico detects karaoke generically from inline timing, not from provider identity.
 - Musixmatch richsync: not part of this plan.

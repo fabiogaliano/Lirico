@@ -6,4 +6,4 @@ project.xcworkspace
 .derivedData/
 build/
 .pi/
-LyricsXPackage/Package.resolved
+LiricoPackage/Package.resolved

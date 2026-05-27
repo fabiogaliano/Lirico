@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Lyrics candidate diagnostic — auto-pulls the current track from the music
-# player that Lirico/LyricsX is configured to use, reads the app's real search
+# player that Lirico/Lirico is configured to use, reads the app's real search
 # settings, then runs the candidate/ranking comparison.
 #
 # Usage:
@@ -10,9 +10,9 @@
 #   ./diag.sh --show-lines 20
 set -euo pipefail
 
-DOMAIN="com.fabiogaliano.LyricsX"
+DOMAIN="com.fabiogaliano.Lirico"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PLIST="$HERE/../../LyricsX/Supporting Files/UserDefaults.plist"
+PLIST="$HERE/../../Lirico/Supporting Files/UserDefaults.plist"
 BIN="$HERE/.build/debug/lyrics-diag"
 
 norm_bool() {  # true/YES→1, false/NO→0, pass through otherwise

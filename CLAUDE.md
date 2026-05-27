@@ -4,26 +4,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-LyricsX is a macOS menu-bar application (`LSUIElement`) that automatically searches, downloads, and displays synchronized lyrics for the currently playing song. It supports multiple music players and lyrics sources, with desktop karaoke overlay and menu-bar lyrics display. This is a personally maintained fork of `ddddxxx/LyricsX`.
+Lirico is a macOS menu-bar application (`LSUIElement`) that automatically searches, downloads, and displays synchronized lyrics for the currently playing song. It supports multiple music players and lyrics sources, with desktop karaoke overlay and menu-bar lyrics display. This is a personally maintained fork of `ddddxxx/LyricsX`.
 
 - **Platform**: macOS 15+ only
 - **Language**: Swift 5 (project setting), Swift 6.2 toolchain (Package.swift)
-- **Bundle ID**: `com.fabiogaliano.LyricsX`
+- **Bundle ID**: `com.fabiogaliano.Lirico`
 
 ## Build Commands
 
 ```bash
 # Build (Debug)
-xcodebuild -project LyricsX.xcodeproj -scheme LyricsX -configuration Debug build 2>&1 | xcsift
+xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Debug build 2>&1 | xcsift
 
 # Build (Release)
-xcodebuild -project LyricsX.xcodeproj -scheme LyricsX -configuration Release build 2>&1 | xcsift
+xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Release build 2>&1 | xcsift
 
 # Archive (triggers post-archive export + notarization script)
-xcodebuild -project LyricsX.xcodeproj -scheme LyricsX -configuration Release archive
+xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Release archive
 ```
 
-There are no automated tests configured in the Xcode scheme. The `LyricsXPackage` has an empty test target `LyricsXFoundationTests`.
+There are no automated tests configured in the Xcode scheme. The `LiricoPackage` has an empty test target `LiricoFoundationTests`.
 
 ## Linting & Formatting
 
@@ -39,23 +39,23 @@ swiftformat .
 
 ### Build System
 
-Hybrid Xcode project + Swift Package Manager. The Xcode project (`LyricsX.xcodeproj`) is the primary build entry point. It integrates `LyricsXPackage/` as a local Swift package, and all third-party dependencies are managed via Xcode's SPM integration (no CocoaPods/Carthage).
+Hybrid Xcode project + Swift Package Manager. The Xcode project (`Lirico.xcodeproj`) is the primary build entry point. It integrates `LiricoPackage/` as a local Swift package, and all third-party dependencies are managed via Xcode's SPM integration (no CocoaPods/Carthage).
 
 ### Targets
 
 | Target | Purpose |
 |---|---|
-| `LyricsX` | Main macOS app |
-| `LyricsXHelper` | LoginItem helper embedded in `Contents/Library/LoginItems/`, watches for music player launch and auto-starts the main app |
+| `Lirico` | Main macOS app |
+| `LiricoHelper` | LoginItem helper embedded in `Contents/Library/LoginItems/`, watches for music player launch and auto-starts the main app |
 | `SwiftLint` | Aggregate target for running SwiftLint |
 
 ### Core Dependencies (via SPM)
 
 - **LyricsKit** (`MxIris-LyricsX-Project/LyricsKit`, branch: main) — lyrics search/parsing engine
 - **MusicPlayer** (`MxIris-LyricsX-Project/MusicPlayer`, branch: master) — music player abstraction layer
-- **LyricsXFoundation** (local package in `LyricsXPackage/`) — thin re-export wrapper: `@_exported import LyricsKit`
+- **LiricoFoundation** (local package in `LiricoPackage/`) — thin re-export wrapper: `@_exported import LyricsKit`
 
-### App Internal Structure (`LyricsX/`)
+### App Internal Structure (`Lirico/`)
 
 The app uses a **Combine-driven reactive architecture** with shared singletons:
 
@@ -82,4 +82,4 @@ The app uses a **Combine-driven reactive architecture** with shared singletons:
 
 ### Local Development with Dependencies
 
-`LyricsXPackage/Package.swift` supports switching to local checkouts of `LyricsKit` and `MusicPlayer` via `local:` path overrides (disabled by default with `isEnabled: false`). Toggle these when developing against local forks of these libraries.
+`LiricoPackage/Package.swift` supports switching to local checkouts of `LyricsKit` and `MusicPlayer` via `local:` path overrides (disabled by default with `isEnabled: false`). Toggle these when developing against local forks of these libraries.

@@ -28,11 +28,11 @@ Make `LyricsSearchPipeline` emit app-level evaluated search events, wire in rank
 
 ## Likely touchpoints
 
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/LyricsSearchPipeline.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/SearchSettings.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Component/LyricsSelector.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Preferences/GeneralPreferencesView.swift`
-- `/Users/f/Core/dev/projects/LyricsX/LyricsX/Utility/UserDefaultsKeys.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Component/LyricsSearchPipeline.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Component/SearchSettings.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Component/LyricsSelector.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Preferences/GeneralPreferencesView.swift`
+- `/Users/f/Core/dev/projects/Lirico/Lirico/Utility/UserDefaultsKeys.swift`
 
 ## Constraints and decisions to honor
 

@@ -36,7 +36,7 @@ SR-07 -> SR-08
 
 Why:
 - `SR-01` establishes the shared cross-repo contracts.
-- `SR-03` gets LyricsX onto the new dependency/source substrate.
+- `SR-03` gets Lirico onto the new dependency/source substrate.
 - `SR-04` and `SR-05` establish the evaluated pipeline consumed by both branches.
 - `SR-07` carries the highest-risk correctness and persistence/export behavior.
 - `SR-08` closes with hardening and cleanup.
@@ -54,8 +54,8 @@ After `SR-05`:
 
 - `SR-01` — [LyricsKit provider events, descriptors, and request album contract](./SR-01-provider-events-and-request-album-contract.md)
 - `SR-02` — [LRCLIB exact+broad lookup with dedupe and partial-failure behavior](./SR-02-lrclib-exact-broad-lookup-and-dedupe.md)
-- `SR-03` — [LyricsX local LyricsKit integration and canonical source list](./SR-03-lyricsx-local-lyricskit-integration-and-canonical-sources.md)
-- `SR-04` — [Pure evaluator/ranker core in LyricsXFoundation](./SR-04-evaluator-ranker-core.md)
+- `SR-03` — [Lirico local LyricsKit integration and canonical source list](./SR-03-lyricsx-local-lyricskit-integration-and-canonical-sources.md)
+- `SR-04` — [Pure evaluator/ranker core in LiricoFoundation](./SR-04-evaluator-ranker-core.md)
 - `SR-05` — [Evaluated pipeline events, ranking config, and strict-search removal](./SR-05-evaluated-pipeline-and-strict-search-removal.md)
 - `SR-06` — [Manual search overhaul on top of evaluated candidates](./SR-06-manual-search-overhaul.md)
 - `SR-07` — [Automatic search overhaul with deadline and local-upgrade policy](./SR-07-automatic-search-overhaul.md)

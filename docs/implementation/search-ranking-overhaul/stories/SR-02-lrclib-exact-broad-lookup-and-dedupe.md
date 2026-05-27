@@ -20,7 +20,7 @@ Improve LRCLIB precision by adding the exact `/api/get` path alongside the exist
 
 ## Out of scope
 
-- LyricsX setting of album metadata on requests.
+- Lirico setting of album metadata on requests.
 - LyricsKit group event stream work.
 - App-level ranking/evaluation.
 
