@@ -1,7 +1,7 @@
 import AppKit
 import Combine
 @preconcurrency import LyricsKit
-import LyricsXFoundation
+import LiricoFoundation
 import MusicPlayer
 
 // MARK: - SearchStatus
@@ -77,6 +77,10 @@ final class SearchLyricsViewModel: ObservableObject {
     private var likelyRows: [LyricsResult] = []
     private var unlikelyRows: [LyricsResult] = []
     private var currentSearchMode: LyricsSearchMode?
+    /// The lyrics already loaded for the current track when the window opened,
+    /// snapshotted so the "currently loaded" row indicator stays stable while
+    /// results stream in. Refreshed when the user applies a different result.
+    private var loadedLyrics: Lyrics?
     private var fieldsChangedSinceSearch: Bool = false
     private var searchedTitle: String = ""
     private var searchedArtist: String = ""
@@ -118,6 +122,7 @@ final class SearchLyricsViewModel: ObservableObject {
     }
 
     func reloadFromCurrentTrack() {
+        loadedLyrics = session.currentLyrics
         guard let track = player.currentTrack else {
             searchGeneration &+= 1
             searchTask?.cancel()
@@ -234,6 +239,8 @@ final class SearchLyricsViewModel: ObservableObject {
             .map(\.lyrics)
             .filter { $0 !== result.lyrics }
         session.select(result.lyrics, writeToiTunesIfAuto: true, supporting: supporting)
+        loadedLyrics = result.lyrics
+        rebuildVisibleRows()
     }
 
     func updatePreview() {
@@ -392,10 +399,10 @@ final class SearchLyricsViewModel: ObservableObject {
 
         likelyRows = ranked
             .filter { $0.evaluation.visibility != .unlikely }
-            .map { LyricsResult(candidate: $0, isUnlikely: false) }
+            .map { LyricsResult(candidate: $0, isUnlikely: false, isLoaded: isLoadedCandidate($0)) }
         unlikelyRows = ranked
             .filter { $0.evaluation.visibility == .unlikely }
-            .map { LyricsResult(candidate: $0, isUnlikely: true) }
+            .map { LyricsResult(candidate: $0, isUnlikely: true, isLoaded: isLoadedCandidate($0)) }
         unlikelyCount = allCandidates.filter { $0.evaluation.visibility == .unlikely }.count
         rejectedCount = allCandidates.filter { $0.evaluation.visibility == .rejected }.count
 
@@ -404,6 +411,12 @@ final class SearchLyricsViewModel: ObservableObject {
             visibleRows = rows
         }
         invalidateSelectionIfHidden()
+    }
+
+    /// Whether `candidate` is the lyrics already loaded for the current track.
+    private func isLoadedCandidate(_ candidate: EvaluatedLyricsCandidate) -> Bool {
+        guard let loaded = loadedLyrics else { return false }
+        return candidate.lyrics.isSameResult(as: loaded)
     }
 
     private func updateSearchingSummary(for source: String) {
@@ -520,6 +533,8 @@ struct LyricsResult: Identifiable, Hashable {
     let lyrics: Lyrics
     let evaluation: LyricsCandidateEvaluation
     let isUnlikely: Bool
+    /// True when this result is the lyrics already loaded for the current track.
+    let isLoaded: Bool
 
     var id: ObjectIdentifier { ObjectIdentifier(lyrics) }
 
@@ -528,12 +543,21 @@ struct LyricsResult: Identifiable, Hashable {
     var source: String { lyrics.metadata.service ?? "[lacking]" }
     var syncIconName: String { evaluation.syncKind == .karaoke ? "music.mic" : "" }
 
-    init(candidate: EvaluatedLyricsCandidate, isUnlikely: Bool) {
+    init(candidate: EvaluatedLyricsCandidate, isUnlikely: Bool, isLoaded: Bool) {
         self.lyrics = candidate.lyrics
         self.evaluation = candidate.evaluation
         self.isUnlikely = isUnlikely
+        self.isLoaded = isLoaded
     }
 
-    static func == (lhs: LyricsResult, rhs: LyricsResult) -> Bool { lhs.id == rhs.id }
-    func hash(into hasher: inout Hasher) { hasher.combine(id) }
+    // `isLoaded` participates in equality so the Table's `visibleRows != rows`
+    // diff still fires when only the loaded indicator moves (e.g. after Apply).
+    static func == (lhs: LyricsResult, rhs: LyricsResult) -> Bool {
+        lhs.id == rhs.id && lhs.isLoaded == rhs.isLoaded
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(isLoaded)
+    }
 }

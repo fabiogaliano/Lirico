@@ -131,8 +131,15 @@ struct SearchLyricsView: View {
             .width(20)
 
             TableColumn("Title") { result in
-                Text(result.title)
-                    .foregroundStyle(result.isUnlikely ? Color.secondary : Color.primary)
+                HStack(spacing: 4) {
+                    if result.isLoaded {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(.tint)
+                            .help("Currently loaded")
+                    }
+                    Text(result.title)
+                        .foregroundStyle(result.isUnlikely ? Color.secondary : Color.primary)
+                }
             }
 
             TableColumn("Artist") { result in
