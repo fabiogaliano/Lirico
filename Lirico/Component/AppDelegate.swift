@@ -1,7 +1,6 @@
 import AppKit
 import GenericID
 import MusicPlayer
-import Semver
 
 class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenuDelegate {
     static var shared: AppDelegate? {
@@ -124,9 +123,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     @IBAction func aboutLiricoAction(_ sender: Any) {
-        let channel = "GitHub"
-        let versionString = "\(channel) Version \(Bundle.main.semanticVersion ?? "Unknown")"
-        NSApp.orderFrontStandardAboutPanel(options: [.applicationVersion: versionString])
+        container?.aboutWindowController.showWindow(nil)
         NSApp.activate()
     }
 

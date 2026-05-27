@@ -103,6 +103,7 @@
 		FA0000012F200000000A0006 /* GeneralPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0006 /* GeneralPreferencesView.swift */; };
 		FA0000012F200000000A0007 /* DisplayPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0007 /* DisplayPreferencesView.swift */; };
 		FA0000012F200000000A0008 /* SourcePreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0008 /* SourcePreferencesView.swift */; };
+		FA0000012F200000000A0009 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0009 /* AboutView.swift */; };
 		E97F2CFD2E757C19005466D1 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97F2CF92E757C19005466D1 /* Signal.swift */; };
 		E97F2D012E757C19005466D1 /* Invoke.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97F2CF72E757C19005466D1 /* Invoke.swift */; };
 		E983FA212C85EA6E00170CF7 /* MarqueeLabel in Frameworks */ = {isa = PBXBuildFile; productRef = E983FA202C85EA6E00170CF7 /* MarqueeLabel */; };
@@ -215,6 +216,7 @@
 		FA0000002F200000000A0006 /* GeneralPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralPreferencesView.swift; sourceTree = "<group>"; };
 		FA0000002F200000000A0007 /* DisplayPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayPreferencesView.swift; sourceTree = "<group>"; };
 		FA0000002F200000000A0008 /* SourcePreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcePreferencesView.swift; sourceTree = "<group>"; };
+		FA0000002F200000000A0009 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		E97F2CF72E757C19005466D1 /* Invoke.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Invoke.swift; sourceTree = "<group>"; };
 		E97F2CF92E757C19005466D1 /* Signal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Signal.swift; sourceTree = "<group>"; };
 		E9A38A6A2D7337E700DEFE0E /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
@@ -377,6 +379,7 @@
 				FA0000002F200000000A0006 /* GeneralPreferencesView.swift */,
 				FA0000002F200000000A0007 /* DisplayPreferencesView.swift */,
 				FA0000002F200000000A0008 /* SourcePreferencesView.swift */,
+				FA0000002F200000000A0009 /* AboutView.swift */,
 				E960A9A12D68F9FA00A32EEC /* NowPlayingApplicationListViewController.swift */,
 			);
 			path = Preferences;
@@ -758,6 +761,7 @@
 				FA0000012F200000000A0006 /* GeneralPreferencesView.swift in Sources */,
 				FA0000012F200000000A0007 /* DisplayPreferencesView.swift in Sources */,
 				FA0000012F200000000A0008 /* SourcePreferencesView.swift in Sources */,
+				FA0000012F200000000A0009 /* AboutView.swift in Sources */,
 				F1B0001100000000000A0001 /* AppIdentifiers.swift in Sources */,
 				F1B0001100000000000A0002 /* AppConstants.swift in Sources */,
 				F1B0001100000000000A0003 /* AppURLs.swift in Sources */,

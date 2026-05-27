@@ -40,6 +40,7 @@ final class AppContainer {
     private(set) lazy var searchLyricsWindowController: SearchLyricsWindowController =
         SearchLyricsWindowController(player: player, session: session, pipeline: searchPipeline, searchSettings: searchSettings)
     private(set) lazy var preferencesWindowController: PreferenceWindowController = .create()
+    private(set) lazy var aboutWindowController: AboutWindowController = AboutWindowController()
 
     private var touchBarController: TouchBarLyricsController?
     private var touchBarCancellable: AnyCancellable?
