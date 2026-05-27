@@ -44,10 +44,24 @@ class LyricsSession: NSObject {
         didSet {
             didChangeValue(forKey: "lyricsOffset")
             clock.setLyrics(currentLyrics)
+            // Capture display metadata here, on the main actor (where every
+            // metadata write happens), so the display coordinator never reads the
+            // live `Lyrics.metadata` dictionary off its background queue. See
+            // `LyricsDisplayMetadata`.
+            displayMetadata = currentLyrics.map {
+                LyricsDisplayMetadata(
+                    language: $0.metadata.language,
+                    translationLanguages: $0.metadata.translationLanguages
+                )
+            } ?? .empty
         }
     }
 
     @Published var currentLineIndex: Int?
+
+    /// Immutable, main-actor-captured snapshot of the current lyrics' display
+    /// metadata, consumed by `LyricsDisplayCoordinator` instead of the live struct.
+    @Published private(set) var displayMetadata: LyricsDisplayMetadata = .empty
 
     /// Other same-song candidates kept as evidence for display-time explicit-word
     /// restoration. This is request-dependent display state, not persisted lyrics
@@ -77,7 +91,7 @@ class LyricsSession: NSObject {
         set {
             currentLyrics?.offset = newValue
             currentLyrics?.metadata.needsPersist = true
-            scheduleCurrentLineCheck()
+            clock.updateSongOffset(newValue)
         }
     }
 
@@ -113,7 +127,8 @@ class LyricsSession: NSObject {
         displayCoordinator.observe(
             lyrics: $currentLyrics,
             index: $currentLineIndex,
-            supporting: $supportingLyrics
+            supporting: $supportingLyrics,
+            metadata: $displayMetadata
         )
         player.currentTrackWillChange
             .signal()
@@ -126,6 +141,13 @@ class LyricsSession: NSObject {
 
         clock.dedupTarget = { [weak self] in self?.currentLineIndex }
         clock.currentLineIndex
+            // Mirror onto the main thread before driving UI. The clock emits on
+            // its background queue; assigning the @Published property there let
+            // the coordinator-backed surfaces (karaoke, menu bar) and the
+            // main-thread surfaces (sync panel, HUD) repaint in nondeterministic
+            // order, so at a line boundary one could briefly lead the other by a
+            // whole line. A single main-thread origin keeps every surface in step.
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] index in self?.currentLineIndex = index }
             .store(in: &cancelBag)
 
@@ -145,10 +167,6 @@ class LyricsSession: NSObject {
                 self?.currentTrackChanged()
             }
         }
-    }
-
-    func scheduleCurrentLineCheck() {
-        clock.tick()
     }
 
     func writeToiTunes(overwrite: Bool) {

@@ -29,6 +29,7 @@
 		BB1B300320E878AE002F1AF8 /* StdExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1B300220E878AE002F1AF8 /* StdExtension.swift */; };
 		BB1B300520E87CC9002F1AF8 /* KaraokeLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1B300420E87CC9002F1AF8 /* KaraokeLabel.swift */; };
 		BB1B631B1E8CD7CA004CC9E0 /* ScrollLyricsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1B631A1E8CD7CA004CC9E0 /* ScrollLyricsView.swift */; };
+		FA5117C000000000000A0002 /* LyricsSyncController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5117C000000000000A0001 /* LyricsSyncController.swift */; };
 		BB4141AE1E458BA800A51775 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4141AD1E458BA800A51775 /* AppDelegate.swift */; };
 		BB4141B21E458BA800A51775 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB4141B11E458BA800A51775 /* Assets.xcassets */; };
 		BB4141C01E45B67800A51775 /* KaraokeLyricsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4141BF1E45B67800A51775 /* KaraokeLyricsController.swift */; };
@@ -143,6 +144,7 @@
 		BB1B300220E878AE002F1AF8 /* StdExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StdExtension.swift; sourceTree = "<group>"; };
 		BB1B300420E87CC9002F1AF8 /* KaraokeLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaraokeLabel.swift; sourceTree = "<group>"; };
 		BB1B631A1E8CD7CA004CC9E0 /* ScrollLyricsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollLyricsView.swift; sourceTree = "<group>"; };
+		FA5117C000000000000A0001 /* LyricsSyncController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsSyncController.swift; sourceTree = "<group>"; };
 		BB4141AA1E458BA800A51775 /* LyricsX-Debug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "LyricsX-Debug.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB4141AD1E458BA800A51775 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BB4141B11E458BA800A51775 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../Assets.xcassets; sourceTree = "<group>"; };
@@ -335,6 +337,7 @@
 				BB4141BF1E45B67800A51775 /* KaraokeLyricsController.swift */,
 				BBC1D57F1E4AE3B9008869EC /* MenuBarLyricsController.swift */,
 				E9E55137207C4CB000F9958A /* TouchBarLyricsController.swift */,
+				FA5117C000000000000A0001 /* LyricsSyncController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -727,6 +730,7 @@
 				E9EF0D552D6F70E400D45E0F /* SearchLyricsWindowController.swift in Sources */,
 				BB7EC7B21E4E018C00A0AC3F /* LyricsHUDViewController.swift in Sources */,
 				E9EF0D4E2D6F5E0A00D45E0F /* LyricsHUDWindowController.swift in Sources */,
+				FA5117C000000000000A0002 /* LyricsSyncController.swift in Sources */,
 				F1D0000100000000000A0001 /* MainMenuBuilder.swift in Sources */,
 				F1D0000300000000000A0002 /* main.swift in Sources */,
 				F1A5EA0100000000000A0001 /* SearchLyricsView.swift in Sources */,

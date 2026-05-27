@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "BB4141A91E458BA800A51775"
-               BuildableName = "LyricsX.app"
+               BuildableName = "Lirico.app"
                BlueprintName = "LyricsX"
                ReferencedContainer = "container:LyricsX.xcodeproj">
             </BuildableReference>
@@ -31,7 +31,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "BB4141A91E458BA800A51775"
-            BuildableName = "LyricsX.app"
+            BuildableName = "Lirico.app"
             BlueprintName = "LyricsX"
             ReferencedContainer = "container:LyricsX.xcodeproj">
          </BuildableReference>
@@ -54,7 +54,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "BB4141A91E458BA800A51775"
-            BuildableName = "LyricsX.app"
+            BuildableName = "Lirico.app"
             BlueprintName = "LyricsX"
             ReferencedContainer = "container:LyricsX.xcodeproj">
          </BuildableReference>
@@ -71,7 +71,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "BB4141A91E458BA800A51775"
-            BuildableName = "LyricsX.app"
+            BuildableName = "Lirico.app"
             BlueprintName = "LyricsX"
             ReferencedContainer = "container:LyricsX.xcodeproj">
          </BuildableReference>
@@ -93,7 +93,7 @@
                   <BuildableReference
                      BuildableIdentifier = "primary"
                      BlueprintIdentifier = "BB4141A91E458BA800A51775"
-                     BuildableName = "LyricsX.app"
+                     BuildableName = "Lirico.app"
                      BlueprintName = "LyricsX"
                      ReferencedContainer = "container:LyricsX.xcodeproj">
                   </BuildableReference>

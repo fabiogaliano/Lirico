@@ -97,7 +97,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     func menuNeedsUpdate(_ menu: NSMenu) {
-        menu.item(withTag: 202)?.isEnabled = container?.session.currentLyrics != nil
+        let hasLyrics = container?.session.currentLyrics != nil
+        menu.item(withTag: 202)?.isEnabled = hasLyrics
+        menu.item(withTag: 204)?.isEnabled = hasLyrics
     }
 
     // MARK: - Menubar Action
@@ -112,6 +114,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             defaults[.isShowLyricsHUD] = true
         }
 
+        NSApp.activate()
+    }
+
+    @IBAction func showLyricsSync(_ sender: Any?) {
+        guard let container else { return }
+        container.lyricsSync.showWindow(nil)
         NSApp.activate()
     }
 

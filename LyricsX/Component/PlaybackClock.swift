@@ -26,9 +26,7 @@ final class PlaybackClock {
     /// Computed live on every read so that callers see the same wall-clock-interpolated value
     /// they would have got from the player's `playbackTime` directly.
     var adjustedPlaybackTime: TimeInterval {
-        let playbackTime = player.playbackState.time
-        let delay = lyrics?.adjustedTimeDelay ?? 0
-        return playbackTime + delay
+        player.playbackState.time + adjustedDelay
     }
 
     /// Emits the current active line index whenever it changes.
@@ -41,6 +39,15 @@ final class PlaybackClock {
     /// lyrics session from its `currentLyrics.didSet`.
     func setLyrics(_ lyrics: Lyrics?) {
         self.lyrics = lyrics
+        songOffsetMilliseconds = lyrics?.offset ?? 0
+        tick()
+    }
+
+    /// Update the captured per-song offset (ms) and re-tick. Called on the main
+    /// actor by the lyrics session when the user changes the offset, so the clock
+    /// never has to read `Lyrics.idTags` from its background queue.
+    func updateSongOffset(_ milliseconds: Int) {
+        songOffsetMilliseconds = milliseconds
         tick()
     }
 
@@ -53,6 +60,17 @@ final class PlaybackClock {
 
     private let player: PlayerHandle
     private var lyrics: Lyrics?
+
+    /// Per-song offset (ms), captured on the main actor whenever lyrics or the
+    /// offset changes. `tick()` runs on the `lyricsDisplay` queue and must not
+    /// read `Lyrics.idTags` there — that would race the main-thread offset writes
+    /// and tear the dictionary. A stale plain-`Int` read is harmless by contrast.
+    /// The app-wide global offset is added live as a thread-safe `UserDefaults` read.
+    private var songOffsetMilliseconds = 0
+
+    private var adjustedDelay: TimeInterval {
+        TimeInterval(songOffsetMilliseconds + defaults[.globalLyricsOffset]) / 1000
+    }
     private let currentLineIndexSubject = CurrentValueSubject<Int?, Never>(nil)
     private var lineCheckSchedule: Cancellable?
     private var cancelBag = Set<AnyCancellable>()
@@ -76,7 +94,7 @@ final class PlaybackClock {
 
         let playbackState = player.playbackState
         let playbackTime = playbackState.time
-        let delay = lyrics.adjustedTimeDelay
+        let delay = adjustedDelay
 
         let (index, next) = lyrics[playbackTime + delay]
         if dedupTarget() != index {

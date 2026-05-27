@@ -3,6 +3,21 @@ import Combine
 import LyricsXFoundation
 import MusicPlayer
 
+/// Immutable snapshot of the display-relevant fields of `Lyrics.metadata`.
+///
+/// `Lyrics.metadata` is a dictionary-backed struct on a shared reference type,
+/// and every writer runs on the main actor. Reading it from the coordinator's
+/// background queue raced those writes and tore the dictionary — surfacing as an
+/// `-[__NSTaggedDate objectForKey:]` crash inside `Dictionary._Variant.lookup`.
+/// The session captures these values on the main actor when `currentLyrics`
+/// changes, so display code never touches the live dictionary off-main.
+struct LyricsDisplayMetadata: Equatable {
+    var language: String?
+    var translationLanguages: [String]
+
+    static let empty = LyricsDisplayMetadata(language: nil, translationLanguages: [])
+}
+
 /// Owns the "what should each lyric surface show right now" calculation.
 ///
 /// Inputs:
@@ -25,6 +40,7 @@ final class LyricsDisplayCoordinator {
     private var currentLyrics: Lyrics?
     private var currentIndex: Int?
     private var currentSupporting: [Lyrics] = []
+    private var currentMetadata: LyricsDisplayMetadata = .empty
     private var cancelBag = Set<AnyCancellable>()
 
     init(
@@ -46,12 +62,21 @@ final class LyricsDisplayCoordinator {
     func observe(
         lyrics: Published<Lyrics?>.Publisher,
         index: Published<Int?>.Publisher,
-        supporting: Published<[Lyrics]>.Publisher
+        supporting: Published<[Lyrics]>.Publisher,
+        metadata: Published<LyricsDisplayMetadata>.Publisher
     ) {
         lyrics
             .receive(on: DispatchQueue.lyricsDisplay)
             .sink { [weak self] value in
                 self?.currentLyrics = value
+                self?.recompute()
+            }
+            .store(in: &cancelBag)
+
+        metadata
+            .receive(on: DispatchQueue.lyricsDisplay)
+            .sink { [weak self] value in
+                self?.currentMetadata = value
                 self?.recompute()
             }
             .store(in: &cancelBag)
@@ -119,7 +144,7 @@ final class LyricsDisplayCoordinator {
 
         let currentLine = lyrics.lines[index]
         let nextEnabled = lyrics.lines[(index + 1)...].first { $0.enabled }
-        let languageCode = lyrics.metadata.translationLanguages.first
+        let languageCode = currentMetadata.translationLanguages.first
 
         let converter = chineseConverter.converter
         let restoreExplicit = explicitResolver.makeRenderRestoration(
@@ -127,7 +152,7 @@ final class LyricsDisplayCoordinator {
         )
         let (primaryText, translationText) = LineRenderer.render(
             line: currentLine,
-            lyricsLanguage: lyrics.metadata.language,
+            lyricsLanguage: currentMetadata.language,
             translationLanguageCode: languageCode,
             convert: [.mainLine, .translation],
             converter: converter,
@@ -137,7 +162,7 @@ final class LyricsDisplayCoordinator {
         let nextLineText: String? = nextEnabled.map {
             LineRenderer.render(
                 line: $0,
-                lyricsLanguage: lyrics.metadata.language,
+                lyricsLanguage: currentMetadata.language,
                 translationLanguageCode: nil,
                 convert: .mainLine,
                 converter: converter,

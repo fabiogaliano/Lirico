@@ -120,6 +120,9 @@
     "Add keyword" : {
 
     },
+    "Add word" : {
+
+    },
     "Always on top" : {
       "comment" : "HUD accessory",
       "localizations" : {
@@ -589,6 +592,9 @@
         }
       }
     },
+    "Current lyrics offset" : {
+      "comment" : "sync readout"
+    },
     "Customize Now Playing Applications…" : {
 
     },
@@ -725,6 +731,9 @@
     "Display" : {
 
     },
+    "Done" : {
+      "comment" : "sync"
+    },
     "Download" : {
       "comment" : "title of download button on the update alert. Download new version of the app.",
       "extractionState" : "manual",
@@ -832,9 +841,6 @@
           }
         }
       }
-    },
-    "Drag lyrics text" : {
-
     },
     "Drag rows to reorder. When enabled, higher-priority sources are preferred over lower-quality results from lower-priority sources." : {
 
@@ -1601,6 +1607,9 @@
     "No likely matches found" : {
 
     },
+    "No Lyrics" : {
+      "comment" : "sync empty state"
+    },
     "No Lyrics\n\nDrag & Drop to import LRC file" : {
       "comment" : "HUD empty state",
       "localizations" : {
@@ -1710,6 +1719,9 @@
     },
     "No matching lyrics found" : {
 
+    },
+    "Now" : {
+      "comment" : "sync"
     },
     "OK" : {
       "extractionState" : "manual",
@@ -1842,6 +1854,9 @@
           }
         }
       }
+    },
+    "Play / Pause" : {
+      "comment" : "sync"
     },
     "Prefer bilingual lyrics" : {
 
@@ -2091,7 +2106,16 @@
     "Remove selected keyword" : {
 
     },
+    "Remove selected word" : {
+
+    },
+    "Reset" : {
+      "comment" : "sync"
+    },
     "Reset to Defaults" : {
+
+    },
+    "Restore explicit words" : {
 
     },
     "Search" : {
@@ -2779,6 +2803,12 @@
     "Swinsian" : {
 
     },
+    "Sync by Ear..." : {
+      "comment" : "menu"
+    },
+    "Sync Lyrics" : {
+      "comment" : "sync panel title"
+    },
     "Synchronism" : {
       "comment" : "HUD button",
       "localizations" : {
@@ -3221,6 +3251,9 @@
           }
         }
       }
+    },
+    "Uncensored word" : {
+
     },
     "Undo" : {
       "comment" : "menu",

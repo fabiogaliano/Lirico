@@ -13,6 +13,9 @@ Lirico changes how lyrics get picked. When a karaoke version exists that highlig
 what you get instead of plain scrolling lyrics. Lirico also keeps looking for a beat after the first result, quietly
 upgrading to a better match if one shows up, and it never replaces lyrics you've saved by hand.
 
+And when the timing drifts, you don't have to nudge milliseconds in the dark. Open **Sync by Ear**, tap the line or word you
+hear playing, and Lirico works out the offset and slides everything into place.
+
 ## Installation
 
 There's no packaged release yet, so build Lirico from source:
@@ -39,18 +42,18 @@ optimization — a one-file change rebuilds in ~20s instead of ~85s. Debug
 installs as `Lirico-Debug.app` (bundle id `dev.fabiogaliano.LyricsX`), so it
 runs side-by-side with the real `Lirico.app` without conflict.
 
-| Command | Configuration | What it does |
-|---|---|---|
-| `make build` | Debug | Fast (~20s) compile — the normal dev loop |
-| `make install` | Debug | Build, copy `Lirico-Debug.app` to `/Applications`, relaunch — fast dev iteration |
-| `make release` | Release | Optimized build — for distribution |
-| `make install-release` | Release | Build, copy `Lirico.app` to `/Applications`, relaunch — final testing before shipping |
+| Command                | Configuration | What it does                                                                          |
+| ---------------------- | ------------- | ------------------------------------------------------------------------------------- |
+| `make build`           | Debug         | Fast (~20s) compile — the normal dev loop                                             |
+| `make install`         | Debug         | Build, copy `Lirico-Debug.app` to `/Applications`, relaunch — fast dev iteration      |
+| `make release`         | Release       | Optimized build — for distribution                                                    |
+| `make install-release` | Release       | Build, copy `Lirico.app` to `/Applications`, relaunch — final testing before shipping |
 
 Run `make help` for the full list, or override the configuration on any target with `CONFIG=Release`.
 
 ### Diagnosing lyrics selection
 
-To debug *why* a particular lyric was chosen for the playing song — all candidates, their ranks/scores, the auto-pick, and how their timing/metadata differ — run `scripts/lyrics-diag/diag.sh`. It reuses the app's real evaluator/ranker and your live settings. See [`scripts/lyrics-diag/README.md`](scripts/lyrics-diag/README.md).
+To debug _why_ a particular lyric was chosen for the playing song — all candidates, their ranks/scores, the auto-pick, and how their timing/metadata differ — run `scripts/lyrics-diag/diag.sh`. It reuses the app's real evaluator/ranker and your live settings. See [`scripts/lyrics-diag/README.md`](scripts/lyrics-diag/README.md).
 
 ## Features
 
@@ -74,6 +77,7 @@ Lirico uses a custom lyrics file format, "LRCX", that supports word timing tags,
 
 <img src="docs/img/screenshot.jpg" width="900px" alt="Lirico showing karaoke lyrics over a playing track, with the search window listing matches marked by a mic icon">
 
+<img src="docs/img/sync-by-ear.png" width="900px" alt="Lirico's Sync by Ear panel beside the desktop karaoke overlay, tapping the line you hear aligns every lyric to the music in real time">
 
 ## Credit
 
@@ -103,7 +107,6 @@ foundation Lirico is built on.
 #### Special Thanks
 
 - [Lyrics Project](https://github.com/MichaelRow/Lyrics)
-
 
 ## ⚠️ Disclaimer
 

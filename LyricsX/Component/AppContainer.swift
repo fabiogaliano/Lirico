@@ -31,6 +31,12 @@ final class AppContainer {
         chineseConverter: chineseConverterProvider,
         explicitResolver: explicitResolver
     )
+    private(set) lazy var lyricsSync: LyricsSyncWindowController = LyricsSyncWindowController(
+        player: player,
+        session: session,
+        chineseConverter: chineseConverterProvider,
+        explicitResolver: explicitResolver
+    )
     private(set) lazy var searchLyricsWindowController: SearchLyricsWindowController =
         SearchLyricsWindowController(player: player, session: session, pipeline: searchPipeline, searchSettings: searchSettings)
     private(set) lazy var preferencesWindowController: PreferenceWindowController = .create()

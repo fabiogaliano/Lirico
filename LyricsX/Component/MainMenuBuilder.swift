@@ -114,6 +114,7 @@ enum MainMenuBuilder {
 
         let offset = makeLyricsOffsetView()
         menu.addItem(lyricsOffsetItem(view: offset.view))
+        menu.addItem(syncByEarItem(target: target))
         menu.addItem(searchLyricsItem(target: target))
         menu.addItem(lyricsSubmenuItem(target: target))
         menu.addItem(.separator())
@@ -171,6 +172,18 @@ enum MainMenuBuilder {
         let item = NSMenuItem(title: NSLocalizedString("Lyrics Delay Setter", comment: "menu"), action: nil, keyEquivalent: "")
         item.tag = 200
         item.view = view
+        return item
+    }
+
+    private static func syncByEarItem(target: AppDelegate) -> NSMenuItem {
+        let item = NSMenuItem(
+            title: NSLocalizedString("Sync by Ear...", comment: "menu"),
+            action: #selector(AppDelegate.showLyricsSync(_:)),
+            keyEquivalent: ""
+        )
+        item.target = target
+        item.tag = 204
+        item.identifier = NSUserInterfaceItemIdentifier("MainMenu.SyncByEar")
         return item
     }
 
