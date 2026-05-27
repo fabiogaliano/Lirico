@@ -11,6 +11,10 @@ final class LyricsHUDWindowController: NSWindowController, NSWindowDelegate {
 
     private static let windowFrame = NSWindow.FrameAutosaveName("LyricsHUD")
 
+    /// Position the panel only once per launch: after that the user's drags (and
+    /// the frame autosave) own its location.
+    private var hasPositionedWindow = false
+
     init(
         player: PlayerHandle,
         session: LyricsSession,
@@ -34,6 +38,11 @@ final class LyricsHUDWindowController: NSWindowController, NSWindowDelegate {
         panel.titleVisibility = .hidden
         panel.isReleasedWhenClosed = false
         panel.animationBehavior = .default
+        // Float above normal windows so the HUD stays visible while you work. This
+        // matches the lock toggle's default "on" state (the accessory only changed
+        // the level on click, so the panel used to open at `.normal` and could hide
+        // behind other windows). Mirrors the Sync by Ear panel.
+        panel.level = .floating
         panel.setFrameAutosaveName(LyricsHUDWindowController.windowFrame)
 
         let viewController = LyricsHUDViewController(
@@ -58,5 +67,40 @@ final class LyricsHUDWindowController: NSWindowController, NSWindowDelegate {
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    /// Place the panel before showing it, then resume following the current line.
+    ///
+    /// The panel is built with a `(0,0)` content rect, which lands bottom-left in
+    /// macOS's flipped screen coordinates — often under the Dock or off-screen on a
+    /// multi-monitor setup, which is why "Show Lyrics Window" looked like it did
+    /// nothing. We restore the user's saved frame once per launch; with no saved
+    /// frame (first run) or one that lands off-screen, we center on the active
+    /// screen instead. After that, the user owns the position.
+    override func showWindow(_ sender: Any?) {
+        positionWindowIfNeeded()
+        super.showWindow(sender)
+        window?.makeKeyAndOrderFront(nil)
+        // Deferred so the view is laid out before we scroll the current line into
+        // the band; `viewWillAppear` doesn't fire dependably for a reused window.
+        DispatchQueue.main.async { [weak self] in
+            (self?.contentViewController as? LyricsHUDViewController)?.resumeFollowing()
+        }
+    }
+
+    private func positionWindowIfNeeded() {
+        guard let window, !hasPositionedWindow else { return }
+        hasPositionedWindow = true
+        let restored = window.setFrameUsingName(Self.windowFrame)
+        if restored, NSScreen.screens.contains(where: { $0.visibleFrame.intersects(window.frame) }) {
+            return
+        }
+        guard let screen = window.screen ?? NSScreen.main else { return }
+        let visible = screen.visibleFrame
+        let size = window.frame.size
+        window.setFrameOrigin(NSPoint(
+            x: visible.midX - size.width / 2,
+            y: visible.midY - size.height / 2
+        ))
     }
 }

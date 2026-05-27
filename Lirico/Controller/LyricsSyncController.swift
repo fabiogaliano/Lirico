@@ -100,7 +100,7 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
     private let explicitResolver: ExplicitLyricsResolving
 
     private let scrollLyricsView = ScrollLyricsView(frame: .zero)
-    private let nowBand = SyncNowBandView()
+    private let nowBand = LyricsNowBandView()
     private let noLyricsLabel = NSTextField(labelWithString: "")
     private let offsetLabel = NSTextField(labelWithString: "")
     private let playPauseButton = NSButton()
@@ -514,25 +514,4 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
     func windowDidResize(_ notification: Notification) {
         DispatchQueue.main.async { self.follow(animated: false) }
     }
-}
-
-/// Translucent strip marking the playback "now" line. Click-through (its
-/// `hitTest` returns nil) so taps reach the scroll view beneath it.
-private final class SyncNowBandView: NSView {
-
-    override init(frame frameRect: NSRect) {
-        super.init(frame: frameRect)
-        wantsLayer = true
-        layer?.cornerRadius = 6
-        layer?.backgroundColor = NSColor.white.withAlphaComponent(0.10).cgColor
-        layer?.borderWidth = 1
-        layer?.borderColor = NSColor.white.withAlphaComponent(0.18).cgColor
-    }
-
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    override func hitTest(_ point: NSPoint) -> NSView? { nil }
 }

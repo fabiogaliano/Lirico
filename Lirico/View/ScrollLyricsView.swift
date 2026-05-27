@@ -24,6 +24,14 @@ class ScrollLyricsView: NSScrollView {
     /// it on.
     var clickToSyncEnabled = false
 
+    /// When true, a rounded box is drawn around the word currently being sung.
+    /// The sync panel turns it on as word-level feedback for click-to-sync; the
+    /// HUD leaves it off, since the karaoke fill alone shows word progress and the
+    /// HUD never syncs by word.
+    var showsWordBox = true {
+        didSet { if !showsWordBox { hideWordBox() } }
+    }
+
     private let displaySettings = DisplaySettings()
 
     private var textView: NSTextView {
@@ -461,7 +469,9 @@ class ScrollLyricsView: NSScrollView {
         highlightedRange.map { textView.textStorage?.addAttribute(.foregroundColor, value: textColor, range: $0) }
         target.map { textView.textStorage?.addAttribute(.foregroundColor, value: highlightColor, range: $0) }
         highlightedRange = target
-        positionWordBox(in: entry, sung: sung)
+        if showsWordBox {
+            positionWordBox(in: entry, sung: sung)
+        }
     }
 
     /// Frame the `wordBox` around the word currently being sung — the timetag
@@ -527,4 +537,27 @@ class ScrollLyricsView: NSScrollView {
         guard let font = NSFont(name: fontName, size: fontSize) else { return }
         textView.textStorage?.addAttribute(.font, value: font, range: range)
     }
+}
+
+/// Translucent strip marking the playback "now" line behind the synced lyric.
+/// Click-through (its `hitTest` returns nil) so taps reach the scroll view
+/// beneath it. Shared by the Sync by Ear panel and the lyrics HUD so both
+/// surfaces frame the current line the same way.
+final class LyricsNowBandView: NSView {
+
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        wantsLayer = true
+        layer?.cornerRadius = 6
+        layer?.backgroundColor = NSColor.white.withAlphaComponent(0.10).cgColor
+        layer?.borderWidth = 1
+        layer?.borderColor = NSColor.white.withAlphaComponent(0.18).cgColor
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func hitTest(_ point: NSPoint) -> NSView? { nil }
 }
