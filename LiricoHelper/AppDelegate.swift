@@ -75,10 +75,11 @@ let playerBundleIdentifiers = [
     ["com.swinsian.Swinsian"],
 ]
 
+// Must match lyricsXGroupIdentifier in the main app's AppIdentifiers.swift.
 #if DEBUG
-let groupDefaults = UserDefaults(suiteName: "83HYP96U74.group.dev.fabiogaliano.Lirico")!
+let groupDefaults = UserDefaults(suiteName: "dev.fabiogaliano.Lirico.shared")!
 #else
-let groupDefaults = UserDefaults(suiteName: "83HYP96U74.group.com.fabiogaliano.Lirico")!
+let groupDefaults = UserDefaults(suiteName: "com.fabiogaliano.Lirico.shared")!
 #endif
 
 // Preference

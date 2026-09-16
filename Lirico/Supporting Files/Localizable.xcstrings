@@ -10,6 +10,9 @@
     "%lld" : {
 
     },
+    "A fork of LyricsX" : {
+
+    },
     "About Lirico" : {
       "comment" : "menu",
       "localizations" : {
@@ -116,6 +119,9 @@
           }
         }
       }
+    },
+    "Acknowledgements" : {
+
     },
     "Add keyword" : {
 
@@ -454,6 +460,9 @@
     "Auto launch & quit with music player" : {
 
     },
+    "Back 5 Seconds" : {
+      "comment" : "sync"
+    },
     "Check For Update..." : {
       "comment" : "menu",
       "localizations" : {
@@ -594,6 +603,9 @@
     },
     "Current lyrics offset" : {
       "comment" : "sync readout"
+    },
+    "Currently loaded" : {
+
     },
     "Customize Now Playing Applications…" : {
 
@@ -841,6 +853,9 @@
           }
         }
       }
+    },
+    "Drag & drop an .lrc file to import" : {
+      "comment" : "HUD empty state hint"
     },
     "Drag rows to reorder. When enabled, higher-priority sources are preferred over lower-quality results from lower-priority sources." : {
 
@@ -1200,6 +1215,9 @@
         }
       }
     },
+    "Forward 5 Seconds" : {
+      "comment" : "sync"
+    },
     "General" : {
 
     },
@@ -1246,7 +1264,13 @@
     "Lab" : {
 
     },
+    "Licensed under MPL-2.0" : {
+
+    },
     "Lines matching these keywords or patterns will be hidden. Patterns beginning with / are treated as regular expressions." : {
+
+    },
+    "Lirico" : {
 
     },
     "Load lyrics beside track" : {
@@ -1608,10 +1632,11 @@
 
     },
     "No Lyrics" : {
-      "comment" : "sync empty state"
+      "comment" : "HUD empty state title\nsync empty state"
     },
     "No Lyrics\n\nDrag & Drop to import LRC file" : {
       "comment" : "HUD empty state",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -1719,9 +1744,6 @@
     },
     "No matching lyrics found" : {
 
-    },
-    "Now" : {
-      "comment" : "sync"
     },
     "OK" : {
       "extractionState" : "manual",
@@ -2117,6 +2139,9 @@
     },
     "Restore explicit words" : {
 
+    },
+    "Resume" : {
+      "comment" : "HUD resume following\nsync"
     },
     "Search" : {
       "extractionState" : "stale",
@@ -2809,8 +2834,12 @@
     "Sync Lyrics" : {
       "comment" : "sync panel title"
     },
+    "Synced lyrics for the music you're playing." : {
+
+    },
     "Synchronism" : {
       "comment" : "HUD button",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

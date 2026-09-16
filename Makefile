@@ -36,19 +36,25 @@ help:
 	@echo ""
 	@echo "Override the configuration on any target with CONFIG=Release."
 
-# -allowProvisioningUpdates lets xcodebuild create/refresh the managed
-# development provisioning profile (Xcode.app does this implicitly; xcodebuild
-# does not). Required because the app's entitlements (App Groups, keychain
-# access groups) only resolve through a real signed profile.
+# Lirico is ad-hoc signed (CODE_SIGN_IDENTITY = "-") and unsandboxed, so it
+# embeds no provisioning profile and needs no Apple account: builds require
+# neither a signing identity nor -allowProvisioningUpdates, and the installed
+# app never expires.
 build:
 	xcodebuild -project $(PROJECT) -scheme $(SCHEME) \
 	  -configuration $(CONFIG) -derivedDataPath $(DERIVED) \
-	  -allowProvisioningUpdates -quiet build
+	  -quiet build
 
 release:
 	$(MAKE) build CONFIG=Release
 
+# The 'Update Build Time' and 'Bump Build' phases always run and rewrite the
+# bundle's Info.plist, but on an incremental build where nothing else changed
+# Xcode skips re-signing — leaving a signature that seals the *previous*
+# Info.plist and fails `codesign --verify --strict`. Re-seal before installing
+# so the app in /Applications is always consistently signed.
 install: build
+	codesign --force --sign "-" $(APP)
 	-killall $(PRODUCT) 2>/dev/null || true
 	@i=0; while pgrep -x $(PRODUCT) >/dev/null 2>&1 && [ $$i -lt 50 ]; do sleep 0.1; i=$$((i+1)); done
 	-killall -9 $(PRODUCT) 2>/dev/null || true
