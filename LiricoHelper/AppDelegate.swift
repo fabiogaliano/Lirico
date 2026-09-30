@@ -8,60 +8,64 @@
 //
 
 import Cocoa
-import ScriptingBridge
 
+/// Stays running in the background while "Open and quit with music player" is on, and opens
+/// Lirico whenever a supported player launches. It used to quit after opening Lirico and rely on
+/// Lirico relaunching it on the way out, but a quitting app can't reliably launch another one.
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
-    var musicPlayers: [SBApplication] = []
-    var shouldWaitForPlayerQuit = false
-
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         guard groupDefaults.bool(forKey: launchAndQuitWithPlayer) else {
-            NSApplication.shared.terminate(nil)
-            abort() // fake invoking, just make compiler happy.
+            NSApp.terminate(nil)
+            return
         }
 
-        musicPlayers = playerBundleIdentifiers.compactMap(SBApplication.init)
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self,
+            selector: #selector(applicationDidLaunch(_:)),
+            name: NSWorkspace.didLaunchApplicationNotification,
+            object: nil
+        )
 
+        // At login a player may have been reopened before this helper started.
         let event = NSAppleEventManager.shared().currentAppleEvent
         let isLaunchedAsLoginItem = event?.eventID == kAEOpenApplication &&
             event?.paramDescriptor(forKeyword: keyAEPropData)?.enumCodeValue == keyAELaunchedAsLogInItem
-        let isLaunchedByMain = (groupDefaults.object(forKey: launchHelperTime) as? Date).map { Date().timeIntervalSince($0) < 10 } ?? false
-        shouldWaitForPlayerQuit = !isLaunchedAsLoginItem && isLaunchedByMain && musicPlayers.contains { $0.isRunning }
-
-        let wsnc = NSWorkspace.shared.notificationCenter
-        wsnc.addObserver(self, selector: #selector(checkTargetApplication), name: NSWorkspace.didLaunchApplicationNotification, object: nil)
-        wsnc.addObserver(self, selector: #selector(checkTargetApplication), name: NSWorkspace.didTerminateApplicationNotification, object: nil)
-
-        checkTargetApplication()
-    }
-
-    @objc func checkTargetApplication() {
-        let isRunning = musicPlayers.contains { $0.isRunning }
-        if shouldWaitForPlayerQuit {
-            shouldWaitForPlayerQuit = isRunning
-            return
-        } else if isRunning {
-            launchMainAndQuit()
+        let playerRunning = NSWorkspace.shared.runningApplications.contains {
+            playerBundleIdentifiers.contains($0.bundleIdentifier ?? "")
+        }
+        if isLaunchedAsLoginItem, playerRunning {
+            openMainApp()
         }
     }
 
-    func launchMainAndQuit() -> Never {
+    @objc private func applicationDidLaunch(_ notification: Notification) {
+        guard let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
+              playerBundleIdentifiers.contains(app.bundleIdentifier ?? "") else { return }
+        guard groupDefaults.bool(forKey: launchAndQuitWithPlayer) else {
+            NSApp.terminate(nil)
+            return
+        }
+        openMainApp()
+    }
+
+    private func openMainApp() {
+        // LiricoHelper.app lives in Lirico.app/Contents/Library/LoginItems.
         var host = Bundle.main.bundleURL
         for _ in 0 ..< 4 {
             host.deleteLastPathComponent()
         }
-
-        NSWorkspace.shared.openApplication(at: host, configuration: .init()) { app, error in
+        if let mainID = Bundle(url: host)?.bundleIdentifier,
+           !NSRunningApplication.runningApplications(withBundleIdentifier: mainID).isEmpty {
+            return
+        }
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = false
+        NSWorkspace.shared.openApplication(at: host, configuration: configuration) { _, error in
             if let error {
                 NSLog("launch Lirico failed. reason: \(error)")
-            } else {
-                NSLog("launch Lirico succeed.")
             }
         }
-        
-        NSApp.terminate(nil)
-        abort() // fake invoking, just make compiler happy.
     }
 }
 
@@ -82,4 +86,3 @@ let groupDefaults = UserDefaults(suiteName: "com.fabiogaliano.Lirico.shared")!
 
 // Preference
 let launchAndQuitWithPlayer = "LaunchAndQuitWithPlayer"
-let launchHelperTime = "launchHelperTime"

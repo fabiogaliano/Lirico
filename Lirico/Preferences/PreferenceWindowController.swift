@@ -40,8 +40,11 @@ class PreferenceWindowController: NSWindowController {
     }
 
     override func showWindow(_ sender: Any?) {
-        super.showWindow(sender)
+        // Activate first: a menu-bar app isn't active when its menu is used, and a window shown
+        // before activation opens behind the frontmost app, needing a second click to surface.
         NSApp.activate()
+        super.showWindow(sender)
+        window?.makeKeyAndOrderFront(sender)
     }
 }
 

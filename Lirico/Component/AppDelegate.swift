@@ -19,8 +19,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     /// the registered values.
     private var container: AppContainer!
 
-    var firstLaunchForShouldHanlderReopen: Bool = true
-
     /// Install the app's main menu before the run loop processes key events.
     /// Without this, Cocoa has no menu to dispatch key equivalents to and
     /// editing shortcuts (⌘C/V/Z) silently no-op in any embedded text view.
@@ -48,9 +46,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
         ShortcutBindings.install(actionTarget: self)
 
-        HelperLifecycle.terminateRunningHelper()
-
         groupDefaults.bind(NSBindingName(UserDefaults.DefaultsKeys.launchAndQuitWithPlayer.key), withDefaultName: .launchAndQuitWithPlayer)
+        HelperLifecycle.startHelperIfNeeded(settings: container.playerSettings)
 
         if defaults[.isShowLyricsHUD] {
             container.lyricsHUD.showWindow(nil)
@@ -58,17 +55,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
-        if firstLaunchForShouldHanlderReopen {
-            firstLaunchForShouldHanlderReopen = false
-            return false
-        }
         container?.preferencesWindowController.showWindow(nil)
         return true
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
         container?.session.prepareForTermination()
-        HelperLifecycle.openHelperOnQuitIfNeeded(settings: container?.playerSettings ?? PlayerSettings())
     }
 
     // MARK: - NSMenuDelegate
@@ -117,8 +109,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     @IBAction func aboutLiricoAction(_ sender: Any) {
-        container?.aboutWindowController.showWindow(nil)
         NSApp.activate()
+        container?.aboutWindowController.showWindow(nil)
     }
 
     @IBAction func showPreferences(_ sender: Any?) {

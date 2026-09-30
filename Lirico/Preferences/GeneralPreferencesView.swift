@@ -94,6 +94,11 @@ struct GeneralPreferencesView: View {
             Toggle("Open and quit with music player", isOn: $launchAndQuitWithPlayer)
                 .onChange(of: launchAndQuitWithPlayer) { _, enabled in
                     setHelperLoginItemEnabled(enabled)
+                    if enabled {
+                        HelperLifecycle.startHelperIfNeeded()
+                    } else {
+                        HelperLifecycle.terminateRunningHelper()
+                    }
                 }
         } header: {
             Text("Startup")

@@ -46,16 +46,18 @@ enum HelperLifecycle {
             .forEach { $0.terminate() }
     }
 
-    static func openHelperOnQuitIfNeeded(settings: PlayerSettings = PlayerSettings()) {
-        guard settings.launchAndQuitWithPlayer else { return }
+    /// The helper normally starts at login; this covers the session in which the setting was
+    /// turned on or Lirico was reinstalled, so the next player launch is still noticed.
+    static func startHelperIfNeeded(settings: PlayerSettings = PlayerSettings()) {
+        guard settings.launchAndQuitWithPlayer,
+              NSRunningApplication.runningApplications(withBundleIdentifier: lyricsXHelperIdentifier).isEmpty else { return }
         let url = Bundle.main.bundleURL
             .appendingPathComponent("Contents/Library/LoginItems/LiricoHelper.app")
-        groupDefaults[.launchHelperTime] = Date()
-        NSWorkspace.shared.openApplication(at: url, configuration: .init()) { _, error in
-            if let error = error {
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = false
+        NSWorkspace.shared.openApplication(at: url, configuration: configuration) { _, error in
+            if let error {
                 log("launch Lirico Helper failed. reason: \(error)")
-            } else {
-                log("launch Lirico Helper succeed.")
             }
         }
     }
