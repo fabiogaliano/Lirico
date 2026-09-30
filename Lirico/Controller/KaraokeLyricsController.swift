@@ -144,7 +144,7 @@ class KaraokeLyricsWindowController: NSWindowController {
         mouseMonitors.forEach(NSEvent.removeMonitor)
         mouseMonitors = []
         guard needsMonitoring else { return }
-        let events: NSEvent.EventTypeMask = [.mouseMoved, .leftMouseDragged]
+        let events: NSEvent.EventTypeMask = [.mouseMoved, .leftMouseDragged, .leftMouseUp, .flagsChanged]
         // Tracking areas stay silent while the window ignores mouse events, so hover has to be watched from outside.
         // Once the window accepts events, moves over it go to this app instead, and only a local monitor sees the
         // pointer leave the lyrics; without it the overlay would keep swallowing clicks across the whole screen.
@@ -164,8 +164,11 @@ class KaraokeLyricsWindowController: NSWindowController {
     private func updateMouseHandling() {
         // The window spans the whole screen, and while it accepts mouse events macOS resets the cursor to an arrow
         // over its transparent areas, so links and text fields in apps underneath flicker. Only dragging needs
-        // events, and only over the lyrics themselves.
-        let ignores = !(settings.desktopLyricsDraggable && lyricsView.containsMouse)
+        // events, and only over the lyrics while ⌘ is held, so plain clicks on the lyrics still reach the app below.
+        // A drag already under way keeps the events even if ⌘ is released mid-drag.
+        let isDragging = window?.ignoresMouseEvents == false && NSEvent.pressedMouseButtons & 1 != 0
+        let wantsDrag = NSEvent.modifierFlags.contains(.command) || isDragging
+        let ignores = !(settings.desktopLyricsDraggable && lyricsView.containsMouse && wantsDrag)
         if window?.ignoresMouseEvents != ignores {
             window?.ignoresMouseEvents = ignores
         }

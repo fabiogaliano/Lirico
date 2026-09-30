@@ -43,9 +43,6 @@ struct GeneralPreferencesView: View {
         MusicPlayerName(index: preferredPlayerIndex)
     }
 
-    // "Launch and quit with player" is only meaningful when a specific player is chosen.
-    private var canLaunchWithPlayer: Bool { selectedPlayer != nil }
-
     // "Load lyrics beside track" is only meaningful for players that expose a file URL.
     private var canLoadBesideTrack: Bool { selectedPlayer?.supportsBesideTrackLyrics ?? true }
 
@@ -70,19 +67,10 @@ struct GeneralPreferencesView: View {
         SettingsSection(title: "Music Player") {
             playerPicker
             // Registers/unregisters LiricoHelper as a login item AND persists the
-            // LaunchAndQuitWithPlayer setting. Disabled when "Auto" is selected because
-            // there is no designated player to follow.
+            // LaunchAndQuitWithPlayer setting. In Auto it follows any supported player.
             Toggle("Auto launch & quit with music player", isOn: $launchAndQuitWithPlayer)
-                .disabled(!canLaunchWithPlayer)
                 .onChange(of: launchAndQuitWithPlayer) { _, enabled in
                     setHelperLoginItemEnabled(enabled)
-                }
-                .onChange(of: canLaunchWithPlayer) { _, enabled in
-                    if !enabled {
-                        launchAndQuitWithPlayer = false
-                        playerSettings.launchAndQuitWithPlayer = false
-                        setHelperLoginItemEnabled(false)
-                    }
                 }
             Toggle("Launch at login", isOn: Binding(
                 get: { launchAtLogin },
@@ -238,11 +226,6 @@ struct GeneralPreferencesView: View {
     }
 
     private func enforcePlayerConstraints(for index: Int) {
-        if index < 0 {
-            // Auto — disable launch-with-player
-            playerSettings.launchAndQuitWithPlayer = false
-            launchAndQuitWithPlayer = false
-        }
         if let player = MusicPlayerName(index: index), !player.supportsBesideTrackLyrics {
             persistenceSettings.shouldLoadLyricsBesideTrack = false
             loadLyricsBesideTrack = false

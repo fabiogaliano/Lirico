@@ -39,7 +39,7 @@ extension MusicPlayers.Selected: PlayerHandle {
 /// the user declined (or later revoked) Lirico's Automation access to their player.
 enum AutomationPermission {
     /// Players Lirico drives over Apple Events, checked when no single player is designated (Auto).
-    private static let scriptablePlayerBundleIDs = [
+    static let scriptablePlayerBundleIDs = [
         "com.apple.Music", "com.apple.iTunes", "com.spotify.client", "com.coppertino.Vox",
         "com.audirvana.Audirvana-Studio", "com.audirvana.Audirvana", "com.audirvana.Audirvana-Plus",
         "com.audirvana.Audirvana-Origin", "com.swinsian.Swinsian",
