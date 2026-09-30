@@ -97,7 +97,6 @@ foundation Lirico is built on.
 - [SwiftCF](https://github.com/MxIris-Library-Forks/SwiftCF) — MIT
 - [Regex](https://github.com/ddddxxx/Regex) — MIT
 - [Semver](https://github.com/ddddxxx/Semver) — MIT
-- [TouchBarHelper](https://github.com/ddddxxx/TouchBarHelper) — MIT
 - [SnapKit](https://github.com/SnapKit/SnapKit) — MIT
 - [MarqueeLabel](https://github.com/MxIris-LyricsX-Project/MarqueeLabel) — MIT
 - [BigInt](https://github.com/attaswift/BigInt) — MIT
@@ -105,7 +104,6 @@ foundation Lirico is built on.
 - [FrameworkToolbox](https://github.com/Mx-Iris/FrameworkToolbox) — MIT
 - [CombineX](https://github.com/cx-org/CombineX) — MIT (vendored)
 - [Then](https://github.com/devxoul/Then) — MIT (vendored)
-- [Sparkle](https://github.com/sparkle-project/Sparkle) — MIT
 - [Swift Collections](https://github.com/apple/swift-collections) — Apache-2.0
 - [Swift Async Algorithms](https://github.com/apple/swift-async-algorithms) — Apache-2.0
 - [MASShortcut](https://github.com/shpakovski/MASShortcut) — BSD-2-Clause

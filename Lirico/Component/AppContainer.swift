@@ -1,5 +1,4 @@
 import AppKit
-import Combine
 import MusicPlayer
 
 /// Composition root for app-wide services and long-lived UI controllers.
@@ -41,9 +40,6 @@ final class AppContainer {
         SearchLyricsWindowController(player: player, session: session, pipeline: searchPipeline, searchSettings: searchSettings)
     private(set) lazy var preferencesWindowController: PreferenceWindowController = .create()
     private(set) lazy var aboutWindowController: AboutWindowController = AboutWindowController()
-
-    private var touchBarController: TouchBarLyricsController?
-    private var touchBarCancellable: AnyCancellable?
 
     @MainActor
     init(player: PlayerHandle = MusicPlayers.Selected.shared) {
@@ -93,30 +89,5 @@ final class AppContainer {
         LyricsSelector.shared.normalize(against: availableLyricsSources(for: searchSettings), settings: searchSettings)
         karaokeWindowController.showWindow(nil)
         menuBarController.statusBarMenu = statusBarMenu
-        observeTouchBarPreference()
     }
-
-    private func observeTouchBarPreference() {
-        touchBarCancellable = defaults.publisher(for: [.touchBarLyricsEnabled])
-            .prepend()
-            .sink { [weak self] in self?.refreshTouchBar() }
-    }
-
-    private func refreshTouchBar() {
-        if defaults[.touchBarLyricsEnabled] {
-            if touchBarController == nil {
-                touchBarController = TouchBarLyricsController(
-                    player: player, session: session, clock: playbackClock
-                )
-            }
-        } else if let touchBarController {
-            // Releasing the controller alone leaves its control-strip button and app Touch Bar installed.
-            touchBarController.removeFromControlStrip()
-            if NSApp.touchBar === touchBarController.touchBar {
-                NSApp.touchBar = nil
-            }
-            self.touchBarController = nil
-        }
-    }
-
 }

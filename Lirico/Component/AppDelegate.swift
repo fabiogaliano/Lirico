@@ -14,8 +14,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     private var statusBarMenu: NSMenu!
     private var lyricsOffsetView: NSView!
 
-    private let updateController = UpdateController()
-
     /// Constructed in `applicationDidFinishLaunching` after defaults registration
     /// so that `MusicPlayers.Selected.init()` (which reads `UserDefaults`) sees
     /// the registered values.
@@ -59,8 +57,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         for sharedKey in sharedKeys {
             groupDefaults.bind(NSBindingName(sharedKey.key), withDefaultName: sharedKey)
         }
-
-        updateController.startIfEnabled()
 
         if defaults[.isShowLyricsHUD] {
             container.lyricsHUD.showWindow(nil)
@@ -142,10 +138,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         } else {
             prefs.showWindow(nil)
         }
-    }
-
-    @IBAction func checkUpdateAction(_ sender: Any) {
-        updateController.checkForUpdates(sender)
     }
 
     @IBAction func increaseOffset(_ sender: Any?) {

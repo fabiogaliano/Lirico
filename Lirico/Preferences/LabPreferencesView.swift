@@ -51,9 +51,6 @@ private struct NowPlayingApplicationListRepresentable: NSViewControllerRepresent
 // MARK: - Lab Preferences View
 
 struct LabPreferencesView: View {
-    // Touch Bar
-    @AppStorage("TouchBarLyricsEnabled") private var touchBarLyricsEnabled = false
-
     // Now Playing
     @AppStorage("UseSystemWideNowPlaying") private var useSystemWideNowPlaying = false
 
@@ -77,7 +74,6 @@ struct LabPreferencesView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                touchBarSection
                 nowPlayingSection
                 japaneseSection
                 appleMusicSection
@@ -95,16 +91,6 @@ struct LabPreferencesView: View {
     }
 
     // MARK: - Sections
-
-    private var touchBarSection: some View {
-        SettingsSection(title: "Touch Bar") {
-            Toggle("Enable Touch Bar lyrics", isOn: $touchBarLyricsEnabled)
-            Button("Customize Touch Bar…") {
-                NSApplication.shared.toggleTouchBarCustomizationPalette(nil)
-            }
-            .disabled(!touchBarLyricsEnabled)
-        }
-    }
 
     private var nowPlayingSection: some View {
         SettingsSection(title: "Now Playing") {

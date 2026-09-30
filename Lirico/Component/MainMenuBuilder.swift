@@ -122,7 +122,6 @@ enum MainMenuBuilder {
         menu.addItem(preferencesItem(target: target))
         menu.addItem(.separator())
         menu.addItem(aboutItem(target: target))
-        menu.addItem(checkUpdateItem(target: target))
         menu.addItem(.separator())
         menu.addItem(quitItem())
 
@@ -280,19 +279,6 @@ enum MainMenuBuilder {
         return item
     }
 
-    private static func checkUpdateItem(target: AppDelegate) -> NSMenuItem {
-        let item = NSMenuItem(
-            title: NSLocalizedString("Check for Updates…", comment: "menu"),
-            action: #selector(AppDelegate.checkUpdateAction(_:)),
-            keyEquivalent: ""
-        )
-        item.target = target
-        item.tag = 401
-        applyMASHiddenInRelease(to: item)
-        applyMASReviewHidden(to: item)
-        return item
-    }
-
     private static func quitItem() -> NSMenuItem {
         let item = NSMenuItem(
             title: NSLocalizedString("Quit Lirico", comment: "menu"),
@@ -305,17 +291,6 @@ enum MainMenuBuilder {
     }
 
     // MARK: - MAS-conditional visibility
-
-    /// Hide menu items in the Mac App Store build; no-op for direct builds.
-    /// Replaces the storyboard's `isHiddenInMASVersion` user-defined runtime
-    /// attribute (which was driven by the `IBInspection.swift` IBInspectable).
-    private static func applyMASHiddenInRelease(to item: NSMenuItem) {
-        #if IS_FOR_MAS
-        if isFromMacAppStore {
-            item.isHidden = true
-        }
-        #endif
-    }
 
     private static func applyMASReviewHidden(to item: NSMenuItem) {
         #if IS_FOR_MAS
