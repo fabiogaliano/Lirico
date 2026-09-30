@@ -1,45 +1,37 @@
 import Foundation
 import MusicPlayer
 
-/// Per-track and per-album "do not search lyrics for this" list, with undoable membership.
+/// Per-track and per-album "do not search lyrics for this" list.
 ///
-/// Backed by `defaults[.noSearchingTrackIds]` and `defaults[.noSearchingAlbumNames]`. Centralising
-/// the mutation surface keeps the four un-block sites from having to copy the same find-and-remove
-/// dance, and gives the blocklist concept a real noun in the codebase instead of leaving it as a
-/// UserDefaults key pattern strewn across LyricsSession, AppDelegate, and SearchLyricsViewModel.
-enum SearchBlocklist {
+/// Backed by `.noSearchingTrackIds` and `.noSearchingAlbumNames` in the injected defaults.
+struct SearchBlocklist {
+    private let defaults: UserDefaults
 
-    // MARK: - Query
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+    }
 
-    static func isBlocked(track: MusicTrack) -> Bool {
+    func isBlocked(track: MusicTrack) -> Bool {
         defaults[.noSearchingTrackIds].contains(track.id)
     }
 
-    static func isBlocked(album: String) -> Bool {
+    func isBlocked(album: String) -> Bool {
         defaults[.noSearchingAlbumNames].contains(album)
     }
 
-    // MARK: - Block
-
-    static func block(track: MusicTrack) {
+    func block(track: MusicTrack) {
         defaults[.noSearchingTrackIds].append(track.id)
     }
 
-    static func block(album: String) {
+    func block(album: String) {
         defaults[.noSearchingAlbumNames].append(album)
     }
 
-    // MARK: - Unblock
-
-    static func unblock(track: MusicTrack) {
-        if let index = defaults[.noSearchingTrackIds].firstIndex(of: track.id) {
-            defaults[.noSearchingTrackIds].remove(at: index)
-        }
-    }
-
-    static func unblock(album: String) {
-        if let index = defaults[.noSearchingAlbumNames].firstIndex(of: album) {
-            defaults[.noSearchingAlbumNames].remove(at: index)
+    /// Lifts every block that stops `track` from being searched: its own and its album's.
+    func unblock(_ track: MusicTrack) {
+        defaults[.noSearchingTrackIds].removeAll { $0 == track.id }
+        if let album = track.album {
+            defaults[.noSearchingAlbumNames].removeAll { $0 == album }
         }
     }
 }

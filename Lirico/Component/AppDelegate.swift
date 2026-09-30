@@ -148,21 +148,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     @IBAction func wrongLyrics(_ sender: Any?) {
-        guard let container, let track = container.player.currentTrack else {
-            return
-        }
-        SearchBlocklist.block(track: track)
-        container.session.clear(deleteOnDisk: true)
+        container?.session.rejectCurrentLyrics(blocking: .track)
     }
 
     @IBAction func doNotSearchLyricsForThisAlbum(_ sender: Any?) {
-        guard let container,
-              let track = container.player.currentTrack,
-              let album = track.album else {
-            return
-        }
-        SearchBlocklist.block(album: album)
-        container.session.clear(deleteOnDisk: true)
+        container?.session.rejectCurrentLyrics(blocking: .album)
     }
 
     func menuWillOpen(_ menu: NSMenu) {

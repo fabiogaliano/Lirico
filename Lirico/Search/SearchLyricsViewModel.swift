@@ -206,11 +206,8 @@ final class SearchLyricsViewModel: ObservableObject {
     func apply() {
         guard canApply,
               let id = selectionID,
-              let result = visibleRows.first(where: { $0.id == id }),
-              let track = player.currentTrack
+              let result = visibleRows.first(where: { $0.id == id })
         else { return }
-        SearchBlocklist.unblock(track: track)
-        SearchBlocklist.unblock(album: track.album ?? "")
         let supporting = results?.supportingLyrics(excluding: result.lyrics) ?? []
         session.select(result.lyrics, writeToiTunesIfAuto: true, supporting: supporting)
         loadedLyrics = result.lyrics

@@ -78,7 +78,8 @@ final class AppContainer {
             preparation: preparation,
             chineseConverter: chineseConverter,
             persistenceSettings: PersistenceSettings(),
-            exportSettings: exportSettings
+            exportSettings: exportSettings,
+            blocklist: SearchBlocklist()
         )
         self.menuBarController = MenuBarLyricsController(display: display, settings: displaySettings)
         self.karaokeWindowController = KaraokeLyricsWindowController(

@@ -25,6 +25,7 @@ class LyricsSession: NSObject {
     private let clock: PlaybackClock
     private let persistenceSettings: PersistenceSettings
     private let exportSettings: ExportSettings
+    private let blocklist: SearchBlocklist
     private let preparation: LyricsPreparation
     private let chineseConverter: ChineseConverterProvider
 
@@ -111,13 +112,15 @@ class LyricsSession: NSObject {
         preparation: LyricsPreparation,
         chineseConverter: ChineseConverterProvider,
         persistenceSettings: PersistenceSettings,
-        exportSettings: ExportSettings
+        exportSettings: ExportSettings,
+        blocklist: SearchBlocklist
     ) {
         self.automaticSearch = automaticSearch
         self.player = player
         self.clock = clock
         self.persistenceSettings = persistenceSettings
         self.exportSettings = exportSettings
+        self.blocklist = blocklist
         self.preparation = preparation
         self.chineseConverter = chineseConverter
         super.init()
@@ -213,19 +216,21 @@ class LyricsSession: NSObject {
 
     // MARK: - Commands
 
-    /// Adopt `lyrics` as the active selection. When `writeToiTunesIfAuto` is
-    /// true and the user has the auto-export preference enabled, push the
-    /// lyrics into Apple Music as a side effect (overwriting existing track
-    /// lyrics). The track association is read fresh from the player so that
-    /// late-arriving callers stay correct.
+    /// Adopt `lyrics`, picked by the user, as the active selection. When
+    /// `writeToiTunesIfAuto` is true and the user has the auto-export preference
+    /// enabled, push the lyrics into Apple Music as a side effect (overwriting
+    /// existing track lyrics).
     ///
-    /// Manual select cancels any in-flight automatic search by invalidating the
-    /// current generation token. Late automatic events arriving after this call
-    /// are silently dropped, so automatic finalization/export can never replace
-    /// a user-selected result.
+    /// A manual pick overrides an earlier rejection, so the track and its album are
+    /// searched again from now on. Late automatic events arriving after this call
+    /// are dropped, so automatic finalization/export can never replace the pick.
     func select(_ lyrics: Lyrics, writeToiTunesIfAuto: Bool = false, supporting: [Lyrics] = []) {
         invalidateAutomaticSearch()
-        adopt(lyrics, for: player.currentTrack, persist: true)
+        let track = player.currentTrack
+        if let track {
+            blocklist.unblock(track)
+        }
+        adopt(lyrics, for: track, persist: true)
         // Retain the manual search's other same-song results as restoration
         // evidence for the chosen lyrics.
         supportingLyrics = SupportingLyrics.bounded(supporting, excluding: lyrics)
@@ -234,28 +239,36 @@ class LyricsSession: NSObject {
         }
     }
 
-    /// Drop the active lyrics. `deleteOnDisk` covers the "user explicitly
-    /// rejected this match" path (wrong lyrics / blocked album): the cached
-    /// file is removed, and — when auto-export is on — Apple Music's lyrics
-    /// field is cleared so the rejection sticks across restarts. The in-flight
-    /// search is always cancelled and the generation invalidated.
-    func clear(deleteOnDisk: Bool = false) {
-        invalidateAutomaticSearch()
+    enum RejectionScope {
+        case track
+        case album
+    }
 
-        if deleteOnDisk {
-            if exportSettings.writeToiTunesAutomatically, let track = player.currentTrack {
-                track.setLyrics("")
-            }
-            // Only files Lirico saved itself: a `.lrc` beside the audio file is the
-            // user's own, and this app is unsandboxed, so deleting it would be permanent.
-            if let url = currentLyrics?.metadata.localURL, persistenceSettings.storageDirectoryContains(url) {
-                try? FileManager.default.removeItem(at: url)
-            }
+    /// "Wrong lyrics" / "Don't search this album": stop searching for the current track
+    /// or its whole album, and drop the lyrics shown. The file Lirico saved is deleted and,
+    /// with auto-export on, Apple Music's lyrics field is cleared, so the rejection sticks
+    /// across restarts.
+    func rejectCurrentLyrics(blocking scope: RejectionScope) {
+        guard let track = player.currentTrack else { return }
+        switch scope {
+        case .track:
+            blocklist.block(track: track)
+        case .album:
+            guard let album = track.album else { return }
+            blocklist.block(album: album)
+        }
+        invalidateAutomaticSearch()
+        if exportSettings.writeToiTunesAutomatically, canWriteToAppleMusic(track) {
+            track.setLyrics("")
+        }
+        // Only files Lirico saved itself: a `.lrc` beside the audio file is the
+        // user's own, and this app is unsandboxed, so deleting it would be permanent.
+        if let url = currentLyrics?.metadata.localURL, persistenceSettings.storageDirectoryContains(url) {
+            try? FileManager.default.removeItem(at: url)
         }
         currentLyrics = nil
         supportingLyrics = []
-        // Rejecting a match is paired with blocking the track or album, so no search follows.
-        status = deleteOnDisk ? .blocked : .notFound
+        status = .blocked
     }
 
     @MainActor
@@ -275,7 +288,7 @@ class LyricsSession: NSObject {
         let title = track.title ?? ""
         let artist = track.artist ?? ""
 
-        guard !SearchBlocklist.isBlocked(track: track) else {
+        guard !blocklist.isBlocked(track: track) else {
             status = .blocked
             return
         }
@@ -314,7 +327,7 @@ class LyricsSession: NSObject {
             status = .loaded
             return
         }
-        if let album = track.album, SearchBlocklist.isBlocked(album: album) {
+        if let album = track.album, blocklist.isBlocked(album: album) {
             status = currentLyrics == nil ? .blocked : .loaded
             return
         }
@@ -439,9 +452,8 @@ extension LyricsSession {
 
         preparation.prepare(lrc)
         lrc.metadata.needsPersist = true
+        blocklist.unblock(track)
         adopt(lrc, for: track, persist: true)
         supportingLyrics = []
-        SearchBlocklist.unblock(track: track)
-        SearchBlocklist.unblock(album: track.album ?? "")
     }
 }
