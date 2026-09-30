@@ -55,8 +55,15 @@ protocol ExplicitLyricsResolving: AnyObject {
 /// lexicon entries change.
 final class ExplicitLyricsResolver: ExplicitLyricsResolving {
     private let defaults: UserDefaults
+    /// The display coordinator builds restorations on its background queue while
+    /// lexicon edits rebuild the restorer on main, so shared state sits behind a lock.
+    private let lock = NSLock()
     private var cachedRestorer: ExplicitWordRestorer
     private var cachedLexicon: [String]
+    /// Supporting candidates only change per track or search, but restorations are
+    /// rebuilt on every line change; reuse their extracted lines.
+    private var cachedSupporting: [Lyrics] = []
+    private var cachedSupportingLineSets: [[String]] = []
     private let changeSubject = PassthroughSubject<Void, Never>()
     private var cancelBag = Set<AnyCancellable>()
 
@@ -82,11 +89,8 @@ final class ExplicitLyricsResolver: ExplicitLyricsResolving {
     func makeRenderRestoration(context: ExplicitRestorationContext) -> ExplicitRenderRestoration {
         guard isEnabled else { return .identity }
 
-        let restorer = cachedRestorer
-        let supportingLineSets: [[String]] = context.supportingCandidates.map { lyrics in
-            lyrics.lines
-                .filter { $0.enabled && !$0.content.isEmpty }
-                .map(\.content)
+        let (restorer, supportingLineSets) = lock.withLock {
+            (cachedRestorer, candidateLineSets(for: context.supportingCandidates))
         }
         guard restorer.canRestore(hasAlternates: !supportingLineSets.isEmpty) else {
             return .identity
@@ -106,11 +110,29 @@ final class ExplicitLyricsResolver: ExplicitLyricsResolving {
         )
     }
 
+    /// Must be called with `lock` held.
+    private func candidateLineSets(for candidates: [Lyrics]) -> [[String]] {
+        // Identity, held strongly so a freed candidate's address can't alias a new one.
+        let unchanged = candidates.count == cachedSupporting.count
+            && zip(candidates, cachedSupporting).allSatisfy { $0 === $1 }
+        if !unchanged {
+            cachedSupporting = candidates
+            cachedSupportingLineSets = candidates.map { lyrics in
+                lyrics.lines
+                    .filter { $0.enabled && !$0.content.isEmpty }
+                    .map(\.content)
+            }
+        }
+        return cachedSupportingLineSets
+    }
+
     private func reload() {
         let entries = defaults[.lyricsExplicitLexiconEntries] ?? []
-        if entries != cachedLexicon {
-            cachedLexicon = entries
-            cachedRestorer = ExplicitWordRestorer(words: entries)
+        lock.withLock {
+            if entries != cachedLexicon {
+                cachedLexicon = entries
+                cachedRestorer = ExplicitWordRestorer(words: entries)
+            }
         }
         changeSubject.send(())
     }

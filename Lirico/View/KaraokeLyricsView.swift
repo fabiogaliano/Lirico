@@ -102,6 +102,9 @@ class KaraokeLyricsView: NSView {
         if firstLine.trimmingCharacters(in: .whitespaces).isEmpty {
             displayLine1 = nil
             shouldHideAll = true
+        } else if let current = displayLine1, let position = toBeHide.firstIndex(of: current), current.stringValue == firstLine {
+            // Pause, resume and seek re-render the same line; swapping in a fresh label would blink it.
+            toBeHide.remove(at: position)
         } else if toBeHide.count == 2, toBeHide[index].stringValue == firstLine {
             displayLine1 = toBeHide[index]
             toBeHide.remove(at: index)
@@ -112,15 +115,19 @@ class KaraokeLyricsView: NSView {
         }
 
         if !secondLine.trimmingCharacters(in: .whitespaces).isEmpty {
-            let label = lyricsLabel(secondLine)
-            displayLine2 = label
-            toBeShow.append(label)
+            if let current = displayLine2, let position = toBeHide.firstIndex(of: current), current.stringValue == secondLine {
+                toBeHide.remove(at: position)
+            } else {
+                let label = lyricsLabel(secondLine)
+                displayLine2 = label
+                toBeShow.append(label)
+            }
         } else {
             displayLine2 = nil
         }
 
         NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.25
+            context.duration = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? 0 : 0.25
             context.allowsImplicitAnimation = true
             context.timingFunction = .swiftOut
             toBeHide.forEach {
