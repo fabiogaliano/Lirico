@@ -106,7 +106,6 @@
 		FA0000012F200000000A0009 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0009 /* AboutView.swift */; };
 		E97F2CFD2E757C19005466D1 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97F2CF92E757C19005466D1 /* Signal.swift */; };
 		E97F2D012E757C19005466D1 /* Invoke.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97F2CF72E757C19005466D1 /* Invoke.swift */; };
-		E983FA212C85EA6E00170CF7 /* MarqueeLabel in Frameworks */ = {isa = PBXBuildFile; productRef = E983FA202C85EA6E00170CF7 /* MarqueeLabel */; };
 		E983FA242C86302200170CF7 /* MarqueeLabel in Frameworks */ = {isa = PBXBuildFile; productRef = E983FA232C86302200170CF7 /* MarqueeLabel */; };
 		E9A38A6B2D7337E700DEFE0E /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = E9A38A6A2D7337E700DEFE0E /* Localizable.xcstrings */; };
 		E9A38A6E2D7337E700DEFE0E /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = E9A38A6D2D7337E700DEFE0E /* InfoPlist.xcstrings */; };
@@ -244,7 +243,6 @@
 				BBB03F30232FB40400A3879E /* Semver in Frameworks */,
 				BB6C75E8248B908500804AEB /* TouchBarHelper in Frameworks */,
 				E9C4E2A22AC9A3D6004B9EB2 /* SwiftCF in Frameworks */,
-				E983FA212C85EA6E00170CF7 /* MarqueeLabel in Frameworks */,
 				E983FA242C86302200170CF7 /* MarqueeLabel in Frameworks */,
 				E9C5763D2DEDF539009107B5 /* LiricoFoundation in Frameworks */,
 				BBB03F2D232FB3AF00A3879E /* GenericID in Frameworks */,
@@ -508,7 +506,6 @@
 				E9C4E2982AC9A10F004B9EB2 /* MASShortcut */,
 				E9C4E29B2AC9A124004B9EB2 /* SnapKit */,
 				E9C4E2A12AC9A3D6004B9EB2 /* SwiftCF */,
-				E983FA202C85EA6E00170CF7 /* MarqueeLabel */,
 				E983FA232C86302200170CF7 /* MarqueeLabel */,
 				E967A20B2D2AD6DB00982E06 /* LaunchAtLogin */,
 				E9EF0D502D6F5ECD00D45E0F /* UIFoundation */,
@@ -1220,10 +1217,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E967A20A2D2AD6DB00982E06 /* XCRemoteSwiftPackageReference "LaunchAtLogin-Legacy" */;
 			productName = LaunchAtLogin;
-		};
-		E983FA202C85EA6E00170CF7 /* MarqueeLabel */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MarqueeLabel;
 		};
 		E983FA232C86302200170CF7 /* MarqueeLabel */ = {
 			isa = XCSwiftPackageProductDependency;

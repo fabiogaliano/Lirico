@@ -1,5 +1,7 @@
 files:
-  - source: /Lirico/Supporting Files/en.lproj/*.strings
-    translation: /Lirico/Supporting Files/%osx_code%/%original_file_name%
-  - source: Lirico/en.lproj/*.strings
-    translation: /Lirico/%osx_code%/%original_file_name%
+  - source: /Lirico/Supporting Files/Localizable.xcstrings
+    translation: /Lirico/Supporting Files/Localizable.xcstrings
+    multilingual: true
+  - source: /Lirico/Supporting Files/InfoPlist.xcstrings
+    translation: /Lirico/Supporting Files/InfoPlist.xcstrings
+    multilingual: true
