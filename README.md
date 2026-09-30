@@ -1,6 +1,6 @@
 # Lirico
 
-<img src="docs/img/icon.png" width="128px">
+<img src="docs/img/screenshot.jpg" width="900px" alt="Lirico showing karaoke lyrics over a playing track, with the search window listing matches marked by a mic icon">
 
 **Press play. The lyrics follow.**
 
@@ -67,8 +67,6 @@ There's no official LRCX editor yet. You can use [Lrcx_Creator](https://github.c
 or any LRC editor, since LRCX is compatible with LRC.
 
 ## Screenshot
-
-<img src="docs/img/screenshot.jpg" width="900px" alt="Lirico showing karaoke lyrics over a playing track, with the search window listing matches marked by a mic icon">
 
 <img src="docs/img/sync-by-ear.png" width="900px" alt="Lirico's Sync by Ear panel beside the desktop karaoke overlay, tapping the line you hear aligns every lyric to the music in real time">
 
