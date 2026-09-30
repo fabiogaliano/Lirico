@@ -3,22 +3,6 @@ import Combine
 import MusicPlayer
 import LiricoFoundation
 
-// MARK: - AutomaticAcceptancePolicy
-
-/// Governs which remote candidates are eligible to replace the current lyrics
-/// during an automatic search.
-///
-/// `.normal`: any strong remote candidate may become `currentLyrics`.
-/// `.localUpgradeOnly`: only materially-better strong remote candidates may
-///  replace the already-displayed local line-synced lyrics. Evaluated local
-///  score is computed once at search start and retained for comparisons.
-enum AutomaticAcceptancePolicy {
-    case normal
-    /// An exact/strong remote candidate may replace local line-synced lyrics only
-    /// when it is materially better (karaoke within window, or line-synced +5 points).
-    case localUpgradeOnly(existing: Lyrics, existingEvaluation: LyricsCandidateEvaluation)
-}
-
 // MARK: - LyricsStatus
 
 /// What the session is doing for the current track, so surfaces can tell
@@ -36,7 +20,7 @@ enum LyricsStatus: Equatable {
 // MARK: - LyricsSession
 
 class LyricsSession: NSObject {
-    private let pipeline: LyricsSearchPipeline
+    private let automaticSearch: AutomaticLyricsSearch
     private let player: PlayerHandle
     private let clock: PlaybackClock
     private let persistenceSettings: PersistenceSettings
@@ -85,11 +69,6 @@ class LyricsSession: NSObject {
     /// session (automatic search collection, manual select); reset on track change.
     @Published private(set) var supportingLyrics: [Lyrics] = []
 
-    /// Upper bound on retained supporting candidates. A handful is plenty for
-    /// cross-candidate consensus; more would only add memory and noise.
-    private let maxSupportingLyrics = 10
-
-    private var searchRequest: LyricsSearchRequest?
     private var searchTask: Task<Void, Never>?
 
     /// Monotonically-increasing counter. Incremented on every track change,
@@ -132,7 +111,7 @@ class LyricsSession: NSObject {
         exportSettings: ExportSettings = ExportSettings(),
         playerSettings: PlayerSettings = PlayerSettings()
     ) {
-        self.pipeline = pipeline
+        self.automaticSearch = AutomaticLyricsSearch(pipeline: pipeline, searchSettings: searchSettings)
         self.player = player
         self.clock = clock
         self.persistenceSettings = persistenceSettings
@@ -260,7 +239,7 @@ class LyricsSession: NSObject {
         status = .loaded
         // Retain the manual search's other same-song results as restoration
         // evidence for the chosen lyrics.
-        supportingLyrics = boundedSupporting(supporting, excluding: lyrics)
+        supportingLyrics = AutomaticLyricsSearch.boundedSupporting(supporting, excluding: lyrics)
         if writeToiTunesIfAuto, exportSettings.writeToiTunesAutomatically {
             writeToiTunes(overwrite: true)
         }
@@ -283,7 +262,7 @@ class LyricsSession: NSObject {
             }
             // Only files Lirico saved itself: a `.lrc` beside the audio file is the
             // user's own, and this app is unsandboxed, so deleting it would be permanent.
-            if let url = currentLyrics?.metadata.localURL, isInStorageDirectory(url) {
+            if let url = currentLyrics?.metadata.localURL, persistenceSettings.storageDirectoryContains(url) {
                 try? FileManager.default.removeItem(at: url)
             }
         }
@@ -319,86 +298,60 @@ class LyricsSession: NSObject {
             status = .blocked
             return
         }
+        status = .searching
 
-        // Determine the acceptance policy from local lyrics.
-        let acceptancePolicy: AutomaticAcceptancePolicy
-        switch LocalLyricsLoader.load(
-            track: track,
-            title: title,
-            artist: artist,
-            preparation: preparation,
-            settings: persistenceSettings
-        ) {
-        case .found(let lyrics):
-            currentLyrics = lyrics
-            if lyrics.isKaraokeTimed {
-                // Local karaoke is the best we can get — no network search.
-                status = .loaded
-                return
-            }
-            // Local line-synced: display immediately but search for a clearly better remote.
-            let localEval = evaluateLocalLyrics(
-                lyrics: lyrics,
-                title: title,
-                artist: artist,
-                duration: track.duration,
-                album: track.album
-            )
-            acceptancePolicy = .localUpgradeOnly(existing: lyrics, existingEvaluation: localEval)
-
-        case .foundPartial(let lyrics):
-            currentLyrics = lyrics
-            // Partial (.lrc) local lyrics: show immediately, continue normal search.
-            acceptancePolicy = .normal
-
-        case .none:
-            acceptancePolicy = .normal
+        // Local lookup asks the player for embedded lyrics and the file location over
+        // Apple Events and reads disk; off the main thread, a slow player can't stall the UI.
+        let generation = automaticSearchGeneration
+        let preparation = preparation
+        let persistenceSettings = persistenceSettings
+        searchTask = Task { @MainActor [weak self] in
+            let local = await Task.detached(priority: .userInitiated) {
+                LocalLyrics.resolve(
+                    track: track,
+                    title: title,
+                    artist: artist,
+                    preparation: preparation,
+                    persistenceSettings: persistenceSettings
+                )
+            }.value
+            guard let self, self.isCurrentAutomaticSearch(generation) else { return }
+            await self.continueAutomaticSearch(track: track, title: title, artist: artist, local: local, generation: generation)
         }
+    }
 
+    @MainActor
+    private func continueAutomaticSearch(
+        track: MusicTrack,
+        title: String,
+        artist: String,
+        local: LocalLyrics,
+        generation: Int
+    ) async {
+        currentLyrics = local.lyrics
+        guard local.needsRemoteSearch else {
+            status = .loaded
+            return
+        }
         if let album = track.album, SearchBlocklist.isBlocked(album: album) {
             status = currentLyrics == nil ? .blocked : .loaded
             return
         }
         status = currentLyrics == nil ? .searching : .loaded
 
-        let duration = track.duration ?? 0
-        // Album metadata is included in automatic-track requests so providers
-        // like LRCLIB can attempt an exact-match lookup (SR-02). Manual
-        // searches omit album to avoid over-constraining user-initiated queries.
-        var autoUserInfo: [String: String] = [:]
-        if let album = track.album, !album.isEmpty {
-            autoUserInfo[LyricsSearchRequest.UserInfoKey.albumName] = album
-        }
-        let request = LyricsSearchRequest(
-            searchTerm: .info(title: title, artist: artist),
-            duration: duration,
-            limit: 5,
-            userInfo: autoUserInfo
-        )
-        searchRequest = request
-
-        let requestedDuration: TimeInterval? = track.duration
-        let requestedAlbum: String? = track.album
-        let mode: LyricsSearchMode = .titleAndArtist(title: title, artist: artist)
-        let configuration = searchSettings.rankingConfiguration
-
-        // Capture the current generation before launching. The task checks this
-        // token at every candidate/finalization point to reject stale results.
-        let generation = automaticSearchGeneration
         let initialLyrics = currentLyrics
-
-        searchTask = Task { @MainActor in
-            await runAutomaticSearch(
-                request: request,
-                mode: mode,
-                requestedDuration: requestedDuration,
-                requestedAlbum: requestedAlbum,
-                acceptancePolicy: acceptancePolicy,
-                configuration: configuration,
-                initialLyrics: initialLyrics,
-                generation: generation
-            )
-        }
+        await automaticSearch.run(
+            AutomaticLyricsSearch.Request(
+                title: title,
+                artist: artist,
+                album: track.album,
+                duration: track.duration,
+                policy: local.policy
+            ),
+            isCurrent: { [weak self] in self?.isCurrentAutomaticSearch(generation) ?? false },
+            displayed: { [weak self] in self?.currentLyrics },
+            report: { [weak self] decision in self?.apply(decision, initialLyrics: initialLyrics) }
+        )
     }
 
     /// Re-checks why no track is visible. Permission can be granted or revoked in System
@@ -416,333 +369,43 @@ class LyricsSession: NSObject {
         }
     }
 
-    // MARK: - Automatic search state machine
-
-    /// Runs the automatic search loop with a 15-second deadline.
-    ///
-    /// Candidates are collected as `.candidate` events arrive. The first strong
-    /// acceptable candidate is shown as an interim `currentLyrics` immediately.
-    /// Subsequent candidates are re-ranked via `LyricsCandidateRanker.bestCandidate`
-    /// and replace `currentLyrics` whenever a better one is found.
-    ///
-    /// Finalization (persist + export) happens EXACTLY ONCE: either when the
-    /// provider stream emits `.completed` or when the 15-second deadline fires,
-    /// whichever comes first. Stale events (generation mismatch) are always ignored.
-    @MainActor
-    private func runAutomaticSearch(
-        request: LyricsSearchRequest,
-        mode: LyricsSearchMode,
-        requestedDuration: TimeInterval?,
-        requestedAlbum: String?,
-        acceptancePolicy: AutomaticAcceptancePolicy,
-        configuration: LyricsCandidateRankingConfiguration,
-        initialLyrics: Lyrics?,
-        generation: Int
-    ) async {
-        let stream = pipeline.events(
-            for: request,
-            mode: mode,
-            requestedDuration: requestedDuration,
-            requestedAlbum: requestedAlbum
-        )
-
-        // State shared between the two racing tasks (both @MainActor, so safe).
-        // Both tasks execute on the main actor; mutable sharing is safe.
-        var collectedCandidates: [EvaluatedLyricsCandidate] = []
-
-        // Race: event-stream consumer vs. 15-second deadline.
-        // Each child task returns a Bool: true = stream finished/ran to end, false = deadline fired.
-        // The parent finalizes once after the first child completes, then cancels the other.
-        await withTaskGroup(of: Bool.self) { group in
-            // Consumer task: iterates the event stream until .completed or cancellation.
-            // Returns true when the stream is exhausted (naturally or via .completed event).
-            group.addTask { @MainActor in
-                for await event in stream {
-                    // Stale generation: the track changed or user acted — stop now.
-                    guard self.isCurrentAutomaticSearch(generation) else { break }
-
-                    switch event {
-                    case .candidate(let candidate):
-                        collectedCandidates.append(candidate)
-
-                        // Show the first strong acceptable candidate immediately
-                        // (interim display, no persist/export yet).
-                        self.maybeUpdateInterim(
-                            with: candidate,
-                            collected: collectedCandidates,
-                            policy: acceptancePolicy,
-                            mode: mode,
-                            configuration: configuration,
-                            generation: generation
-                        )
-
-                    case .completed:
-                        // Stream signalled all providers finished normally; the
-                        // race exits naturally when this task returns.
-                        break
-
-                    case .providerStarted, .providerFinished, .providerFailed:
-                        // Automatic search ignores provider-status events.
-                        break
-                    }
-                }
-                return true
-            }
-
-            // Deadline task: fires after 15 seconds.
-            // Returns false to signal that the deadline beat the stream.
-            group.addTask { @MainActor in
-                do {
-                    try await Task.sleep(nanoseconds: 15_000_000_000)
-                } catch {
-                    // Cancelled before 15 s — the consumer finished first.
-                    return false
-                }
-                return false
-            }
-
-            // Wait for the first child to finish, then cancel the other (DEC-003).
-            _ = await group.next()
-            group.cancelAll()
-        }
-
-        // Finalize EXACTLY ONCE here, after the race resolves.
-        // Generation check prevents stale finalization when track changed / user acted.
-        guard isCurrentAutomaticSearch(generation) else { return }
-
-        finalizeAutomaticSearch(
-            collectedCandidates: collectedCandidates,
-            mode: mode,
-            acceptancePolicy: acceptancePolicy,
-            configuration: configuration,
-            initialLyrics: initialLyrics,
-            generation: generation
-        )
-    }
-
-    /// Performs finalization: picks the best candidate, updates `currentLyrics`,
-    /// persists dirty lyrics, and auto-exports to Apple Music if enabled.
-    ///
-    /// Called exactly once per automatic search, from `runAutomaticSearch` after
-    /// the race between stream completion and the 15-second deadline resolves.
-    @MainActor
-    private func finalizeAutomaticSearch(
-        collectedCandidates: [EvaluatedLyricsCandidate],
-        mode: LyricsSearchMode,
-        acceptancePolicy: AutomaticAcceptancePolicy,
-        configuration: LyricsCandidateRankingConfiguration,
-        initialLyrics: Lyrics?,
-        generation: Int
-    ) {
-        // Generation guard: manual select/clear/track-change happened after the
-        // search started — do not overwrite the user's choice.
-        guard isCurrentAutomaticSearch(generation) else { return }
-
-        let ranker = LyricsCandidateRanker()
-        if let bestCandidate = ranker.bestCandidate(
-            from: collectedCandidates,
-            mode: mode,
-            configuration: configuration
-        ) {
-            let approved = shouldAccept(
-                candidate: bestCandidate,
-                policy: acceptancePolicy,
-                configuration: configuration,
-                generation: generation
-            )
-            if approved {
-                if let track = player.currentTrack {
-                    bestCandidate.lyrics.associateWithTrack(track)
-                }
-                bestCandidate.lyrics.metadata.persistenceAllowed = true
-                currentLyrics = bestCandidate.lyrics
-            }
-        }
-
-        status = currentLyrics == nil ? .notFound : .loaded
-
-        // Final restoration evidence: the other same-song candidates for whatever
-        // lyrics ended up displayed (the new pick, or retained local lyrics).
-        supportingLyrics = boundedSupporting(from: collectedCandidates, selected: currentLyrics)
-
-        // Persist and export after finalization — never on interim updates.
-        persistCurrentLyricsIfNeeded()
-        // Kept local lyrics are already what the user has; re-exporting them would
-        // cost an Apple Event per track and clobber Apple Music's field for nothing.
-        if exportSettings.writeToiTunesAutomatically, currentLyrics !== initialLyrics {
-            writeToiTunes(overwrite: true)
-        }
-    }
-
-    /// Updates `currentLyrics` with an interim result when the candidate is
-    /// better than the current best. Interim results are display-only — no
-    /// persist or export is triggered here.
-    ///
-    /// The ranker is used to pick the best candidate from everything collected
-    /// so far, ensuring karaoke preference and source priority are respected from
-    /// the start rather than only at finalization.
-    private func maybeUpdateInterim(
-        with newCandidate: EvaluatedLyricsCandidate,
-        collected: [EvaluatedLyricsCandidate],
-        policy: AutomaticAcceptancePolicy,
-        mode: LyricsSearchMode,
-        configuration: LyricsCandidateRankingConfiguration,
-        generation: Int
-    ) {
-        guard isCurrentAutomaticSearch(generation) else { return }
-
-        let ranker = LyricsCandidateRanker()
-        guard let best = ranker.bestCandidate(
-            from: collected,
-            mode: mode,
-            configuration: configuration
-        ) else { return }
-
-        // Never display rejected or unlikely via automatic search.
-        guard best.evaluation.visibility == .normal
-            || best.evaluation.visibility == .looseFallback
-        else { return }
-
-        // Apply acceptance policy — if local upgrade only, check upgrade eligibility.
-        guard shouldAccept(
-            candidate: best,
-            policy: policy,
-            configuration: configuration,
-            generation: generation
-        ) else { return }
-
-        // Refresh restoration evidence as the collection grows, even when the
-        // displayed candidate itself is unchanged.
-        supportingLyrics = boundedSupporting(from: collected, selected: best.lyrics)
-
-        // Only update if this candidate is actually different from what's displayed.
-        guard currentLyrics !== best.lyrics else { return }
-
-        if let track = player.currentTrack {
-            best.lyrics.associateWithTrack(track)
-        }
-        // Interim: update display but do NOT set needsPersist / export.
-        currentLyrics = best.lyrics
-        status = .loaded
-    }
+    // MARK: - Applying automatic search decisions
 
     private func isCurrentAutomaticSearch(_ generation: Int) -> Bool {
         automaticSearchGeneration == generation && player.currentTrack?.id == automaticSearchTrackID
     }
 
-    /// Returns whether `candidate` is acceptable given the current policy.
-    ///
-    /// For `.normal` policy: any `.normal` or eligible `.looseFallback` candidate
-    /// is accepted. For `.localUpgradeOnly`: delegates to the pure package-level
-    /// `shouldRemoteUpgradeLocal(candidate:local:configuration:)` function
-    /// (see `LyricsLocalUpgradePolicy.swift`). The upstream karaoke-local
-    /// short-circuit (isKaraokeTimed early-return) stays in `currentTrackChanged`.
-    private func shouldAccept(
-        candidate: EvaluatedLyricsCandidate,
-        policy: AutomaticAcceptancePolicy,
-        configuration: LyricsCandidateRankingConfiguration,
-        generation: Int
-    ) -> Bool {
-        switch policy {
-        case .normal:
-            // Any normal candidate is fine; loose-fallback is gated by the
-            // threshold enforced in `bestCandidate` already (score ≥ 80).
-            return candidate.evaluation.visibility == .normal
-                || candidate.evaluation.visibility == .looseFallback
+    @MainActor
+    private func apply(_ decision: AutomaticLyricsSearch.Decision, initialLyrics: Lyrics?) {
+        switch decision {
+        case .interim(let lyrics):
+            // Interim results are display-only: not marked for persistence or exported.
+            if let track = player.currentTrack {
+                lyrics.associateWithTrack(track)
+            }
+            currentLyrics = lyrics
+            status = .loaded
 
-        case .localUpgradeOnly(_, let localEval):
-            // Delegate to the pure package-level function (LyricsLocalUpgradePolicy).
-            // The upstream karaoke-local short-circuit (isKaraokeTimed early-return in
-            // currentTrackChanged) is kept in LyricsSession; this path only governs
-            // the line-synced-local case.
-            return shouldRemoteUpgradeLocal(
-                candidate: candidate.evaluation,
-                local: localEval,
-                configuration: configuration
-            )
+        case .supporting(let supporting):
+            supportingLyrics = supporting
+
+        case .finished(let accepted, let supporting):
+            if let accepted {
+                if let track = player.currentTrack {
+                    accepted.associateWithTrack(track)
+                }
+                accepted.metadata.persistenceAllowed = true
+                currentLyrics = accepted
+            }
+            supportingLyrics = supporting
+            status = currentLyrics == nil ? .notFound : .loaded
+            persistCurrentLyricsIfNeeded()
+            // Kept local lyrics are already what the user has; re-exporting them would
+            // cost an Apple Event per track and clobber Apple Music's field for nothing.
+            if exportSettings.writeToiTunesAutomatically, currentLyrics !== initialLyrics {
+                writeToiTunes(overwrite: true)
+            }
         }
-    }
-
-    // MARK: - Supporting candidate retention
-
-    /// Same-song alternates (normal visibility only — never loose fallback or
-    /// wrong-song candidates) from a completed collection, excluding the
-    /// displayed lyrics, bounded.
-    private func boundedSupporting(
-        from collected: [EvaluatedLyricsCandidate],
-        selected: Lyrics?
-    ) -> [Lyrics] {
-        let sameSong = collected
-            .filter { $0.evaluation.visibility == .normal }
-            .map(\.lyrics)
-        return boundedSupporting(sameSong, excluding: selected)
-    }
-
-    private func boundedSupporting(_ lyrics: [Lyrics], excluding selected: Lyrics?) -> [Lyrics] {
-        var result: [Lyrics] = []
-        for item in lyrics {
-            if let selected, item === selected { continue }
-            if result.contains(where: { $0 === item }) { continue }
-            result.append(item)
-            if result.count >= maxSupportingLyrics { break }
-        }
-        return result
-    }
-
-    // MARK: - Local lyrics evaluation
-
-    /// Evaluates local lyrics with a synthetic source name stamped into
-    /// `metadata.service` for diagnostics. The synthetic name is NOT a remote
-    /// source-priority entry and does not participate in source-priority ranking.
-    ///
-    /// Source name convention:
-    ///   - Embedded track lyrics → "Embedded"
-    ///   - Beside-track `.lrcx` / `.lrc` → "Beside Track"
-    ///   - Saved-path `.lrcx` / `.lrc` in storage directory → "Local Storage"
-    private func evaluateLocalLyrics(
-        lyrics: Lyrics,
-        title: String,
-        artist: String,
-        duration: TimeInterval?,
-        album: String?
-    ) -> LyricsCandidateEvaluation {
-        // Stamp a synthetic source name so the evaluation includes a meaningful
-        // service field in diagnostics/logging without polluting remote source lists.
-        let syntheticSource = syntheticLocalSourceName(for: lyrics)
-        lyrics.metadata.service = syntheticSource
-
-        let evaluator = LyricsCandidateEvaluator()
-        return evaluator.evaluate(
-            lyrics: lyrics,
-            mode: .titleAndArtist(title: title, artist: artist),
-            requestedDuration: duration,
-            requestedAlbum: album
-        )
-    }
-
-    /// Returns the synthetic canonical source name for a local lyrics object,
-    /// based on where the file came from (detected from metadata).
-    ///
-    /// Detection rules (in priority order):
-    ///   1. No `localURL` → embedded (came from track.lyrics string).
-    ///   2. `localURL` is beside the track file (same base name, different extension) → "Beside Track".
-    ///   3. Otherwise → "Local Storage" (saved-path storage directory).
-    private func syntheticLocalSourceName(for lyrics: Lyrics) -> String {
-        guard let localURL = lyrics.metadata.localURL else {
-            return "Embedded"
-        }
-        // Beside-track files share a base name with the track audio file and have a
-        // `.lrcx` or `.lrc` extension. There is no direct track URL available here,
-        // but beside-track URLs are normally NOT inside the app's configured storage
-        // directory. Use "Beside Track" for any local URL, "Local Storage" only when
-        // the URL is inside the persistence storage directory.
-        return isInStorageDirectory(localURL) ? "Local Storage" : "Beside Track"
-    }
-
-    private func isInStorageDirectory(_ url: URL) -> Bool {
-        let storage = persistenceSettings.storageDirectory().url.standardizedFileURL.pathComponents
-        let path = url.standardizedFileURL.pathComponents
-        return path.count > storage.count && Array(path.prefix(storage.count)) == storage
     }
 }
 

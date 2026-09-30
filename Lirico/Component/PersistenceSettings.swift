@@ -53,6 +53,15 @@ struct PersistenceSettings {
         return LyricsStorageDirectory(url: defaultURL, requiresSecurityScope: false)
     }
 
+    /// Whether `url` lives inside the current storage directory, i.e. Lirico wrote it
+    /// rather than the user placing it beside their audio. Compares path components so
+    /// `~/Music/Lirico2` doesn't count as inside `~/Music/Lirico`.
+    func storageDirectoryContains(_ url: URL) -> Bool {
+        let storage = storageDirectory().url.standardizedFileURL.pathComponents
+        let path = url.standardizedFileURL.pathComponents
+        return path.count > storage.count && Array(path.prefix(storage.count)) == storage
+    }
+
     /// User-selected custom directory, resolved from the security-scoped
     /// bookmark stored in `lyricsCustomSavingPathBookmark`. Returns nil when
     /// the bookmark is absent, stale, or unreadable.
