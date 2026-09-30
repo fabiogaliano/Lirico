@@ -35,12 +35,11 @@ final class LyricsSearchPipeline {
         rebuildProviders()
     }
 
-    func events(
-        for request: LyricsSearchRequest,
-        mode: LyricsSearchMode,
-        requestedDuration: TimeInterval?,
-        requestedAlbum: String?
-    ) -> AsyncStream<LyricsSearchEvent> {
+    func events(for query: LyricsSearchQuery) -> AsyncStream<LyricsSearchEvent> {
+        let request = query.request
+        let mode = query.mode
+        let requestedDuration = query.requestedDuration
+        let requestedAlbum = query.requestedAlbum
         let group = providerGroup
         let processor = candidateProcessor
 

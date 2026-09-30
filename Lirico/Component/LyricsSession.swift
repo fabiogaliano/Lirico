@@ -261,7 +261,7 @@ class LyricsSession: NSObject {
         status = .loaded
         // Retain the manual search's other same-song results as restoration
         // evidence for the chosen lyrics.
-        supportingLyrics = AutomaticLyricsSearch.boundedSupporting(supporting, excluding: lyrics)
+        supportingLyrics = SupportingLyrics.bounded(supporting, excluding: lyrics)
         if writeToiTunesIfAuto, exportSettings.writeToiTunesAutomatically {
             writeToiTunes(overwrite: true)
         }

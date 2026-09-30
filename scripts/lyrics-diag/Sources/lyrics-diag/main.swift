@@ -104,9 +104,9 @@ struct RunResult {
     let completed: Bool
 }
 
-func runSearch(request: LyricsSearchRequest, mode: LyricsSearchMode,
-               requestedDuration: TimeInterval?, requestedAlbum: String?,
-               timeout: UInt64) async -> RunResult {
+func runSearch(_ query: LyricsSearchQuery, timeout: Duration) async -> RunResult {
+    let (request, mode) = (query.request, query.mode)
+    let (requestedDuration, requestedAlbum) = (query.requestedDuration, query.requestedAlbum)
     // Provider list comes from the app's shared `makeProviderDescriptors`.
     let group = LyricsProviders.Group(descriptors: makeProviderDescriptors(musixmatchToken: musixmatchToken))
     final class Box { var collected: [EvaluatedLyricsCandidate] = []; var log: [String] = []; var completed = false }
@@ -128,21 +128,30 @@ func runSearch(request: LyricsSearchRequest, mode: LyricsSearchMode,
             }
         }
     }
-    let deadline = Task { try? await Task.sleep(nanoseconds: timeout); consume.cancel() }
+    let deadline = Task { try? await Task.sleep(for: timeout); consume.cancel() }
     await consume.value
     deadline.cancel()
     let ranked = ranker.rankedCandidates(box.collected, mode: mode, configuration: configuration)
     return RunResult(collected: box.collected, ranked: ranked, log: box.log, completed: box.completed)
 }
 
-let autoUserInfo = album.map { [LyricsSearchRequest.UserInfoKey.albumName: $0] } ?? [:]
-let autoRequest = LyricsSearchRequest(searchTerm: .info(title: title, artist: artist), duration: duration ?? 0, limit: 5, userInfo: autoUserInfo)
-let manualRequest = LyricsSearchRequest(searchTerm: .info(title: title, artist: artist), duration: duration ?? 0, limit: 8)
-let mode: LyricsSearchMode = .titleAndArtist(title: title, artist: artist)
+// The app's own queries and deadline, so both runs match what the app sends.
+let autoQuery = LyricsSearchQuery.automatic(title: title, artist: artist, album: album, duration: duration)
+let manualQuery = LyricsSearchQuery.manual(title: title, artist: artist, duration: duration) ?? autoQuery
 
-let autoRun = await runSearch(request: autoRequest, mode: mode, requestedDuration: duration, requestedAlbum: album, timeout: 25_000_000_000)
-let manualRun = await runSearch(request: manualRequest, mode: mode, requestedDuration: duration, requestedAlbum: nil, timeout: 30_000_000_000)
-let autoPick = ranker.bestCandidate(from: autoRun.collected, mode: mode, configuration: configuration)
+let autoRun = await runSearch(autoQuery, timeout: AutomaticLyricsSelection.deadline)
+let manualRun = await runSearch(manualQuery, timeout: .seconds(30))
+
+// Replays the automatic run through the app's selection, in arrival order, so the pick
+// is exactly what the app would show. Local lyrics aren't consulted here.
+let autoPick: EvaluatedLyricsCandidate? = {
+    var selection = AutomaticLyricsSelection(mode: autoQuery.mode, policy: .normal, configuration: configuration)
+    for candidate in autoRun.collected {
+        _ = selection.add(candidate, displayed: nil)
+    }
+    guard case .finished(let accepted?, _) = selection.finish(displayed: nil) else { return nil }
+    return autoRun.collected.first { $0.lyrics === accepted }
+}()
 let autoPickID = autoPick?.id
 
 // MARK: - Model (one representation rendered as either text or JSON)

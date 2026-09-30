@@ -152,56 +152,26 @@ final class SearchLyricsViewModel: ObservableObject {
     }
 
     func search() {
-        guard canSearch else { return }
+        guard let query = LyricsSearchQuery.manual(title: title, artist: artist, duration: searchedTrack?.duration) else {
+            return
+        }
 
         searchTask?.cancel()
 
-        let trimmedTitle = trimmedFieldValue(title)
-        let trimmedArtist = trimmedFieldValue(artist)
-
-        let mode: LyricsSearchMode
-        let searchTerm: LyricsSearchRequest.SearchTerm
-        if !trimmedTitle.isEmpty, !trimmedArtist.isEmpty {
-            mode = .titleAndArtist(title: trimmedTitle, artist: trimmedArtist)
-            searchTerm = .info(title: trimmedTitle, artist: trimmedArtist)
-        } else if !trimmedTitle.isEmpty {
-            mode = .titleOnly(title: trimmedTitle)
-            searchTerm = .keyword(trimmedTitle)
-        } else {
-            mode = .artistOnly(artist: trimmedArtist)
-            searchTerm = .keyword(trimmedArtist)
-        }
-
-        let trackDuration = searchedTrack?.duration
-        let requestDuration: TimeInterval = trackDuration ?? 0
-        let request = LyricsSearchRequest(
-            searchTerm: searchTerm,
-            duration: requestDuration,
-            limit: 8
-        )
-
-        currentSearchMode = mode
+        currentSearchMode = query.mode
         searchGeneration &+= 1
         resetResults()
         showUnlikelyResults = false
         fieldsChangedSinceSearch = false
-        searchedTitle = trimmedTitle
-        searchedArtist = trimmedArtist
+        searchedTitle = trimmedFieldValue(title)
+        searchedArtist = trimmedFieldValue(artist)
         lastCandidateFlushUptime = currentUptimeNanoseconds()
         searchStatus = .searching(summary: "Searching…")
 
-        let requestedDuration: TimeInterval? = trackDuration
-        let requestedAlbum: String? = nil
         let generation = searchGeneration
 
         searchTask = Task { @MainActor in
-            await runSearch(
-                request: request,
-                mode: mode,
-                requestedDuration: requestedDuration,
-                requestedAlbum: requestedAlbum,
-                generation: generation
-            )
+            await runSearch(query, generation: generation)
         }
     }
 
@@ -238,11 +208,8 @@ final class SearchLyricsViewModel: ObservableObject {
         SearchBlocklist.unblock(track: track)
         SearchBlocklist.unblock(album: track.album ?? "")
         // Hand the other same-song results to the session as restoration evidence
-        // for the chosen lyrics (the session bounds and de-dupes them).
-        let supporting = allCandidates
-            .filter { $0.evaluation.visibility == .normal }
-            .map(\.lyrics)
-            .filter { $0 !== result.lyrics }
+        // for the chosen lyrics.
+        let supporting = SupportingLyrics.select(from: allCandidates, excluding: result.lyrics)
         session.select(result.lyrics, writeToiTunesIfAuto: true, supporting: supporting)
         loadedLyrics = result.lyrics
         rebuildVisibleRows()
@@ -260,22 +227,10 @@ final class SearchLyricsViewModel: ObservableObject {
         loadArtwork(for: result.lyrics)
     }
 
-    private func runSearch(
-        request: LyricsSearchRequest,
-        mode: LyricsSearchMode,
-        requestedDuration: TimeInterval?,
-        requestedAlbum: String?,
-        generation: Int
-    ) async {
+    private func runSearch(_ query: LyricsSearchQuery, generation: Int) async {
         await withTaskGroup(of: Bool.self) { group in
             group.addTask { @MainActor in
-                await self.consumeEventStream(
-                    request: request,
-                    mode: mode,
-                    requestedDuration: requestedDuration,
-                    requestedAlbum: requestedAlbum,
-                    generation: generation
-                )
+                await self.consumeEventStream(query, generation: generation)
                 return true
             }
 
@@ -302,19 +257,8 @@ final class SearchLyricsViewModel: ObservableObject {
         }
     }
 
-    private func consumeEventStream(
-        request: LyricsSearchRequest,
-        mode: LyricsSearchMode,
-        requestedDuration: TimeInterval?,
-        requestedAlbum: String?,
-        generation: Int
-    ) async {
-        let stream = pipeline.events(
-            for: request,
-            mode: mode,
-            requestedDuration: requestedDuration,
-            requestedAlbum: requestedAlbum
-        )
+    private func consumeEventStream(_ query: LyricsSearchQuery, generation: Int) async {
+        let stream = pipeline.events(for: query)
 
         var failureMessages: [String] = []
         var completedNormally = false

@@ -75,7 +75,7 @@ struct LocalLyrics {
         case .found(let lyrics) where lyrics.isKaraokeTimed:
             return LocalLyrics(lyrics: lyrics, policy: .normal, needsRemoteSearch: false)
         case .found(let lyrics):
-            let evaluation = AutomaticLyricsSearch.evaluateLocal(
+            let evaluation = evaluateLocal(
                 lyrics,
                 title: title,
                 artist: artist,
@@ -85,7 +85,7 @@ struct LocalLyrics {
             )
             return LocalLyrics(
                 lyrics: lyrics,
-                policy: .localUpgradeOnly(existing: lyrics, existingEvaluation: evaluation),
+                policy: .localUpgradeOnly(local: evaluation),
                 needsRemoteSearch: true
             )
         case .foundPartial(let lyrics):
@@ -166,5 +166,36 @@ private extension LocalLyricsLoader {
         lyrics.metadata.artist = artist
         preparation.prepare(lyrics)
         return lyrics
+    }
+}
+
+// MARK: - Local lyrics evaluation
+
+extension LocalLyrics {
+    /// Scores local line-synced lyrics so remote candidates can be compared against them.
+    /// Stamps a synthetic source name into `metadata.service` for diagnostics; it is not
+    /// a remote source-priority entry and doesn't take part in source ranking.
+    fileprivate static func evaluateLocal(
+        _ lyrics: Lyrics,
+        title: String,
+        artist: String,
+        duration: TimeInterval?,
+        album: String?,
+        persistenceSettings: PersistenceSettings
+    ) -> LyricsCandidateEvaluation {
+        lyrics.metadata.service = localSourceName(for: lyrics, persistenceSettings: persistenceSettings)
+        return LyricsCandidateEvaluator().evaluate(
+            lyrics: lyrics,
+            mode: .titleAndArtist(title: title, artist: artist),
+            requestedDuration: duration,
+            requestedAlbum: album
+        )
+    }
+
+    /// "Embedded" when read from the track's own tags, "Local Storage" when saved in
+    /// Lirico's directory, otherwise "Beside Track".
+    private static func localSourceName(for lyrics: Lyrics, persistenceSettings: PersistenceSettings) -> String {
+        guard let localURL = lyrics.metadata.localURL else { return "Embedded" }
+        return persistenceSettings.storageDirectoryContains(localURL) ? "Local Storage" : "Beside Track"
     }
 }
