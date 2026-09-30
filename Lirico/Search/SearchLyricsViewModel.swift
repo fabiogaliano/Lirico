@@ -50,7 +50,7 @@ final class SearchLyricsViewModel: ObservableObject {
     }
 
     var canApply: Bool {
-        guard let trackID = player.currentTrack?.id, trackID == searchedTrackID,
+        guard let trackID = player.currentTrack?.id, trackID == searchedTrack?.id,
               let id = selectionID else { return false }
         return visibleRows.contains(where: { $0.id == id })
     }
@@ -82,7 +82,7 @@ final class SearchLyricsViewModel: ObservableObject {
     private var loadedLyrics: Lyrics?
     /// The track these results are for. Applying binds lyrics to whatever is playing,
     /// so once the player moves on, results for the old track must not be applied.
-    private var searchedTrackID: String?
+    private var searchedTrack: MusicTrack?
     private var fieldsChangedSinceSearch: Bool = false
     private var searchedTitle: String = ""
     private var searchedArtist: String = ""
@@ -123,11 +123,13 @@ final class SearchLyricsViewModel: ObservableObject {
         DispatchTime.now().uptimeNanoseconds
     }
 
-    func reloadFromCurrentTrack() {
+    /// Takes the track rather than reading `player.currentTrack`: on a track change the
+    /// player announces the new track before its property is updated.
+    func reload(for track: MusicTrack?) {
         loadedLyrics = session.currentLyrics
-        searchedTrackID = player.currentTrack?.id
+        searchedTrack = track
         rebuildVisibleRows()
-        guard let track = player.currentTrack else {
+        guard let track else {
             searchGeneration &+= 1
             searchTask?.cancel()
             searchTask = nil
@@ -170,7 +172,7 @@ final class SearchLyricsViewModel: ObservableObject {
             searchTerm = .keyword(trimmedArtist)
         }
 
-        let trackDuration = player.currentTrack?.duration
+        let trackDuration = searchedTrack?.duration
         let requestDuration: TimeInterval = trackDuration ?? 0
         let request = LyricsSearchRequest(
             searchTerm: searchTerm,
