@@ -109,8 +109,13 @@ final class AppContainer {
                     player: player, session: session, clock: playbackClock
                 )
             }
-        } else {
-            touchBarController = nil
+        } else if let touchBarController {
+            // Releasing the controller alone leaves its control-strip button and app Touch Bar installed.
+            touchBarController.removeFromControlStrip()
+            if NSApp.touchBar === touchBarController.touchBar {
+                NSApp.touchBar = nil
+            }
+            self.touchBarController = nil
         }
     }
 

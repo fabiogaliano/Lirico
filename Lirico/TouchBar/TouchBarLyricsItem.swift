@@ -9,12 +9,14 @@ class TouchBarLyricsItem: NSCustomTouchBarItem {
 
     private let session: LyricsSession
     private let clock: PlaybackClock
+    private let player: PlayerHandle
 
     private var cancelBag = Set<AnyCancellable>()
 
-    init(identifier: NSTouchBarItem.Identifier, session: LyricsSession, clock: PlaybackClock) {
+    init(identifier: NSTouchBarItem.Identifier, session: LyricsSession, clock: PlaybackClock, player: PlayerHandle) {
         self.session = session
         self.clock = clock
+        self.player = player
         super.init(identifier: identifier)
         view = lyricsTextField
         customizationLabel = "Lyrics"
@@ -44,6 +46,9 @@ class TouchBarLyricsItem: NSCustomTouchBarItem {
             let adjustedPos = clock.adjustedPlaybackTime
             let progress = timetag.tags.map { ($0.time + line.line.position - adjustedPos, $0.index) }
             lyricsTextField.setProgressAnimation(color: progressColor, progress: progress)
+            if !player.playbackState.isPlaying {
+                lyricsTextField.pauseProgressAnimation()
+            }
         }
     }
 }
