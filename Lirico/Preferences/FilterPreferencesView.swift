@@ -16,13 +16,9 @@ struct FilterPreferencesView: View {
     @FocusState private var focusedLexiconWord: Int?
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                filterSettingsSection
-                filterKeywordsSection
-                explicitRestorationSection
-            }
-            .padding(20)
+        SettingsForm {
+            filterKeywordsSection
+            explicitRestorationSection
         }
         .onAppear {
             loadKeywords()
@@ -38,123 +34,62 @@ struct FilterPreferencesView: View {
 
     // MARK: - Sections
 
-    private var filterSettingsSection: some View {
-        SettingsSection(title: "Filter Settings") {
-            Toggle("Enable lyrics filter", isOn: $filterEnabled)
-        }
-    }
-
     private var filterKeywordsSection: some View {
-        SettingsSection(title: "Filter Keywords") {
-            Text("Lines matching these keywords or patterns will be hidden. Patterns beginning with / are treated as regular expressions.")
-                .font(.callout)
-                .foregroundColor(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            keywordList
-
-            HStack(spacing: 8) {
-                Button(action: addKeyword) {
-                    Image(systemName: "plus")
-                        .accessibilityLabel("Add keyword")
-                }
-                .buttonStyle(.bordered)
-                .help("Add keyword")
-
-                Button(action: removeSelected) {
-                    Image(systemName: "minus")
-                        .accessibilityLabel("Remove selected keyword")
-                }
-                .buttonStyle(.bordered)
-                .disabled(selectedIndex == nil)
-                .help("Remove selected keyword")
-
-                Spacer()
-
-                Button("Reset to Defaults") {
-                    resetKeywords()
-                }
-                .buttonStyle(.bordered)
-            }
+        Section {
+            Toggle("Hide matching lines", isOn: $filterEnabled)
+            editableList(count: keywords.count, row: keywordRow)
+                .disabled(!filterEnabled)
+            EditableListControls(
+                addLabel: "Add keyword",
+                removeLabel: "Remove selected keyword",
+                canRemove: selectedIndex != nil,
+                add: addKeyword,
+                remove: removeSelected,
+                reset: resetKeywords
+            )
+            .disabled(!filterEnabled)
+        } header: {
+            Text("Filter")
+        } footer: {
+            SettingsFooter("Hides credit lines and other noise. Start a pattern with / to use a regular expression.")
         }
     }
-
-    private var keywordList: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                ForEach(keywords.indices, id: \.self) { index in
-                    keywordRow(index: index)
-                    if index < keywords.count - 1 {
-                        Divider()
-                    }
-                }
-            }
-        }
-        .frame(minHeight: 160, maxHeight: 260)
-        .background(Color(NSColor.textBackgroundColor))
-        .cornerRadius(6)
-        .overlay(
-            RoundedRectangle(cornerRadius: 6)
-                .stroke(Color(NSColor.separatorColor), lineWidth: 1)
-        )
-    }
-
-    // MARK: - Explicit restoration
 
     private var explicitRestorationSection: some View {
-        SettingsSection(title: "Restore Explicit Words") {
+        Section {
             Toggle("Restore explicit words", isOn: $explicitRestorationEnabled)
-
-            Text("Add the uncensored word once — the app matches censored variants automatically "
-                + "(for example f**k → fuck). Alternate lyrics found for the same song may also be "
-                + "used as evidence to fill in fully masked words. This affects the displayed lyrics "
-                + "only; saved files and Apple Music export are unchanged.")
-                .font(.callout)
-                .foregroundColor(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            lexiconList
-
-            HStack(spacing: 8) {
-                Button(action: addLexiconWord) {
-                    Image(systemName: "plus")
-                        .accessibilityLabel("Add word")
-                }
-                .buttonStyle(.bordered)
-                .help("Add word")
-
-                Button(action: removeLexiconSelected) {
-                    Image(systemName: "minus")
-                        .accessibilityLabel("Remove selected word")
-                }
-                .buttonStyle(.bordered)
-                .disabled(lexiconSelectedIndex == nil)
-                .help("Remove selected word")
-
-                Spacer()
-
-                Button("Reset to Defaults") {
-                    resetLexicon()
-                }
-                .buttonStyle(.bordered)
-            }
+            editableList(count: lexicon.count, row: lexiconRow)
+                .disabled(!explicitRestorationEnabled)
+            EditableListControls(
+                addLabel: "Add word",
+                removeLabel: "Remove selected word",
+                canRemove: lexiconSelectedIndex != nil,
+                add: addLexiconWord,
+                remove: removeLexiconSelected,
+                reset: resetLexicon
+            )
+            .disabled(!explicitRestorationEnabled)
+        } header: {
+            Text("Censored Words")
+        } footer: {
+            SettingsFooter("Add each word uncensored once; censored variants like f**k are matched automatically. Only changes what's shown, not saved files or Apple Music.")
         }
     }
 
-    private var lexiconList: some View {
+    private func editableList<Row: View>(count: Int, @ViewBuilder row: @escaping (Int) -> Row) -> some View {
         ScrollView {
-            VStack(spacing: 0) {
-                ForEach(lexicon.indices, id: \.self) { index in
-                    lexiconRow(index: index)
-                    if index < lexicon.count - 1 {
+            LazyVStack(spacing: 0) {
+                ForEach(0 ..< count, id: \.self) { index in
+                    row(index)
+                    if index < count - 1 {
                         Divider()
                     }
                 }
             }
         }
-        .frame(minHeight: 120, maxHeight: 220)
+        .frame(height: 150)
         .background(Color(NSColor.textBackgroundColor))
-        .cornerRadius(6)
+        .clipShape(RoundedRectangle(cornerRadius: 6))
         .overlay(
             RoundedRectangle(cornerRadius: 6)
                 .stroke(Color(NSColor.separatorColor), lineWidth: 1)
@@ -173,6 +108,7 @@ struct FilterPreferencesView: View {
                 }
             ))
             .textFieldStyle(.plain)
+            .labelsHidden()
             .focused($focusedLexiconWord, equals: index)
         }
         .padding(.horizontal, 8)
@@ -205,6 +141,7 @@ struct FilterPreferencesView: View {
                 }
             ))
             .textFieldStyle(.plain)
+            .labelsHidden()
             .font(isRegex ? .system(.body, design: .monospaced) : .body)
             .focused($focusedKeyword, equals: index)
         }

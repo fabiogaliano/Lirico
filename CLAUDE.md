@@ -75,7 +75,7 @@ The app uses a **Combine-driven reactive architecture** with shared singletons:
 - **`Controller/`** — Display controllers: `KaraokeLyricsController` (desktop karaoke overlay), `MenuBarLyricsController` (menu bar text), `LyricsSyncController` (Sync by Ear)
 - **`Search/`** — Manual lyrics search window (`SearchLyricsViewModel` + SwiftUI view)
 - **`LyricsHUD/`** — Floating lyrics panel (`LyricsHUDViewController`)
-- **`Preferences/`** — Preference pane SwiftUI views (General, Display, Filter, Shortcut, Source, Lab); `PreferenceWindowController` creates the window programmatically via `NSHostingController`
+- **`Preferences/`** — Settings panes (General, Lyrics, Appearance, Sources, Filter, Shortcuts) as grouped SwiftUI `Form`s built on `SettingsForm`; `PreferenceWindowController` hosts them in a toolbar-style `NSTabViewController`
 - **`View/`** — Custom views: `KaraokeLabel`, `KaraokeLyricsView`, `ScrollLyricsView`
 - **`Utility/`** — App constants/URLs/identifiers (`App*.swift`), `UserDefaultsKeys`, extensions, Combine utilities (`CXExtensions/`)
 

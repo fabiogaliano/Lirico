@@ -13,7 +13,6 @@ extension UserDefaults.DefaultsKeys {
     static let menuBarLyricsEnabled = Key<Bool>("MenuBarLyricsEnabled")
 
     // General
-    static let preferredPlayerIndex = Key<Int>("PreferredPlayerIndex")
     static let launchAndQuitWithPlayer = Key<Bool>("LaunchAndQuitWithPlayer")
 
     static let lyricsSavingPathPopUpIndex = Key<Int>("LyricsSavingPathPopUpIndex")

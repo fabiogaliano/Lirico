@@ -11,22 +11,15 @@ struct PlayerSettings {
         self.defaults = defaults
     }
 
-    /// Tag-encoded preferred-player choice. `-1` means "auto-detect"; positive
-    /// values map to `MusicPlayerName(index:)`.
-    var preferredPlayerIndex: Int {
-        get { defaults[.preferredPlayerIndex] }
-        nonmutating set { defaults[.preferredPlayerIndex] = newValue }
-    }
-
-    /// True when Lirico should follow the designated player's lifecycle:
-    /// quit when the player quits, and re-launch the helper on app exit.
+    /// True when Lirico should follow the players' lifecycle: launch when any
+    /// supported player starts, quit once the last one quits.
     var launchAndQuitWithPlayer: Bool {
         get { defaults[.launchAndQuitWithPlayer] }
         nonmutating set { defaults[.launchAndQuitWithPlayer] = newValue }
     }
 
-    /// True when the auto-detected player should be Apple's system-wide now
-    /// playing source instead of the scriptable-player aggregate.
+    /// True when the player should be Apple's system-wide now playing source
+    /// instead of the scriptable players Lirico picks between automatically.
     var useSystemWideNowPlaying: Bool {
         defaults[.useSystemWideNowPlaying]
     }

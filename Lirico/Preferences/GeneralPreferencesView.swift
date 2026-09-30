@@ -1,31 +1,60 @@
 import AppKit
-import MusicPlayer
 import SwiftUI
+
+// MARK: - NowPlayingApplicationList sheet bridge
+
+/// Wraps `NowPlayingApplicationListViewController` so it can be presented as
+/// a SwiftUI sheet.
+///
+/// The `Coordinator` intercepts the VC's close button and calls the `onDismiss`
+/// closure, which sets `showingNowPlayingSheet = false` directly rather than
+/// relying on `presentingViewController`-based dismissal.
+private struct NowPlayingApplicationListRepresentable: NSViewControllerRepresentable {
+    let onDismiss: () -> Void
+
+    final class Coordinator: NSObject {
+        let onDismiss: () -> Void
+        // Held weakly so the coordinator doesn't extend VC lifetime.
+        weak var viewController: NowPlayingApplicationListViewController?
+
+        init(onDismiss: @escaping () -> Void) {
+            self.onDismiss = onDismiss
+        }
+
+        @objc func closeButtonTapped(_ sender: NSButton) {
+            // Run the VC's own save logic before clearing the SwiftUI binding.
+            if let vc = viewController {
+                vc.closeButtonAction(sender)
+            }
+            onDismiss()
+        }
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onDismiss: onDismiss)
+    }
+
+    func makeNSViewController(context: Context) -> NowPlayingApplicationListViewController {
+        let vc = NowPlayingApplicationListViewController()
+        vc.preferredContentSize = NSSize(width: 600, height: 500)
+        context.coordinator.viewController = vc
+        // Retarget the close button so the coordinator drives dismissal via the
+        // SwiftUI binding instead of dismiss(nil).
+        vc.closeButton.target = context.coordinator
+        vc.closeButton.action = #selector(Coordinator.closeButtonTapped(_:))
+        return vc
+    }
+
+    func updateNSViewController(_ nsViewController: NowPlayingApplicationListViewController, context: Context) {}
+}
 
 // MARK: - General Preferences View
 
 struct GeneralPreferencesView: View {
-    // Player selection — -1 = auto, 0-4 = specific player (MusicPlayerName(index:))
-    @AppStorage("PreferredPlayerIndex") private var preferredPlayerIndex = -1
-
-    // Lyrics saving path popup index — 0 = default, 1 = custom
-    @AppStorage("LyricsSavingPathPopUpIndex") private var savingPathPopUpIndex = 0
-
-    // Search & Display
-    @AppStorage("GlobalLyricsOffset") private var globalLyricsOffset = 0
-    @AppStorage("PreferBilingualLyrics") private var preferBilingualLyrics = false
-    @AppStorage("ChineseConversionIndex") private var chineseConversionIndex = 0
+    @AppStorage("LaunchAndQuitWithPlayer") private var launchAndQuitWithPlayer = false
+    @AppStorage("UseSystemWideNowPlaying") private var useSystemWideNowPlaying = false
     @AppStorage("CombinedMenubarLyrics") private var combinedMenubarLyrics = false
     @AppStorage("HideMenuBarItems") private var hideMenuBarItems = false
-
-    // Player-dependent settings — written back via the settings structs so the
-    // side effects (constraint enforcement) run inside the onChange handlers.
-    @AppStorage("LaunchAndQuitWithPlayer") private var launchAndQuitWithPlayer = false
-    @AppStorage("LoadLyricsBesideTrack") private var loadLyricsBesideTrack = false
-
-    // Custom saving path display name — derived from bookmark on appear, updated
-    // after the user picks a new directory via NSOpenPanel.
-    @State private var customDirectoryName: String = ""
 
     // Read from the system each time the pane appears: the user can also change it in
     // System Settings → General → Login Items.
@@ -34,44 +63,26 @@ struct GeneralPreferencesView: View {
     // Language picker — index 0 = system, 2+ = specific localization
     @State private var languagePickerIndex = 0
 
-    private let persistenceSettings = PersistenceSettings()
-    private let playerSettings = PlayerSettings()
-
-    // MARK: - Derived state
-
-    private var selectedPlayer: MusicPlayerName? {
-        MusicPlayerName(index: preferredPlayerIndex)
-    }
-
-    // "Load lyrics beside track" is only meaningful for players that expose a file URL.
-    private var canLoadBesideTrack: Bool { selectedPlayer?.supportsBesideTrackLyrics ?? true }
-
-    // MARK: - Body
+    @State private var showingNowPlayingSheet = false
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                musicPlayerSection
-                lyricsFilesSection
-                searchDisplaySection
-                languageSection
-            }
-            .padding(20)
+        SettingsForm {
+            startupSection
+            musicPlayerSection
+            menuBarSection
+            languageSection
         }
         .onAppear(perform: loadInitialState)
+        .sheet(isPresented: $showingNowPlayingSheet) {
+            NowPlayingApplicationListRepresentable(onDismiss: { showingNowPlayingSheet = false })
+                .frame(width: 600, height: 500)
+        }
     }
 
     // MARK: - Sections
 
-    private var musicPlayerSection: some View {
-        SettingsSection(title: "Music Player") {
-            playerPicker
-            // Registers/unregisters LiricoHelper as a login item AND persists the
-            // LaunchAndQuitWithPlayer setting. In Auto it follows any supported player.
-            Toggle("Auto launch & quit with music player", isOn: $launchAndQuitWithPlayer)
-                .onChange(of: launchAndQuitWithPlayer) { _, enabled in
-                    setHelperLoginItemEnabled(enabled)
-                }
+    private var startupSection: some View {
+        Section {
             Toggle("Launch at login", isOn: Binding(
                 get: { launchAtLogin },
                 set: { enabled in
@@ -79,123 +90,67 @@ struct GeneralPreferencesView: View {
                     launchAtLogin = MainAppLoginItem.isEnabled
                 }
             ))
-            .onAppear { launchAtLogin = MainAppLoginItem.isEnabled }
+            // Registers/unregisters LiricoHelper as a login item AND persists the setting.
+            Toggle("Open and quit with music player", isOn: $launchAndQuitWithPlayer)
+                .onChange(of: launchAndQuitWithPlayer) { _, enabled in
+                    setHelperLoginItemEnabled(enabled)
+                }
+        } header: {
+            Text("Startup")
+        } footer: {
+            SettingsFooter("Opens when a supported player starts, and quits after the last one closes.")
         }
     }
 
-    private var lyricsFilesSection: some View {
-        SettingsSection(title: "Lyrics Files") {
-            savingPathRow
-            HStack {
-                Button("Show in Finder") {
-                    NSWorkspace.shared.open(persistenceSettings.storageDirectory().url)
-                }
-                Spacer()
+    private var musicPlayerSection: some View {
+        Section {
+            Picker("Follow", selection: $useSystemWideNowPlaying) {
+                Text("Supported players").tag(false)
+                Text("System Now Playing").tag(true)
             }
-            Toggle("Load lyrics beside track", isOn: $loadLyricsBesideTrack)
-                .disabled(!canLoadBesideTrack)
-                .onChange(of: canLoadBesideTrack) { _, enabled in
-                    if !enabled {
-                        persistenceSettings.shouldLoadLyricsBesideTrack = false
-                        loadLyricsBesideTrack = false
-                    }
+            if useSystemWideNowPlaying {
+                LabeledContent("Apps") {
+                    Button("Choose…") { showingNowPlayingSheet = true }
                 }
+            }
+        } header: {
+            Text("Music Player")
+        } footer: {
+            SettingsFooter(useSystemWideNowPlaying
+                ? "Follows whatever macOS shows as Now Playing, limited to the apps you choose."
+                : "Follows whichever of Music, Spotify, Vox, Audirvana or Swinsian is playing.")
         }
     }
 
-    private var searchDisplaySection: some View {
-        SettingsSection(title: "Search & Display") {
-            SettingsRow(label: "Global lyrics offset (ms)") {
-                HStack(spacing: 4) {
-                    TextField("Global lyrics offset (ms)", value: $globalLyricsOffset, formatter: NumberFormatter())
-                        .labelsHidden()
-                        .textFieldStyle(.roundedBorder)
-                        .frame(width: 70)
-                    Stepper("Global lyrics offset (ms)", value: $globalLyricsOffset, step: 100)
-                        .labelsHidden()
-                }
-            }
-            Toggle("Prefer bilingual lyrics", isOn: $preferBilingualLyrics)
-            SettingsRow(label: "Auto Chinese conversion") {
-                Picker("Auto Chinese conversion", selection: $chineseConversionIndex) {
-                    Text("No Conversion").tag(0)
-                    Text("Simplified Chinese").tag(1)
-                    Text("Traditional Chinese").tag(2)
-                    Text("Traditional Chinese (Taiwan)").tag(3)
-                    Text("Traditional Chinese (Hong Kong)").tag(4)
-                }
-                .labelsHidden()
-                .frame(width: 230)
-            }
-            Toggle("Combined menubar lyrics", isOn: $combinedMenubarLyrics)
-            VStack(alignment: .leading, spacing: 2) {
-                Toggle("Hide menu bar items", isOn: $hideMenuBarItems)
-                // With every status item gone there is no menu left to reach Settings from.
-                Text("To open Settings again, open Lirico from Finder or Spotlight while it's running, or use the Show / Hide preferences shortcut.")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+    private var menuBarSection: some View {
+        Section {
+            Toggle("Show icon and lyrics as one item", isOn: $combinedMenubarLyrics)
+            Toggle("Hide menu bar items", isOn: $hideMenuBarItems)
+        } header: {
+            Text("Menu Bar")
+        } footer: {
+            // With every status item gone there is no menu left to reach Settings from.
+            if hideMenuBarItems {
+                SettingsFooter("To open Settings again, open Lirico from Finder or Spotlight while it's running, or use the Show / Hide Settings shortcut.")
             }
         }
     }
 
     private var languageSection: some View {
-        SettingsSection(title: "Language") {
-            SettingsRow(label: "Language") {
-                Picker("Language", selection: $languagePickerIndex) {
-                    Text("System").tag(0)
-                    ForEach(Array(localizations.enumerated()), id: \.offset) { offset, lan in
-                        Text(localizedLanguageName(for: lan)).tag(offset + 2)
-                    }
-                }
-                .labelsHidden()
-                .frame(width: 180)
-                .onChange(of: languagePickerIndex) { _, idx in
-                    applyLanguageSelection(idx)
+        Section("Language") {
+            Picker("Language", selection: $languagePickerIndex) {
+                Text("System").tag(0)
+                ForEach(Array(localizations.enumerated()), id: \.offset) { offset, lan in
+                    Text(localizedLanguageName(for: lan)).tag(offset + 2)
                 }
             }
-            Button("Help Translate…") {
-                NSWorkspace.shared.open(crowdinProjectURL)
+            .onChange(of: languagePickerIndex) { _, idx in
+                applyLanguageSelection(idx)
             }
-        }
-    }
-
-    // MARK: - Complex sub-views
-
-    @ViewBuilder private var playerPicker: some View {
-        Picker("Preferred player", selection: $preferredPlayerIndex) {
-            Text("Auto").tag(-1)
-            Divider()
-            Text("Apple Music").tag(0)
-            Text("Spotify").tag(1)
-            Text("Vox").tag(2)
-            Text("Audirvana").tag(3)
-            Text("Swinsian").tag(4)
-        }
-        .pickerStyle(.radioGroup)
-        .onChange(of: preferredPlayerIndex) { _, newIndex in
-            playerSettings.preferredPlayerIndex = newIndex
-            enforcePlayerConstraints(for: newIndex)
-        }
-    }
-
-    @ViewBuilder private var savingPathRow: some View {
-        SettingsRow(label: "Lyrics saving path") {
-            HStack {
-                Picker("Lyrics saving path", selection: $savingPathPopUpIndex) {
-                    Text("Default (~/Music/Lirico)").tag(0)
-                    if !customDirectoryName.isEmpty {
-                        Text(customDirectoryName).tag(1)
-                    }
+            LabeledContent("Translations") {
+                Button("Help Translate…") {
+                    NSWorkspace.shared.open(crowdinProjectURL)
                 }
-                .labelsHidden()
-                .frame(width: 200)
-                .onChange(of: savingPathPopUpIndex) { _, idx in
-                    if idx == 0 {
-                        defaults[.lyricsSavingPathPopUpIndex] = 0
-                    }
-                }
-                Button("Choose…") { chooseSavingPath() }
             }
         }
     }
@@ -209,56 +164,13 @@ struct GeneralPreferencesView: View {
     }
 
     private func loadInitialState() {
-        if let url = persistenceSettings.customSavingDirectory {
-            customDirectoryName = url.lastPathComponent
-            // Only select the custom item if the popup is already on index 1.
-            // The @AppStorage binding handles restoring the saved index on its own.
-        } else {
-            savingPathPopUpIndex = 0
-        }
-
+        launchAtLogin = MainAppLoginItem.isEnabled
         if let lan = defaults[.selectedLanguage],
            let idx = localizations.firstIndex(of: lan) {
             languagePickerIndex = idx + 2
         } else {
             languagePickerIndex = 0
         }
-    }
-
-    private func enforcePlayerConstraints(for index: Int) {
-        if let player = MusicPlayerName(index: index), !player.supportsBesideTrackLyrics {
-            persistenceSettings.shouldLoadLyricsBesideTrack = false
-            loadLyricsBesideTrack = false
-        }
-    }
-
-    private func chooseSavingPath() {
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        guard let window = NSApp.keyWindow else {
-            runSavingPanelModal(panel)
-            return
-        }
-        panel.beginSheetModal(for: window) { result in
-            if result == .OK, let url = panel.url {
-                commitSavingDirectory(url)
-            }
-        }
-    }
-
-    private func runSavingPanelModal(_ panel: NSOpenPanel) {
-        let result = panel.runModal()
-        if result == .OK, let url = panel.url {
-            commitSavingDirectory(url)
-        }
-    }
-
-    private func commitSavingDirectory(_ url: URL) {
-        persistenceSettings.customSavingDirectory = url
-        customDirectoryName = url.lastPathComponent
-        defaults[.lyricsSavingPathPopUpIndex] = 1
-        savingPathPopUpIndex = 1
     }
 
     private func applyLanguageSelection(_ index: Int) {

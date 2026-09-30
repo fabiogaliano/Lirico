@@ -30,7 +30,7 @@ extension MusicPlayers {
             super.init()
             selectPlayer()
             scheduleManualUpdate()
-            self.defaultsObservation = defaults.observe(keys: [.preferredPlayerIndex, .useSystemWideNowPlaying, .systemWideNowPlayingAppList]) { [weak self] in
+            self.defaultsObservation = defaults.observe(keys: [.useSystemWideNowPlaying, .systemWideNowPlayingAppList]) { [weak self] in
                 self?.selectPlayer()
             }
             self.manualUpdateObservation = playbackStateWillChange.sink { [weak self] state in
@@ -43,17 +43,11 @@ extension MusicPlayers {
         }
 
         private func selectPlayer() {
-            let idx = settings.preferredPlayerIndex
-            if idx == -1 {
-                if settings.useSystemWideNowPlaying {
-                    designatedPlayer = MusicPlayers.SystemMedia(allowsApplicationBundleIdentifiers: settings.systemWideNowPlayingAppList)
-                    stopAutoSelection()
-                } else {
-                    startAutoSelection()
-                }
-            } else {
+            if settings.useSystemWideNowPlaying {
                 stopAutoSelection()
-                designatedPlayer = MusicPlayerName(index: idx).flatMap(MusicPlayers.Scriptable.init)
+                designatedPlayer = MusicPlayers.SystemMedia(allowsApplicationBundleIdentifiers: settings.systemWideNowPlayingAppList)
+            } else {
+                startAutoSelection()
             }
         }
 

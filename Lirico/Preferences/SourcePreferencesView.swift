@@ -4,6 +4,9 @@ struct SourcePreferencesView: View {
     @State private var sourcePriorityEnabled: Bool = false
     @State private var sources: [String] = []
     @State private var selectedSource: String? = nil
+    // Musixmatch token is String? — @AppStorage doesn't support optionals, so
+    // it's mirrored from UserDefaults and written back through SearchSettings.
+    @State private var musixmatchToken: String = ""
 
     private var selectedIndex: Int? {
         selectedSource.flatMap { sources.firstIndex(of: $0) }
@@ -12,38 +15,42 @@ struct SourcePreferencesView: View {
     private let searchSettings = SearchSettings()
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                sourcePrioritySection
+        SettingsForm {
+            Section {
+                Toggle("Prefer sources in this order", isOn: $sourcePriorityEnabled)
+                    .onChange(of: sourcePriorityEnabled) { _, enabled in
+                        searchSettings.sourcePriorityEnabled = enabled
+                    }
+                sourceList
+                    .disabled(!sourcePriorityEnabled)
+                moveButtons
+                    .disabled(!sourcePriorityEnabled)
+            } header: {
+                Text("Source Priority")
+            } footer: {
+                SettingsFooter("Drag to reorder. Results from higher sources win over similar-quality results from lower ones.")
             }
-            .padding(20)
+            Section {
+                LabeledContent("User token") {
+                    HStack {
+                        TextField("User token", text: $musixmatchToken, prompt: Text("Not set"))
+                            .labelsHidden()
+                            .textFieldStyle(.roundedBorder)
+                            .frame(maxWidth: 240)
+                            .onSubmit { commitMusixmatchToken() }
+                        Button("Apply") { commitMusixmatchToken() }
+                    }
+                }
+            } header: {
+                Text("Musixmatch")
+            } footer: {
+                SettingsFooter("Musixmatch is only searched once a token is set.")
+            }
         }
         .onAppear { loadSettings() }
     }
 
     // MARK: - Sections
-
-    private var sourcePrioritySection: some View {
-        SettingsSection(title: "Source Priority") {
-            Toggle("Enable source priority", isOn: $sourcePriorityEnabled)
-                .onChange(of: sourcePriorityEnabled) { _, enabled in
-                    searchSettings.sourcePriorityEnabled = enabled
-                }
-
-            Text("Drag rows to reorder. When enabled, higher-priority sources are preferred over lower-quality results from lower-priority sources.")
-                .font(.callout)
-                .foregroundColor(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            sourceList
-                .opacity(sourcePriorityEnabled ? 1.0 : 0.5)
-                .disabled(!sourcePriorityEnabled)
-
-            moveButtons
-                .opacity(sourcePriorityEnabled ? 1.0 : 0.5)
-                .disabled(!sourcePriorityEnabled)
-        }
-    }
 
     private var sourceList: some View {
         // Native selection so the list is reachable by keyboard and VoiceOver, not just clicks.
@@ -51,48 +58,40 @@ struct SourcePreferencesView: View {
             ForEach(Array(sources.enumerated()), id: \.element) { index, source in
                 HStack(spacing: 8) {
                     Text("\(index + 1)")
-                        .foregroundColor(.secondary)
-                        .frame(width: 24, alignment: .trailing)
-                        .font(.system(.body, design: .monospaced))
+                        .foregroundStyle(.secondary)
+                        .monospacedDigit()
+                        .frame(width: 20, alignment: .trailing)
                         .accessibilityHidden(true)
                     Text(source)
-                    Spacer()
                 }
                 .tag(source)
                 .accessibilityValue(Text("Priority \(index + 1)"))
             }
             .onMove(perform: moveSource)
         }
-        .listStyle(.plain)
-        .frame(minHeight: 150, maxHeight: 230)
-        .background(Color(NSColor.textBackgroundColor))
-        .cornerRadius(6)
-        .overlay(
-            RoundedRectangle(cornerRadius: 6)
-                .stroke(Color(NSColor.separatorColor), lineWidth: 1)
-        )
+        .listStyle(.bordered(alternatesRowBackgrounds: true))
+        // Sized to the rows so there is no empty well under a handful of sources.
+        .frame(height: CGFloat(max(sources.count, 3)) * 24 + 6)
     }
 
     private var moveButtons: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 0) {
             Button(action: moveSelectedUp) {
-                Image(systemName: "chevron.up")
-                    .accessibilityLabel("Move selected source up")
+                Image(systemName: "chevron.up").frame(width: 22, height: 18)
             }
-            .buttonStyle(.bordered)
             .disabled(selectedIndex == nil || selectedIndex == 0)
+            .accessibilityLabel("Move selected source up")
             .help("Move selected source up")
-
+            Divider().frame(height: 14)
             Button(action: moveSelectedDown) {
-                Image(systemName: "chevron.down")
-                    .accessibilityLabel("Move selected source down")
+                Image(systemName: "chevron.down").frame(width: 22, height: 18)
             }
-            .buttonStyle(.bordered)
             .disabled(selectedIndex == nil || selectedIndex == sources.count - 1)
+            .accessibilityLabel("Move selected source down")
             .help("Move selected source down")
-
             Spacer()
         }
+        .buttonStyle(.borderless)
     }
 
     // MARK: - Mutations
@@ -126,5 +125,14 @@ struct SourcePreferencesView: View {
         LyricsSelector.shared.normalize(against: availableLyricsSources(for: searchSettings), settings: searchSettings)
         sourcePriorityEnabled = searchSettings.sourcePriorityEnabled
         sources = searchSettings.sourcePriorityOrder
+        musixmatchToken = searchSettings.musixmatchToken ?? ""
+    }
+
+    private func commitMusixmatchToken() {
+        let trimmed = musixmatchToken.trimmingCharacters(in: .whitespacesAndNewlines)
+        // Collapse empty string to nil so SearchSettings treats it as "no token".
+        searchSettings.musixmatchToken = trimmed.isEmpty ? nil : trimmed
+        // The token adds or removes Musixmatch from the source list above.
+        loadSettings()
     }
 }

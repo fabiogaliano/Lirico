@@ -21,12 +21,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             abort() // fake invoking, just make compiler happy.
         }
 
-        // "Auto" is -1 (and any out-of-range value is treated the same): wait for whichever player launches.
-        let index = groupDefaults.integer(forKey: preferredPlayerIndex)
-        let idents = playerBundleIdentifiers.indices.contains(index)
-            ? playerBundleIdentifiers[index]
-            : playerBundleIdentifiers.flatMap { $0 }
-        musicPlayers = idents.compactMap(SBApplication.init)
+        musicPlayers = playerBundleIdentifiers.compactMap(SBApplication.init)
 
         let event = NSAppleEventManager.shared().currentAppleEvent
         let isLaunchedAsLoginItem = event?.eventID == kAEOpenApplication &&
@@ -71,11 +66,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 let playerBundleIdentifiers = [
-    ["com.apple.Music", "com.apple.iTunes"],
-    ["com.spotify.client"],
-    ["com.coppertino.Vox"],
-    ["com.audirvana.Audirvana-Studio", "com.audirvana.Audirvana", "com.audirvana.Audirvana-Plus", "com.audirvana.Audirvana-Origin"],
-    ["com.swinsian.Swinsian"],
+    "com.apple.Music", "com.apple.iTunes",
+    "com.spotify.client",
+    "com.coppertino.Vox",
+    "com.audirvana.Audirvana-Studio", "com.audirvana.Audirvana", "com.audirvana.Audirvana-Plus", "com.audirvana.Audirvana-Origin",
+    "com.swinsian.Swinsian",
 ]
 
 // Must match lyricsXGroupIdentifier in the main app's AppIdentifiers.swift.
@@ -86,6 +81,5 @@ let groupDefaults = UserDefaults(suiteName: "com.fabiogaliano.Lirico.shared")!
 #endif
 
 // Preference
-let preferredPlayerIndex = "PreferredPlayerIndex"
 let launchAndQuitWithPlayer = "LaunchAndQuitWithPlayer"
 let launchHelperTime = "launchHelperTime"
