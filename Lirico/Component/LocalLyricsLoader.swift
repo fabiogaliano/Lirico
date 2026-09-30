@@ -15,7 +15,8 @@ import MusicPlayer
 enum LocalLyricsLoader {
     /// The outcome of loading from local sources.
     enum Result {
-        /// A complete local match — display this and skip network search.
+        /// A complete local match — display this. The network is skipped only for karaoke;
+        /// line-synced matches may still be upgraded by a clearly better remote candidate.
         case found(Lyrics)
         /// Saved-path `.lrc` matched — display this but still run the network search,
         /// since `.lrc` files lack timing precision and a better match may arrive.
@@ -45,6 +46,53 @@ enum LocalLyricsLoader {
             directory: settings.storageDirectory(),
             preparation: preparation
         )
+    }
+}
+
+// MARK: - LocalLyrics
+
+/// Local lyrics for a track, and what they mean for the remote search that may follow.
+struct LocalLyrics {
+    let lyrics: Lyrics?
+    let policy: AutomaticAcceptancePolicy
+    /// False for local karaoke: word timing is the best any source offers.
+    let needsRemoteSearch: Bool
+
+    static func resolve(
+        track: MusicTrack,
+        title: String,
+        artist: String,
+        preparation: LyricsPreparation,
+        persistenceSettings: PersistenceSettings
+    ) -> LocalLyrics {
+        switch LocalLyricsLoader.load(
+            track: track,
+            title: title,
+            artist: artist,
+            preparation: preparation,
+            settings: persistenceSettings
+        ) {
+        case .found(let lyrics) where lyrics.isKaraokeTimed:
+            return LocalLyrics(lyrics: lyrics, policy: .normal, needsRemoteSearch: false)
+        case .found(let lyrics):
+            let evaluation = AutomaticLyricsSearch.evaluateLocal(
+                lyrics,
+                title: title,
+                artist: artist,
+                duration: track.duration,
+                album: track.album,
+                persistenceSettings: persistenceSettings
+            )
+            return LocalLyrics(
+                lyrics: lyrics,
+                policy: .localUpgradeOnly(existing: lyrics, existingEvaluation: evaluation),
+                needsRemoteSearch: true
+            )
+        case .foundPartial(let lyrics):
+            return LocalLyrics(lyrics: lyrics, policy: .normal, needsRemoteSearch: true)
+        case .none:
+            return LocalLyrics(lyrics: nil, policy: .normal, needsRemoteSearch: true)
+        }
     }
 }
 
