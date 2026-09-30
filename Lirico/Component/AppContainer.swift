@@ -76,9 +76,9 @@ final class AppContainer {
             exportSettings: exportSettings,
             playerSettings: playerSettings
         )
-        self.menuBarController = MenuBarLyricsController(player: player, session: session, settings: displaySettings)
+        self.menuBarController = MenuBarLyricsController(display: session.displayCoordinator, settings: displaySettings)
         self.karaokeWindowController = KaraokeLyricsWindowController(
-            player: player, session: session, clock: clock, settings: displaySettings
+            player: player, display: session.displayCoordinator, clock: clock, settings: displaySettings
         )
     }
 

@@ -451,124 +451,8 @@
         }
       }
     },
-    "Audirvana" : {
-
-    },
-    "Auto" : {
-
-    },
-    "Auto launch & quit with music player" : {
-
-    },
     "Back 5 Seconds" : {
       "comment" : "sync"
-    },
-    "Check for Updates…" : {
-      "comment" : "menu",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "التحقق من وجود تحديثات…"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Auf Aktualisierung prüfen …"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Check For Update…"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Comprobar actualizaciones…"
-          }
-        },
-        "fa" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "بررسی برای بروز رسانی…"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rechercher des mises à jour…"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Periksa Pembaruan…"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verifica aggiornamenti…"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "アップデートの確認…"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "업데이트 확인…"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Controleren op updates…"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sprawdź dostępność aktualizacji…"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verificar Por Atualizações…"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Проверить обновление…"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перевірити оновлення…"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "检查更新…"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "檢查更新⋯"
-          }
-        }
-      }
     },
     "Choose…" : {
 
@@ -583,12 +467,6 @@
           }
         }
       }
-    },
-    "Combined menubar lyrics" : {
-
-    },
-    "Convert to plain LRC" : {
-
     },
     "Copy" : {
       "comment" : "menu",
@@ -607,12 +485,6 @@
     "Currently loaded" : {
 
     },
-    "Customize Now Playing Applications…" : {
-
-    },
-    "Customize Touch Bar…" : {
-
-    },
     "Cut" : {
       "comment" : "menu",
       "localizations" : {
@@ -623,12 +495,6 @@
           }
         }
       }
-    },
-    "Default (~/Music/Lirico)" : {
-
-    },
-    "Disable during screenshot" : {
-
     },
     "Disable Lyrics for Entire Album" : {
       "comment" : "menu",
@@ -737,131 +603,14 @@
         }
       }
     },
-    "Disable when paused" : {
-
-    },
     "Display" : {
 
     },
     "Done" : {
       "comment" : "sync"
     },
-    "Download" : {
-      "comment" : "title of download button on the update alert. Download new version of the app.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "تنزيل"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Laden"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Download"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Descargar"
-          }
-        },
-        "fa" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "دانلود"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Télécharger"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Download"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scarica"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ダウンロード"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "다운로드"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Downloaden"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pobierz"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Baixar"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Скачать"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Завантажити"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "现在下载"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "下載"
-          }
-        }
-      }
-    },
     "Drag & drop an .lrc file to import" : {
       "comment" : "HUD empty state hint"
-    },
-    "Drag rows to reorder. When enabled, higher-priority sources are preferred over lower-quality results from lower-priority sources." : {
-
-    },
-    "Draggable" : {
-
     },
     "Edit" : {
       "comment" : "menu",
@@ -873,9 +622,6 @@
           }
         }
       }
-    },
-    "Enable Furigana" : {
-
     },
     "Enable Karaoke Lyrics" : {
       "comment" : "menu",
@@ -984,9 +730,6 @@
         }
       }
     },
-    "Enable lyrics filter" : {
-
-    },
     "Enable Menu Bar Lyrics" : {
       "comment" : "menu",
       "localizations" : {
@@ -1093,15 +836,6 @@
           }
         }
       }
-    },
-    "Enable Romaji" : {
-
-    },
-    "Enable source priority" : {
-
-    },
-    "Enable Touch Bar lyrics" : {
-
     },
     "Enter a title, artist, or both to search" : {
 
@@ -1249,9 +983,6 @@
         }
       }
     },
-    "Hide when mouse passes by" : {
-
-    },
     "Include translation" : {
 
     },
@@ -1261,13 +992,7 @@
     "Keyword or /pattern/" : {
 
     },
-    "Lab" : {
-
-    },
     "Licensed under MPL-2.0" : {
-
-    },
-    "Lines matching these keywords or patterns will be hidden. Patterns beginning with / are treated as regular expressions." : {
 
     },
     "Lirico" : {
@@ -1625,234 +1350,13 @@
     "Move selected source up" : {
 
     },
-    "No Conversion" : {
-
-    },
     "No likely matches found" : {
 
     },
     "No Lyrics" : {
       "comment" : "HUD empty state title\nsync empty state"
     },
-    "No Lyrics\n\nDrag & Drop to import LRC file" : {
-      "comment" : "HUD empty state",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "لا توجد كلمات\n\nاسحب وإسقط لاستيراد ملف LRC"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kein Songtext, Drag & Drop zum Importieren der LRC-Datei"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "No Lyrics\n\nDrag & Drop to import LRC file"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No hay letras\nPara importar un fichero LRC realiza un Drag & Drop"
-          }
-        },
-        "fa" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ترانه ای پیدا نشد. فایل LRC رو به اینجا بکشید"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aucune paroles\n\nPas de glisser-et-déposer pour importer un fichier LRC"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Belum Ada Lirik\n\nTarik & Lepas untuk mengimpor berkas LRC"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nessun testo\nTrascina e rilascia per importare il file LRC"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "歌詞なし\n\nドラッグ＆ドロップでLRCファイルをインポート"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "가사가 없습니다\n\n드래그 & 드롭으로 LRC 파일을 불러오세요"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Geen songtekst\n\nSleep hier om een LRC-bestand te importeren"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brak tekstu\n\nPrzeciągnij tu plik LRC żeby zaimportować"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sem letras\n\nArraste e solte para importar o arquivo LRC"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нет текста\n\nПеретащите для импорта LRC файла"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Немає тексту\n\nПеретягніть для імпортування файлу LRC"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "没有歌词\n\n拖拽以导入 LRC 歌词"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "沒有歌詞資訊\n請將 LRC 檔案拖曳匯入"
-          }
-        }
-      }
-    },
     "No matching lyrics found" : {
-
-    },
-    "OK" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "حسناً"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
-          }
-        },
-        "fa" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "تایید"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Baik"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "はい"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "예"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Oké"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "好"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "確定"
-          }
-        }
-      }
-    },
-    "One line mode" : {
 
     },
     "Paste" : {
@@ -1989,9 +1493,6 @@
           }
         }
       }
-    },
-    "Preferred player" : {
-
     },
     "Quit Application" : {
       "comment" : "app menu",
@@ -2487,9 +1988,6 @@
         }
       }
     },
-    "Shortcut" : {
-
-    },
     "Show in Finder" : {
 
     },
@@ -2713,9 +2211,6 @@
     "Simplified Chinese" : {
 
     },
-    "Smart filter" : {
-
-    },
     "Source" : {
       "localizations" : {
         "ar" : {
@@ -2822,12 +2317,6 @@
         }
       }
     },
-    "Spotify" : {
-
-    },
-    "Swinsian" : {
-
-    },
     "Sync by Ear…" : {
       "comment" : "menu"
     },
@@ -2836,114 +2325,6 @@
     },
     "Synced lyrics for the music you're playing." : {
 
-    },
-    "Synchronism" : {
-      "comment" : "HUD button",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "مزامنة"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchronisieren"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Synchronism"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronismo"
-          }
-        },
-        "fa" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "همگام سازی"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchronisation"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sinkronisme"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronizzazione"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "同期"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "동기화"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchronisme"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchronism"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronizar"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Синхронизировать"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Синхронізувати"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "同步"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "同步"
-          }
-        }
-      }
     },
     "System" : {
 
@@ -3054,116 +2435,6 @@
         }
       }
     },
-    "Token" : {
-
-    },
-    "Touch Bar lyrics is not supported in Mac App Store Version. Please download on GitHub." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ظهور الكلمات على شريط اللمس غير مدعومة في إصدار البرنامج المتوفر في متجر تطبيقات Mac. الرجاء التحميل على GitHub."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "TouchBar-Songtexte werden nicht in der Mac App Store-Version unterstützt. Bitte laden Sie die entsprechende Version von GitHub herunter."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Touch Bar lyrics is not supported in Mac App Store Version. Please download on GitHub."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Letras en la Touch Bar no está soportado en la versión de la Mac App Store. Por favor descárgate la versión de GitHub."
-          }
-        },
-        "fa" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "نمایش متن ترانه در تاچ بار در نسخه دانلود شده از فروشگاه اپل پشتیبانی نمی شود. لطفا از نسخه موجود در گیتهاب استفاده کنید."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les paroles sur la Touch Bar ne sont pas disponibles dans la version du Mac App Store. Veuillez télécharger la version sur GitHub."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Versi App Store Mac tidak mendukung lirik Batang Sentuh (Touch Bar). Silakan unduh di GitHub."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "I testi nella Touch Bar non sono supportati nella versione Mac App Store. Scarica da GitHub."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "タッチバーの歌詞は、Mac App Storeのバージョンではサポートされていません。 GitHubから最新バージョンをダウンロードしてください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "터치바 가사 기능은 App Store 버전에서는 지원되지 않습니다. GitHub에서 받아 사용해주세요."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Touch Bar songteksten worden niet ondersteund in de Mac App Store versie. Download a.u.b op GitHub."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tekst na Touch Bar nie jest dostępny w Wersji z App Store. Aby pobrać, wejdź na GitHub."
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Letras na Touch Bar não é suportada na Versão da Loja App Store do Mac. Favor, baixar do GitHub."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Touch Bar не поддерживается в версии из Mac App Store. Пожалуйста, скачайте на GitHub."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Touch Bar не підтримується у версії з Mac App Store. Будь ласка, завантажте на GitHub."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mac App Store 版不支持触控栏歌词。请从 GitHub 下载最新版本。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mac App Store 的版本不支援 Touch Bar 歌詞，請前往 Github 下載。"
-          }
-        }
-      }
-    },
     "Traditional Chinese" : {
 
     },
@@ -3172,114 +2443,6 @@
     },
     "Traditional Chinese (Taiwan)" : {
 
-    },
-    "Unable to enable Touch Bar lyrics." : {
-      "comment" : "alert title",
-      "extractionState" : "manual",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "غير قادر على تمكين كلمات شريط اللمس."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "TouchBar-Songtexte können nicht aktiviert werden."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unable to enable Touch Bar lyrics."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No puedo activar letras en la Touch Bar."
-          }
-        },
-        "fa" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "نمایش متن ترانه در تاچ بار فعال نشد."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossible d'afficher les paroles sur la Touch Bar."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tidak bisa menghidupkan lirik Batang Sentuh (Touch Bar)."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossibile abilitare i testi nella Touch Bar."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "タッチバーの歌詞を有効にすることができません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "터치바 가사를 사용 할 수 없습니다"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kan Touch Bar songteksten niet inschakelen."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nie można włączyć tekstu na Touch Bar."
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Não foi possível ativar as letras na TouchBar."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Не удалось включить текст песни в Touch Bar."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Не вдалося увімкнути текст у Touch Bar."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "无法启用触控栏歌词。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "無法啟用 Touch Bar 歌詞"
-          }
-        }
-      }
     },
     "Uncensored word" : {
 
@@ -3295,15 +2458,6 @@
         }
       }
     },
-    "Use system-wide Now Playing" : {
-
-    },
-    "Vertical mode" : {
-
-    },
-    "Vox" : {
-
-    },
     "Window" : {
       "comment" : "menu",
       "localizations" : {
@@ -3314,9 +2468,6 @@
           }
         }
       }
-    },
-    "Write to Apple Music automatically" : {
-
     },
     "Write to iTunes" : {
       "comment" : "menu",

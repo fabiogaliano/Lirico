@@ -13,16 +13,14 @@ class KaraokeLyricsWindowController: NSWindowController {
     private var lyricsView = KaraokeLyricsView(frame: .zero)
 
     private let player: PlayerHandle
-    private let session: LyricsSession
     private let clock: PlaybackClock
     private let settings: DisplaySettings
 
     private var cancelBag = Set<AnyCancellable>()
     private var mouseMonitors: [Any] = []
 
-    init(player: PlayerHandle, session: LyricsSession, clock: PlaybackClock, settings: DisplaySettings = DisplaySettings()) {
+    init(player: PlayerHandle, display: LyricsDisplayCoordinator, clock: PlaybackClock, settings: DisplaySettings = DisplaySettings()) {
         self.player = player
-        self.session = session
         self.clock = clock
         self.settings = settings
         let window = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: true)
@@ -46,7 +44,7 @@ class KaraokeLyricsWindowController: NSWindowController {
         lyricsView.displayLrc("Lirico")
         splashActive = true
 
-        session.displayCoordinator.$snapshot
+        display.$snapshot
             .receive(on: DispatchQueue.main)
             .sink { [weak self] snapshot in
                 guard let self = self else { return }

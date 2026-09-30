@@ -12,10 +12,6 @@
 	<string>SFProDisplay-Semibold</string>
 	<key>DesktopLyricsFontSize</key>
 	<integer>22</integer>
-	<key>DesktopLyricsInsetBottom</key>
-	<integer>20</integer>
-	<key>DesktopLyricsInsetBottomEnabled</key>
-	<true/>
 	<key>DisableLyricsWhenPaused</key>
 	<true/>
 	<key>DisableLyricsWhenSreenShot</key>

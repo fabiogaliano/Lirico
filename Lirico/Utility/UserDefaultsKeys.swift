@@ -88,10 +88,6 @@ extension UserDefaults.DefaultsKeys {
 
     static let musixmatchToken = Key<String?>("MusixmatchToken")
 
-    //
-    static let isInMASReview = Key<Bool?>("isInMASReview")
-
-
     static let appleLanguages = Key<[String]>("AppleLanguages")
 
     static let isShowLyricsHUD = Key<Bool>("isShowLyricsHUD")

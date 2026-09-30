@@ -2,11 +2,7 @@ import AppKit
 
 /// Programmatic main menu and status bar menu construction.
 ///
-/// Replaces the former `Main.storyboard` "Application" scene. Item titles,
-/// tags, identifiers, key equivalents, and action selectors are preserved
-/// 1:1 so existing target/action wiring (AppDelegate IBActions, shortcut
-/// bindings, `validateMenuItem`) keeps
-/// working without modification.
+/// Replaces the former `Main.storyboard` "Application" scene.
 enum MainMenuBuilder {
 
     /// Bundle of objects returned to `AppDelegate` so the offset view and
@@ -101,8 +97,6 @@ enum MainMenuBuilder {
     // MARK: - Status Bar Menu
 
     /// Build the menu shown from the menu-bar status item, plus the inline
-    /// "Lyrics Delay Setter" view. Tags and identifiers match the original
-    /// storyboard so the SwiftUI Search/Preferences entry points continue to work.
     static func statusBarMenu(target: AppDelegate) -> StatusBarMenu {
         let menu = NSMenu()
 
@@ -145,7 +139,6 @@ enum MainMenuBuilder {
 
     private static func menuBarLyricsToggleItem() -> NSMenuItem {
         let item = NSMenuItem(title: NSLocalizedString("Enable Menu Bar Lyrics", comment: "menu"), action: nil, keyEquivalent: "")
-        item.tag = 100
         item.bind(
             .value,
             to: NSUserDefaultsController.shared,
@@ -157,7 +150,6 @@ enum MainMenuBuilder {
 
     private static func karaokeLyricsToggleItem() -> NSMenuItem {
         let item = NSMenuItem(title: NSLocalizedString("Enable Karaoke Lyrics", comment: "menu"), action: nil, keyEquivalent: "")
-        item.tag = 101
         item.bind(
             .value,
             to: NSUserDefaultsController.shared,
@@ -174,13 +166,11 @@ enum MainMenuBuilder {
             keyEquivalent: ""
         )
         item.target = target
-        item.tag = 102
         return item
     }
 
     private static func lyricsOffsetItem(view: NSView) -> NSMenuItem {
         let item = NSMenuItem(title: NSLocalizedString("Lyrics Delay Setter", comment: "menu"), action: nil, keyEquivalent: "")
-        item.tag = 200
         item.view = view
         return item
     }
@@ -192,8 +182,6 @@ enum MainMenuBuilder {
             keyEquivalent: ""
         )
         item.target = target
-        item.tag = 204
-        item.identifier = NSUserInterfaceItemIdentifier("MainMenu.SyncByEar")
         return item
     }
 
@@ -204,16 +192,11 @@ enum MainMenuBuilder {
             keyEquivalent: ""
         )
         item.target = target
-        item.tag = 201
-        item.identifier = NSUserInterfaceItemIdentifier("MainMenu.SearchLyrics")
-        applyMASReviewHidden(to: item)
         return item
     }
 
     private static func lyricsSubmenuItem(target: AppDelegate) -> NSMenuItem {
         let parent = NSMenuItem(title: NSLocalizedString("Lyrics", comment: "menu"), action: nil, keyEquivalent: "")
-        parent.tag = 202
-        parent.identifier = NSUserInterfaceItemIdentifier("MainMenu.Lyrics")
 
         let submenu = NSMenu(title: NSLocalizedString("Lyrics", comment: "menu"))
 
@@ -231,8 +214,6 @@ enum MainMenuBuilder {
             keyEquivalent: ""
         )
         wrong.target = target
-        wrong.tag = 203
-        wrong.identifier = NSUserInterfaceItemIdentifier("MainMenu.WrongLyrics")
         submenu.addItem(wrong)
 
         let disableAlbum = NSMenuItem(
@@ -249,8 +230,6 @@ enum MainMenuBuilder {
             keyEquivalent: ""
         )
         writeToiTunes.target = target
-        writeToiTunes.tag = 202
-        writeToiTunes.identifier = NSUserInterfaceItemIdentifier("MainMenu.WriteToiTunes")
         submenu.addItem(writeToiTunes)
 
         parent.submenu = submenu
@@ -264,7 +243,6 @@ enum MainMenuBuilder {
             keyEquivalent: ","
         )
         item.target = target
-        item.tag = 300
         return item
     }
 
@@ -275,7 +253,6 @@ enum MainMenuBuilder {
             keyEquivalent: ""
         )
         item.target = target
-        item.tag = 400
         return item
     }
 
@@ -286,18 +263,7 @@ enum MainMenuBuilder {
             keyEquivalent: "q"
         )
         item.target = NSApp
-        item.tag = 500
         return item
-    }
-
-    // MARK: - MAS-conditional visibility
-
-    private static func applyMASReviewHidden(to item: NSMenuItem) {
-        #if IS_FOR_MAS
-        if defaults[.isInMASReview] != false {
-            item.isHidden = true
-        }
-        #endif
     }
 
     // MARK: - Lyrics Offset View

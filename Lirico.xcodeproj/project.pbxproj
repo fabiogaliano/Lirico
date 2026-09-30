@@ -45,7 +45,6 @@
 		BB947DFB23B4C60000C43BF2 /* SelectedPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB947DFA23B4C60000C43BF2 /* SelectedPlayer.swift */; };
 		BB9BCEBA1E843157001BC54B /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9BCEB91E843157001BC54B /* Extension.swift */; };
 		BBB03F2D232FB3AF00A3879E /* GenericID in Frameworks */ = {isa = PBXBuildFile; productRef = BBB03F2C232FB3AF00A3879E /* GenericID */; };
-		BBB03F30232FB40400A3879E /* Semver in Frameworks */ = {isa = PBXBuildFile; productRef = BBB03F2F232FB40400A3879E /* Semver */; };
 		BBB03F3A2331D8A800A3879E /* OpenCC in Frameworks */ = {isa = PBXBuildFile; productRef = BBB03F392331D8A800A3879E /* OpenCC */; };
 		F1A5EA0100000000000A0001 /* SearchLyricsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A5EA0000000000000A0001 /* SearchLyricsView.swift */; };
 		F1A5EA0100000000000A0002 /* SearchLyricsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A5EA0000000000000A0002 /* SearchLyricsViewModel.swift */; };
@@ -73,7 +72,6 @@
 		F1B0001100000000000A0001 /* AppIdentifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0001 /* AppIdentifiers.swift */; };
 		F1B0001100000000000A0002 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0002 /* AppConstants.swift */; };
 		F1B0001100000000000A0003 /* AppURLs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0003 /* AppURLs.swift */; };
-		F1B0001100000000000A0004 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0004 /* AppEnvironment.swift */; };
 		F1B0001100000000000A0005 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0005 /* Logging.swift */; };
 		F1B0001100000000000A0006 /* LyricsAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0006 /* LyricsAnimation.swift */; };
 		F1B0001100000000000A0008 /* NotificationCenters.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0008 /* NotificationCenters.swift */; };
@@ -108,8 +106,6 @@
 		E9C5763D2DEDF539009107B5 /* LiricoFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = E9C5763C2DEDF539009107B5 /* LiricoFoundation */; };
 		E9EBDA2521115A150019FDF9 /* Observation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9EBDA2421115A150019FDF9 /* Observation.swift */; };
 		E9EF0D4E2D6F5E0A00D45E0F /* LyricsHUDWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9EF0D4D2D6F5E0A00D45E0F /* LyricsHUDWindowController.swift */; };
-		E9EF0D512D6F5ECD00D45E0F /* UIFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = E9EF0D502D6F5ECD00D45E0F /* UIFoundation */; };
-		E9EF0D532D6F5ECD00D45E0F /* UIFoundationToolbox in Frameworks */ = {isa = PBXBuildFile; productRef = E9EF0D522D6F5ECD00D45E0F /* UIFoundationToolbox */; };
 		E9EF0D552D6F70E400D45E0F /* SearchLyricsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9EF0D542D6F70E400D45E0F /* SearchLyricsWindowController.swift */; };
 /* End PBXBuildFile section */
 
@@ -182,7 +178,6 @@
 		F1B0001000000000000A0001 /* AppIdentifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIdentifiers.swift; sourceTree = "<group>"; };
 		F1B0001000000000000A0002 /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
 		F1B0001000000000000A0003 /* AppURLs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppURLs.swift; sourceTree = "<group>"; };
-		F1B0001000000000000A0004 /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
 		F1B0001000000000000A0005 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		F1B0001000000000000A0006 /* LyricsAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsAnimation.swift; sourceTree = "<group>"; };
 		F1B0001000000000000A0008 /* NotificationCenters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCenters.swift; sourceTree = "<group>"; };
@@ -222,15 +217,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				E9C4E2992AC9A10F004B9EB2 /* MASShortcut in Frameworks */,
-				E9EF0D512D6F5ECD00D45E0F /* UIFoundation in Frameworks */,
 				E9C4E29C2AC9A124004B9EB2 /* SnapKit in Frameworks */,
 				BBB03F3A2331D8A800A3879E /* OpenCC in Frameworks */,
-				BBB03F30232FB40400A3879E /* Semver in Frameworks */,
 				E9C4E2A22AC9A3D6004B9EB2 /* SwiftCF in Frameworks */,
 				E983FA242C86302200170CF7 /* MarqueeLabel in Frameworks */,
 				E9C5763D2DEDF539009107B5 /* LiricoFoundation in Frameworks */,
 				BBB03F2D232FB3AF00A3879E /* GenericID in Frameworks */,
-				E9EF0D532D6F5ECD00D45E0F /* UIFoundationToolbox in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -331,7 +323,6 @@
 				F1B0001000000000000A0001 /* AppIdentifiers.swift */,
 				F1B0001000000000000A0002 /* AppConstants.swift */,
 				F1B0001000000000000A0003 /* AppURLs.swift */,
-				F1B0001000000000000A0004 /* AppEnvironment.swift */,
 				F1B0001000000000000A0005 /* Logging.swift */,
 				F1B0001000000000000A0006 /* LyricsAnimation.swift */,
 				F1B0001000000000000A0008 /* NotificationCenters.swift */,
@@ -469,14 +460,11 @@
 			name = Lirico;
 			packageProductDependencies = (
 				BBB03F2C232FB3AF00A3879E /* GenericID */,
-				BBB03F2F232FB40400A3879E /* Semver */,
 				BBB03F392331D8A800A3879E /* OpenCC */,
 				E9C4E2982AC9A10F004B9EB2 /* MASShortcut */,
 				E9C4E29B2AC9A124004B9EB2 /* SnapKit */,
 				E9C4E2A12AC9A3D6004B9EB2 /* SwiftCF */,
 				E983FA232C86302200170CF7 /* MarqueeLabel */,
-				E9EF0D502D6F5ECD00D45E0F /* UIFoundation */,
-				E9EF0D522D6F5ECD00D45E0F /* UIFoundationToolbox */,
 				E9C5763C2DEDF539009107B5 /* LiricoFoundation */,
 			);
 			productName = Lirico;
@@ -573,13 +561,11 @@
 			mainGroup = BB4141A11E458BA800A51775;
 			packageReferences = (
 				BBB03F2B232FB3AF00A3879E /* XCRemoteSwiftPackageReference "GenericID" */,
-				BBB03F2E232FB40400A3879E /* XCRemoteSwiftPackageReference "Semver" */,
 				BBB03F382331D8A800A3879E /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */,
 				E9C4E2972AC9A10F004B9EB2 /* XCRemoteSwiftPackageReference "MASShortcut" */,
 				E9C4E29A2AC9A124004B9EB2 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				E9C4E2A02AC9A3D6004B9EB2 /* XCRemoteSwiftPackageReference "SwiftCF" */,
 				E983FA222C86302200170CF7 /* XCRemoteSwiftPackageReference "MarqueeLabel" */,
-				E9EF0D4F2D6F5ECD00D45E0F /* XCRemoteSwiftPackageReference "UIFoundation" */,
 			);
 			productRefGroup = BB4141AB1E458BA800A51775 /* Products */;
 			projectDirPath = "";
@@ -703,7 +689,6 @@
 				F1B0001100000000000A0001 /* AppIdentifiers.swift in Sources */,
 				F1B0001100000000000A0002 /* AppConstants.swift in Sources */,
 				F1B0001100000000000A0003 /* AppURLs.swift in Sources */,
-				F1B0001100000000000A0004 /* AppEnvironment.swift in Sources */,
 				F1B0001100000000000A0005 /* Logging.swift in Sources */,
 				F1B0001100000000000A0006 /* LyricsAnimation.swift in Sources */,
 				F1B0001100000000000A0008 /* NotificationCenters.swift in Sources */,
@@ -1045,14 +1030,6 @@
 				minimumVersion = 1.8.0;
 			};
 		};
-		BBB03F2E232FB40400A3879E /* XCRemoteSwiftPackageReference "Semver" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ddddxxx/Semver";
-			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 0.2.0;
-			};
-		};
 		BBB03F382331D8A800A3879E /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ddddxxx/SwiftyOpenCC";
@@ -1093,14 +1070,6 @@
 				minimumVersion = 0.2.2;
 			};
 		};
-		E9EF0D4F2D6F5ECD00D45E0F /* XCRemoteSwiftPackageReference "UIFoundation" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Mx-Iris/UIFoundation";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.3.1;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1108,11 +1077,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = BBB03F2B232FB3AF00A3879E /* XCRemoteSwiftPackageReference "GenericID" */;
 			productName = GenericID;
-		};
-		BBB03F2F232FB40400A3879E /* Semver */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BBB03F2E232FB40400A3879E /* XCRemoteSwiftPackageReference "Semver" */;
-			productName = Semver;
 		};
 		BBB03F392331D8A800A3879E /* OpenCC */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1142,16 +1106,6 @@
 		E9C5763C2DEDF539009107B5 /* LiricoFoundation */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = LiricoFoundation;
-		};
-		E9EF0D502D6F5ECD00D45E0F /* UIFoundation */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E9EF0D4F2D6F5ECD00D45E0F /* XCRemoteSwiftPackageReference "UIFoundation" */;
-			productName = UIFoundation;
-		};
-		E9EF0D522D6F5ECD00D45E0F /* UIFoundationToolbox */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E9EF0D4F2D6F5ECD00D45E0F /* XCRemoteSwiftPackageReference "UIFoundation" */;
-			productName = UIFoundationToolbox;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

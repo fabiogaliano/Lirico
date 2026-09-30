@@ -1,15 +1,6 @@
 {
-  "originHash" : "ad453f819fd0aef502291d51420ba923e1d480380c75447c27dd53a109b51514",
+  "originHash" : "064062de8d22734125348798dace762263c9416004d9037b24f33d072bbcd72b",
   "pins" : [
-    {
-      "identity" : "associatedobject",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/p-x9/AssociatedObject",
-      "state" : {
-        "revision" : "9454715a21dfb346bf5d467da4e19b70a7f4ba87",
-        "version" : "0.14.0"
-      }
-    },
     {
       "identity" : "bigint",
       "kind" : "remoteSourceControl",
@@ -101,15 +92,6 @@
       }
     },
     {
-      "identity" : "semver",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ddddxxx/Semver",
-      "state" : {
-        "revision" : "6094e6f23a02b52b5d211fd114a4750c4f3ecef3",
-        "version" : "0.2.1"
-      }
-    },
-    {
       "identity" : "snapkit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SnapKit/SnapKit",
@@ -137,24 +119,6 @@
       }
     },
     {
-      "identity" : "swift-literal-type-inference",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/p-x9/swift-literal-type-inference.git",
-      "state" : {
-        "revision" : "898d4a8c5920a3a47d70a43e76d708697e14cd72",
-        "version" : "0.5.0"
-      }
-    },
-    {
-      "identity" : "swift-object-association",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/p-x9/swift-object-association.git",
-      "state" : {
-        "revision" : "93806cfecae1f198c894ed5585b93aff0e2d1f5a",
-        "version" : "0.5.0"
-      }
-    },
-    {
       "identity" : "swift-syntax",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-syntax.git",
@@ -179,15 +143,6 @@
       "state" : {
         "branch" : "v2.0.0-beta",
         "revision" : "1d8105a0f7199c90af722bff62728050c858e777"
-      }
-    },
-    {
-      "identity" : "uifoundation",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Mx-Iris/UIFoundation",
-      "state" : {
-        "revision" : "a1fc98293da7f4c7744fc70e23cecb0417eb5574",
-        "version" : "0.4.0"
       }
     }
   ],

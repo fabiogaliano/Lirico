@@ -3,10 +3,9 @@
 /// Decides whether a remote candidate may replace already-displayed local
 /// line-synced lyrics during automatic search.
 ///
-/// This is a pure function with no app-target dependencies. The caller
-/// (`LyricsSession`) is responsible for the upstream guard: when local lyrics
-/// are karaoke-timed, the session returns early before reaching this function.
-/// This function only governs the line-synced-local case.
+/// Karaoke-timed local lyrics never reach this function: the app keeps them
+/// without searching (`LocalLyrics.resolve`). It only governs the
+/// line-synced-local case.
 ///
 /// Rules (SR-07 / DEC-009):
 /// - The remote candidate must be `.normal` visibility AND `.exactTitleArtist`

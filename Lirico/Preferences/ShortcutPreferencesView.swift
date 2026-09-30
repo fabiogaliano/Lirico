@@ -32,13 +32,7 @@ struct ShortcutPreferencesView: View {
                 shortcutRow("Decrease offset", key: .shortcutOffsetDecrease)
             }
             Section("Lyrics") {
-                #if IS_FOR_MAS
-                if defaults[.isInMASReview] == false {
-                    shortcutRow("Search lyrics", key: .shortcutSearchLyrics)
-                }
-                #else
                 shortcutRow("Search lyrics", key: .shortcutSearchLyrics)
-                #endif
                 shortcutRow("Mark as wrong lyrics", key: .shortcutWrongLyrics)
                 shortcutRow("Save lyrics to Apple Music", key: .shortcutWriteToiTunes)
             }

@@ -98,5 +98,3 @@ extension MusicPlayers {
         }
     }
 }
-
-extension MusicPlayers.SystemMedia: Then {}

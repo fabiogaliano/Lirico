@@ -3,16 +3,12 @@ import Foundation
 import LiricoFoundation
 import MusicPlayer
 
-/// The time-adjusted position into the current lyrics file (playbackTime + adjustedTimeDelay).
-/// This is the coordinate space used by `ScrollLyricsView` and karaoke timetag arithmetic.
-typealias LyricsPosition = TimeInterval
-
 /// PlaybackClock centralises the single concept "given current lyrics + playback state,
 /// which line is active and where are we inside it?"
 ///
 /// It exposes the active line index as a publisher (`lineIndexUpdates`); the lyrics
 /// session subscribes and mirrors the value into its own `@Published currentLineIndex`.
-/// It also exposes `adjustedPlaybackTime` so karaoke/touchbar timetag progress can read
+/// It also exposes `adjustedPlaybackTime` so karaoke timetag progress can read
 /// the offset-corrected position without recomputing it. The clock holds no reference
 /// to the session type.
 ///
@@ -130,13 +126,8 @@ final class PlaybackClock {
 }
 
 extension Lyrics {
-    /// Convert a raw playback position to the lyrics-file coordinate space.
-    func lyricsPosition(from playbackTime: TimeInterval) -> LyricsPosition {
-        playbackTime + adjustedTimeDelay
-    }
-
     /// Convert a lyrics-file coordinate back to a raw playback position (used for seeking).
-    func playbackTime(from lyricsPosition: LyricsPosition) -> TimeInterval {
+    func playbackTime(from lyricsPosition: TimeInterval) -> TimeInterval {
         lyricsPosition - adjustedTimeDelay
     }
 }

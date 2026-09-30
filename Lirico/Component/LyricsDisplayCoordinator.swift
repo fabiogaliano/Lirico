@@ -27,7 +27,7 @@ struct LyricsDisplayMetadata: Equatable {
 ///   - The `disableLyricsWhenPaused` preference
 ///
 /// Output: `@Published snapshot: LyricsDisplaySnapshot`. Line-oriented surfaces
-/// (desktop karaoke, menu bar, touch bar) subscribe here instead of reaching
+/// (desktop karaoke, menu bar) subscribe here instead of reaching
 /// back into the session's raw publishers and re-deriving render policy.
 final class LyricsDisplayCoordinator {
     /// Latest resolved display state. Always assigned on the main queue so

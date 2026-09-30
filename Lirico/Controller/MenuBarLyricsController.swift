@@ -3,14 +3,9 @@ import Combine
 import GenericID
 import LiricoFoundation
 import MusicPlayer
-import OSLog
 import MarqueeLabel
 
 class MenuBarLyricsController {
-//    let logger = Logger(subsystem: "com.fabiogaliano.Lirico", category: "MenuBarLyricsController")
-
-    private let player: PlayerHandle
-    private let session: LyricsSession
     private let settings: DisplaySettings
 
     var statusBarMenu: NSMenu? {
@@ -51,14 +46,12 @@ class MenuBarLyricsController {
 
     private var cancelBag = Set<AnyCancellable>()
 
-    init(player: PlayerHandle, session: LyricsSession, settings: DisplaySettings = DisplaySettings()) {
-        self.player = player
-        self.session = session
+    init(display: LyricsDisplayCoordinator, settings: DisplaySettings = DisplaySettings()) {
         self.settings = settings
         if !settings.hideMenuBarItems {
             updateStatusItems()
         }
-        session.displayCoordinator.$snapshot
+        display.$snapshot
             .receive(on: DispatchQueue.main)
             .sink { [weak self] snapshot in
                 self?.handle(snapshot: snapshot)

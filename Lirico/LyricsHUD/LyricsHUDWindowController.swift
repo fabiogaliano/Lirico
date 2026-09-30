@@ -7,7 +7,7 @@ import AppKit
 /// rather than relying on `NSStoryboard.main.instantiateController`. The
 /// initializer accepts the same dependencies the view controller needs so
 /// `AppContainer` can hand them off without a follow-up `configure(...)`.
-final class LyricsHUDWindowController: NSWindowController, NSWindowDelegate {
+final class LyricsHUDWindowController: NSWindowController {
 
     private static let windowFrame = NSWindow.FrameAutosaveName("LyricsHUD")
 
