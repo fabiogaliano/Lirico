@@ -3,6 +3,7 @@ import Combine
 import SwiftUI
 
 final class SearchLyricsWindowController: NSWindowController {
+    private let player: PlayerHandle
     private let viewModel: SearchLyricsViewModel
     private var trackChange: AnyCancellable?
 
@@ -13,6 +14,7 @@ final class SearchLyricsWindowController: NSWindowController {
             pipeline: pipeline,
             searchSettings: searchSettings
         )
+        self.player = player
         self.viewModel = viewModel
         let hosting = NSHostingController(rootView: SearchLyricsView(viewModel: viewModel))
         let window = NSWindow(contentViewController: hosting)
@@ -26,15 +28,15 @@ final class SearchLyricsWindowController: NSWindowController {
         // player while the window is open instead of leaving stale results applicable.
         trackChange = player.currentTrackWillChange
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
+            .sink { [weak self] track in
                 guard let self, self.window?.isVisible == true else { return }
-                self.viewModel.reloadFromCurrentTrack()
+                self.viewModel.reload(for: track)
             }
     }
 
     override func showWindow(_ sender: Any?) {
         super.showWindow(sender)
-        viewModel.reloadFromCurrentTrack()
+        viewModel.reload(for: player.currentTrack)
     }
 
     @available(*, unavailable)
