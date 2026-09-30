@@ -1,8 +1,10 @@
 import AppKit
+import Combine
 import SwiftUI
 
 final class SearchLyricsWindowController: NSWindowController {
     private let viewModel: SearchLyricsViewModel
+    private var trackChange: AnyCancellable?
 
     init(player: PlayerHandle, session: LyricsSession, pipeline: LyricsSearchPipeline, searchSettings: SearchSettings) {
         let viewModel = SearchLyricsViewModel(
@@ -19,6 +21,15 @@ final class SearchLyricsWindowController: NSWindowController {
         window.setContentSize(NSSize(width: 760, height: 520))
         window.center()
         super.init(window: window)
+
+        // Results are only meaningful for the track they were searched for, so follow the
+        // player while the window is open instead of leaving stale results applicable.
+        trackChange = player.currentTrackWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self, self.window?.isVisible == true else { return }
+                self.viewModel.reloadFromCurrentTrack()
+            }
     }
 
     override func showWindow(_ sender: Any?) {

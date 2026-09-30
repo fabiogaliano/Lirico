@@ -49,10 +49,9 @@ final class SearchLyricsViewModel: ObservableObject {
             || !artist.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
-    var hasTrack: Bool { player.currentTrack != nil }
-
     var canApply: Bool {
-        guard hasTrack, let id = selectionID else { return false }
+        guard let trackID = player.currentTrack?.id, trackID == searchedTrackID,
+              let id = selectionID else { return false }
         return visibleRows.contains(where: { $0.id == id })
     }
 
@@ -81,6 +80,9 @@ final class SearchLyricsViewModel: ObservableObject {
     /// snapshotted so the "currently loaded" row indicator stays stable while
     /// results stream in. Refreshed when the user applies a different result.
     private var loadedLyrics: Lyrics?
+    /// The track these results are for. Applying binds lyrics to whatever is playing,
+    /// so once the player moves on, results for the old track must not be applied.
+    private var searchedTrackID: String?
     private var fieldsChangedSinceSearch: Bool = false
     private var searchedTitle: String = ""
     private var searchedArtist: String = ""
@@ -123,6 +125,8 @@ final class SearchLyricsViewModel: ObservableObject {
 
     func reloadFromCurrentTrack() {
         loadedLyrics = session.currentLyrics
+        searchedTrackID = player.currentTrack?.id
+        rebuildVisibleRows()
         guard let track = player.currentTrack else {
             searchGeneration &+= 1
             searchTask?.cancel()
@@ -224,14 +228,13 @@ final class SearchLyricsViewModel: ObservableObject {
     }
 
     func apply() {
-        guard let id = selectionID,
+        guard canApply,
+              let id = selectionID,
               let result = visibleRows.first(where: { $0.id == id }),
-              player.currentTrack != nil
+              let track = player.currentTrack
         else { return }
-        if let track = player.currentTrack {
-            SearchBlocklist.unblock(track: track)
-            SearchBlocklist.unblock(album: track.album ?? "")
-        }
+        SearchBlocklist.unblock(track: track)
+        SearchBlocklist.unblock(album: track.album ?? "")
         // Hand the other same-song results to the session as restoration evidence
         // for the chosen lyrics (the session bounds and de-dupes them).
         let supporting = allCandidates
