@@ -72,7 +72,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         guard let container else { return false }
         switch menuItem.action {
         case #selector(writeToiTunes(_:))?:
-            return container.player.name == .appleMusic && container.session.currentLyrics != nil
+            return container.session.canWriteToAppleMusic
         case #selector(searchLyrics(_:))?:
             return container.player.currentTrack != nil
         case #selector(showLyricsHUD(_:))?:

@@ -64,21 +64,26 @@ final class AppContainer {
         self.explicitResolver = explicitResolver
         let pipeline = LyricsSearchPipeline(settings: searchSettings, preparation: preparation)
         self.searchPipeline = pipeline
+        let display = LyricsDisplayCoordinator(
+            player: player,
+            settings: displaySettings,
+            chineseConverter: chineseConverter,
+            explicitResolver: explicitResolver
+        )
         self.session = LyricsSession(
             player: player,
             clock: clock,
-            pipeline: pipeline,
+            automaticSearch: AutomaticLyricsSearch(pipeline: pipeline, searchSettings: searchSettings),
+            display: display,
             preparation: preparation,
             chineseConverter: chineseConverter,
-            explicitResolver: explicitResolver,
-            displaySettings: displaySettings,
-            searchSettings: searchSettings,
+            persistenceSettings: PersistenceSettings(),
             exportSettings: exportSettings,
             playerSettings: playerSettings
         )
-        self.menuBarController = MenuBarLyricsController(display: session.displayCoordinator, settings: displaySettings)
+        self.menuBarController = MenuBarLyricsController(display: display, settings: displaySettings)
         self.karaokeWindowController = KaraokeLyricsWindowController(
-            player: player, display: session.displayCoordinator, clock: clock, settings: displaySettings
+            player: player, display: display, clock: clock, settings: displaySettings
         )
     }
 

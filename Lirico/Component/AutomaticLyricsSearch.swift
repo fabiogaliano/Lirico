@@ -22,7 +22,7 @@ final class AutomaticLyricsSearch {
     private let pipeline: LyricsSearchPipeline
     private let searchSettings: SearchSettings
 
-    nonisolated init(pipeline: LyricsSearchPipeline, searchSettings: SearchSettings) {
+    init(pipeline: LyricsSearchPipeline, searchSettings: SearchSettings) {
         self.pipeline = pipeline
         self.searchSettings = searchSettings
     }

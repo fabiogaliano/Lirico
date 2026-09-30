@@ -1,6 +1,7 @@
 import AppKit
 import Combine
 import Foundation
+import LiricoFoundation
 import MusicPlayer
 
 /// The subset of the upstream `MusicPlayerProtocol` surface that Lirico actually uses.
@@ -77,16 +78,10 @@ final class SelectedPlayerHandle: PlayerHandle {
 /// Detects the one failure that otherwise looks exactly like "nothing is playing":
 /// the user declined (or later revoked) Lirico's Automation access to their player.
 enum AutomationPermission {
-    /// Players Lirico drives over Apple Events, checked when no single player is designated (Auto).
-    static let scriptablePlayerBundleIDs = [
-        "com.apple.Music", "com.apple.iTunes", "com.spotify.client", "com.coppertino.Vox",
-        "com.audirvana.Audirvana-Studio", "com.audirvana.Audirvana", "com.audirvana.Audirvana-Plus",
-        "com.audirvana.Audirvana-Origin", "com.swinsian.Swinsian",
-    ]
-
     /// Name of a running player that Lirico is not allowed to automate, if any. Never prompts.
+    /// Without a designated player (Auto), every scriptable player is checked.
     static func deniedPlayerName(designatedBundleID: String?) -> String? {
-        let candidates = designatedBundleID.map { [$0] } ?? scriptablePlayerBundleIDs
+        let candidates = designatedBundleID.map { [$0] } ?? ScriptablePlayers.bundleIDs
         for app in NSWorkspace.shared.runningApplications {
             guard let bundleID = app.bundleIdentifier, candidates.contains(bundleID) else { continue }
             var address = AEAddressDesc()

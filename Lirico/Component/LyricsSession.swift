@@ -24,15 +24,10 @@ class LyricsSession: NSObject {
     private let player: PlayerHandle
     private let clock: PlaybackClock
     private let persistenceSettings: PersistenceSettings
-    private let searchSettings: SearchSettings
     private let exportSettings: ExportSettings
     private let playerSettings: PlayerSettings
     private let preparation: LyricsPreparation
     private let chineseConverter: ChineseConverterProvider
-
-    /// Resolver for the per-surface `LyricsDisplaySnapshot`. Owned by the
-    /// session so consumers reach one well-known place for display state.
-    let displayCoordinator: LyricsDisplayCoordinator
 
     @Published private(set) var currentLyrics: Lyrics? {
         willSet {
@@ -112,33 +107,24 @@ class LyricsSession: NSObject {
     init(
         player: PlayerHandle,
         clock: PlaybackClock,
-        pipeline: LyricsSearchPipeline,
+        automaticSearch: AutomaticLyricsSearch,
+        display: LyricsDisplayCoordinator,
         preparation: LyricsPreparation,
         chineseConverter: ChineseConverterProvider,
-        explicitResolver: ExplicitLyricsResolver = ExplicitLyricsResolver(),
-        displaySettings: DisplaySettings = DisplaySettings(),
-        persistenceSettings: PersistenceSettings = PersistenceSettings(),
-        searchSettings: SearchSettings = SearchSettings(),
-        exportSettings: ExportSettings = ExportSettings(),
-        playerSettings: PlayerSettings = PlayerSettings()
+        persistenceSettings: PersistenceSettings,
+        exportSettings: ExportSettings,
+        playerSettings: PlayerSettings
     ) {
-        self.automaticSearch = AutomaticLyricsSearch(pipeline: pipeline, searchSettings: searchSettings)
+        self.automaticSearch = automaticSearch
         self.player = player
         self.clock = clock
         self.persistenceSettings = persistenceSettings
-        self.searchSettings = searchSettings
         self.exportSettings = exportSettings
         self.playerSettings = playerSettings
         self.preparation = preparation
         self.chineseConverter = chineseConverter
-        self.displayCoordinator = LyricsDisplayCoordinator(
-            player: player,
-            settings: displaySettings,
-            chineseConverter: chineseConverter,
-            explicitResolver: explicitResolver
-        )
         super.init()
-        displayCoordinator.observe(
+        display.observe(
             lyrics: $currentLyrics,
             index: $currentLineIndex,
             supporting: $supportingLyrics,
@@ -177,16 +163,24 @@ class LyricsSession: NSObject {
             .sink { [playerSettings] notification in
                 guard let application = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }
                 guard playerSettings.launchAndQuitWithPlayer, let bundleID = application.bundleIdentifier else { return }
-                // The player is picked automatically, so only quit once the last supported one has.
-                let players = AutomationPermission.scriptablePlayerBundleIDs
-                let otherPlayerRunning = NSWorkspace.shared.runningApplications.contains {
-                    $0 != application && !$0.isTerminated && players.contains($0.bundleIdentifier ?? "")
-                }
-                if players.contains(bundleID), !otherPlayerRunning {
+                let stillRunning = NSWorkspace.shared.runningApplications
+                    .filter { $0 != application && !$0.isTerminated }
+                    .compactMap(\.bundleIdentifier)
+                if ScriptablePlayers.isLastToQuit(bundleID, stillRunning: stillRunning) {
                     NSApplication.shared.terminate(nil)
                 }
             }.store(in: &cancelBag)
 
+    }
+
+    var canWriteToAppleMusic: Bool {
+        guard currentLyrics != nil, let track = player.currentTrack else { return false }
+        return canWriteToAppleMusic(track)
+    }
+
+    /// A track only takes lyrics while Apple Music is the player and still playing it.
+    private func canWriteToAppleMusic(_ track: MusicTrack) -> Bool {
+        player.name == .appleMusic && player.currentTrack?.id == track.id
     }
 
     func writeToiTunes(overwrite: Bool) {
@@ -195,11 +189,10 @@ class LyricsSession: NSObject {
     }
 
     private func writeToiTunes(overwrite: Bool, to track: MusicTrack) {
-        guard let currentLyrics else { return }
+        guard let currentLyrics, canWriteToAppleMusic(track) else { return }
         LyricsPersister.writeToiTunes(
             currentLyrics,
             to: track,
-            player: player,
             overwrite: overwrite,
             settings: exportSettings,
             converter: chineseConverter.converter
@@ -247,18 +240,8 @@ class LyricsSession: NSObject {
     /// are silently dropped, so automatic finalization/export can never replace
     /// a user-selected result.
     func select(_ lyrics: Lyrics, writeToiTunesIfAuto: Bool = false, supporting: [Lyrics] = []) {
-        // Invalidate the current automatic search generation so any pending
-        // automatic finalize/export becomes a no-op.
-        automaticSearchGeneration &+= 1
-        searchTask?.cancel()
-        searchTask = nil
-
-        if let track = player.currentTrack {
-            lyrics.associateWithTrack(track)
-        }
-        lyrics.metadata.persistenceAllowed = true
-        currentLyrics = lyrics
-        status = .loaded
+        invalidateAutomaticSearch()
+        adopt(lyrics, for: player.currentTrack, persist: true)
         // Retain the manual search's other same-song results as restoration
         // evidence for the chosen lyrics.
         supportingLyrics = SupportingLyrics.bounded(supporting, excluding: lyrics)
@@ -273,10 +256,7 @@ class LyricsSession: NSObject {
     /// field is cleared so the rejection sticks across restarts. The in-flight
     /// search is always cancelled and the generation invalidated.
     func clear(deleteOnDisk: Bool = false) {
-        // Invalidate so any stale automatic event cannot restore what was cleared.
-        automaticSearchGeneration &+= 1
-        searchTask?.cancel()
-        searchTask = nil
+        invalidateAutomaticSearch()
 
         if deleteOnDisk {
             if exportSettings.writeToiTunesAutomatically, let track = player.currentTrack {
@@ -300,12 +280,7 @@ class LyricsSession: NSObject {
         currentLyrics = nil
         currentLineIndex = nil
         supportingLyrics = []
-
-        // Invalidate the previous search so late events from the old track are
-        // no-ops even if they arrive after the new task starts.
-        automaticSearchGeneration &+= 1
-        searchTask?.cancel()
-        searchTask = nil
+        invalidateAutomaticSearch()
         automaticSearchTrack = track
 
         guard let track else {
@@ -393,6 +368,31 @@ class LyricsSession: NSObject {
 
     // MARK: - Applying automatic search decisions
 
+    /// Stops the running automatic search and makes any of its events still in flight
+    /// no-ops, so a late result can't replace what the user picked, cleared or imported.
+    private func invalidateAutomaticSearch() {
+        automaticSearchGeneration &+= 1
+        searchTask?.cancel()
+        searchTask = nil
+    }
+
+    /// Puts `lyrics` on screen, labelled with `track`. Only lyrics allowed to `persist` are
+    /// ever saved or exported; automatic interim picks aren't.
+    private func adopt(_ lyrics: Lyrics, for track: MusicTrack?, persist: Bool) {
+        if let track {
+            lyrics.associateWithTrack(track)
+        }
+        if persist {
+            lyrics.metadata.persistenceAllowed = true
+        }
+        // Usually already on screen as the interim pick; assigning it again resets
+        // the line index and makes the karaoke line blink.
+        if lyrics !== currentLyrics {
+            currentLyrics = lyrics
+        }
+        status = .loaded
+    }
+
     private func isCurrentAutomaticSearch(_ generation: Int) -> Bool {
         automaticSearchGeneration == generation && player.currentTrack?.id == automaticSearchTrack?.id
     }
@@ -403,27 +403,14 @@ class LyricsSession: NSObject {
         // Bind results to the searched track, not the live one, so a change that lands after
         // the currency check can't label, save or export this song's lyrics under the next.
         case .interim(let lyrics):
-            // Interim results are display-only: not marked for persistence or exported.
-            if let track = automaticSearchTrack {
-                lyrics.associateWithTrack(track)
-            }
-            currentLyrics = lyrics
-            status = .loaded
+            adopt(lyrics, for: automaticSearchTrack, persist: false)
 
         case .supporting(let supporting):
             updateSupportingLyrics(supporting)
 
         case .finished(let accepted, let supporting):
             if let accepted {
-                if let track = automaticSearchTrack {
-                    accepted.associateWithTrack(track)
-                }
-                accepted.metadata.persistenceAllowed = true
-                // Usually already on screen as the interim pick; assigning it again resets
-                // the line index and makes the karaoke line blink.
-                if accepted !== currentLyrics {
-                    currentLyrics = accepted
-                }
+                adopt(accepted, for: automaticSearchTrack, persist: true)
             }
             updateSupportingLyrics(supporting)
             status = currentLyrics == nil ? .notFound : .loaded
@@ -463,20 +450,12 @@ extension LyricsSession {
             let error = NSError(domain: lyricsXErrorDomain, code: 0, userInfo: errorInfo)
             throw error
         }
-        // Cancel any in-flight automatic search so it cannot overwrite the
-        // user's import — mirrors the same contract as select() and clear().
         // Only after validation, so a bad import leaves the running search alone.
-        automaticSearchGeneration &+= 1
-        searchTask?.cancel()
-        searchTask = nil
+        invalidateAutomaticSearch()
 
-        lrc.metadata.title = track.title
-        lrc.metadata.artist = track.artist
         preparation.prepare(lrc)
         lrc.metadata.needsPersist = true
-        lrc.metadata.persistenceAllowed = true
-        currentLyrics = lrc
-        status = .loaded
+        adopt(lrc, for: track, persist: true)
         supportingLyrics = []
         SearchBlocklist.unblock(track: track)
         SearchBlocklist.unblock(album: track.album ?? "")

@@ -92,6 +92,7 @@ let package = Package(
             dependencies: [
                 .product(name: "LyricsKit", package: "LyricsKit"),
                 .product(name: "MusicPlayer", package: "MusicPlayer"),
+                .product(name: "LXMusicPlayer", package: "MusicPlayer"),
             ]
         ),
         .testTarget(

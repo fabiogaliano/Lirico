@@ -240,7 +240,7 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
         refreshTextContents()
 
         // The HUD owns full-scrollback layout, so it observes raw lyrics for now;
-        // line-only surfaces consume `displayCoordinator` snapshots.
+        // line-only surfaces consume `LyricsDisplayCoordinator` snapshots.
         session.$currentLyrics
             .signal()
             .receive(on: DispatchQueue.main)

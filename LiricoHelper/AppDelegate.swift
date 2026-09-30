@@ -69,6 +69,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
+// Must match ScriptablePlayers.bundleIDs in LiricoFoundation, which this target doesn't link.
 let playerBundleIdentifiers = [
     "com.apple.Music", "com.apple.iTunes",
     "com.spotify.client",
