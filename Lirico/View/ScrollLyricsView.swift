@@ -207,6 +207,9 @@ class ScrollLyricsView: NSScrollView {
         converter: ChineseConverter?,
         restoreExplicit: ExplicitRenderRestoration? = nil
     ) {
+        // Replacing the text resizes the document, and the clip view clamps its origin
+        // to fit; that move is ours, not the user browsing away from the synced line.
+        beginProgrammaticScroll()
         guard let lyrics = lyrics else {
             ranges = []
             textView.string = ""
