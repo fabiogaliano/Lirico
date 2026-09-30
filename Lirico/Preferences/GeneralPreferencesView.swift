@@ -112,16 +112,17 @@ struct GeneralPreferencesView: View {
         SettingsSection(title: "Search & Display") {
             SettingsRow(label: "Global lyrics offset (ms)") {
                 HStack(spacing: 4) {
-                    TextField("", value: $globalLyricsOffset, formatter: NumberFormatter())
+                    TextField("Global lyrics offset (ms)", value: $globalLyricsOffset, formatter: NumberFormatter())
+                        .labelsHidden()
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 70)
-                    Stepper("", value: $globalLyricsOffset, step: 100)
+                    Stepper("Global lyrics offset (ms)", value: $globalLyricsOffset, step: 100)
                         .labelsHidden()
                 }
             }
             Toggle("Prefer bilingual lyrics", isOn: $preferBilingualLyrics)
             SettingsRow(label: "Auto Chinese conversion") {
-                Picker("", selection: $chineseConversionIndex) {
+                Picker("Auto Chinese conversion", selection: $chineseConversionIndex) {
                     Text("No Conversion").tag(0)
                     Text("Simplified Chinese").tag(1)
                     Text("Traditional Chinese").tag(2)
@@ -132,14 +133,21 @@ struct GeneralPreferencesView: View {
                 .frame(width: 230)
             }
             Toggle("Combined menubar lyrics", isOn: $combinedMenubarLyrics)
-            Toggle("Hide menu bar items", isOn: $hideMenuBarItems)
+            VStack(alignment: .leading, spacing: 2) {
+                Toggle("Hide menu bar items", isOn: $hideMenuBarItems)
+                // With every status item gone there is no menu left to reach Settings from.
+                Text("To open Settings again, open Lirico from Finder or Spotlight while it's running, or use the Show / Hide preferences shortcut.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
     }
 
     private var languageSection: some View {
         SettingsSection(title: "Language") {
             SettingsRow(label: "Language") {
-                Picker("", selection: $languagePickerIndex) {
+                Picker("Language", selection: $languagePickerIndex) {
                     Text("System").tag(0)
                     ForEach(Array(localizations.enumerated()), id: \.offset) { offset, lan in
                         Text(localizedLanguageName(for: lan)).tag(offset + 2)
@@ -179,7 +187,7 @@ struct GeneralPreferencesView: View {
     @ViewBuilder private var savingPathRow: some View {
         SettingsRow(label: "Lyrics saving path") {
             HStack {
-                Picker("", selection: $savingPathPopUpIndex) {
+                Picker("Lyrics saving path", selection: $savingPathPopUpIndex) {
                     Text("Default (~/Music/Lirico)").tag(0)
                     if !customDirectoryName.isEmpty {
                         Text(customDirectoryName).tag(1)

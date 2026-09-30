@@ -121,6 +121,7 @@ class MenuBarLyricsController {
         }
 
         marqueeLabel.setStringValue(screenLyrics.lyrics, lineDisplayTime: screenLyrics.duration)
+        updateLyricAccessibilityLabel()
     }
 
     private func updateCombinedStatusLyrics() {
@@ -130,6 +131,14 @@ class MenuBarLyricsController {
         }
 
         marqueeLabel.setStringValue(screenLyrics.lyrics, lineDisplayTime: screenLyrics.duration)
+        updateLyricAccessibilityLabel()
+    }
+
+    // The lyric item's button has an empty title with the marquee drawn on top, so VoiceOver
+    // would otherwise announce an unlabeled button.
+    private func updateLyricAccessibilityLabel() {
+        let text = screenLyrics.lyrics.isEmpty ? MenuBarLyricsController.defaultLyric : screenLyrics.lyrics
+        lyricStatusItem?.button?.setAccessibilityLabel(text)
     }
 
     private func setupLyricStatusItem() {

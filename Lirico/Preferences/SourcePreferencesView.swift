@@ -3,7 +3,11 @@ import SwiftUI
 struct SourcePreferencesView: View {
     @State private var sourcePriorityEnabled: Bool = false
     @State private var sources: [String] = []
-    @State private var selectedIndex: Int? = nil
+    @State private var selectedSource: String? = nil
+
+    private var selectedIndex: Int? {
+        selectedSource.flatMap { sources.firstIndex(of: $0) }
+    }
 
     private let searchSettings = SearchSettings()
 
@@ -42,19 +46,20 @@ struct SourcePreferencesView: View {
     }
 
     private var sourceList: some View {
-        List {
+        // Native selection so the list is reachable by keyboard and VoiceOver, not just clicks.
+        List(selection: $selectedSource) {
             ForEach(Array(sources.enumerated()), id: \.element) { index, source in
                 HStack(spacing: 8) {
                     Text("\(index + 1)")
                         .foregroundColor(.secondary)
                         .frame(width: 24, alignment: .trailing)
                         .font(.system(.body, design: .monospaced))
+                        .accessibilityHidden(true)
                     Text(source)
                     Spacer()
                 }
-                .contentShape(Rectangle())
-                .onTapGesture { selectedIndex = index }
-                .background(selectedIndex == index ? Color.accentColor.opacity(0.15) : Color.clear)
+                .tag(source)
+                .accessibilityValue(Text("Priority \(index + 1)"))
             }
             .onMove(perform: moveSource)
         }
@@ -72,6 +77,7 @@ struct SourcePreferencesView: View {
         HStack(spacing: 8) {
             Button(action: moveSelectedUp) {
                 Image(systemName: "chevron.up")
+                    .accessibilityLabel("Move selected source up")
             }
             .buttonStyle(.bordered)
             .disabled(selectedIndex == nil || selectedIndex == 0)
@@ -79,6 +85,7 @@ struct SourcePreferencesView: View {
 
             Button(action: moveSelectedDown) {
                 Image(systemName: "chevron.down")
+                    .accessibilityLabel("Move selected source down")
             }
             .buttonStyle(.bordered)
             .disabled(selectedIndex == nil || selectedIndex == sources.count - 1)
@@ -92,31 +99,18 @@ struct SourcePreferencesView: View {
 
     private func moveSource(from offsets: IndexSet, to destination: Int) {
         sources.move(fromOffsets: offsets, toOffset: destination)
-        // Recompute selectedIndex to track the moved row.
-        if let old = selectedIndex, let moved = offsets.first {
-            let dest = destination > moved ? destination - 1 : destination
-            if old == moved {
-                selectedIndex = dest
-            } else if moved < old && dest >= old {
-                selectedIndex = old - 1
-            } else if moved > old && dest <= old {
-                selectedIndex = old + 1
-            }
-        }
         commitOrder()
     }
 
     private func moveSelectedUp() {
         guard let idx = selectedIndex, idx > 0 else { return }
         sources.swapAt(idx, idx - 1)
-        selectedIndex = idx - 1
         commitOrder()
     }
 
     private func moveSelectedDown() {
         guard let idx = selectedIndex, idx < sources.count - 1 else { return }
         sources.swapAt(idx, idx + 1)
-        selectedIndex = idx + 1
         commitOrder()
     }
 
