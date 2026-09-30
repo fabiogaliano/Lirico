@@ -82,6 +82,11 @@ class LyricsSession: NSObject {
     /// (DEC-007) where late async events could overwrite a user selection.
     private var automaticSearchGeneration: Int = 0
 
+    /// The track the running automatic search belongs to. Track changes reach the
+    /// session through a main-actor hop, so a result can land after the player has
+    /// already moved on while the generation still matches; this catches that gap.
+    private var automaticSearchTrackID: String?
+
     private var cancelBag = Set<AnyCancellable>()
 
     @objc dynamic var lyricsOffset: Int {
@@ -139,8 +144,7 @@ class LyricsSession: NSObject {
             }
             .store(in: &cancelBag)
 
-        clock.dedupTarget = { [weak self] in self?.currentLineIndex }
-        clock.currentLineIndex
+        clock.lineIndexUpdates
             // Mirror onto the main thread before driving UI. The clock emits on
             // its background queue; assigning the @Published property there let
             // the coordinator-backed surfaces (karaoke, menu bar) and the
@@ -148,7 +152,11 @@ class LyricsSession: NSObject {
             // order, so at a line boundary one could briefly lead the other by a
             // whole line. A single main-thread origin keeps every surface in step.
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] index in self?.currentLineIndex = index }
+            .sink { [weak self] update in
+                // An index computed for replaced lyrics may be out of range for the new ones.
+                guard let self, update.lyrics === self.currentLyrics, self.currentLineIndex != update.index else { return }
+                self.currentLineIndex = update.index
+            }
             .store(in: &cancelBag)
 
         workspaceNC.publisher(for: NSWorkspace.didTerminateApplicationNotification, object: nil)
@@ -156,7 +164,7 @@ class LyricsSession: NSObject {
                 guard let application = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }
                 let bundleID = application.bundleIdentifier
                 if playerSettings.launchAndQuitWithPlayer, player.designatedPlayerBundleID == bundleID {
-                    NSApplication.shared.terminate(self)
+                    NSApplication.shared.terminate(nil)
                 }
             }.store(in: &cancelBag)
 
@@ -255,7 +263,9 @@ class LyricsSession: NSObject {
             if exportSettings.writeToiTunesAutomatically, let track = player.currentTrack {
                 track.setLyrics("")
             }
-            if let url = currentLyrics?.metadata.localURL {
+            // Only files Lirico saved itself: a `.lrc` beside the audio file is the
+            // user's own, and this app is unsandboxed, so deleting it would be permanent.
+            if let url = currentLyrics?.metadata.localURL, isInStorageDirectory(url) {
                 try? FileManager.default.removeItem(at: url)
             }
         }
@@ -275,6 +285,7 @@ class LyricsSession: NSObject {
         automaticSearchGeneration &+= 1
         searchTask?.cancel()
         searchTask = nil
+        automaticSearchTrackID = player.currentTrack?.id
 
         guard let track = player.currentTrack else {
             return
@@ -349,6 +360,7 @@ class LyricsSession: NSObject {
         // Capture the current generation before launching. The task checks this
         // token at every candidate/finalization point to reject stale results.
         let generation = automaticSearchGeneration
+        let initialLyrics = currentLyrics
 
         searchTask = Task { @MainActor in
             await runAutomaticSearch(
@@ -358,6 +370,7 @@ class LyricsSession: NSObject {
                 requestedAlbum: requestedAlbum,
                 acceptancePolicy: acceptancePolicy,
                 configuration: configuration,
+                initialLyrics: initialLyrics,
                 generation: generation
             )
         }
@@ -383,6 +396,7 @@ class LyricsSession: NSObject {
         requestedAlbum: String?,
         acceptancePolicy: AutomaticAcceptancePolicy,
         configuration: LyricsCandidateRankingConfiguration,
+        initialLyrics: Lyrics?,
         generation: Int
     ) async {
         let stream = pipeline.events(
@@ -405,7 +419,7 @@ class LyricsSession: NSObject {
             group.addTask { @MainActor in
                 for await event in stream {
                     // Stale generation: the track changed or user acted — stop now.
-                    guard self.automaticSearchGeneration == generation else { break }
+                    guard self.isCurrentAutomaticSearch(generation) else { break }
 
                     switch event {
                     case .candidate(let candidate):
@@ -454,13 +468,14 @@ class LyricsSession: NSObject {
 
         // Finalize EXACTLY ONCE here, after the race resolves.
         // Generation check prevents stale finalization when track changed / user acted.
-        guard automaticSearchGeneration == generation else { return }
+        guard isCurrentAutomaticSearch(generation) else { return }
 
         finalizeAutomaticSearch(
             collectedCandidates: collectedCandidates,
             mode: mode,
             acceptancePolicy: acceptancePolicy,
             configuration: configuration,
+            initialLyrics: initialLyrics,
             generation: generation
         )
     }
@@ -476,11 +491,12 @@ class LyricsSession: NSObject {
         mode: LyricsSearchMode,
         acceptancePolicy: AutomaticAcceptancePolicy,
         configuration: LyricsCandidateRankingConfiguration,
+        initialLyrics: Lyrics?,
         generation: Int
     ) {
         // Generation guard: manual select/clear/track-change happened after the
         // search started — do not overwrite the user's choice.
-        guard automaticSearchGeneration == generation else { return }
+        guard isCurrentAutomaticSearch(generation) else { return }
 
         let ranker = LyricsCandidateRanker()
         if let bestCandidate = ranker.bestCandidate(
@@ -495,9 +511,6 @@ class LyricsSession: NSObject {
                 generation: generation
             )
             if approved {
-                // Re-check generation after shouldAccept (it's synchronous, but
-                // be defensive about future changes).
-                guard automaticSearchGeneration == generation else { return }
                 if let track = player.currentTrack {
                     bestCandidate.lyrics.associateWithTrack(track)
                 }
@@ -512,7 +525,9 @@ class LyricsSession: NSObject {
 
         // Persist and export after finalization — never on interim updates.
         persistCurrentLyricsIfNeeded()
-        if exportSettings.writeToiTunesAutomatically {
+        // Kept local lyrics are already what the user has; re-exporting them would
+        // cost an Apple Event per track and clobber Apple Music's field for nothing.
+        if exportSettings.writeToiTunesAutomatically, currentLyrics !== initialLyrics {
             writeToiTunes(overwrite: true)
         }
     }
@@ -532,7 +547,7 @@ class LyricsSession: NSObject {
         configuration: LyricsCandidateRankingConfiguration,
         generation: Int
     ) {
-        guard automaticSearchGeneration == generation else { return }
+        guard isCurrentAutomaticSearch(generation) else { return }
 
         let ranker = LyricsCandidateRanker()
         guard let best = ranker.bestCandidate(
@@ -566,6 +581,10 @@ class LyricsSession: NSObject {
         }
         // Interim: update display but do NOT set needsPersist / export.
         currentLyrics = best.lyrics
+    }
+
+    private func isCurrentAutomaticSearch(_ generation: Int) -> Bool {
+        automaticSearchGeneration == generation && player.currentTrack?.id == automaticSearchTrackID
     }
 
     /// Returns whether `candidate` is acceptable given the current policy.
@@ -674,22 +693,18 @@ class LyricsSession: NSObject {
         // but beside-track URLs are normally NOT inside the app's configured storage
         // directory. Use "Beside Track" for any local URL, "Local Storage" only when
         // the URL is inside the persistence storage directory.
-        let storageDir = persistenceSettings.storageDirectory().url
-        if localURL.path.hasPrefix(storageDir.path) {
-            return "Local Storage"
-        }
-        return "Beside Track"
+        return isInStorageDirectory(localURL) ? "Local Storage" : "Beside Track"
+    }
+
+    private func isInStorageDirectory(_ url: URL) -> Bool {
+        let storage = persistenceSettings.storageDirectory().url.standardizedFileURL.pathComponents
+        let path = url.standardizedFileURL.pathComponents
+        return path.count > storage.count && Array(path.prefix(storage.count)) == storage
     }
 }
 
 extension LyricsSession {
     func importLyrics(_ lyricsString: String) throws {
-        // Cancel any in-flight automatic search so it cannot overwrite the
-        // user's import — mirrors the same contract as select() and clear().
-        automaticSearchGeneration &+= 1
-        searchTask?.cancel()
-        searchTask = nil
-
         guard let lrc = Lyrics(lyricsString) else {
             let errorInfo = [
                 NSLocalizedDescriptionKey: "Invalid lyric file",
@@ -706,6 +721,13 @@ extension LyricsSession {
             let error = NSError(domain: lyricsXErrorDomain, code: 0, userInfo: errorInfo)
             throw error
         }
+        // Cancel any in-flight automatic search so it cannot overwrite the
+        // user's import — mirrors the same contract as select() and clear().
+        // Only after validation, so a bad import leaves the running search alone.
+        automaticSearchGeneration &+= 1
+        searchTask?.cancel()
+        searchTask = nil
+
         lrc.metadata.title = track.title
         lrc.metadata.artist = track.artist
         preparation.prepare(lrc)
