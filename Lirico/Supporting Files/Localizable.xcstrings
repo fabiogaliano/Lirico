@@ -542,7 +542,7 @@
         "ar" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "%+d مللي ثانية"
+            "value" : "%+d ms"
           }
         },
         "de" : {
@@ -560,7 +560,7 @@
         "fa" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "%+d میلی‌ثانیه"
+            "value" : "%+d ms"
           }
         },
         "fr" : {
@@ -10119,7 +10119,7 @@
         "ar" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "مللي ثانية"
+            "value" : "ms"
           }
         },
         "de" : {
@@ -10137,7 +10137,7 @@
         "fa" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "میلی‌ثانیه"
+            "value" : "ms"
           }
         },
         "fr" : {
