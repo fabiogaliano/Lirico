@@ -5,7 +5,7 @@ import AppKit
 /// Replaces the former `Main.storyboard` "Application" scene. Item titles,
 /// tags, identifiers, key equivalents, and action selectors are preserved
 /// 1:1 so existing target/action wiring (AppDelegate IBActions, shortcut
-/// bindings, `validateMenuItem`, `menuNeedsUpdate` tag-202 lookup) keeps
+/// bindings, `validateMenuItem`) keeps
 /// working without modification.
 enum MainMenuBuilder {
 
@@ -102,8 +102,7 @@ enum MainMenuBuilder {
 
     /// Build the menu shown from the menu-bar status item, plus the inline
     /// "Lyrics Delay Setter" view. Tags and identifiers match the original
-    /// storyboard so `AppDelegate.menuNeedsUpdate(_:)` (looks up tag 202)
-    /// and the SwiftUI Search/Preferences entry points continue to work.
+    /// storyboard so the SwiftUI Search/Preferences entry points continue to work.
     static func statusBarMenu(target: AppDelegate) -> StatusBarMenu {
         let menu = NSMenu()
 
@@ -233,9 +232,6 @@ enum MainMenuBuilder {
         disableAlbum.target = target
         submenu.addItem(disableAlbum)
 
-        // Tag 202 is intentionally reused: `menuNeedsUpdate` enables the
-        // outer "Lyrics" item, while this inner item participates in
-        // `validateMenuItem` enable/disable through its action selector.
         let writeToiTunes = NSMenuItem(
             title: NSLocalizedString("Write to iTunes", comment: "menu"),
             action: #selector(AppDelegate.writeToiTunes(_:)),

@@ -90,15 +90,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             return container.player.name == .appleMusic && container.session.currentLyrics != nil
         case #selector(searchLyrics(_:))?:
             return container.player.currentTrack != nil
+        case #selector(showLyricsSync(_:))?,
+             #selector(showCurrentLyricsInFinder(_:))?,
+             #selector(wrongLyrics(_:))?:
+            return container.session.currentLyrics != nil
+        case #selector(doNotSearchLyricsForThisAlbum(_:))?:
+            return container.player.currentTrack?.album?.isEmpty == false
         default:
             return true
         }
-    }
-
-    func menuNeedsUpdate(_ menu: NSMenu) {
-        let hasLyrics = container?.session.currentLyrics != nil
-        menu.item(withTag: 202)?.isEnabled = hasLyrics
-        menu.item(withTag: 204)?.isEnabled = hasLyrics
     }
 
     // MARK: - Menubar Action
