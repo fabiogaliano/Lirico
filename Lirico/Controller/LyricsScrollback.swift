@@ -9,6 +9,7 @@ import LiricoFoundation
 /// The user browses by scrolling away and returns with `resume`.
 ///
 /// Owners keep their layout and actions, and forward their view and window lifecycle.
+@MainActor
 final class LyricsScrollback {
     /// Called when following starts or stops, to show or hide the owner's Resume pill.
     var onFollowingChange: ((_ isFollowing: Bool) -> Void)?
@@ -96,7 +97,7 @@ final class LyricsScrollback {
         // Any user scroll means "I'm browsing": stop following so the text stays put.
         liveScrollObserver = NotificationCenter.default.addObserver(
             forName: NSScrollView.willStartLiveScrollNotification, object: scrollView, queue: .main
-        ) { [unowned self] _ in self.browse() }
+        ) { [unowned self] _ in MainActor.assumeIsolated { self.browse() } }
     }
 
     func viewWillAppear() {
@@ -193,7 +194,7 @@ final class LyricsScrollback {
         guard active else { return }
         // `.common` keeps the fill advancing during scroll/menu tracking runloops.
         let timer = Timer(timeInterval: 1.0 / 30.0, repeats: true) { [weak self] _ in
-            self?.updateHighlight()
+            MainActor.assumeIsolated { self?.updateHighlight() }
         }
         RunLoop.main.add(timer, forMode: .common)
         fillTimer = timer

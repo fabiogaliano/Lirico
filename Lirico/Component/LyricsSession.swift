@@ -19,6 +19,7 @@ enum LyricsStatus: Equatable {
 
 // MARK: - LyricsSession
 
+@MainActor
 class LyricsSession: NSObject {
     private let automaticSearch: AutomaticLyricsSearch
     private let player: PlayerHandle
@@ -271,7 +272,6 @@ class LyricsSession: NSObject {
         status = .blocked
     }
 
-    @MainActor
     func currentTrackChanged(to track: MusicTrack?) {
         persistCurrentLyricsIfNeeded()
         currentLyrics = nil
@@ -314,7 +314,6 @@ class LyricsSession: NSObject {
         }
     }
 
-    @MainActor
     private func continueAutomaticSearch(
         track: MusicTrack,
         title: String,
@@ -394,7 +393,6 @@ class LyricsSession: NSObject {
         automaticSearchGeneration == generation && player.currentTrack?.id == automaticSearchTrack?.id
     }
 
-    @MainActor
     private func apply(_ decision: AutomaticLyricsSearch.Decision, initialLyrics: Lyrics?) {
         switch decision {
         // Bind results to the searched track, not the live one, so a change that lands after
