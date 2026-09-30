@@ -89,9 +89,8 @@
 		E975C5BC2D380B920059BE92 /* PreferenceWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E975C5BA2D380B920059BE92 /* PreferenceWindowController.swift */; };
 		F1D0000100000000000A0001 /* MainMenuBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D0000000000000000A0001 /* MainMenuBuilder.swift */; };
 		F1D0000300000000000A0002 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D0000200000000000A0002 /* main.swift */; };
-		FA0000012F200000000A0001 /* SettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0001 /* SettingsSection.swift */; };
-		FA0000012F200000000A0002 /* LabPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0002 /* LabPreferencesView.swift */; };
-		FA0000012F200000000A0003 /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0003 /* PreferencesView.swift */; };
+		FA0000012F200000000A0001 /* SettingsForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0001 /* SettingsForm.swift */; };
+		FA0000012F200000000A0002 /* LyricsPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0002 /* LyricsPreferencesView.swift */; };
 		FA0000012F200000000A0004 /* ShortcutPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0004 /* ShortcutPreferencesView.swift */; };
 		FA0000012F200000000A0005 /* FilterPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0005 /* FilterPreferencesView.swift */; };
 		FA0000012F200000000A0006 /* GeneralPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0006 /* GeneralPreferencesView.swift */; };
@@ -197,9 +196,8 @@
 		BBE8FC741F6BEA6200122AFA /* Then.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Then.swift; sourceTree = "<group>"; };
 		E960A9A12D68F9FA00A32EEC /* NowPlayingApplicationListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingApplicationListViewController.swift; sourceTree = "<group>"; };
 		E975C5BA2D380B920059BE92 /* PreferenceWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceWindowController.swift; sourceTree = "<group>"; };
-		FA0000002F200000000A0001 /* SettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSection.swift; sourceTree = "<group>"; };
-		FA0000002F200000000A0002 /* LabPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabPreferencesView.swift; sourceTree = "<group>"; };
-		FA0000002F200000000A0003 /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
+		FA0000002F200000000A0001 /* SettingsForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsForm.swift; sourceTree = "<group>"; };
+		FA0000002F200000000A0002 /* LyricsPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsPreferencesView.swift; sourceTree = "<group>"; };
 		FA0000002F200000000A0004 /* ShortcutPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutPreferencesView.swift; sourceTree = "<group>"; };
 		FA0000002F200000000A0005 /* FilterPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterPreferencesView.swift; sourceTree = "<group>"; };
 		FA0000002F200000000A0006 /* GeneralPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralPreferencesView.swift; sourceTree = "<group>"; };
@@ -353,9 +351,8 @@
 			isa = PBXGroup;
 			children = (
 				E975C5BA2D380B920059BE92 /* PreferenceWindowController.swift */,
-				FA0000002F200000000A0003 /* PreferencesView.swift */,
-				FA0000002F200000000A0001 /* SettingsSection.swift */,
-				FA0000002F200000000A0002 /* LabPreferencesView.swift */,
+				FA0000002F200000000A0001 /* SettingsForm.swift */,
+				FA0000002F200000000A0002 /* LyricsPreferencesView.swift */,
 				FA0000002F200000000A0004 /* ShortcutPreferencesView.swift */,
 				FA0000002F200000000A0005 /* FilterPreferencesView.swift */,
 				FA0000002F200000000A0006 /* GeneralPreferencesView.swift */,
@@ -695,9 +692,8 @@
 				BBE8FC751F6BEA6200122AFA /* Then.swift in Sources */,
 				E960A9A22D68F9FA00A32EEC /* NowPlayingApplicationListViewController.swift in Sources */,
 				E975C5BC2D380B920059BE92 /* PreferenceWindowController.swift in Sources */,
-				FA0000012F200000000A0003 /* PreferencesView.swift in Sources */,
-				FA0000012F200000000A0001 /* SettingsSection.swift in Sources */,
-				FA0000012F200000000A0002 /* LabPreferencesView.swift in Sources */,
+				FA0000012F200000000A0001 /* SettingsForm.swift in Sources */,
+				FA0000012F200000000A0002 /* LyricsPreferencesView.swift in Sources */,
 				FA0000012F200000000A0004 /* ShortcutPreferencesView.swift in Sources */,
 				FA0000012F200000000A0005 /* FilterPreferencesView.swift in Sources */,
 				FA0000012F200000000A0006 /* GeneralPreferencesView.swift in Sources */,

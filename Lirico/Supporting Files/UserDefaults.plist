@@ -76,7 +76,5 @@
 	<integer>15</integer>
 	<key>NSApplicationCrashOnExceptions</key>
 	<true/>
-	<key>PreferredPlayerIndex</key>
-	<integer>-1</integer>
 </dict>
 </plist>

@@ -152,7 +152,7 @@ private struct FontPickerButton: NSViewRepresentable {
     }
 
     private func buttonTitle(for nsFont: NSFont) -> String {
-        "\(nsFont.fontName) - \(Int(nsFont.pointSize))"
+        "\(nsFont.displayName ?? nsFont.fontName) · \(Int(nsFont.pointSize)) pt"
     }
 }
 
@@ -185,13 +185,10 @@ struct DisplayPreferencesView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                desktopLyricsSection
-                desktopLyricsBehaviorSection
-                hudLyricsSection
-            }
-            .padding(20)
+        SettingsForm {
+            desktopLyricsSection
+            desktopLyricsBehaviorSection
+            lyricsWindowSection
         }
         .onAppear { vm.load() }
     }
@@ -199,63 +196,56 @@ struct DisplayPreferencesView: View {
     // MARK: - Sections
 
     private var desktopLyricsSection: some View {
-        SettingsSection(title: "Desktop Lyrics") {
-            SettingsRow(label: "Font") {
+        Section("Desktop Lyrics") {
+            LabeledContent("Font") {
                 FontPickerButton(font: vm.desktopFont) { old, new in
                     vm.desktopFontChanged(from: old, to: new)
                 }
+                .fixedSize()
             }
             if let fallback = vm.fontFallback {
-                HStack {
-                    Text(String(format: NSLocalizedString("Font Fallback: %@", comment: ""), fallback))
-                        .foregroundColor(.secondary)
-                    Button("Remove") { vm.removeFontFallback() }
+                LabeledContent("Fallback font") {
+                    HStack {
+                        Text(fallback).foregroundStyle(.secondary)
+                        Button("Remove") { vm.removeFontFallback() }
+                    }
                 }
             }
-            SettingsRow(label: "Text Color") {
-                ColorPicker("Text Color", selection: colorBinding(\.desktopTextColor, save: { $0.saveDesktopTextColor }), supportsOpacity: true)
-                    .labelsHidden()
-            }
-            SettingsRow(label: "Karaoke Color") {
-                ColorPicker("Karaoke Color", selection: colorBinding(\.desktopProgressColor, save: { $0.saveDesktopProgressColor }), supportsOpacity: true)
-                    .labelsHidden()
-            }
-            SettingsRow(label: "Shadow Color") {
-                ColorPicker("Shadow Color", selection: colorBinding(\.desktopShadowColor, save: { $0.saveDesktopShadowColor }), supportsOpacity: true)
-                    .labelsHidden()
-            }
-            SettingsRow(label: "Background Color") {
-                ColorPicker("Background Color", selection: colorBinding(\.desktopBackgroundColor, save: { $0.saveDesktopBackgroundColor }), supportsOpacity: true)
-                    .labelsHidden()
-            }
-            Toggle("One line mode", isOn: $oneLineMode)
-            Toggle("Vertical mode", isOn: $verticalMode)
-            Toggle("Draggable (hold ⌘)", isOn: $draggable)
+            ColorPicker("Text", selection: colorBinding(\.desktopTextColor, save: { $0.saveDesktopTextColor }), supportsOpacity: true)
+            ColorPicker("Sung text", selection: colorBinding(\.desktopProgressColor, save: { $0.saveDesktopProgressColor }), supportsOpacity: true)
+            ColorPicker("Shadow", selection: colorBinding(\.desktopShadowColor, save: { $0.saveDesktopShadowColor }), supportsOpacity: true)
+            ColorPicker("Background", selection: colorBinding(\.desktopBackgroundColor, save: { $0.saveDesktopBackgroundColor }), supportsOpacity: true)
+            Toggle("One line", isOn: $oneLineMode)
+            Toggle("Vertical", isOn: $verticalMode)
         }
     }
 
     private var desktopLyricsBehaviorSection: some View {
-        SettingsSection(title: "Desktop Lyrics Behavior") {
+        Section {
+            Toggle("Drag with ⌘", isOn: $draggable)
             // Dragging needs the lyrics to stay under the pointer, so the overlay ignores this while draggable.
-            Toggle("Hide when mouse passes by", isOn: $hideWhenMousePassingBy)
+            Toggle("Hide when the mouse passes over", isOn: $hideWhenMousePassingBy)
                 .disabled(draggable)
-                .help(draggable ? "Turn off Draggable to hide lyrics when the mouse passes over them." : "")
-            Toggle("Disable when paused", isOn: $disableWhenPaused)
-            Toggle("Disable during screenshot", isOn: $disableWhenScreenShot)
+            Toggle("Hide when paused", isOn: $disableWhenPaused)
+            Toggle("Hide in screenshots and recordings", isOn: $disableWhenScreenShot)
+        } header: {
+            Text("Desktop Lyrics Behavior")
+        } footer: {
+            if draggable {
+                SettingsFooter("Hold ⌘ and drag the lyrics to move them. Hiding on mouse-over is off while dragging is on.")
+            }
         }
     }
 
-    private var hudLyricsSection: some View {
-        SettingsSection(title: "HUD Lyrics Window") {
-            SettingsRow(label: "Font") {
+    private var lyricsWindowSection: some View {
+        Section("Lyrics Window") {
+            LabeledContent("Font") {
                 FontPickerButton(font: vm.hudFont) { old, new in
                     vm.hudFontChanged(from: old, to: new)
                 }
+                .fixedSize()
             }
-            SettingsRow(label: "Highlight Color") {
-                ColorPicker("Highlight Color", selection: colorBinding(\.hudHighlightColor, save: { $0.saveHudHighlightColor }), supportsOpacity: true)
-                    .labelsHidden()
-            }
+            ColorPicker("Highlight", selection: colorBinding(\.hudHighlightColor, save: { $0.saveHudHighlightColor }), supportsOpacity: true)
         }
     }
 }

@@ -50,13 +50,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
         HelperLifecycle.terminateRunningHelper()
 
-        let sharedKeys: [UserDefaults.DefaultsKeys] = [
-            .launchAndQuitWithPlayer,
-            .preferredPlayerIndex,
-        ]
-        for sharedKey in sharedKeys {
-            groupDefaults.bind(NSBindingName(sharedKey.key), withDefaultName: sharedKey)
-        }
+        groupDefaults.bind(NSBindingName(UserDefaults.DefaultsKeys.launchAndQuitWithPlayer.key), withDefaultName: .launchAndQuitWithPlayer)
 
         if defaults[.isShowLyricsHUD] {
             container.lyricsHUD.showWindow(nil)

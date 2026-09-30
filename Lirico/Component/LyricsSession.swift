@@ -166,17 +166,12 @@ class LyricsSession: NSObject {
             .sink { [playerSettings] notification in
                 guard let application = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }
                 guard playerSettings.launchAndQuitWithPlayer, let bundleID = application.bundleIdentifier else { return }
-                let quitsWithPlayer: Bool
-                if MusicPlayerName(index: playerSettings.preferredPlayerIndex) != nil {
-                    quitsWithPlayer = player.designatedPlayerBundleID == bundleID
-                } else {
-                    // Auto follows whichever player is running, so only quit once the last one has.
-                    let players = AutomationPermission.scriptablePlayerBundleIDs
-                    quitsWithPlayer = players.contains(bundleID) && !NSWorkspace.shared.runningApplications.contains {
-                        $0 != application && !$0.isTerminated && players.contains($0.bundleIdentifier ?? "")
-                    }
+                // The player is picked automatically, so only quit once the last supported one has.
+                let players = AutomationPermission.scriptablePlayerBundleIDs
+                let otherPlayerRunning = NSWorkspace.shared.runningApplications.contains {
+                    $0 != application && !$0.isTerminated && players.contains($0.bundleIdentifier ?? "")
                 }
-                if quitsWithPlayer {
+                if players.contains(bundleID), !otherPlayerRunning {
                     NSApplication.shared.terminate(nil)
                 }
             }.store(in: &cancelBag)
