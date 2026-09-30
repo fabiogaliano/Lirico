@@ -4,17 +4,7 @@
 
 **Press play. The lyrics follow.**
 
-Lirico automatically finds and displays beautifully synced lyrics for whatever's
-playing on your Mac — right on your desktop and in your menu bar, in time with every line.
-
-## What's different
-
-Lirico changes how lyrics get picked. When a karaoke version exists that highlights each word as it's sung, that's
-what you get instead of plain scrolling lyrics. Lirico also keeps looking for a beat after the first result, quietly
-upgrading to a better match if one shows up, and it never replaces lyrics you've saved by hand.
-
-And when the timing drifts, you don't have to nudge milliseconds in the dark. Open **Sync by Ear**, tap the line or word you
-hear playing, and Lirico works out the offset and slides everything into place.
+Lirico automatically finds and displays synced lyrics for whatever's playing on your Mac.
 
 ## Installation
 
@@ -26,9 +16,9 @@ cd Lirico
 make install-release
 ```
 
-`make install-release` builds the optimized Release app and copies `Lirico.app` to `/Applications`. Or open `Lirico.xcodeproj` in Xcode and press Cmd+R. See [Building from source](#building-from-source) for the development targets.
+This builds the Release app and copies `Lirico.app` to `/Applications`. You can also open `Lirico.xcodeproj` in Xcode and press Cmd+R.
 
-To use **Musixmatch** as a lyrics source, follow [these steps](https://gist.github.com/TrueMyst/0461aea999e347182486934fd83a4cf9) or [these](https://spicetify.app/docs/faq#sometimes-popup-lyrics-andor-lyrics-plus-seem-to-not-work) to obtain a **usertoken**, then add it in Lirico's preferences.
+To use **Musixmatch** as a lyrics source, get a **usertoken** by following [these steps](https://gist.github.com/TrueMyst/0461aea999e347182486934fd83a4cf9) or [these](https://spicetify.app/docs/faq#sometimes-popup-lyrics-andor-lyrics-plus-seem-to-not-work), then add it in Lirico's settings.
 
 ### Requirements
 
@@ -37,41 +27,44 @@ To use **Musixmatch** as a lyrics source, follow [these steps](https://gist.gith
 
 ### Building from source
 
-Builds default to the **Debug** configuration, which skips whole-module
-optimization — a one-file change rebuilds in ~20s instead of ~85s. Debug
-installs as `Lirico-Debug.app` (bundle id `dev.fabiogaliano.Lirico`), so it
-runs side-by-side with the real `Lirico.app` without conflict.
+Builds default to **Debug**, which rebuilds a one-file change in about 20s instead of 85s. Debug installs as
+`Lirico-Debug.app` (bundle id `dev.fabiogaliano.Lirico`), so it runs side by side with `Lirico.app`.
 
-| Command                | Configuration | What it does                                                                          |
-| ---------------------- | ------------- | ------------------------------------------------------------------------------------- |
-| `make build`           | Debug         | Fast (~20s) compile — the normal dev loop                                             |
-| `make install`         | Debug         | Build, copy `Lirico-Debug.app` to `/Applications`, relaunch — fast dev iteration      |
-| `make release`         | Release       | Optimized build — for distribution                                                    |
-| `make install-release` | Release       | Build, copy `Lirico.app` to `/Applications`, relaunch — final testing before shipping |
+| Command                | Configuration | What it does                                          |
+| ---------------------- | ------------- | ----------------------------------------------------- |
+| `make build`           | Debug         | Compile                                               |
+| `make install`         | Debug         | Build, copy `Lirico-Debug.app` to `/Applications`, relaunch |
+| `make release`         | Release       | Optimized build                                       |
+| `make install-release` | Release       | Build, copy `Lirico.app` to `/Applications`, relaunch |
 
-Run `make help` for the full list, or override the configuration on any target with `CONFIG=Release`.
+Run `make help` for the full list. Override the configuration on any target with `CONFIG=Release`.
 
 ### Diagnosing lyrics selection
 
-To debug _why_ a particular lyric was chosen for the playing song — all candidates, their ranks/scores, the auto-pick, and how their timing/metadata differ — run `scripts/lyrics-diag/diag.sh`. It reuses the app's real evaluator/ranker and your live settings. See [`scripts/lyrics-diag/README.md`](scripts/lyrics-diag/README.md).
+To see why a lyric was chosen for the playing song (every candidate, its rank and score, and the automatic pick), run
+`scripts/lyrics-diag/diag.sh`. It uses the app's own ranking and your settings. See [`scripts/lyrics-diag/README.md`](scripts/lyrics-diag/README.md).
 
 ## Features
 
-- Works with your favorite music players. [List of supported players](https://github.com/MxIris-LyricsX-Project/MusicPlayer#supported-players)
-- Automatically searches and downloads synced lyrics from multiple sources. [List of supported sources](https://github.com/MxIris-LyricsX-Project/LyricsKit#supported-sources)
-- Always tries to match the song you're playing, not just pull from a favorite source.
-- Prefers karaoke lyrics, where each word lights up as it's sung, and upgrades plain lyrics to karaoke when a good version appears. Lyrics you saved by hand are never overwritten.
-- Displays lyrics on your desktop and in the menu bar, with customizable font, color, and position.
-- Adjust lyric timing offset from the status menu.
-- Jump to any point in a song by double-clicking a line.
-- Drag and drop to import or export lyrics files.
-- Steerable manual search: search by title, artist, or both, with wrong-song results filtered out, karaoke matches marked with a 🎤, a toggle to show unlikely results, and cancel support that keeps partial results.
-- Launches and quits automatically with your music player.
-- Converts automatically between Traditional and Simplified Chinese.
+- Works with your music players. [Supported players](https://github.com/MxIris-LyricsX-Project/MusicPlayer#supported-players)
+- Searches and downloads synced lyrics from multiple sources. [Supported sources](https://github.com/MxIris-LyricsX-Project/LyricsKit#supported-sources)
+- Matches the song you're playing rather than favoring one source.
+- Prefers karaoke lyrics and upgrades plain lyrics when a good karaoke version appears.
+- Shows lyrics on your desktop and in the menu bar, with your choice of font, color and position.
+- Fix the timing by ear: open **Sync by Ear** and tap the line you hear.
+- Adjust the timing offset from the status menu.
+- Double-click a line to jump to it.
+- Drop an `.lrc` file on the lyrics window to import it.
+- Manual search by title, artist or both. Wrong-song results are filtered out, karaoke matches are marked with 🎤, and unlikely results are one toggle away.
+- Opens and quits with your music player.
+- Converts between Traditional and Simplified Chinese.
 
 ### Lyrics Editor
 
-Lirico uses a custom lyrics file format, "LRCX", that supports word timing tags, translations in multiple languages, and more. Currently there's no official LRCX editor. You can use [Lrcx_Creator](https://github.com/Doublefire-Chen/Lrcx_Creator) for now (see [#544](https://github.com/ddddxxx/LyricsX/issues/544), thanks to [@Doublefire-Chen](https://github.com/Doublefire-Chen)). Or use a normal LRC editor, as LRCX is compatible with LRC.
+Lirico uses its own lyrics format, "LRCX", which supports word timing, translations in multiple languages and more.
+There's no official LRCX editor yet. You can use [Lrcx_Creator](https://github.com/Doublefire-Chen/Lrcx_Creator) (see
+[#544](https://github.com/ddddxxx/LyricsX/issues/544), thanks to [@Doublefire-Chen](https://github.com/Doublefire-Chen)),
+or any LRC editor, since LRCX is compatible with LRC.
 
 ## Screenshot
 
@@ -79,36 +72,43 @@ Lirico uses a custom lyrics file format, "LRCX", that supports word timing tags,
 
 <img src="docs/img/sync-by-ear.png" width="900px" alt="Lirico's Sync by Ear panel beside the desktop karaoke overlay, tapping the line you hear aligns every lyric to the music in real time">
 
+## How it differs from LyricsX
+
+- **Better picks.** It checks that lyrics are for your song, even when the title says "Remastered" or "Live", and prefers versions where each word lights up as it's sung.
+- **It keeps looking.** If a better version turns up a few seconds later, it switches to it. Lyrics you saved yourself stay.
+- **Timing by ear.** Instead of guessing milliseconds, tap the line you hear and everything lines up.
+- **It tells you what's going on.** Searching, nothing found, lyrics turned off for this song, or missing permission to see your player.
+- **It follows the player you're using.** Start music in another app and the lyrics follow; it opens and quits with any supported player.
+- **Censored words filled in** (optional).
+
 ## Credit
 
 Lirico is a fork of [LyricsX by the MxIris-LyricsX-Project](https://github.com/MxIris-LyricsX-Project/LyricsX),
-which builds on the original [LyricsX by ddddxxx](https://github.com/ddddxxx/LyricsX). Deep thanks to both for the
+which builds on the original [LyricsX by ddddxxx](https://github.com/ddddxxx/LyricsX). Thanks to both for the
 foundation Lirico is built on.
 
 #### Components
 
-- [LyricsKit](https://github.com/fabiogaliano/LyricsKit) — MPL-2.0
-- [MusicPlayer](https://github.com/MxIris-LyricsX-Project/MusicPlayer) — MPL-2.0
+- [LyricsKit](https://github.com/fabiogaliano/LyricsKit) (MPL-2.0)
+- [MusicPlayer](https://github.com/MxIris-LyricsX-Project/MusicPlayer) (MPL-2.0)
 
 #### Open Source Libraries
 
-- [SwiftyOpenCC](https://github.com/ddddxxx/SwiftyOpenCC) — MIT
-- [GenericID](https://github.com/MxIris-LyricsX-Project/GenericID) — MIT
-- [SwiftCF](https://github.com/MxIris-Library-Forks/SwiftCF) — MIT
-- [Regex](https://github.com/ddddxxx/Regex) — MIT
-- [Semver](https://github.com/ddddxxx/Semver) — MIT
-- [SnapKit](https://github.com/SnapKit/SnapKit) — MIT
-- [MarqueeLabel](https://github.com/MxIris-LyricsX-Project/MarqueeLabel) — MIT
-- [BigInt](https://github.com/attaswift/BigInt) — MIT
-- [UIFoundation](https://github.com/Mx-Iris/UIFoundation) — MIT
-- [FrameworkToolbox](https://github.com/Mx-Iris/FrameworkToolbox) — MIT
-- [CombineX](https://github.com/cx-org/CombineX) — MIT (vendored)
-- [Then](https://github.com/devxoul/Then) — MIT (vendored)
-- [Swift Collections](https://github.com/apple/swift-collections) — Apache-2.0
-- [Swift Async Algorithms](https://github.com/apple/swift-async-algorithms) — Apache-2.0
-- [MASShortcut](https://github.com/shpakovski/MASShortcut) — BSD-2-Clause
-- [mediaremote-adapter](https://github.com/MxIris-LyricsX-Project/mediaremote-adapter) — BSD-3-Clause
-- [CryptoSwift](https://github.com/krzyzanowskim/CryptoSwift) — custom (attribution); see [NOTICE](NOTICE)
+- [SwiftyOpenCC](https://github.com/ddddxxx/SwiftyOpenCC) (MIT)
+- [GenericID](https://github.com/MxIris-LyricsX-Project/GenericID) (MIT)
+- [SwiftCF](https://github.com/MxIris-Library-Forks/SwiftCF) (MIT)
+- [Regex](https://github.com/ddddxxx/Regex) (MIT)
+- [SnapKit](https://github.com/SnapKit/SnapKit) (MIT)
+- [MarqueeLabel](https://github.com/MxIris-LyricsX-Project/MarqueeLabel) (MIT)
+- [BigInt](https://github.com/attaswift/BigInt) (MIT)
+- [FrameworkToolbox](https://github.com/Mx-Iris/FrameworkToolbox) (MIT)
+- [CombineX](https://github.com/cx-org/CombineX) (MIT, vendored)
+- [Then](https://github.com/devxoul/Then) (MIT, vendored)
+- [Swift Collections](https://github.com/apple/swift-collections) (Apache-2.0)
+- [Swift Async Algorithms](https://github.com/apple/swift-async-algorithms) (Apache-2.0)
+- [MASShortcut](https://github.com/shpakovski/MASShortcut) (BSD-2-Clause)
+- [mediaremote-adapter](https://github.com/MxIris-LyricsX-Project/mediaremote-adapter) (BSD-3-Clause)
+- [CryptoSwift](https://github.com/krzyzanowskim/CryptoSwift) (custom, attribution; see [NOTICE](NOTICE))
 
 This product includes software developed by Marcin Krzyżanowski (http://krzyzanowskim.com/).
 See [NOTICE](NOTICE) for the full third-party attributions and license notices.

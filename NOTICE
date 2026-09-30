@@ -37,12 +37,10 @@ SwiftyOpenCC       Copyright (c) 2017 DengXiang
 GenericID          Copyright (c) 2017 Xander Deng
 SwiftCF            Copyright (c) 2019 Xander Deng
 Regex              Copyright (c) 2019 Xander Deng
-Semver             Copyright (c) 2017 Xander Deng
 SnapKit            Copyright (c) 2011-Present SnapKit Team
 MarqueeLabel       Copyright (c) Charles Powell  (fork carries no license file;
                    upstream is MIT)
 BigInt             Copyright (c) 2016-2017 Károly Lőrentey
-UIFoundation       Copyright (c) 2024 Mx-Iris
 FrameworkToolbox   Copyright (c) 2025 Mx-Iris
 CombineX           Copyright (c) 2019 Quentin Jin  (vendored in
                    Lirico/Utility/CXExtensions/)
