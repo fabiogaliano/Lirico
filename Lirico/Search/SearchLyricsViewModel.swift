@@ -17,12 +17,16 @@ enum SearchStatus: Equatable {
     case cancelled
 
     static func matchSummary(likely: Int, hiddenUnlikely: Int) -> String {
-        let matches = likely > 0 ? "\(likely) likely \(likely == 1 ? "match" : "matches")" : "No likely matches"
-        return hiddenUnlikely > 0 ? "\(matches) · \(hiddenUnlikely) unlikely hidden" : matches
+        let matches = likely > 0
+            ? String(localized: "\(likely) likely matches", comment: "search status")
+            : String(localized: "No likely matches", comment: "search status")
+        return hiddenUnlikely > 0
+            ? String(localized: "\(matches) · \(hiddenUnlikely) unlikely hidden", comment: "search status; %@ is the likely-match summary")
+            : matches
     }
 
     static func partialMatches(_ count: Int) -> String {
-        "showing \(count) partial \(count == 1 ? "match" : "matches")"
+        String(localized: "showing \(count) partial matches", comment: "search status suffix after a failure")
     }
 }
 
@@ -174,7 +178,7 @@ final class SearchLyricsViewModel: ObservableObject {
         searchedTitle = trimmedFieldValue(title)
         searchedArtist = trimmedFieldValue(artist)
         lastCandidateFlushUptime = currentUptimeNanoseconds()
-        searchStatus = .searching(summary: "Searching…")
+        searchStatus = .searching(summary: String(localized: "Searching…", comment: "search status"))
 
         let generation = searchGeneration
 
@@ -337,20 +341,20 @@ final class SearchLyricsViewModel: ObservableObject {
     }
 
     private func updateSearchingSummary(for source: String) {
-        searchStatus = .searching(summary: "Searching \(source)…")
+        searchStatus = .searching(summary: String(localized: "Searching \(source)…", comment: "search status; %@ is a lyrics source"))
     }
 
     private func updateSearchingSummary(afterFinished source: String) {
         let summary = visibleRows.isEmpty
-            ? "Searching…"
+            ? String(localized: "Searching…", comment: "search status")
             : SearchStatus.matchSummary(likely: likelyCount, hiddenUnlikely: hiddenUnlikelyCount)
         searchStatus = .searching(summary: summary)
     }
 
     private func updateSearchingSummary(afterFailed source: String) {
         let summary = visibleRows.isEmpty
-            ? "\(source) failed…"
-            : "\(source) failed · \(SearchStatus.partialMatches(visibleRows.count))"
+            ? String(localized: "\(source) failed…", comment: "search status; %@ is a lyrics source")
+            : String(localized: "\(source) failed · \(SearchStatus.partialMatches(visibleRows.count))", comment: "search status; %@ is a lyrics source")
         searchStatus = .searching(summary: summary)
     }
 

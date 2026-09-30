@@ -153,9 +153,10 @@ struct AboutView: View {
     /// A labelled run of credit rows inside the acknowledgements disclosure. The
     /// license sits in each row's subtitle so mixed-license groups stay legible.
     @ViewBuilder
-    private func ackGroup(_ title: String, _ items: [Acknowledgement]) -> some View {
+    private func ackGroup(_ title: LocalizedStringKey, _ items: [Acknowledgement]) -> some View {
         Divider().opacity(0.4)
-        Text(title.uppercased())
+        Text(title)
+            .textCase(.uppercase)
             .font(.system(size: 9, weight: .semibold, design: .rounded))
             .tracking(0.8)
             .foregroundStyle(.secondary)
@@ -199,7 +200,7 @@ struct AboutView: View {
 /// trailing "open in new" affordance. Used for both contributor and library
 /// rows; `role` shows a small uppercase tag (e.g. MAINTAINER) when present.
 private struct LinkRow: View {
-    let role: String?
+    let role: LocalizedStringResource?
     let title: String
     let subtitle: String?
     let url: URL
@@ -213,7 +214,8 @@ private struct LinkRow: View {
             HStack(spacing: 10) {
                 VStack(alignment: .leading, spacing: 2) {
                     if let role {
-                        Text(role.uppercased())
+                        Text(role)
+                            .textCase(.uppercase)
                             .font(.system(size: 9, weight: .semibold, design: .rounded))
                             .tracking(0.8)
                             .foregroundStyle(.secondary)
@@ -288,7 +290,7 @@ private let licenseURL = URL(string: "https://github.com/fabiogaliano/Lirico/blo
 
 private struct Contributor: Identifiable {
     let id = UUID()
-    let role: String
+    let role: LocalizedStringResource
     let name: String
     let handle: String
     let url: URL
@@ -303,19 +305,19 @@ private struct Acknowledgement: Identifiable {
 
 private let contributors: [Contributor] = [
     Contributor(
-        role: "Maintainer",
+        role: LocalizedStringResource("Maintainer", comment: "About window contributor role"),
         name: "Fábio Galiano",
         handle: "github.com/fabiogaliano/Lirico",
         url: URL(string: "https://github.com/fabiogaliano/Lirico")!
     ),
     Contributor(
-        role: "Upstream",
+        role: LocalizedStringResource("Upstream", comment: "About window contributor role"),
         name: "Mx-Iris",
         handle: "github.com/MxIris-LyricsX-Project/LyricsX",
         url: URL(string: "https://github.com/MxIris-LyricsX-Project/LyricsX")!
     ),
     Contributor(
-        role: "Origin",
+        role: LocalizedStringResource("Origin", comment: "About window contributor role"),
         name: "Xander Deng",
         handle: "github.com/ddddxxx/LyricsX",
         url: URL(string: "https://github.com/ddddxxx/LyricsX")!

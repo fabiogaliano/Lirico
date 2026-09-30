@@ -153,7 +153,7 @@ private struct FontPickerButton: NSViewRepresentable {
     }
 
     private func buttonTitle(for nsFont: NSFont) -> String {
-        "\(nsFont.displayName ?? nsFont.fontName) · \(Int(nsFont.pointSize)) pt"
+        String(localized: "\(nsFont.displayName ?? nsFont.fontName) · \(Int(nsFont.pointSize)) pt", comment: "font button: name · size")
     }
 }
 

@@ -309,7 +309,7 @@ enum MainMenuBuilder {
         stepper.increment = 100
         stepper.valueWraps = false
 
-        let unit = NSTextField(labelWithString: "ms")
+        let unit = NSTextField(labelWithString: NSLocalizedString("ms", comment: "milliseconds unit"))
         unit.translatesAutoresizingMaskIntoConstraints = false
         unit.lineBreakMode = .byClipping
         unit.font = .systemFont(ofSize: NSFont.systemFontSize)
