@@ -90,16 +90,8 @@ struct GeneralPreferencesView: View {
                     launchAtLogin = MainAppLoginItem.isEnabled
                 }
             ))
-            // Registers/unregisters LiricoHelper as a login item AND persists the setting.
+            // `PlayerLifecycle` follows the setting: it registers the helper and starts or stops it.
             Toggle("Open and quit with music player", isOn: $launchAndQuitWithPlayer)
-                .onChange(of: launchAndQuitWithPlayer) { _, enabled in
-                    setHelperLoginItemEnabled(enabled)
-                    if enabled {
-                        HelperLifecycle.startHelperIfNeeded()
-                    } else {
-                        HelperLifecycle.terminateRunningHelper()
-                    }
-                }
         } header: {
             Text("Startup")
         } footer: {
@@ -161,12 +153,6 @@ struct GeneralPreferencesView: View {
     }
 
     // MARK: - Helpers
-
-    private func setHelperLoginItemEnabled(_ enabled: Bool) {
-        if case let .failure(error) = HelperLifecycle.setLoginItemEnabled(enabled) {
-            log("Failed to \(enabled ? "register" : "unregister") LiricoHelper login item. reason: \(error.localizedDescription)")
-        }
-    }
 
     private func loadInitialState() {
         launchAtLogin = MainAppLoginItem.isEnabled

@@ -15,7 +15,7 @@ final class AppContainer {
     private let displaySettings: DisplaySettings
     private let searchSettings: SearchSettings
     private let exportSettings: ExportSettings
-    let playerSettings: PlayerSettings
+    private let playerLifecycle: PlayerLifecycle
     private let lyricsFilter: LyricsFilter
     private let lyricsPreparation: LyricsPreparation
     private let chineseConverterProvider: ChineseConverterProvider
@@ -53,7 +53,7 @@ final class AppContainer {
         self.displaySettings = displaySettings
         self.searchSettings = searchSettings
         self.exportSettings = exportSettings
-        self.playerSettings = playerSettings
+        self.playerLifecycle = PlayerLifecycle(settings: playerSettings)
         let lyricsFilter = LyricsFilter()
         let preparation = LyricsPreparation(filter: lyricsFilter)
         let chineseConverter = ChineseConverterProvider()
@@ -78,8 +78,7 @@ final class AppContainer {
             preparation: preparation,
             chineseConverter: chineseConverter,
             persistenceSettings: PersistenceSettings(),
-            exportSettings: exportSettings,
-            playerSettings: playerSettings
+            exportSettings: exportSettings
         )
         self.menuBarController = MenuBarLyricsController(display: display, settings: displaySettings)
         self.karaokeWindowController = KaraokeLyricsWindowController(
@@ -92,6 +91,7 @@ final class AppContainer {
     /// means the constructor stays free of "and now show a window" magic.
     func start(statusBarMenu: NSMenu) {
         searchSettings.normalizeSourcePriorityOrder()
+        playerLifecycle.start()
         karaokeWindowController.showWindow(nil)
         menuBarController.statusBarMenu = statusBarMenu
     }

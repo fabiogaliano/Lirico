@@ -49,9 +49,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
         ShortcutBindings.install(actionTarget: self)
 
-        groupDefaults.bind(NSBindingName(UserDefaults.DefaultsKeys.launchAndQuitWithPlayer.key), withDefaultName: .launchAndQuitWithPlayer)
-        HelperLifecycle.startHelperIfNeeded(settings: container.playerSettings)
-
         if defaults[.isShowLyricsHUD] {
             container.lyricsHUD.showWindow(nil)
         }

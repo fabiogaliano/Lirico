@@ -25,7 +25,6 @@ class LyricsSession: NSObject {
     private let clock: PlaybackClock
     private let persistenceSettings: PersistenceSettings
     private let exportSettings: ExportSettings
-    private let playerSettings: PlayerSettings
     private let preparation: LyricsPreparation
     private let chineseConverter: ChineseConverterProvider
 
@@ -112,15 +111,13 @@ class LyricsSession: NSObject {
         preparation: LyricsPreparation,
         chineseConverter: ChineseConverterProvider,
         persistenceSettings: PersistenceSettings,
-        exportSettings: ExportSettings,
-        playerSettings: PlayerSettings
+        exportSettings: ExportSettings
     ) {
         self.automaticSearch = automaticSearch
         self.player = player
         self.clock = clock
         self.persistenceSettings = persistenceSettings
         self.exportSettings = exportSettings
-        self.playerSettings = playerSettings
         self.preparation = preparation
         self.chineseConverter = chineseConverter
         super.init()
@@ -158,19 +155,6 @@ class LyricsSession: NSObject {
                 self.currentLineIndex = update.index
             }
             .store(in: &cancelBag)
-
-        workspaceNC.publisher(for: NSWorkspace.didTerminateApplicationNotification, object: nil)
-            .sink { [playerSettings] notification in
-                guard let application = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }
-                guard playerSettings.launchAndQuitWithPlayer, let bundleID = application.bundleIdentifier else { return }
-                let stillRunning = NSWorkspace.shared.runningApplications
-                    .filter { $0 != application && !$0.isTerminated }
-                    .compactMap(\.bundleIdentifier)
-                if ScriptablePlayers.isLastToQuit(bundleID, stillRunning: stillRunning) {
-                    NSApplication.shared.terminate(nil)
-                }
-            }.store(in: &cancelBag)
-
     }
 
     var canWriteToAppleMusic: Bool {

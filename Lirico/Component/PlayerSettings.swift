@@ -2,8 +2,7 @@ import Foundation
 
 /// Typed view of the player-selection and app-lifecycle slice of `UserDefaults`.
 ///
-/// Read by `HelperLifecycle`, `LyricsSession`'s quit-with-player handler,
-/// `MusicPlayers.Selected`, and the player-related preferences.
+/// Read by `PlayerLifecycle`, `MusicPlayers.Selected`, and the player-related preferences.
 struct PlayerSettings {
     private let defaults: UserDefaults
 
