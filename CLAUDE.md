@@ -8,22 +8,34 @@ Lirico is a macOS menu-bar application (`LSUIElement`) that automatically search
 
 - **Platform**: macOS 15+ only
 - **Language**: Swift 5 (project setting), Swift 6.2 toolchain (Package.swift)
-- **Bundle ID**: `com.fabiogaliano.Lirico`
+- **Bundle ID**: `com.fabiogaliano.Lirico` (Release). Debug builds as `Lirico-Debug` / `dev.fabiogaliano.Lirico` so it runs side-by-side with the installed app.
 
 ## Build Commands
 
 ```bash
+# Preferred: Makefile wrappers (build into ./build)
+make build            # Debug
+make release          # Release
+make install          # Debug build → /Applications, relaunch (install-release for Release)
+
 # Build (Debug)
 xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Debug build 2>&1 | xcsift
 
 # Build (Release)
 xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Release build 2>&1 | xcsift
-
-# Archive (triggers post-archive export + notarization script)
-xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Release archive
 ```
 
-There are no automated tests configured in the Xcode scheme. The `LiricoPackage` has an empty test target `LiricoFoundationTests`.
+Builds are ad-hoc signed; there is no archive/notarization pipeline.
+
+## Tests
+
+The Xcode scheme has no tests. Search, restoration and sync logic lives in `LiricoPackage` and is covered by `LiricoFoundationTests` (Swift Testing):
+
+```bash
+cd LiricoPackage && swift test
+```
+
+`scripts/lyrics-diag/diag.sh` runs the candidate/ranking pipeline against the current track with the app's real settings — use it to debug search results.
 
 ## Linting & Formatting
 
@@ -51,20 +63,22 @@ Hybrid Xcode project + Swift Package Manager. The Xcode project (`Lirico.xcodepr
 
 ### Core Dependencies (via SPM)
 
-- **LyricsKit** (`MxIris-LyricsX-Project/LyricsKit`, branch: main) — lyrics search/parsing engine
-- **MusicPlayer** (`MxIris-LyricsX-Project/MusicPlayer`, branch: master) — music player abstraction layer
-- **LiricoFoundation** (local package in `LiricoPackage/`) — thin re-export wrapper: `@_exported import LyricsKit`
+- **LyricsKit** (`fabiogaliano/LyricsKit`, from 1.9.0) — lyrics search/parsing engine
+- **MusicPlayer** (`MxIris-LyricsX-Project/MusicPlayer`, from 1.8.0) — music player abstraction layer
+- **LiricoFoundation** (local package in `LiricoPackage/`) — re-exports LyricsKit and holds the testable domain logic: `Search/` (candidate evaluation + ranking), `Restoration/` (explicit-word restoration), `Sync/`
 
 ### App Internal Structure (`Lirico/`)
 
 The app uses a **Combine-driven reactive architecture** with shared singletons:
 
 - **`Component/`** — Core singletons: `LyricsSession` (central lyrics state + search/management hub), `AppDelegate`, `PlaybackClock` (line-index publisher), `PlayerHandle` (player adapter). `LyricsSession` listens for track changes via Combine publishers, runs async lyrics searches (`AsyncSequence`), and exposes `currentLyrics` as a read-only publisher. Mutations flow through `select()` / `clear()` / `importLyrics()` commands. Apple-Music export lives in the pure `LyricsPersister` namespace.
-- **`Controller/`** — Display controllers: `KaraokeLyricsController` (desktop karaoke overlay), `MenuBarLyricsController` (menu bar text), `TouchBarLyricsController`
+- **`Controller/`** — Display controllers: `KaraokeLyricsController` (desktop karaoke overlay), `MenuBarLyricsController` (menu bar text), `TouchBarLyricsController`, `LyricsSyncController` (Sync by Ear)
+- **`Search/`** — Manual lyrics search window (`SearchLyricsViewModel` + SwiftUI view)
+- **`TouchBar/`** — Touch Bar items (opt-in via Lab)
 - **`LyricsHUD/`** — Floating lyrics panel (`LyricsHUDViewController`)
 - **`Preferences/`** — Preference pane SwiftUI views (General, Display, Filter, Shortcut, Source, Lab); `PreferenceWindowController` creates the window programmatically via `NSHostingController`
 - **`View/`** — Custom views: `KaraokeLabel`, `KaraokeLyricsView`, `ScrollLyricsView`
-- **`Utility/`** — Global constants (`Global.swift`), extensions, Combine utilities (`CXExtensions/`)
+- **`Utility/`** — App constants/URLs/identifiers (`App*.swift`), `UserDefaultsKeys`, extensions, Combine utilities (`CXExtensions/`)
 
 ### Data Flow
 
@@ -76,10 +90,9 @@ The app uses a **Combine-driven reactive architecture** with shared singletons:
 
 ### Localization
 
-- Managed via `.xcstrings` (Xcode String Catalogs) and legacy `.strings` files
-- BartyCrouch (`.bartycrouch.toml`) syncs storyboard strings
-- Crowdin (`crowdin.yml`) for collaborative translation
+- Managed via `.xcstrings` String Catalogs in `Lirico/Supporting Files/` (`Localizable`, `InfoPlist`)
+- Crowdin (`crowdin.yml`) syncs those catalogs for collaborative translation
 
 ### Local Development with Dependencies
 
-`LiricoPackage/Package.swift` supports switching to local checkouts of `LyricsKit` and `MusicPlayer` via `local:` path overrides (disabled by default with `isEnabled: false`). Toggle these when developing against local forks of these libraries.
+`LiricoPackage/Package.swift` switches to sibling checkouts (`../../LyricsKit`, `../../MusicPlayer`) via env vars: `LIRICO_USE_LOCAL_DEPENDENCY=1` enables both, `LIRICO_USE_LOCAL_LYRICSKIT=1` just LyricsKit.
