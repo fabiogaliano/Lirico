@@ -291,8 +291,9 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] state in
                 self.updatePlayPauseIcon(isPlaying: state.isPlaying)
-                // Run the word fill only while playing; pausing freezes it in place.
-                self.setKaraokeFill(active: state.isPlaying)
+                // Run the word fill only while playing and on screen; pausing freezes it in place,
+                // and `viewWillAppear` restarts it for a window that was closed meanwhile.
+                self.setKaraokeFill(active: state.isPlaying && self.view.window?.isVisible == true)
             }
             .store(in: &cancelBag)
 

@@ -220,10 +220,13 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] in self.refreshTextContents() }
             .store(in: &cancelBag)
-        // Run the word fill only while playing; pausing freezes it in place.
+        // Run the word fill only while playing and on screen; pausing freezes it in place,
+        // and `viewWillAppear` restarts it for a window that was closed meanwhile.
         player.playbackStateWillChange
             .receive(on: DispatchQueue.main)
-            .sink { [unowned self] state in self.setKaraokeFill(active: state.isPlaying) }
+            .sink { [unowned self] state in
+                self.setKaraokeFill(active: state.isPlaying && self.view.window?.isVisible == true)
+            }
             .store(in: &cancelBag)
     }
 
