@@ -51,10 +51,10 @@ private struct NowPlayingApplicationListRepresentable: NSViewControllerRepresent
 // MARK: - General Preferences View
 
 struct GeneralPreferencesView: View {
-    @AppStorage("LaunchAndQuitWithPlayer") private var launchAndQuitWithPlayer = false
-    @AppStorage("UseSystemWideNowPlaying") private var useSystemWideNowPlaying = false
-    @AppStorage("CombinedMenubarLyrics") private var combinedMenubarLyrics = false
-    @AppStorage("HideMenuBarItems") private var hideMenuBarItems = false
+    @AppStorage(.launchAndQuitWithPlayer) private var launchAndQuitWithPlayer = false
+    @AppStorage(.useSystemWideNowPlaying) private var useSystemWideNowPlaying = false
+    @AppStorage(.combinedMenubarLyrics) private var combinedMenubarLyrics = false
+    @AppStorage(.hideMenuBarItems) private var hideMenuBarItems = false
 
     // Read from the system each time the pane appears: the user can also change it in
     // System Settings → General → Login Items.

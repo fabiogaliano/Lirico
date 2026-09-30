@@ -1,5 +1,6 @@
 import AppKit
 import GenericID
+import SwiftUI
 
 let defaults = UserDefaults.standard
 let groupDefaults = UserDefaults(suiteName: lyricsXGroupIdentifier)!
@@ -36,6 +37,8 @@ extension UserDefaults.DefaultsKeys {
     static let desktopLyricsOneLineMode = Key<Bool>("DesktopLyricsOneLineMode")
     static let desktopLyricsVerticalMode = Key<Bool>("DesktopLyricsVerticalMode")
     static let desktopLyricsDraggable = Key<Bool>("DesktopLyricsDraggable")
+    /// No UI: set with `defaults write` to lay the desktop lyrics over the whole screen, menu bar and Dock included.
+    static let desktopLyricsIgnoreSafeArea = Key<Bool>("DesktopLyricsIgnoreSafeArea")
 
     static let desktopLyricsXPositionFactor = Key<CGFloat>("DesktopLyricsXPositionFactor")
     static let desktopLyricsYPositionFactor = Key<CGFloat>("DesktopLyricsYPositionFactor")
@@ -98,3 +101,16 @@ extension UserDefaults.DefaultsKeys {
 }
 
 extension CGFloat: @retroactive DefaultConstructible {}
+
+// `@AppStorage(.key)` checks the key against the table above instead of repeating its string.
+extension AppStorage where Value == Bool {
+    init(wrappedValue: Bool, _ key: UserDefaults.DefaultsKey<Bool>) {
+        self.init(wrappedValue: wrappedValue, key.key)
+    }
+}
+
+extension AppStorage where Value == Int {
+    init(wrappedValue: Int, _ key: UserDefaults.DefaultsKey<Int>) {
+        self.init(wrappedValue: wrappedValue, key.key)
+    }
+}

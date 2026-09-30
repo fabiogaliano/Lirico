@@ -159,12 +159,12 @@ private struct FontPickerButton: NSViewRepresentable {
 // MARK: - Display Preferences View
 
 struct DisplayPreferencesView: View {
-    @AppStorage("DesktopLyricsOneLineMode") private var oneLineMode = false
-    @AppStorage("DesktopLyricsVerticalMode") private var verticalMode = false
-    @AppStorage("DesktopLyricsDraggable") private var draggable = false
-    @AppStorage("HideLyricsWhenMousePassingBy") private var hideWhenMousePassingBy = false
-    @AppStorage("DisableLyricsWhenPaused") private var disableWhenPaused = false
-    @AppStorage("DisableLyricsWhenSreenShot") private var disableWhenScreenShot = false
+    @AppStorage(.desktopLyricsOneLineMode) private var oneLineMode = false
+    @AppStorage(.desktopLyricsVerticalMode) private var verticalMode = false
+    @AppStorage(.desktopLyricsDraggable) private var draggable = false
+    @AppStorage(.hideLyricsWhenMousePassingBy) private var hideWhenMousePassingBy = false
+    @AppStorage(.disableLyricsWhenPaused) private var disableWhenPaused = false
+    @AppStorage(.disableLyricsWhenSreenShot) private var disableWhenScreenShot = false
 
     @StateObject private var vm = DisplayPreferencesViewModel()
 

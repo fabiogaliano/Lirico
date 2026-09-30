@@ -19,9 +19,8 @@ struct LyricsStorageDirectory {
 ///   - the fallback to `~/Music/Lirico` when no custom folder is set
 ///   - whether embedded / beside-track lyrics should be considered
 ///
-/// Persistence (`LyricsPersister`), loading (`LocalLyricsLoader`), and the
-/// preferences UI all consume this struct; no other code in the app should
-/// reach into `defaults` for local-lyrics storage/loading concerns.
+/// Persistence (`LyricsPersister`) and loading (`LocalLyricsLoader`) read these
+/// through this struct; the preferences UI also binds the plain keys with `@AppStorage`.
 struct PersistenceSettings {
     private let defaults: UserDefaults
 

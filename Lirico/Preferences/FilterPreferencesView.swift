@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct FilterPreferencesView: View {
-    @AppStorage("LyricsFilterEnabled") private var filterEnabled = true
-    @AppStorage("LyricsExplicitRestorationEnabled") private var explicitRestorationEnabled = false
+    @AppStorage(.lyricsFilterEnabled) private var filterEnabled = true
+    @AppStorage(.lyricsExplicitRestorationEnabled) private var explicitRestorationEnabled = false
 
     @State private var keywords: [String] = []
     @State private var selectedIndex: Int? = nil

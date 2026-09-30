@@ -2,19 +2,19 @@ import AppKit
 import SwiftUI
 
 struct LyricsPreferencesView: View {
-    @AppStorage("GlobalLyricsOffset") private var globalLyricsOffset = 0
-    @AppStorage("PreferBilingualLyrics") private var preferBilingualLyrics = false
-    @AppStorage("ChineseConversionIndex") private var chineseConversionIndex = 0
-    @AppStorage("DesktopLyricsEnableFurigana") private var enableFurigana = false
-    @AppStorage("DesktopLyricsEnableRomajin") private var enableRomaji = false
+    @AppStorage(.globalLyricsOffset) private var globalLyricsOffset = 0
+    @AppStorage(.preferBilingualLyrics) private var preferBilingualLyrics = false
+    @AppStorage(.chineseConversionIndex) private var chineseConversionIndex = 0
+    @AppStorage(.desktopLyricsEnableFurigana) private var enableFurigana = false
+    @AppStorage(.desktopLyricsEnableRomajin) private var enableRomaji = false
 
     // Lyrics saving path popup index — 0 = default, 1 = custom
-    @AppStorage("LyricsSavingPathPopUpIndex") private var savingPathPopUpIndex = 0
-    @AppStorage("LoadLyricsBesideTrack") private var loadLyricsBesideTrack = false
+    @AppStorage(.lyricsSavingPathPopUpIndex) private var savingPathPopUpIndex = 0
+    @AppStorage(.loadLyricsBesideTrack) private var loadLyricsBesideTrack = false
 
-    @AppStorage("WriteToiTunesAutomatically") private var writeAutomatically = false
-    @AppStorage("WriteiTunesWithTranslation") private var writeWithTranslation = false
-    @AppStorage("WriteiTunesConvertToPlainLRC") private var convertToPlainLRC = false
+    @AppStorage(.writeToiTunesAutomatically) private var writeAutomatically = false
+    @AppStorage(.writeiTunesWithTranslation) private var writeWithTranslation = false
+    @AppStorage(.writeiTunesConvertToPlainLRC) private var convertToPlainLRC = false
 
     // Custom saving path display name — derived from bookmark on appear, updated
     // after the user picks a new directory via NSOpenPanel.
