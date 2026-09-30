@@ -230,7 +230,7 @@ struct DisplayPreferencesView: View {
             }
             Toggle("One line mode", isOn: $oneLineMode)
             Toggle("Vertical mode", isOn: $verticalMode)
-            Toggle("Draggable", isOn: $draggable)
+            Toggle("Draggable (hold ⌘)", isOn: $draggable)
         }
     }
 

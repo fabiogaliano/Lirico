@@ -21,14 +21,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             abort() // fake invoking, just make compiler happy.
         }
 
-        // "Auto" is -1; the app turns launch-with-player off for it, but a stale shared value must not crash here.
+        // "Auto" is -1 (and any out-of-range value is treated the same): wait for whichever player launches.
         let index = groupDefaults.integer(forKey: preferredPlayerIndex)
-        guard playerBundleIdentifiers.indices.contains(index) else {
-            NSApplication.shared.terminate(nil)
-            abort() // fake invoking, just make compiler happy.
-        }
-        let ident = playerBundleIdentifiers[index]
-        musicPlayers = ident.compactMap(SBApplication.init)
+        let idents = playerBundleIdentifiers.indices.contains(index)
+            ? playerBundleIdentifiers[index]
+            : playerBundleIdentifiers.flatMap { $0 }
+        musicPlayers = idents.compactMap(SBApplication.init)
 
         let event = NSAppleEventManager.shared().currentAppleEvent
         let isLaunchedAsLoginItem = event?.eventID == kAEOpenApplication &&
