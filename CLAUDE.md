@@ -65,7 +65,7 @@ Hybrid Xcode project + Swift Package Manager. The Xcode project (`Lirico.xcodepr
 
 - **LyricsKit** (`fabiogaliano/LyricsKit`, from 1.9.0) — lyrics search/parsing engine
 - **MusicPlayer** (`MxIris-LyricsX-Project/MusicPlayer`, from 1.8.0) — music player abstraction layer
-- **LiricoFoundation** (local package in `LiricoPackage/`) — re-exports LyricsKit and holds the testable domain logic: `Search/` (candidate evaluation + ranking), `Restoration/` (explicit-word restoration), `Sync/`
+- **LiricoFoundation** (local package in `LiricoPackage/`) — re-exports LyricsKit and holds the testable domain logic: `Search/` (candidate evaluation + ranking, automatic and manual result policy), `Restoration/` (explicit-word restoration), `Rendering/` (line rendering, language tagging, Apple Music export text), `Player/` (auto-player choice), `Sync/`
 
 ### App Internal Structure (`Lirico/`)
 

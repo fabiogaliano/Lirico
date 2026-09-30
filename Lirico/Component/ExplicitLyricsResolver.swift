@@ -3,39 +3,6 @@ import Foundation
 import GenericID
 import LiricoFoundation
 
-// MARK: - ExplicitRestorationContext
-
-/// The evidence available to restore one rendered lyrics document at display time.
-///
-/// `supportingCandidates` are the other fetched candidates for the same song,
-/// kept around by the search/session layer so masked spans can be repaired by
-/// cross-candidate consensus without changing which lyrics are selected.
-struct ExplicitRestorationContext {
-    let supportingCandidates: [Lyrics]
-}
-
-/// A per-render-pass closure that restores a single main lyric line.
-///
-/// `isTimedLine` is true for karaoke (word-timed) lines, where the displayed
-/// glyph count must not change; the resolver maps that onto length-preserving
-/// restoration in the pure engine.
-typealias ExplicitLineRestoration = (_ text: String, _ isTimedLine: Bool) -> String
-
-/// The display-time restoration closures for one render pass.
-///
-/// Main lines may use cross-candidate consensus. Translation lines must stay
-/// lexicon-only because the supporting candidates are alternate main-lyrics
-/// documents, not aligned translation evidence.
-struct ExplicitRenderRestoration {
-    let mainLine: ExplicitLineRestoration
-    let translation: (_ text: String) -> String
-
-    static let identity = ExplicitRenderRestoration(
-        mainLine: { text, _ in text },
-        translation: { $0 }
-    )
-}
-
 // MARK: - ExplicitLyricsResolver
 
 /// App-side adapter between the explicit-restoration preferences and the pure

@@ -224,7 +224,7 @@ class ScrollLyricsView: NSScrollView {
                 lyricsLanguage: lyrics.metadata.language,
                 translationLanguageCode: languageCode,
                 convert: .all,
-                converter: converter,
+                converter: converter?.convert,
                 restoreExplicit: restoreExplicit
             )
             var lineStr = mainContent

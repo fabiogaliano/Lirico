@@ -88,7 +88,6 @@ Add or change a provider, or the filter logic, in one place and both follow.
 
 ## Faithfulness notes
 
-- `recognizeLanguage()` (app-target only; sets `metadata.language`) is omitted — no effect on ranking/timing.
 - Ranker window constants use the app's SR-04 defaults (karaoke 10, loose floor 80) since they aren't user-exposed.
 - The line filter *disables* lines (affects `enabled` count + karaoke detection), it doesn't delete them — hence the `en/tot` column.
 - Remaining mirrors are intentional (small, tangled with app-only types): the ranking-config mapping (`SearchSettings`, read here from env) and the request shapes (auto: limit 5 + album; manual: limit 8, no album).

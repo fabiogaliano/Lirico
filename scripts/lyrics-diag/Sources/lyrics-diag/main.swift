@@ -52,11 +52,12 @@ guard !title.isEmpty, !artist.isEmpty else {
 // MARK: - Preparation (uses the app's shared predicate builder + filtrate)
 
 // `makeLyricsFilterPredicate` is the same builder the app's LyricsFilter uses,
-// so filtering behavior cannot drift from the app. recognizeLanguage() is an
-// app-target extension (only sets metadata.language) and has no ranking/timing
-// effect, so it is intentionally omitted.
+// so filtering behavior cannot drift from the app. Same steps as LyricsPreparation.
 let filterPredicate = makeLyricsFilterPredicate(keys: filterKeys, enabled: filterEnabled)
-func prepare(_ lyrics: Lyrics) { lyrics.filtrate(isIncluded: filterPredicate) }
+func prepare(_ lyrics: Lyrics) {
+    lyrics.filtrate(isIncluded: filterPredicate)
+    lyrics.recognizeLanguage()
+}
 
 // MARK: - Formatting helpers
 
@@ -392,7 +393,6 @@ print(" Query    : \"\(title)\" — \(artist)")
 print(" Album    : \(album ?? "—")    Duration: \(duration.map { String(format: "%.2fs (%@)", $0, mmss($0)) } ?? "—")")
 print(" Settings : sourcePriority=\(sourcePriorityEnabled ? "ON \(sourcePriorityOrder)" : "OFF (order ignored)")  musixmatch=\(musixmatchToken != nil ? "on" : "off")  filter=\(filterEnabled ? "ON (\(filterKeys.count) keys)" : "OFF")")
 print(" Ranker   : karaokeWindow=\(Int(configuration.karaokePreferenceWindow))  looseFloor=\(Int(configuration.automaticLooseFallbackMinimumScore))  LyricsKit=1.9.0 (same as app)")
-print(" Note     : recognizeLanguage (app-only, sets metadata.language) omitted — no ranking/timing effect.")
 
 print("")
 print("══ AUTOMATIC SEARCH (what runs on track change: limit 5, album passed, auto-picks one) ══")

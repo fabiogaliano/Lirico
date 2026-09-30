@@ -151,7 +151,7 @@ final class LyricsDisplayCoordinator {
         let nextEnabled = lyrics.lines[(index + 1)...].first { $0.enabled }
         let languageCode = currentMetadata.translationLanguages.first
 
-        let converter = currentConverter
+        let converter = currentConverter?.convert
         let restoreExplicit = explicitResolver.makeRenderRestoration(
             context: ExplicitRestorationContext(supportingCandidates: currentSupporting)
         )

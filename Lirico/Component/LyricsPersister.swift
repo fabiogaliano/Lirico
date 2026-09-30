@@ -2,7 +2,6 @@ import Foundation
 import LiricoFoundation
 import MusicPlayer
 import OpenCC
-import Regex
 
 /// Writes lyrics to the user's local disk (saving-path directory) and to the
 /// currently playing Apple Music track via its scripting bridge.
@@ -97,41 +96,12 @@ enum LyricsPersister {
             return
         }
 
-        let content: String
-        if settings.convertToPlainLRC {
-            // For plain LRC export, preserve the legacy LRC formatting but still respect
-            // the Chinese conversion setting for consistency with the non-plain branch.
-            var legacy = lyrics.legacyDescription
-            if let converter,
-               lyrics.metadata.language?.hasPrefix("zh") == true {
-                legacy = converter.convert(legacy)
-            }
-            // Translations are intentionally not appended for plain LRC export,
-            // even when `writeWithTranslation` is enabled, to keep the legacy
-            // LRC output single-line per timestamp.
-            content = legacy
-        } else {
-            // TODO: tagged translation
-            let translationCode = settings.writeWithTranslation
-                ? lyrics.metadata.translationLanguages.first
-                : nil
-            content = lyrics.lines.map { line -> String in
-                let (main, translation) = LineRenderer.render(
-                    line: line,
-                    lyricsLanguage: lyrics.metadata.language,
-                    translationLanguageCode: translationCode,
-                    convert: .all,
-                    converter: converter
-                )
-                if let translation {
-                    return main + "\n" + translation
-                }
-                return main
-            }.joined(separator: "\n")
-        }
-        // swiftlint:disable:next force_try
-        let regex = Regex(#"\n{3,}"#)
-        let replaced = content.replacingMatches(of: regex, with: "\n\n")
-        sbTrack.setValue(replaced, forKey: "lyrics")
+        let text = AppleMusicExport.text(
+            for: lyrics,
+            plainLRC: settings.convertToPlainLRC,
+            includeTranslation: settings.writeWithTranslation,
+            converter: converter?.convert
+        )
+        sbTrack.setValue(text, forKey: "lyrics")
     }
 }

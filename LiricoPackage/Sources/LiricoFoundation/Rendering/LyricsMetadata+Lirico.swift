@@ -1,47 +1,46 @@
 import Foundation
-import LiricoFoundation
 
 extension Lyrics.Metadata.Key {
-    static var localURL = Lyrics.Metadata.Key("localURL")
-    static var title = Lyrics.Metadata.Key("title")
-    static var artist = Lyrics.Metadata.Key("artist")
-    static var needsPersist = Lyrics.Metadata.Key("needsPersist")
-    static var persistenceAllowed = Lyrics.Metadata.Key("persistenceAllowed")
-    static var language = Lyrics.Metadata.Key("language")
+    public static var localURL: Lyrics.Metadata.Key { Lyrics.Metadata.Key("localURL") }
+    public static var title: Lyrics.Metadata.Key { Lyrics.Metadata.Key("title") }
+    public static var artist: Lyrics.Metadata.Key { Lyrics.Metadata.Key("artist") }
+    public static var needsPersist: Lyrics.Metadata.Key { Lyrics.Metadata.Key("needsPersist") }
+    public static var persistenceAllowed: Lyrics.Metadata.Key { Lyrics.Metadata.Key("persistenceAllowed") }
+    public static var language: Lyrics.Metadata.Key { Lyrics.Metadata.Key("language") }
 }
 
 extension Lyrics.Metadata {
-    var localURL: URL? {
+    public var localURL: URL? {
         get { return data[.localURL] as? URL }
         set { data[.localURL] = newValue }
     }
 
-    var title: String? {
+    public var title: String? {
         get { return data[.title] as? String }
         set { data[.title] = newValue }
     }
 
-    var artist: String? {
+    public var artist: String? {
         get { return data[.artist] as? String }
         set { data[.artist] = newValue }
     }
 
-    var needsPersist: Bool {
+    public var needsPersist: Bool {
         get { return data[.needsPersist] as? Bool ?? false }
         set { data[.needsPersist] = newValue }
     }
 
-    var persistenceAllowed: Bool {
+    public var persistenceAllowed: Bool {
         get { return data[.persistenceAllowed] as? Bool ?? true }
         set { data[.persistenceAllowed] = newValue }
     }
 
-    var language: String? {
+    public var language: String? {
         get { return data[.language] as? String }
         set { data[.language] = newValue }
     }
 
-    var translationLanguages: [String] {
+    public var translationLanguages: [String] {
         return attachmentTags.compactMap { $0.translationLanguageCode }
     }
 }
