@@ -87,6 +87,17 @@ class LyricsSession: NSObject {
     /// Playback position in the current lyrics' timeline (per-song + global offset applied).
     var adjustedPlaybackTime: TimeInterval { clock.adjustedPlaybackTime }
 
+    /// Seek the player to where the current lyrics reach `lyricsPosition`.
+    func seek(toLyricsPosition lyricsPosition: TimeInterval) {
+        player.playbackTime = clock.playbackTime(atLyricsPosition: lyricsPosition)
+    }
+
+    /// Shift the current lyrics so `lyricsPosition` is the line playing right now.
+    func align(lyricsPosition: TimeInterval) {
+        guard currentLyrics != nil else { return }
+        lyricsOffset = clock.songOffset(aligning: lyricsPosition)
+    }
+
     @objc dynamic var lyricsOffset: Int {
         get {
             return currentLyrics?.offset ?? 0

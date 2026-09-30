@@ -88,10 +88,9 @@ final class LyricsSyncWindowController: NSWindowController {
 ///   user left it so they can hunt for the line they hear, while playback keeps
 ///   its current sync. A "Now" pill returns to following.
 ///
-/// Only a **tap** commits a change: it aligns the tapped line to the present
-/// playback time via `LyricsOffsetSolver`, written through
-/// `LyricsSession.lyricsOffset` (which re-ticks the clock and live-updates every
-/// other surface). Scrolling never touches the offset.
+/// Only a **tap** commits a change: `LyricsSession.align(lyricsPosition:)` shifts
+/// the offset so the tapped line is playing now, which re-ticks the clock and
+/// live-updates every other surface. Scrolling never touches the offset.
 final class LyricsSyncViewController: NSViewController, NSWindowDelegate, ScrollLyricsViewDelegate {
 
     private let player: PlayerHandle
@@ -402,12 +401,7 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
     // MARK: - ScrollLyricsViewDelegate
 
     func syncToLyricsLine(at position: TimeInterval) {
-        guard session.currentLyrics != nil else { return }
-        session.lyricsOffset = LyricsOffsetSolver.offsetMilliseconds(
-            aligning: position,
-            toPlaybackTime: player.playbackState.time,
-            appWideOffsetMilliseconds: defaults[.globalLyricsOffset]
-        )
+        session.align(lyricsPosition: position)
         // Preserve the user's follow/browse mode instead of forcing a re-centre.
         // If they've scrolled away to hunt for a line, the click commits without
         // yanking them back (the "Now" pill returns them); if they're following,

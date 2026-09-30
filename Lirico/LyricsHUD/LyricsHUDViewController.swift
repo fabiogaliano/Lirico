@@ -334,8 +334,7 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
     // MARK: - ScrollLyricsViewDelegate
 
     func doubleClickLyricsLine(at position: TimeInterval) {
-        let rawTime = session.currentLyrics?.playbackTime(from: position) ?? position
-        player.playbackTime = rawTime
+        session.seek(toLyricsPosition: position)
         isTracking = true
     }
 

@@ -79,13 +79,3 @@ extension Lyrics {
         metadata.artist = track.artist
     }
 }
-
-extension Lyrics {
-    var adjustedOffset: Int {
-        return offset + defaults[.globalLyricsOffset]
-    }
-
-    var adjustedTimeDelay: TimeInterval {
-        return TimeInterval(adjustedOffset) / 1000
-    }
-}

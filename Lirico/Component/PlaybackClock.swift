@@ -32,6 +32,20 @@ final class PlaybackClock {
         player.playbackState.time + adjustedDelay
     }
 
+    /// The playback time at which the lyrics reach `lyricsPosition`, for seeking to a line.
+    func playbackTime(atLyricsPosition lyricsPosition: TimeInterval) -> TimeInterval {
+        lyricsPosition - adjustedDelay
+    }
+
+    /// The per-song offset (ms) that makes `lyricsPosition` the active position right now.
+    func songOffset(aligning lyricsPosition: TimeInterval) -> Int {
+        LyricsOffsetSolver.offsetMilliseconds(
+            aligning: lyricsPosition,
+            toPlaybackTime: player.playbackState.time,
+            appWideOffsetMilliseconds: globalOffsetMilliseconds
+        )
+    }
+
     /// Emits the active line index whenever it changes, and always once after new lyrics
     /// are set. `nil` index means there is no current line (before-first-line, etc.).
     var lineIndexUpdates: AnyPublisher<LineIndexUpdate, Never> {
@@ -77,8 +91,10 @@ final class PlaybackClock {
     private var _songOffsetMilliseconds = 0
     private let songOffsetLock = NSLock()
 
+    private var globalOffsetMilliseconds: Int { defaults[.globalLyricsOffset] }
+
     private var adjustedDelay: TimeInterval {
-        TimeInterval(songOffsetMilliseconds + defaults[.globalLyricsOffset]) / 1000
+        TimeInterval(songOffsetMilliseconds + globalOffsetMilliseconds) / 1000
     }
     private let lineIndexSubject = PassthroughSubject<LineIndexUpdate, Never>()
     private var lineCheckSchedule: Cancellable?
@@ -122,12 +138,5 @@ final class PlaybackClock {
         ) { [unowned self] in
             self.tick()
         }
-    }
-}
-
-extension Lyrics {
-    /// Convert a lyrics-file coordinate back to a raw playback position (used for seeking).
-    func playbackTime(from lyricsPosition: TimeInterval) -> TimeInterval {
-        lyricsPosition - adjustedTimeDelay
     }
 }

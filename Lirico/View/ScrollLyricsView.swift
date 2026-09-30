@@ -335,20 +335,11 @@ class ScrollLyricsView: NSScrollView {
         }?.position
     }
 
-    /// The lyrics-file time of the word the click landed on: the start time of
-    /// the timetag segment containing `charIndex`, offset from the line's own
-    /// `position`. Falls back to the line start when the line carries no word
-    /// timetags, so click-to-sync stays line-level for plain lyrics.
+    /// The lyrics-file time of the word the click landed on. Lines without word
+    /// timetags resolve to the line start, so click-to-sync stays line-level for them.
     private func wordPosition(in line: RenderedLineRange, atCharacter charIndex: Int) -> TimeInterval {
-        guard let tags = line.timetag?.tags, !tags.isEmpty else { return line.position }
-        let offset = charIndex - line.range.location
-        // Tags are ascending by index; keep the latest one starting at or before
-        // the clicked character — that's the word the click sits inside.
-        var wordTime: TimeInterval = 0
-        for tag in tags where tag.index <= offset {
-            wordTime = tag.time
-        }
-        return line.position + wordTime
+        guard let tags = line.timetag?.tags else { return line.position }
+        return line.position + KaraokeTiming.wordStart(atCharacter: charIndex - line.range.location, tags: tags)
     }
 
     /// Distance from a character index to the nearest edge of `range`, in
@@ -639,7 +630,7 @@ final class LyricsLineFollower {
             return
         }
         let elapsed = session.adjustedPlaybackTime - lyrics.lines[index].position
-        let sung = Self.sungCharacters(elapsed: elapsed, tags: timetag.tags)
+        let sung = KaraokeTiming.sungCharacters(elapsed: elapsed, tags: timetag.tags)
         scrollView.highlight(lineIndex: index, sungCharacters: sung)
         nowBand.isHidden = hidesBandOnKaraokeLines
     }
@@ -656,27 +647,5 @@ final class LyricsLineFollower {
         RunLoop.main.add(timer, forMode: .common)
         fillTimer = timer
         updateHighlight()
-    }
-
-    /// Piecewise-linear map from time-into-line to the UTF-16 character the fill
-    /// has reached, matching the karaoke overlay: at each tag's `time` the fill
-    /// sits at that tag's `index`, interpolated between and clamped at both ends.
-    static func sungCharacters(
-        elapsed: TimeInterval,
-        tags: [LyricsLine.Attachments.InlineTimeTag.Tag]
-    ) -> Int {
-        guard let first = tags.first else { return 0 }
-        if elapsed <= first.time { return first.index }
-        for i in 1 ..< tags.count {
-            let prev = tags[i - 1]
-            let cur = tags[i]
-            if elapsed < cur.time {
-                let span = cur.time - prev.time
-                guard span > 0 else { return cur.index }
-                let frac = (elapsed - prev.time) / span
-                return prev.index + Int((Double(cur.index - prev.index) * frac).rounded())
-            }
-        }
-        return tags.last!.index
     }
 }
