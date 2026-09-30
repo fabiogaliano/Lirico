@@ -29,7 +29,7 @@ class KaraokeLyricsView: NSView {
 
     @objc dynamic var shouldHideWithMouse = true {
         didSet {
-            updateTrackingAreas()
+            mouseTest()
         }
     }
 
@@ -51,7 +51,7 @@ class KaraokeLyricsView: NSView {
         backgroundView.layer?.cornerRadius = 12
         backgroundView.layer?.borderWidth = 0.5
         backgroundView.layer?.borderColor = NSColor.white.withAlphaComponent(0.12).cgColor
-        // didSet doesn't fire for the init value, so without this the layer stays clear and the transparent window passes margin clicks through (only glyph clicks drag).
+        // didSet doesn't fire for the init value, so without this the layer stays clear until the color changes.
         backgroundView.layer?.backgroundColor = backgroundColor.cgColor
     }
 
@@ -147,41 +147,19 @@ class KaraokeLyricsView: NSView {
 
     // MARK: - Event
 
-    private var trackingArea: NSTrackingArea?
-
-    override func updateTrackingAreas() {
-        super.updateTrackingAreas()
-        trackingArea.map(removeTrackingArea)
-        if shouldHideWithMouse {
-            let trackingOptions: NSTrackingArea.Options = [.mouseEnteredAndExited, .mouseMoved, .activeAlways, .assumeInside]
-            trackingArea = NSTrackingArea(rect: bounds, options: trackingOptions, owner: self)
-            trackingArea.map(addTrackingArea)
+    var containsMouse: Bool {
+        guard !isHiddenOrHasHiddenAncestor,
+              let point = NSEvent.mouseLocation(in: self) else {
+            return false
         }
-        mouseTest()
+        return bounds.contains(point)
     }
 
-    private func mouseTest() {
-        if shouldHideWithMouse,
-           let point = NSEvent.mouseLocation(in: self),
-           bounds.contains(point) {
-            animator().alphaValue = 0
-        } else {
-            animator().alphaValue = 1
+    func mouseTest() {
+        let targetAlpha: CGFloat = shouldHideWithMouse && containsMouse ? 0 : 1
+        if alphaValue != targetAlpha {
+            animator().alphaValue = targetAlpha
         }
-    }
-
-    override func mouseMoved(with event: NSEvent) {
-        if alphaValue != 0 {
-            animator().alphaValue = 0
-        }
-    }
-
-    override func mouseEntered(with event: NSEvent) {
-        animator().alphaValue = 0
-    }
-
-    override func mouseExited(with event: NSEvent) {
-        animator().alphaValue = 1
     }
 }
 
