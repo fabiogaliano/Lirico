@@ -2,6 +2,7 @@ import AppKit
 import Combine
 import LiricoFoundation
 import MusicPlayer
+import OpenCC
 
 /// Immutable snapshot of the display-relevant fields of `Lyrics.metadata`.
 ///
@@ -41,6 +42,9 @@ final class LyricsDisplayCoordinator {
     private var currentIndex: Int?
     private var currentSupporting: [Lyrics] = []
     private var currentMetadata: LyricsDisplayMetadata = .empty
+    /// Delivered through the publisher rather than read from the provider, which
+    /// rebuilds it on the main thread while this queue renders.
+    private var currentConverter: ChineseConverter?
     private var cancelBag = Set<AnyCancellable>()
 
     init(
@@ -120,7 +124,8 @@ final class LyricsDisplayCoordinator {
 
         chineseConverter.converterPublisher
             .receive(on: DispatchQueue.lyricsDisplay)
-            .sink { [weak self] _ in
+            .sink { [weak self] converter in
+                self?.currentConverter = converter
                 self?.recompute()
             }
             .store(in: &cancelBag)
@@ -146,7 +151,7 @@ final class LyricsDisplayCoordinator {
         let nextEnabled = lyrics.lines[(index + 1)...].first { $0.enabled }
         let languageCode = currentMetadata.translationLanguages.first
 
-        let converter = chineseConverter.converter
+        let converter = currentConverter
         let restoreExplicit = explicitResolver.makeRenderRestoration(
             context: ExplicitRestorationContext(supportingCandidates: currentSupporting)
         )

@@ -245,6 +245,7 @@ class ScrollLyricsView: NSScrollView {
             }
         }
         ranges = newRanges
+        lastEdgeInsetInputs = nil
         textView.string = lrcContent
         highlightedRange = nil
         hideWordBox()
@@ -378,17 +379,36 @@ class ScrollLyricsView: NSScrollView {
         return true
     }
 
+    // Layout runs every frame during a live resize; reuse one mask layer.
+    private lazy var fadeEdgeMask = CAGradientLayer().then {
+        $0.colors = [#colorLiteral(red: 0, green: 0, blue: 0, alpha: 0), #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1), #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1), #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0)] as [CGColor]
+        $0.startPoint = .zero
+        $0.endPoint = CGPoint(x: 0, y: 1)
+    }
+
     private func updateFadeEdgeMask() {
         let location = fadeStripWidth / frame.height
         wantsLayer = true
-        layer?.mask = CAGradientLayer().then {
-            $0.frame = bounds
-            $0.colors = [#colorLiteral(red: 0, green: 0, blue: 0, alpha: 0), #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1), #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1), #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0)] as [CGColor]
-            $0.locations = [0, location as NSNumber, (1 - location) as NSNumber, 1]
-            $0.startPoint = .zero
-            $0.endPoint = CGPoint(x: 0, y: 1)
+        if layer?.mask !== fadeEdgeMask {
+            layer?.mask = fadeEdgeMask
         }
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        fadeEdgeMask.frame = bounds
+        fadeEdgeMask.locations = [0, location as NSNumber, (1 - location) as NSNumber, 1]
+        CATransaction.commit()
     }
+
+    private struct EdgeInsetInputs: Equatable {
+        let size: CGSize
+        let first: NSRange
+        let last: NSRange
+        let fontName: String
+        let fontSize: CGFloat
+    }
+
+    /// Glyph bounding-rect queries are the expensive part; skip them when nothing they depend on moved.
+    private var lastEdgeInsetInputs: EdgeInsetInputs?
 
     private func updateEdgeInset() {
         guard let first = ranges.first,
@@ -397,6 +417,9 @@ class ScrollLyricsView: NSScrollView {
               let textContainer = textView.textContainer else {
             return
         }
+        let inputs = EdgeInsetInputs(size: frame.size, first: first.range, last: last.range, fontName: fontName, fontSize: fontSize)
+        guard inputs != lastEdgeInsetInputs else { return }
+        lastEdgeInsetInputs = inputs
 
         let bounding1 = layoutManager.boundingRect(forGlyphRange: first.range, in: textContainer)
         let topInset = frame.height / 2 - bounding1.height / 2
