@@ -72,9 +72,8 @@ Hybrid Xcode project + Swift Package Manager. The Xcode project (`Lirico.xcodepr
 The app uses a **Combine-driven reactive architecture** with shared singletons:
 
 - **`Component/`** — Core singletons: `LyricsSession` (central lyrics state + search/management hub), `AppDelegate`, `PlaybackClock` (line-index publisher), `PlayerHandle` (player adapter). `LyricsSession` listens for track changes via Combine publishers, runs async lyrics searches (`AsyncSequence`), and exposes `currentLyrics` as a read-only publisher. Mutations flow through `select()` / `clear()` / `importLyrics()` commands. Apple-Music export lives in the pure `LyricsPersister` namespace.
-- **`Controller/`** — Display controllers: `KaraokeLyricsController` (desktop karaoke overlay), `MenuBarLyricsController` (menu bar text), `TouchBarLyricsController`, `LyricsSyncController` (Sync by Ear)
+- **`Controller/`** — Display controllers: `KaraokeLyricsController` (desktop karaoke overlay), `MenuBarLyricsController` (menu bar text), `LyricsSyncController` (Sync by Ear)
 - **`Search/`** — Manual lyrics search window (`SearchLyricsViewModel` + SwiftUI view)
-- **`TouchBar/`** — Touch Bar items (opt-in via Lab)
 - **`LyricsHUD/`** — Floating lyrics panel (`LyricsHUDViewController`)
 - **`Preferences/`** — Preference pane SwiftUI views (General, Display, Filter, Shortcut, Source, Lab); `PreferenceWindowController` creates the window programmatically via `NSHostingController`
 - **`View/`** — Custom views: `KaraokeLabel`, `KaraokeLyricsView`, `ScrollLyricsView`

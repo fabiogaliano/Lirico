@@ -34,21 +34,16 @@
 		BB4141B21E458BA800A51775 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB4141B11E458BA800A51775 /* Assets.xcassets */; };
 		BB4141C01E45B67800A51775 /* KaraokeLyricsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4141BF1E45B67800A51775 /* KaraokeLyricsController.swift */; };
 		BB458C63201C5F4500740C3B /* LyricsMetadata+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB458C62201C5F4500740C3B /* LyricsMetadata+Extension.swift */; };
-		BB5863F321EFFD9F0084D2C0 /* TouchBarLyricsItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5863F221EFFD9F0084D2C0 /* TouchBarLyricsItem.swift */; };
-		BB58640721F2B7500084D2C0 /* TouchBarArtworkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB58640621F2B7500084D2C0 /* TouchBarArtworkViewController.swift */; };
 		BB58B0821E82971400598D4F /* UserDefaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB58B0811E82971400598D4F /* UserDefaults.plist */; };
 		BB58B0891E82CA9B00598D4F /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = BB58B0881E82CA9B00598D4F /* Credits.rtf */; };
 		BB60F3041E889A1B00BA1FD2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB60F3031E889A1B00BA1FD2 /* AppDelegate.swift */; };
 		BB60F3061E889A1B00BA1FD2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB60F3051E889A1B00BA1FD2 /* Assets.xcassets */; };
 		BB60F3091E889A1B00BA1FD2 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = BB60F3071E889A1B00BA1FD2 /* MainMenu.xib */; };
 		BB60F3121E889FCD00BA1FD2 /* LiricoHelper.app in Copy Helper */ = {isa = PBXBuildFile; fileRef = BB60F3011E889A1B00BA1FD2 /* LiricoHelper.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		BB63C24F22774B47008CFFBB /* TouchBarPlaybackControlViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB63C24E22774B47008CFFBB /* TouchBarPlaybackControlViewController.swift */; };
-		BB6C75E8248B908500804AEB /* TouchBarHelper in Frameworks */ = {isa = PBXBuildFile; productRef = BB6C75E7248B908500804AEB /* TouchBarHelper */; };
 		BB7EC7B21E4E018C00A0AC3F /* LyricsHUDViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7EC7B11E4E018C00A0AC3F /* LyricsHUDViewController.swift */; };
 		BB89089E21ED69410078F522 /* Lyrics+Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB89089D21ED69410078F522 /* Lyrics+Language.swift */; };
 		BB947DFB23B4C60000C43BF2 /* SelectedPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB947DFA23B4C60000C43BF2 /* SelectedPlayer.swift */; };
 		BB9BCEBA1E843157001BC54B /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9BCEB91E843157001BC54B /* Extension.swift */; };
-		BBA82F0A256AB8620076831F /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = BBA82F09256AB8620076831F /* Sparkle */; };
 		BBB03F2D232FB3AF00A3879E /* GenericID in Frameworks */ = {isa = PBXBuildFile; productRef = BBB03F2C232FB3AF00A3879E /* GenericID */; };
 		BBB03F30232FB40400A3879E /* Semver in Frameworks */ = {isa = PBXBuildFile; productRef = BBB03F2F232FB40400A3879E /* Semver */; };
 		BBB03F3A2331D8A800A3879E /* OpenCC in Frameworks */ = {isa = PBXBuildFile; productRef = BBB03F392331D8A800A3879E /* OpenCC */; };
@@ -61,7 +56,6 @@
 		E9FA2D042F1000000002BB04 /* MASShortcutBinder+TypedKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2D032F1000000002BB03 /* MASShortcutBinder+TypedKeys.swift */; };
 		E9FA2D062F1000000003CC06 /* HelperLifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2D052F1000000003CC05 /* HelperLifecycle.swift */; };
 		E9FA2D082F1000000004DD08 /* LyricsOffsetMenuBindings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2D072F1000000004DD07 /* LyricsOffsetMenuBindings.swift */; };
-		E9FA2D0A2F1000000005EE0A /* UpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2D092F1000000005EE09 /* UpdateController.swift */; };
 		E9FA2B062E9000000003CC06 /* LineRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B052E9000000003CC05 /* LineRenderer.swift */; };
 		E9FA2B082E9000000004DD08 /* LyricsSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B072E9000000004DD07 /* LyricsSelector.swift */; };
 		E9FA2B0A2E9000000005EE0A /* LocalLyricsLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B092E9000000005EE09 /* LocalLyricsLoader.swift */; };
@@ -113,7 +107,6 @@
 		E9C4E29C2AC9A124004B9EB2 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = E9C4E29B2AC9A124004B9EB2 /* SnapKit */; };
 		E9C4E2A22AC9A3D6004B9EB2 /* SwiftCF in Frameworks */ = {isa = PBXBuildFile; productRef = E9C4E2A12AC9A3D6004B9EB2 /* SwiftCF */; };
 		E9C5763D2DEDF539009107B5 /* LiricoFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = E9C5763C2DEDF539009107B5 /* LiricoFoundation */; };
-		E9E55138207C4CB000F9958A /* TouchBarLyricsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E55137207C4CB000F9958A /* TouchBarLyricsController.swift */; };
 		E9EBDA2521115A150019FDF9 /* Observation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9EBDA2421115A150019FDF9 /* Observation.swift */; };
 		E9EF0D4E2D6F5E0A00D45E0F /* LyricsHUDWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9EF0D4D2D6F5E0A00D45E0F /* LyricsHUDWindowController.swift */; };
 		E9EF0D512D6F5ECD00D45E0F /* UIFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = E9EF0D502D6F5ECD00D45E0F /* UIFoundation */; };
@@ -151,8 +144,6 @@
 		BB4141B61E458BA900A51775 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB4141BF1E45B67800A51775 /* KaraokeLyricsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaraokeLyricsController.swift; sourceTree = "<group>"; };
 		BB458C62201C5F4500740C3B /* LyricsMetadata+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LyricsMetadata+Extension.swift"; sourceTree = "<group>"; };
-		BB5863F221EFFD9F0084D2C0 /* TouchBarLyricsItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchBarLyricsItem.swift; sourceTree = "<group>"; };
-		BB58640621F2B7500084D2C0 /* TouchBarArtworkViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchBarArtworkViewController.swift; sourceTree = "<group>"; };
 		BB58B0811E82971400598D4F /* UserDefaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = UserDefaults.plist; sourceTree = "<group>"; };
 		BB58B0881E82CA9B00598D4F /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		BB60F3011E889A1B00BA1FD2 /* LiricoHelper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LiricoHelper.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -161,7 +152,6 @@
 		BB60F3081E889A1B00BA1FD2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		BB60F30A1E889A1B00BA1FD2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB60F30E1E889C5400BA1FD2 /* LiricoHelper.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LiricoHelper.entitlements; sourceTree = "<group>"; };
-		BB63C24E22774B47008CFFBB /* TouchBarPlaybackControlViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchBarPlaybackControlViewController.swift; sourceTree = "<group>"; };
 		BB7EC7B11E4E018C00A0AC3F /* LyricsHUDViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LyricsHUDViewController.swift; sourceTree = "<group>"; };
 		BB89089D21ED69410078F522 /* Lyrics+Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Lyrics+Language.swift"; sourceTree = "<group>"; };
 		BB947DFA23B4C60000C43BF2 /* SelectedPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedPlayer.swift; sourceTree = "<group>"; };
@@ -176,7 +166,6 @@
 		E9FA2D032F1000000002BB03 /* MASShortcutBinder+TypedKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MASShortcutBinder+TypedKeys.swift"; sourceTree = "<group>"; };
 		E9FA2D052F1000000003CC05 /* HelperLifecycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperLifecycle.swift; sourceTree = "<group>"; };
 		E9FA2D072F1000000004DD07 /* LyricsOffsetMenuBindings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsOffsetMenuBindings.swift; sourceTree = "<group>"; };
-		E9FA2D092F1000000005EE09 /* UpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateController.swift; sourceTree = "<group>"; };
 		E9FA2B052E9000000003CC05 /* LineRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineRenderer.swift; sourceTree = "<group>"; };
 		E9FA2B072E9000000004DD07 /* LyricsSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsSelector.swift; sourceTree = "<group>"; };
 		E9FA2B092E9000000005EE09 /* LocalLyricsLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLyricsLoader.swift; sourceTree = "<group>"; };
@@ -224,7 +213,6 @@
 		F1D0000000000000000A0001 /* MainMenuBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenuBuilder.swift; sourceTree = "<group>"; };
 		F1D0000200000000000A0002 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		E9C5763A2DEDF135009107B5 /* LiricoPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = LiricoPackage; sourceTree = "<group>"; };
-		E9E55137207C4CB000F9958A /* TouchBarLyricsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchBarLyricsController.swift; sourceTree = "<group>"; };
 		E9EBDA2421115A150019FDF9 /* Observation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observation.swift; sourceTree = "<group>"; };
 		E9EF0D4D2D6F5E0A00D45E0F /* LyricsHUDWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsHUDWindowController.swift; sourceTree = "<group>"; };
 		E9EF0D542D6F70E400D45E0F /* SearchLyricsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchLyricsWindowController.swift; sourceTree = "<group>"; };
@@ -238,10 +226,8 @@
 				E9C4E2992AC9A10F004B9EB2 /* MASShortcut in Frameworks */,
 				E9EF0D512D6F5ECD00D45E0F /* UIFoundation in Frameworks */,
 				E9C4E29C2AC9A124004B9EB2 /* SnapKit in Frameworks */,
-				BBA82F0A256AB8620076831F /* Sparkle in Frameworks */,
 				BBB03F3A2331D8A800A3879E /* OpenCC in Frameworks */,
 				BBB03F30232FB40400A3879E /* Semver in Frameworks */,
-				BB6C75E8248B908500804AEB /* TouchBarHelper in Frameworks */,
 				E9C4E2A22AC9A3D6004B9EB2 /* SwiftCF in Frameworks */,
 				E983FA242C86302200170CF7 /* MarqueeLabel in Frameworks */,
 				E9C5763D2DEDF539009107B5 /* LiricoFoundation in Frameworks */,
@@ -296,7 +282,6 @@
 			children = (
 				F1D0000200000000000A0002 /* main.swift */,
 				E9C49A8E2110490700159ADC /* Component */,
-				E9C4E8B02D7845DD00E3D8CA /* TouchBar */,
 				BB063B2F1E8A93CE00A25C3E /* View */,
 				BBC7C5561E6AEA4500E3EC4F /* Preferences */,
 				E9EF0D562D6F722B00D45E0F /* LyricsHUD */,
@@ -336,7 +321,6 @@
 			children = (
 				BB4141BF1E45B67800A51775 /* KaraokeLyricsController.swift */,
 				BBC1D57F1E4AE3B9008869EC /* MenuBarLyricsController.swift */,
-				E9E55137207C4CB000F9958A /* TouchBarLyricsController.swift */,
 				FA5117C000000000000A0001 /* LyricsSyncController.swift */,
 			);
 			path = Controller;
@@ -412,7 +396,6 @@
 				E9FA2D052F1000000003CC05 /* HelperLifecycle.swift */,
 				E9FA2D072F1000000004DD07 /* LyricsOffsetMenuBindings.swift */,
 				F1D0000000000000000A0001 /* MainMenuBuilder.swift */,
-				E9FA2D092F1000000005EE09 /* UpdateController.swift */,
 				BBC1D35A1E485BA7002538A2 /* LyricsSession.swift */,
 				E9FA2B012E9000000001AA01 /* PlaybackClock.swift */,
 				F1C0001000000000010A0003 /* LyricsPreparation.swift */,
@@ -439,16 +422,6 @@
 				BB89089D21ED69410078F522 /* Lyrics+Language.swift */,
 			);
 			path = Component;
-			sourceTree = "<group>";
-		};
-		E9C4E8B02D7845DD00E3D8CA /* TouchBar */ = {
-			isa = PBXGroup;
-			children = (
-				BB5863F221EFFD9F0084D2C0 /* TouchBarLyricsItem.swift */,
-				BB58640621F2B7500084D2C0 /* TouchBarArtworkViewController.swift */,
-				BB63C24E22774B47008CFFBB /* TouchBarPlaybackControlViewController.swift */,
-			);
-			path = TouchBar;
 			sourceTree = "<group>";
 		};
 		E9C5763B2DEDF539009107B5 /* Frameworks */ = {
@@ -501,8 +474,6 @@
 				BBB03F2C232FB3AF00A3879E /* GenericID */,
 				BBB03F2F232FB40400A3879E /* Semver */,
 				BBB03F392331D8A800A3879E /* OpenCC */,
-				BB6C75E7248B908500804AEB /* TouchBarHelper */,
-				BBA82F09256AB8620076831F /* Sparkle */,
 				E9C4E2982AC9A10F004B9EB2 /* MASShortcut */,
 				E9C4E29B2AC9A124004B9EB2 /* SnapKit */,
 				E9C4E2A12AC9A3D6004B9EB2 /* SwiftCF */,
@@ -607,8 +578,6 @@
 				BBB03F2B232FB3AF00A3879E /* XCRemoteSwiftPackageReference "GenericID" */,
 				BBB03F2E232FB40400A3879E /* XCRemoteSwiftPackageReference "Semver" */,
 				BBB03F382331D8A800A3879E /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */,
-				BB6C75E6248B908500804AEB /* XCRemoteSwiftPackageReference "TouchBarHelper" */,
-				BBA82F08256AB8620076831F /* XCRemoteSwiftPackageReference "Sparkle" */,
 				E9C4E2972AC9A10F004B9EB2 /* XCRemoteSwiftPackageReference "MASShortcut" */,
 				E9C4E29A2AC9A124004B9EB2 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				E9C4E2A02AC9A3D6004B9EB2 /* XCRemoteSwiftPackageReference "SwiftCF" */,
@@ -714,20 +683,17 @@
 				F1D0000300000000000A0002 /* main.swift in Sources */,
 				F1A5EA0100000000000A0001 /* SearchLyricsView.swift in Sources */,
 				F1A5EA0100000000000A0002 /* SearchLyricsViewModel.swift in Sources */,
-				E9E55138207C4CB000F9958A /* TouchBarLyricsController.swift in Sources */,
 				E97F2CFD2E757C19005466D1 /* Signal.swift in Sources */,
 				E97F2D012E757C19005466D1 /* Invoke.swift in Sources */,
 				BB1B631B1E8CD7CA004CC9E0 /* ScrollLyricsView.swift in Sources */,
 				BB1B300520E87CC9002F1AF8 /* KaraokeLabel.swift in Sources */,
 				BBD03C371E9B2C7200EFB975 /* DragNDropView.swift in Sources */,
 				E9EBDA2521115A150019FDF9 /* Observation.swift in Sources */,
-				BB5863F321EFFD9F0084D2C0 /* TouchBarLyricsItem.swift in Sources */,
 				BB1B2FFD20E8780A002F1AF8 /* CFExtension.swift in Sources */,
 				BB4141AE1E458BA800A51775 /* AppDelegate.swift in Sources */,
 				BB458C63201C5F4500740C3B /* LyricsMetadata+Extension.swift in Sources */,
 				BBE8FC751F6BEA6200122AFA /* Then.swift in Sources */,
 				E960A9A22D68F9FA00A32EEC /* NowPlayingApplicationListViewController.swift in Sources */,
-				BB58640721F2B7500084D2C0 /* TouchBarArtworkViewController.swift in Sources */,
 				E975C5BC2D380B920059BE92 /* PreferenceWindowController.swift in Sources */,
 				FA0000012F200000000A0003 /* PreferencesView.swift in Sources */,
 				FA0000012F200000000A0001 /* SettingsSection.swift in Sources */,
@@ -751,7 +717,6 @@
 				F1B0002100000000000E0001 /* PlayerSettings.swift in Sources */,
 				BB1B300320E878AE002F1AF8 /* StdExtension.swift in Sources */,
 				BB947DFB23B4C60000C43BF2 /* SelectedPlayer.swift in Sources */,
-				BB63C24F22774B47008CFFBB /* TouchBarPlaybackControlViewController.swift in Sources */,
 				BB063B2E1E8A93C900A25C3E /* KaraokeLyricsView.swift in Sources */,
 				BBC1D5801E4AE3B9008869EC /* MenuBarLyricsController.swift in Sources */,
 				F1C0001100000000010A0001 /* ChineseConverterProvider.swift in Sources */,
@@ -766,7 +731,6 @@
 				E9FA2D042F1000000002BB04 /* MASShortcutBinder+TypedKeys.swift in Sources */,
 				E9FA2D062F1000000003CC06 /* HelperLifecycle.swift in Sources */,
 				E9FA2D082F1000000004DD08 /* LyricsOffsetMenuBindings.swift in Sources */,
-				E9FA2D0A2F1000000005EE0A /* UpdateController.swift in Sources */,
 				E9FA2B062E9000000003CC06 /* LineRenderer.swift in Sources */,
 				E9FA2B082E9000000004DD08 /* LyricsSelector.swift in Sources */,
 				E9FA2B0A2E9000000005EE0A /* LocalLyricsLoader.swift in Sources */,
@@ -1077,22 +1041,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		BB6C75E6248B908500804AEB /* XCRemoteSwiftPackageReference "TouchBarHelper" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ddddxxx/TouchBarHelper";
-			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 0.1.0;
-			};
-		};
-		BBA82F08256AB8620076831F /* XCRemoteSwiftPackageReference "Sparkle" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sparkle-project/Sparkle";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
-			};
-		};
 		BBB03F2B232FB3AF00A3879E /* XCRemoteSwiftPackageReference "GenericID" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/MxIris-LyricsX-Project/GenericID";
@@ -1160,16 +1108,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		BB6C75E7248B908500804AEB /* TouchBarHelper */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BB6C75E6248B908500804AEB /* XCRemoteSwiftPackageReference "TouchBarHelper" */;
-			productName = TouchBarHelper;
-		};
-		BBA82F09256AB8620076831F /* Sparkle */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BBA82F08256AB8620076831F /* XCRemoteSwiftPackageReference "Sparkle" */;
-			productName = Sparkle;
-		};
 		BBB03F2C232FB3AF00A3879E /* GenericID */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = BBB03F2B232FB3AF00A3879E /* XCRemoteSwiftPackageReference "GenericID" */;
