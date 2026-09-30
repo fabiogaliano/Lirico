@@ -1,7 +1,13 @@
 Product
 .DS_Store
 xcuserdata
-project.xcworkspace
+**/project.xcworkspace/*
+!**/project.xcworkspace/xcshareddata/
+**/project.xcworkspace/xcshareddata/*
+!**/project.xcworkspace/xcshareddata/swiftpm/
+**/project.xcworkspace/xcshareddata/swiftpm/*
+# Pin the app's dependency graph (several deps track branches); the library package stays unpinned.
+!**/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 .claude
 .derivedData/
 build/
