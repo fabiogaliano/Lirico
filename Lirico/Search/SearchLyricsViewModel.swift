@@ -6,14 +6,24 @@ import MusicPlayer
 
 // MARK: - SearchStatus
 
+/// Where the search is. Result counts aren't carried here: they change with the
+/// "show unlikely" toggle after the search ends, so the view reads them live.
 enum SearchStatus: Equatable {
     case idle
     case searching(summary: String)
-    case foundVisible(count: Int, hiddenUnlikely: Int, rejected: Int)
-    case noMatches(hiddenUnlikely: Int, rejected: Int)
-    case failed(message: String, visibleCount: Int, hiddenUnlikely: Int, rejected: Int)
-    case timedOut(visibleCount: Int, hiddenUnlikely: Int, rejected: Int)
-    case cancelled(visibleCount: Int, hiddenUnlikely: Int, rejected: Int)
+    case finished
+    case failed(message: String)
+    case timedOut
+    case cancelled
+
+    static func matchSummary(likely: Int, hiddenUnlikely: Int) -> String {
+        let matches = likely > 0 ? "\(likely) likely \(likely == 1 ? "match" : "matches")" : "No likely matches"
+        return hiddenUnlikely > 0 ? "\(matches) · \(hiddenUnlikely) unlikely hidden" : matches
+    }
+
+    static func partialMatches(_ count: Int) -> String {
+        "showing \(count) partial \(count == 1 ? "match" : "matches")"
+    }
 }
 
 // MARK: - SearchButtonLabel
@@ -42,7 +52,9 @@ final class SearchLyricsViewModel: ObservableObject {
     }
     @Published private(set) var searchStatus: SearchStatus = .idle
     @Published private(set) var unlikelyCount: Int = 0
-    @Published private(set) var rejectedCount: Int = 0
+
+    var likelyCount: Int { visibleRows.count { !$0.isUnlikely } }
+    var hiddenUnlikelyCount: Int { showUnlikelyResults ? 0 : unlikelyCount }
 
     var canSearch: Bool {
         !title.trimmingCharacters(in: .whitespaces).isEmpty
@@ -69,13 +81,9 @@ final class SearchLyricsViewModel: ObservableObject {
     private let session: LyricsSession
     private let pipeline: LyricsSearchPipeline
     private let searchSettings: SearchSettings
-    private let ranker = LyricsCandidateRanker()
 
-    private var allCandidates: [EvaluatedLyricsCandidate] = []
+    private var results: ManualSearchResults?
     private var pendingCandidates: [EvaluatedLyricsCandidate] = []
-    private var likelyRows: [LyricsResult] = []
-    private var unlikelyRows: [LyricsResult] = []
-    private var currentSearchMode: LyricsSearchMode?
     /// The lyrics already loaded for the current track when the window opened,
     /// snapshotted so the "currently loaded" row indicator stays stable while
     /// results stream in. Refreshed when the user applies a different result.
@@ -134,9 +142,9 @@ final class SearchLyricsViewModel: ObservableObject {
             searchTask?.cancel()
             searchTask = nil
             resetResults()
+            results = nil
             title = ""
             artist = ""
-            currentSearchMode = nil
             fieldsChangedSinceSearch = false
             showUnlikelyResults = false
             searchStatus = .idle
@@ -158,9 +166,9 @@ final class SearchLyricsViewModel: ObservableObject {
 
         searchTask?.cancel()
 
-        currentSearchMode = query.mode
         searchGeneration &+= 1
         resetResults()
+        results = ManualSearchResults(mode: query.mode)
         showUnlikelyResults = false
         fieldsChangedSinceSearch = false
         searchedTitle = trimmedFieldValue(title)
@@ -181,11 +189,7 @@ final class SearchLyricsViewModel: ObservableObject {
         flushPendingCandidates(force: true)
         searchTask?.cancel()
         searchTask = nil
-        searchStatus = .cancelled(
-            visibleCount: visibleRows.count,
-            hiddenUnlikely: unlikelyCount,
-            rejected: rejectedCount
-        )
+        searchStatus = .cancelled
     }
 
     func performButtonAction() {
@@ -207,9 +211,7 @@ final class SearchLyricsViewModel: ObservableObject {
         else { return }
         SearchBlocklist.unblock(track: track)
         SearchBlocklist.unblock(album: track.album ?? "")
-        // Hand the other same-song results to the session as restoration evidence
-        // for the chosen lyrics.
-        let supporting = SupportingLyrics.select(from: allCandidates, excluding: result.lyrics)
+        let supporting = results?.supportingLyrics(excluding: result.lyrics) ?? []
         session.select(result.lyrics, writeToiTunesIfAuto: true, supporting: supporting)
         loadedLyrics = result.lyrics
         rebuildVisibleRows()
@@ -244,11 +246,7 @@ final class SearchLyricsViewModel: ObservableObject {
                     return false
                 }
                 self.flushPendingCandidates(force: true)
-                self.searchStatus = .timedOut(
-                    visibleCount: self.visibleRows.count,
-                    hiddenUnlikely: self.unlikelyCount,
-                    rejected: self.rejectedCount
-                )
+                self.searchStatus = .timedOut
                 return false
             }
 
@@ -293,28 +291,9 @@ final class SearchLyricsViewModel: ObservableObject {
         guard searchGeneration == generation, isSearching else { return }
 
         if completedNormally {
-            if !failureMessages.isEmpty {
-                searchStatus = .failed(
-                    message: failureMessages.joined(separator: " · "),
-                    visibleCount: visibleRows.count,
-                    hiddenUnlikely: unlikelyCount,
-                    rejected: rejectedCount
-                )
-            } else if !visibleRows.isEmpty {
-                searchStatus = .foundVisible(
-                    count: visibleRows.count,
-                    hiddenUnlikely: unlikelyCount,
-                    rejected: rejectedCount
-                )
-            } else {
-                searchStatus = .noMatches(hiddenUnlikely: unlikelyCount, rejected: rejectedCount)
-            }
+            searchStatus = failureMessages.isEmpty ? .finished : .failed(message: failureMessages.joined(separator: " · "))
         } else if isSearching {
-            searchStatus = .cancelled(
-                visibleCount: visibleRows.count,
-                hiddenUnlikely: unlikelyCount,
-                rejected: rejectedCount
-            )
+            searchStatus = .cancelled
         }
     }
 
@@ -332,7 +311,7 @@ final class SearchLyricsViewModel: ObservableObject {
             || elapsed >= candidateFlushIntervalNanoseconds
         guard shouldFlush else { return }
 
-        allCandidates.append(contentsOf: pendingCandidates)
+        results?.append(pendingCandidates)
         pendingCandidates.removeAll(keepingCapacity: true)
         lastCandidateFlushUptime = now
         rebuildVisibleRows()
@@ -340,22 +319,12 @@ final class SearchLyricsViewModel: ObservableObject {
     }
 
     private func rebuildVisibleRows() {
-        let ranked = ranker.rankedCandidates(
-            allCandidates,
-            mode: currentSearchMode ?? .titleOnly(title: ""),
-            configuration: searchSettings.rankingConfiguration
-        )
-
-        likelyRows = ranked
-            .filter { $0.evaluation.visibility != .unlikely }
-            .map { LyricsResult(candidate: $0, isUnlikely: false, isLoaded: isLoadedCandidate($0)) }
-        unlikelyRows = ranked
-            .filter { $0.evaluation.visibility == .unlikely }
-            .map { LyricsResult(candidate: $0, isUnlikely: true, isLoaded: isLoadedCandidate($0)) }
-        unlikelyCount = allCandidates.filter { $0.evaluation.visibility == .unlikely }.count
-        rejectedCount = allCandidates.filter { $0.evaluation.visibility == .rejected }.count
-
-        let rows = showUnlikelyResults ? likelyRows + unlikelyRows : likelyRows
+        let rows = (results?.offered(includeUnlikely: showUnlikelyResults, configuration: searchSettings.rankingConfiguration) ?? [])
+            .map { LyricsResult(candidate: $0, isLoaded: isLoadedCandidate($0)) }
+        let unlikely = results?.unlikelyCount ?? 0
+        if unlikelyCount != unlikely {
+            unlikelyCount = unlikely
+        }
         if visibleRows != rows {
             visibleRows = rows
         }
@@ -373,37 +342,22 @@ final class SearchLyricsViewModel: ObservableObject {
     }
 
     private func updateSearchingSummary(afterFinished source: String) {
-        if !visibleRows.isEmpty {
-            let matchLabel = visibleRows.count == 1 ? "match" : "matches"
-            let copy = unlikelyCount > 0
-                ? "\(visibleRows.count) likely \(matchLabel) · \(unlikelyCount) unlikely hidden"
-                : "Found \(visibleRows.count) likely \(matchLabel)"
-            searchStatus = .searching(summary: copy)
-        } else {
-            searchStatus = .searching(summary: "Searching…")
-        }
+        let summary = visibleRows.isEmpty
+            ? "Searching…"
+            : SearchStatus.matchSummary(likely: likelyCount, hiddenUnlikely: hiddenUnlikelyCount)
+        searchStatus = .searching(summary: summary)
     }
 
     private func updateSearchingSummary(afterFailed source: String) {
-        if !visibleRows.isEmpty {
-            let matchLabel = visibleRows.count == 1 ? "match" : "matches"
-            searchStatus = .searching(summary: "\(source) failed · showing \(visibleRows.count) partial \(matchLabel)")
-        } else {
-            searchStatus = .searching(summary: "\(source) failed…")
-        }
+        let summary = visibleRows.isEmpty
+            ? "\(source) failed…"
+            : "\(source) failed · \(SearchStatus.partialMatches(visibleRows.count))"
+        searchStatus = .searching(summary: summary)
     }
 
     private func updateSearchingResultSummary() {
-        guard case .searching = searchStatus else { return }
-        if !visibleRows.isEmpty {
-            let matchLabel = visibleRows.count == 1 ? "match" : "matches"
-            let copy = unlikelyCount > 0
-                ? "\(visibleRows.count) likely \(matchLabel) · \(unlikelyCount) unlikely hidden"
-                : "Found \(visibleRows.count) likely \(matchLabel)"
-            searchStatus = .searching(summary: copy)
-        } else if unlikelyCount > 0 {
-            searchStatus = .searching(summary: "No likely matches · \(unlikelyCount) unlikely hidden")
-        }
+        guard case .searching = searchStatus, !visibleRows.isEmpty || unlikelyCount > 0 else { return }
+        searchStatus = .searching(summary: SearchStatus.matchSummary(likely: likelyCount, hiddenUnlikely: hiddenUnlikelyCount))
     }
 
     private func clearSelectionPreview() {
@@ -420,13 +374,9 @@ final class SearchLyricsViewModel: ObservableObject {
     }
 
     private func resetResults() {
-        allCandidates = []
         pendingCandidates.removeAll(keepingCapacity: true)
-        likelyRows = []
-        unlikelyRows = []
         visibleRows = []
         unlikelyCount = 0
-        rejectedCount = 0
         clearSelectionPreview()
     }
 
@@ -492,10 +442,10 @@ struct LyricsResult: Identifiable, Hashable {
     var source: String { lyrics.metadata.service ?? "[lacking]" }
     var syncIconName: String { evaluation.syncKind == .karaoke ? "music.mic" : "" }
 
-    init(candidate: EvaluatedLyricsCandidate, isUnlikely: Bool, isLoaded: Bool) {
+    init(candidate: EvaluatedLyricsCandidate, isLoaded: Bool) {
         self.lyrics = candidate.lyrics
         self.evaluation = candidate.evaluation
-        self.isUnlikely = isUnlikely
+        self.isUnlikely = candidate.evaluation.visibility == .unlikely
         self.isLoaded = isLoaded
     }
 

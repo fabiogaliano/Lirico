@@ -78,23 +78,22 @@ struct SearchLyricsView: View {
             return "Enter a title, artist, or both to search"
         case .searching(let summary):
             return summary
-        case .foundVisible(let count, let hidden, _):
-            return hidden > 0
-                ? "\(count) likely \(count == 1 ? "match" : "matches") · \(hidden) unlikely hidden"
-                : "\(count) likely \(count == 1 ? "match" : "matches")"
-        case .noMatches(let hidden, _):
-            return hidden > 0
-                ? "No likely matches found · \(hidden) unlikely hidden"
+        case .finished:
+            return viewModel.likelyCount > 0 || viewModel.unlikelyCount > 0
+                ? SearchStatus.matchSummary(likely: viewModel.likelyCount, hiddenUnlikely: viewModel.hiddenUnlikelyCount)
                 : "No matching lyrics found"
-        case .failed(let message, let count, _, _):
+        case .failed(let message):
+            let count = viewModel.visibleRows.count
             return count > 0
-                ? "\(message) · showing \(count) partial \(count == 1 ? "match" : "matches")"
+                ? "\(message) · \(SearchStatus.partialMatches(count))"
                 : "Search failed. Check your connection and try again."
-        case .timedOut(let count, _, _):
+        case .timedOut:
+            let count = viewModel.visibleRows.count
             return count > 0
-                ? "Search timed out · showing \(count) partial \(count == 1 ? "match" : "matches")"
+                ? "Search timed out · \(SearchStatus.partialMatches(count))"
                 : "Search timed out. Try again."
-        case .cancelled(let count, _, _):
+        case .cancelled:
+            let count = viewModel.visibleRows.count
             return count > 0
                 ? "Cancelled · showing \(count) \(count == 1 ? "result" : "results")"
                 : "Search cancelled"
@@ -180,20 +179,14 @@ struct SearchLyricsView: View {
                 Text("Enter a title, artist, or both to search")
             case .searching:
                 Text("Searching…")
-            case .noMatches(let hidden, _):
-                if hidden > 0 {
-                    Text("No likely matches found")
-                } else {
-                    Text("No matching lyrics found")
-                }
+            case .finished:
+                Text(viewModel.unlikelyCount > 0 ? "No likely matches found" : "No matching lyrics found")
             case .failed:
                 Text("Search failed. Check your connection and try again.")
             case .timedOut:
                 Text("Search timed out. Try again.")
             case .cancelled:
                 Text("Search cancelled")
-            case .foundVisible:
-                EmptyView()
             }
         }
         .font(.callout)
