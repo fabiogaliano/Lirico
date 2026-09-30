@@ -163,11 +163,9 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
         offsetLabel.font = .monospacedDigitSystemFont(ofSize: 14, weight: .semibold)
         offsetLabel.toolTip = NSLocalizedString("Current lyrics offset", comment: "sync readout")
 
-        configureImageButton(seekBackButton, symbol: "gobackward.5", action: #selector(seekBackward))
-        seekBackButton.toolTip = NSLocalizedString("Back 5 Seconds", comment: "sync")
-        configureImageButton(seekForwardButton, symbol: "goforward.5", action: #selector(seekForward))
-        seekForwardButton.toolTip = NSLocalizedString("Forward 5 Seconds", comment: "sync")
-        configureImageButton(playPauseButton, symbol: "play.fill", action: #selector(togglePlayPause))
+        configureImageButton(seekBackButton, symbol: "gobackward.5", label: NSLocalizedString("Back 5 Seconds", comment: "sync"), action: #selector(seekBackward))
+        configureImageButton(seekForwardButton, symbol: "goforward.5", label: NSLocalizedString("Forward 5 Seconds", comment: "sync"), action: #selector(seekForward))
+        configureImageButton(playPauseButton, symbol: "play.fill", label: NSLocalizedString("Play", comment: "sync"), action: #selector(togglePlayPause))
         playPauseButton.toolTip = NSLocalizedString("Play / Pause", comment: "sync")
         configureTextButton(decreaseButton, title: "−100", action: #selector(decreaseOffset))
         configureTextButton(increaseButton, title: "+100", action: #selector(increaseOffset))
@@ -242,8 +240,11 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
         button.action = action
     }
 
-    private func configureImageButton(_ button: NSButton, symbol: String, action: Selector) {
-        button.image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)
+    private func configureImageButton(_ button: NSButton, symbol: String, label: String, action: Selector) {
+        // Image-only buttons have no title, so without a description VoiceOver reads only "button".
+        button.image = NSImage(systemSymbolName: symbol, accessibilityDescription: label)
+        button.setAccessibilityLabel(label)
+        button.toolTip = label
         button.imagePosition = .imageOnly
         button.bezelStyle = .rounded
         button.target = self
@@ -353,7 +354,7 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
         let index = session.currentLineIndex
         updateHighlight(forLineIndex: index)
         guard isFollowing else { return }
-        if animated {
+        if animated, !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
             NSAnimationContext.runAnimationGroup { context in
                 context.duration = 0.3
                 context.allowsImplicitAnimation = true
@@ -448,7 +449,9 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
 
     private func updatePlayPauseIcon(isPlaying: Bool) {
         let symbol = isPlaying ? "pause.fill" : "play.fill"
-        playPauseButton.image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)
+        let label = isPlaying ? NSLocalizedString("Pause", comment: "sync") : NSLocalizedString("Play", comment: "sync")
+        playPauseButton.image = NSImage(systemSymbolName: symbol, accessibilityDescription: label)
+        playPauseButton.setAccessibilityLabel(label)
     }
 
     // MARK: - Actions

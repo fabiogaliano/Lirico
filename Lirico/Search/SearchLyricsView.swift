@@ -126,6 +126,7 @@ struct SearchLyricsView: View {
                     Image(systemName: result.syncIconName)
                         .foregroundStyle(result.isUnlikely ? Color.secondary : Color.primary)
                         .help("Karaoke (word-timed) lyrics")
+                        .accessibilityLabel("Word-synced (karaoke)")
                 }
             }
             .width(20)
@@ -136,6 +137,7 @@ struct SearchLyricsView: View {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundStyle(.tint)
                             .help("Currently loaded")
+                            .accessibilityLabel("Currently loaded")
                     }
                     Text(result.title)
                         .foregroundStyle(result.isUnlikely ? Color.secondary : Color.primary)

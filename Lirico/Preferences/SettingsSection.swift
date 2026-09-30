@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 struct SettingsSection<Content: View>: View {
-    let title: String
+    let title: LocalizedStringKey
     @ViewBuilder var content: () -> Content
 
     var body: some View {
@@ -23,7 +23,7 @@ struct SettingsSection<Content: View>: View {
 }
 
 struct SettingsRow<Content: View>: View {
-    let label: String
+    let label: LocalizedStringKey
     @ViewBuilder var content: () -> Content
 
     var body: some View {

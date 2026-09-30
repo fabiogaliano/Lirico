@@ -10,6 +10,11 @@ struct FilterPreferencesView: View {
     @State private var lexicon: [String] = []
     @State private var lexiconSelectedIndex: Int? = nil
 
+    // Rows are mostly text field, which swallows the row's tap, so focusing a field is what
+    // selects it; this is also the only way keyboard and VoiceOver users can reach Remove.
+    @FocusState private var focusedKeyword: Int?
+    @FocusState private var focusedLexiconWord: Int?
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -22,6 +27,12 @@ struct FilterPreferencesView: View {
         .onAppear {
             loadKeywords()
             loadLexicon()
+        }
+        .onChange(of: focusedKeyword) { _, index in
+            if let index { selectedIndex = index }
+        }
+        .onChange(of: focusedLexiconWord) { _, index in
+            if let index { lexiconSelectedIndex = index }
         }
     }
 
@@ -45,12 +56,14 @@ struct FilterPreferencesView: View {
             HStack(spacing: 8) {
                 Button(action: addKeyword) {
                     Image(systemName: "plus")
+                        .accessibilityLabel("Add keyword")
                 }
                 .buttonStyle(.bordered)
                 .help("Add keyword")
 
                 Button(action: removeSelected) {
                     Image(systemName: "minus")
+                        .accessibilityLabel("Remove selected keyword")
                 }
                 .buttonStyle(.bordered)
                 .disabled(selectedIndex == nil)
@@ -105,12 +118,14 @@ struct FilterPreferencesView: View {
             HStack(spacing: 8) {
                 Button(action: addLexiconWord) {
                     Image(systemName: "plus")
+                        .accessibilityLabel("Add word")
                 }
                 .buttonStyle(.bordered)
                 .help("Add word")
 
                 Button(action: removeLexiconSelected) {
                     Image(systemName: "minus")
+                        .accessibilityLabel("Remove selected word")
                 }
                 .buttonStyle(.bordered)
                 .disabled(lexiconSelectedIndex == nil)
@@ -158,12 +173,14 @@ struct FilterPreferencesView: View {
                 }
             ))
             .textFieldStyle(.plain)
+            .focused($focusedLexiconWord, equals: index)
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
         .background(lexiconSelectedIndex == index ? Color.accentColor.opacity(0.15) : Color.clear)
         .contentShape(Rectangle())
         .onTapGesture { lexiconSelectedIndex = index }
+        .accessibilityAddTraits(lexiconSelectedIndex == index ? .isSelected : [])
     }
 
     @ViewBuilder
@@ -189,12 +206,14 @@ struct FilterPreferencesView: View {
             ))
             .textFieldStyle(.plain)
             .font(isRegex ? .system(.body, design: .monospaced) : .body)
+            .focused($focusedKeyword, equals: index)
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
         .background(selectedIndex == index ? Color.accentColor.opacity(0.15) : Color.clear)
         .contentShape(Rectangle())
         .onTapGesture { selectedIndex = index }
+        .accessibilityAddTraits(selectedIndex == index ? .isSelected : [])
     }
 
     // MARK: - Mutations
