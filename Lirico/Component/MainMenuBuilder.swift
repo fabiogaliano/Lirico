@@ -106,6 +106,8 @@ enum MainMenuBuilder {
     static func statusBarMenu(target: AppDelegate) -> StatusBarMenu {
         let menu = NSMenu()
 
+        menu.addItem(nowPlayingItem())
+        menu.addItem(.separator())
         menu.addItem(menuBarLyricsToggleItem())
         menu.addItem(karaokeLyricsToggleItem())
         menu.addItem(showLyricsWindowItem(target: target))
@@ -130,6 +132,16 @@ enum MainMenuBuilder {
             lyricsOffsetTextField: offset.textField,
             lyricsOffsetStepper: offset.stepper
         )
+    }
+
+    static let nowPlayingIdentifier = NSUserInterfaceItemIdentifier("MainMenu.NowPlaying")
+
+    /// Informational header, filled in by `AppDelegate.menuWillOpen`. No action, so the
+    /// auto-enabling menu shows it disabled.
+    private static func nowPlayingItem() -> NSMenuItem {
+        let item = NSMenuItem(title: "", action: nil, keyEquivalent: "")
+        item.identifier = nowPlayingIdentifier
+        return item
     }
 
     private static func menuBarLyricsToggleItem() -> NSMenuItem {
@@ -176,7 +188,7 @@ enum MainMenuBuilder {
 
     private static func syncByEarItem(target: AppDelegate) -> NSMenuItem {
         let item = NSMenuItem(
-            title: NSLocalizedString("Sync by Ear...", comment: "menu"),
+            title: NSLocalizedString("Sync by Ear…", comment: "menu"),
             action: #selector(AppDelegate.showLyricsSync(_:)),
             keyEquivalent: ""
         )
@@ -188,7 +200,7 @@ enum MainMenuBuilder {
 
     private static func searchLyricsItem(target: AppDelegate) -> NSMenuItem {
         let item = NSMenuItem(
-            title: NSLocalizedString("Search Lyrics...", comment: "menu"),
+            title: NSLocalizedString("Search Lyrics…", comment: "menu"),
             action: #selector(AppDelegate.searchLyrics(_:)),
             keyEquivalent: ""
         )
@@ -248,7 +260,7 @@ enum MainMenuBuilder {
 
     private static func preferencesItem(target: AppDelegate) -> NSMenuItem {
         let item = NSMenuItem(
-            title: NSLocalizedString("Preferences...", comment: "menu"),
+            title: NSLocalizedString("Settings…", comment: "menu"),
             action: #selector(AppDelegate.showPreferences(_:)),
             keyEquivalent: ","
         )
@@ -270,7 +282,7 @@ enum MainMenuBuilder {
 
     private static func checkUpdateItem(target: AppDelegate) -> NSMenuItem {
         let item = NSMenuItem(
-            title: NSLocalizedString("Check For Update...", comment: "menu"),
+            title: NSLocalizedString("Check for Updates…", comment: "menu"),
             action: #selector(AppDelegate.checkUpdateAction(_:)),
             keyEquivalent: ""
         )

@@ -90,6 +90,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             return container.player.name == .appleMusic && container.session.currentLyrics != nil
         case #selector(searchLyrics(_:))?:
             return container.player.currentTrack != nil
+        case #selector(showLyricsHUD(_:))?:
+            // The item toggles the window, so show which way it will go like the toggles above it.
+            menuItem.state = defaults[.isShowLyricsHUD] ? .on : .off
+            return true
         case #selector(showLyricsSync(_:))?,
              #selector(showCurrentLyricsInFinder(_:))?,
              #selector(wrongLyrics(_:))?:
@@ -184,9 +188,46 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     func menuWillOpen(_ menu: NSMenu) {
+        updateNowPlayingItem()
         let menuHasOnState = statusBarMenu.items.contains(where: { $0.state == .on })
         let lyricsOffsetConstraint = lyricsOffsetView.constraints.first(where: { $0.identifier == "lyricsOffsetConstraint" })
         lyricsOffsetConstraint?.constant = menuHasOnState ? 24 : 14
     }
-}
 
+    @objc private func openAutomationSettings(_ sender: Any?) {
+        AutomationPermission.openSystemSettings()
+    }
+
+    private func updateNowPlayingItem() {
+        guard let container,
+              let item = statusBarMenu.items.first(where: { $0.identifier == MainMenuBuilder.nowPlayingIdentifier }) else { return }
+        item.action = nil
+        guard let track = container.player.currentTrack else {
+            container.session.refreshNoTrackStatus()
+            if case let .automationDenied(playerName) = container.session.status {
+                item.title = String(
+                    format: NSLocalizedString("Lirico Can't See What %@ Is Playing", comment: "menu header when Automation access is denied"),
+                    playerName
+                )
+                item.subtitle = NSLocalizedString("Allow access in Privacy & Security → Automation…", comment: "menu header hint")
+                item.action = #selector(openAutomationSettings(_:))
+                item.target = self
+            } else {
+                item.title = NSLocalizedString("Nothing Playing", comment: "menu header when no track is playing")
+                item.subtitle = nil
+            }
+            return
+        }
+        item.title = track.title ?? NSLocalizedString("Unknown Title", comment: "menu header")
+        let statusText: String? = switch container.session.status {
+        case .searching: NSLocalizedString("Searching for lyrics…", comment: "menu header status")
+        case .notFound: NSLocalizedString("No lyrics found", comment: "menu header status")
+        case .blocked: NSLocalizedString("Lyrics disabled for this song", comment: "menu header status")
+        case .loaded, .noTrack, .automationDenied: nil
+        }
+        let subtitle = [track.artist, statusText]
+            .compactMap { $0?.isEmpty == false ? $0 : nil }
+            .joined(separator: " · ")
+        item.subtitle = subtitle.isEmpty ? nil : subtitle
+    }
+}
