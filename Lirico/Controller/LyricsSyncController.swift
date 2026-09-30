@@ -124,7 +124,9 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
     /// Drives the intra-line karaoke fill while playing. Line-index changes alone
     /// are too coarse for word-level progress, so this ticks ~30Hz and repaints
     /// the current line's sung prefix; it's stopped when paused or hidden.
-    private var karaokeFillTimer: Timer?
+    private lazy var follower = LyricsLineFollower(
+        scrollView: scrollLyricsView, nowBand: nowBand, session: session, hidesBandOnKaraokeLines: true
+    )
 
     init(
         player: PlayerHandle,
@@ -294,7 +296,7 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
                 self.updatePlayPauseIcon(isPlaying: state.isPlaying)
                 // Run the word fill only while playing and on screen; pausing freezes it in place,
                 // and `viewWillAppear` restarts it for a window that was closed meanwhile.
-                self.setKaraokeFill(active: state.isPlaying && self.view.window?.isVisible == true)
+                self.follower.setFillActive(state.isPlaying && self.view.window?.isVisible == true)
             }
             .store(in: &cancelBag)
 
@@ -311,7 +313,7 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
                 self.updateOffsetLabel()
                 // Re-tuning shifts where the fill sits within the line; refresh it
                 // so the change is visible immediately, even while paused.
-                self.updateHighlight(forLineIndex: self.session.currentLineIndex)
+                self.follower.updateHighlight()
             }
         }
     }
@@ -321,12 +323,12 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
         isFollowing = true
         refreshTextContents()
         updatePlayPauseIcon(isPlaying: player.playbackState.isPlaying)
-        setKaraokeFill(active: player.playbackState.isPlaying)
+        follower.setFillActive(player.playbackState.isPlaying)
     }
 
     override func viewWillDisappear() {
         super.viewWillDisappear()
-        stopKaraokeFill()
+        follower.setFillActive(false)
     }
 
     // MARK: - Display
@@ -349,98 +351,8 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
         follow(animated: false)
     }
 
-    /// Highlight the synced line always; scroll to it only while following.
     private func follow(animated: Bool = true) {
-        let index = session.currentLineIndex
-        updateHighlight(forLineIndex: index)
-        guard isFollowing else { return }
-        if animated, !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
-            NSAnimationContext.runAnimationGroup { context in
-                context.duration = 0.3
-                context.allowsImplicitAnimation = true
-                context.timingFunction = .swiftOut
-                self.scrollLyricsView.scroll(lineIndex: index)
-            }
-        } else {
-            scrollLyricsView.scroll(lineIndex: index)
-        }
-    }
-
-    /// Paint the current line. When it carries word timetags, fill it
-    /// progressively from the offset-adjusted playback time (karaoke style);
-    /// otherwise highlight the whole line. Called both on line-index changes
-    /// (`follow`) and, while playing, ~30Hz by `karaokeFillTimer` for the
-    /// intra-line word fill.
-    private func updateHighlight(forLineIndex index: Int?) {
-        guard let index,
-              let lyrics = session.currentLyrics,
-              lyrics.lines.indices.contains(index),
-              let timetag = lyrics.lines[index].attachments.timetag,
-              !timetag.tags.isEmpty
-        else {
-            // Line-by-line (or no) lyrics: whole-line highlight, keep the line-wide
-            // "now" band — there's no word timing to box.
-            scrollLyricsView.highlight(lineIndex: index)
-            nowBand.isHidden = session.currentLyrics == nil
-            return
-        }
-        // Karaoke line: fill word-by-word, and let the per-word box (drawn by the
-        // scroll view) stand in for the line-wide band, which we hide.
-        // Mirror PlaybackClock.adjustedPlaybackTime: per-song offset plus the
-        // app-wide offset, so the fill reflects exactly what the user is tuning.
-        let adjustedTime = player.playbackState.time
-            + Double(session.lyricsOffset + defaults[.globalLyricsOffset]) / 1000.0
-        let elapsed = adjustedTime - lyrics.lines[index].position
-        let sung = sungCharacters(elapsed: elapsed, tags: timetag.tags)
-        scrollLyricsView.highlight(lineIndex: index, sungCharacters: sung)
-        nowBand.isHidden = true
-    }
-
-    /// Piecewise-linear map from time-into-line to the UTF-16 character the fill
-    /// has reached, matching the karaoke overlay: at each tag's `time` the fill
-    /// sits at that tag's `index`, interpolated between and clamped at both ends.
-    private func sungCharacters(
-        elapsed: TimeInterval,
-        tags: [LyricsLine.Attachments.InlineTimeTag.Tag]
-    ) -> Int {
-        guard let first = tags.first else { return 0 }
-        if elapsed <= first.time { return first.index }
-        for i in 1 ..< tags.count {
-            let prev = tags[i - 1]
-            let cur = tags[i]
-            if elapsed < cur.time {
-                let span = cur.time - prev.time
-                guard span > 0 else { return cur.index }
-                let frac = (elapsed - prev.time) / span
-                return prev.index + Int((Double(cur.index - prev.index) * frac).rounded())
-            }
-        }
-        return tags.last!.index
-    }
-
-    private func setKaraokeFill(active: Bool) {
-        if active {
-            startKaraokeFill()
-        } else {
-            stopKaraokeFill()
-        }
-    }
-
-    private func startKaraokeFill() {
-        karaokeFillTimer?.invalidate()
-        // `.common` keeps the fill advancing during scroll/menu tracking runloops.
-        let timer = Timer(timeInterval: 1.0 / 30.0, repeats: true) { [weak self] _ in
-            guard let self else { return }
-            self.updateHighlight(forLineIndex: self.session.currentLineIndex)
-        }
-        RunLoop.main.add(timer, forMode: .common)
-        karaokeFillTimer = timer
-        updateHighlight(forLineIndex: session.currentLineIndex)
-    }
-
-    private func stopKaraokeFill() {
-        karaokeFillTimer?.invalidate()
-        karaokeFillTimer = nil
+        follower.follow(animated: animated, scrolling: isFollowing)
     }
 
     private func updateOffsetLabel() {

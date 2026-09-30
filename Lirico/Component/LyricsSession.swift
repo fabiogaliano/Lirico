@@ -105,6 +105,9 @@ class LyricsSession: NSObject {
 
     private var cancelBag = Set<AnyCancellable>()
 
+    /// Playback position in the current lyrics' timeline (per-song + global offset applied).
+    var adjustedPlaybackTime: TimeInterval { clock.adjustedPlaybackTime }
+
     @objc dynamic var lyricsOffset: Int {
         get {
             return currentLyrics?.offset ?? 0

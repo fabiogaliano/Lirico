@@ -584,3 +584,99 @@ final class LyricsNowBandView: NSView {
 
     override func hitTest(_ point: NSPoint) -> NSView? { nil }
 }
+
+/// Keeps a `ScrollLyricsView` on the synced line: highlights it, fills karaoke lines word by
+/// word ~30 Hz while playing, and scrolls to it while the owner is following. Shared by the
+/// lyrics window and Sync by Ear so their timing and fill can't drift apart.
+final class LyricsLineFollower {
+    private let scrollView: ScrollLyricsView
+    private let nowBand: NSView
+    private let session: LyricsSession
+    /// Sync by Ear boxes the sung word on karaoke lines, which stands in for the band.
+    private let hidesBandOnKaraokeLines: Bool
+    private var fillTimer: Timer?
+
+    init(scrollView: ScrollLyricsView, nowBand: NSView, session: LyricsSession, hidesBandOnKaraokeLines: Bool) {
+        self.scrollView = scrollView
+        self.nowBand = nowBand
+        self.session = session
+        self.hidesBandOnKaraokeLines = hidesBandOnKaraokeLines
+    }
+
+    deinit {
+        fillTimer?.invalidate()
+    }
+
+    /// Highlight the synced line always; scroll to it only when `scrolling`.
+    func follow(animated: Bool = true, scrolling: Bool) {
+        let index = session.currentLineIndex
+        updateHighlight()
+        guard scrolling else { return }
+        if animated, !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = 0.3
+                context.allowsImplicitAnimation = true
+                context.timingFunction = .swiftOut
+                self.scrollView.scroll(lineIndex: index)
+            }
+        } else {
+            scrollView.scroll(lineIndex: index)
+        }
+    }
+
+    /// Paint the current line: a progressive word fill when it carries timetags,
+    /// otherwise a whole-line highlight.
+    func updateHighlight() {
+        let index = session.currentLineIndex
+        guard let index,
+              let lyrics = session.currentLyrics,
+              lyrics.lines.indices.contains(index),
+              let timetag = lyrics.lines[index].attachments.timetag,
+              !timetag.tags.isEmpty
+        else {
+            scrollView.highlight(lineIndex: index)
+            nowBand.isHidden = session.currentLyrics == nil
+            return
+        }
+        let elapsed = session.adjustedPlaybackTime - lyrics.lines[index].position
+        let sung = Self.sungCharacters(elapsed: elapsed, tags: timetag.tags)
+        scrollView.highlight(lineIndex: index, sungCharacters: sung)
+        nowBand.isHidden = hidesBandOnKaraokeLines
+    }
+
+    /// Run the word fill only while playing; stopping freezes it in place.
+    func setFillActive(_ active: Bool) {
+        fillTimer?.invalidate()
+        fillTimer = nil
+        guard active else { return }
+        // `.common` keeps the fill advancing during scroll/menu tracking runloops.
+        let timer = Timer(timeInterval: 1.0 / 30.0, repeats: true) { [weak self] _ in
+            self?.updateHighlight()
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        fillTimer = timer
+        updateHighlight()
+    }
+
+    /// Piecewise-linear map from time-into-line to the UTF-16 character the fill
+    /// has reached, matching the karaoke overlay: at each tag's `time` the fill
+    /// sits at that tag's `index`, interpolated between and clamped at both ends.
+    static func sungCharacters(
+        elapsed: TimeInterval,
+        tags: [LyricsLine.Attachments.InlineTimeTag.Tag]
+    ) -> Int {
+        guard let first = tags.first else { return 0 }
+        if elapsed <= first.time { return first.index }
+        for i in 1 ..< tags.count {
+            let prev = tags[i - 1]
+            let cur = tags[i]
+            if elapsed < cur.time {
+                let span = cur.time - prev.time
+                guard span > 0 else { return cur.index }
+                let frac = (elapsed - prev.time) / span
+                return prev.index + Int((Double(cur.index - prev.index) * frac).rounded())
+            }
+        }
+        return tags.last!.index
+    }
+}
