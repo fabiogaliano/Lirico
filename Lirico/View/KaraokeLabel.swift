@@ -323,16 +323,11 @@ class KaraokeLabel: NSTextField {
         let pausedTime = progressLayer.convertTime(CACurrentMediaTime(), from: nil)
         progressLayer.speed = 0
         progressLayer.timeOffset = pausedTime
-    }
-
-    func resumeProgressAnimation() {
-        let pausedTime = progressLayer.timeOffset
-        progressLayer.speed = 1
-        progressLayer.timeOffset = 0
-        progressLayer.beginTime = 0
-        let timeSincePause = progressLayer.convertTime(CACurrentMediaTime(), from: nil) - pausedTime
-        progressLayer.beginTime = timeSincePause
-        startProgressDisplayTimer()
+        // A paused animation is never removed, so the redraw timer would otherwise run for as
+        // long as playback stays paused. Playback resumes through a fresh `setProgressAnimation`.
+        progressDisplayTimer?.invalidate()
+        progressDisplayTimer = nil
+        needsDisplay = true
     }
 
     func removeProgressAnimation() {

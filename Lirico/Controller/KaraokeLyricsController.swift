@@ -18,6 +18,7 @@ class KaraokeLyricsWindowController: NSWindowController {
     private let settings: DisplaySettings
 
     private var cancelBag = Set<AnyCancellable>()
+    private var mouseMonitors: [Any] = []
 
     init(player: PlayerHandle, session: LyricsSession, clock: PlaybackClock, settings: DisplaySettings = DisplaySettings()) {
         self.player = player
@@ -29,8 +30,10 @@ class KaraokeLyricsWindowController: NSWindowController {
         window.hasShadow = false
         window.isOpaque = false
         window.level = .floating
-        window.collectionBehavior = [.canJoinAllSpaces, .stationary]
+        window.collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary]
         window.setFrameUsingName(KaraokeLyricsWindowController.windowFrame, force: true)
+        // Without this, moves over the overlay while it accepts events never reach the local monitor.
+        window.acceptsMouseMovedEvents = true
         super.init(window: window)
 
         window.contentView?.addSubview(lyricsView)
@@ -77,6 +80,10 @@ class KaraokeLyricsWindowController: NSWindowController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    deinit {
+        mouseMonitors.forEach(NSEvent.removeMonitor)
+    }
+
     override func showWindow(_ sender: Any?) {
         // The desktop karaoke surface is a borderless overlay. Asking AppKit
         // to make it key produces a warning because borderless windows cannot
@@ -102,8 +109,10 @@ class KaraokeLyricsWindowController: NSWindowController {
         observeDefaults(keys: [
             .hideLyricsWhenMousePassingBy,
             .desktopLyricsDraggable,
-        ], options: [.initial]) {
+        ], options: [.initial]) { [unowned self] in
             self.lyricsView.shouldHideWithMouse = self.settings.hideLyricsWhenMousePassingBy && !self.settings.desktopLyricsDraggable
+            self.updateMouseMonitors()
+            self.updateMouseHandling()
         }
         observeDefaults(keys: [
             .desktopLyricsFontName,
@@ -127,6 +136,40 @@ class KaraokeLyricsWindowController: NSWindowController {
         let frame = fullScreen ? screen.frame : screen.visibleFrame
         window?.setFrame(frame, display: false, animate: animate)
         window?.saveFrame(usingName: KaraokeLyricsWindowController.windowFrame)
+    }
+
+    private func updateMouseMonitors() {
+        let needsMonitoring = settings.desktopLyricsDraggable || lyricsView.shouldHideWithMouse
+        guard needsMonitoring != !mouseMonitors.isEmpty else { return }
+        mouseMonitors.forEach(NSEvent.removeMonitor)
+        mouseMonitors = []
+        guard needsMonitoring else { return }
+        let events: NSEvent.EventTypeMask = [.mouseMoved, .leftMouseDragged]
+        // Tracking areas stay silent while the window ignores mouse events, so hover has to be watched from outside.
+        // Once the window accepts events, moves over it go to this app instead, and only a local monitor sees the
+        // pointer leave the lyrics; without it the overlay would keep swallowing clicks across the whole screen.
+        if let global = NSEvent.addGlobalMonitorForEvents(matching: events, handler: { [weak self] _ in
+            self?.updateMouseHandling()
+        }) {
+            mouseMonitors.append(global)
+        }
+        if let local = NSEvent.addLocalMonitorForEvents(matching: events, handler: { [weak self] event in
+            self?.updateMouseHandling()
+            return event
+        }) {
+            mouseMonitors.append(local)
+        }
+    }
+
+    private func updateMouseHandling() {
+        // The window spans the whole screen, and while it accepts mouse events macOS resets the cursor to an arrow
+        // over its transparent areas, so links and text fields in apps underneath flicker. Only dragging needs
+        // events, and only over the lyrics themselves.
+        let ignores = !(settings.desktopLyricsDraggable && lyricsView.containsMouse)
+        if window?.ignoresMouseEvents != ignores {
+            window?.ignoresMouseEvents = ignores
+        }
+        lyricsView.mouseTest()
     }
 
     private func renderCurrentSnapshot() {
@@ -181,12 +224,11 @@ class KaraokeLyricsWindowController: NSWindowController {
             return
         }
         let bounds = window.frame
-        var center = event.locationInWindow + vecToCenter
+        let center = event.locationInWindow + vecToCenter
         let centerInScreen = window.convertToScreen(CGRect(origin: center, size: .zero)).origin
         if let screen = NSScreen.screens.first(where: { $0.frame.contains(centerInScreen) }),
            screen != window.screen {
             updateWindowFrame(toScreen: screen, animate: false)
-            center = window.convertFromScreen(CGRect(origin: centerInScreen, size: .zero)).origin
             return
         }
 
