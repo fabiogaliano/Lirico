@@ -62,7 +62,7 @@ public struct LyricsSearchQuery: Sendable {
 // MARK: - AutomaticAcceptancePolicy
 
 /// Which remote candidates an automatic search may put on screen.
-public enum AutomaticAcceptancePolicy {
+public enum AutomaticAcceptancePolicy: Sendable {
     /// Any candidate the ranker picks, including eligible loose fallbacks.
     case normal
     /// Line-synced local lyrics are already showing: only a materially better remote

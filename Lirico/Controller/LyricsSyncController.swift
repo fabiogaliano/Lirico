@@ -270,7 +270,7 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
 
         // Reflect the offset from any source (tap, buttons, menu stepper, shortcut).
         offsetObservation = session.observe(\.lyricsOffset, options: [.initial, .new]) { [weak self] _, _ in
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
                 self.updateOffsetLabel()
                 // Re-tuning shifts where the fill sits within the line; refresh it

@@ -1,9 +1,10 @@
 import AppKit
-import GenericID
+@preconcurrency import GenericID
 import SwiftUI
 
-let defaults = UserDefaults.standard
-let groupDefaults = UserDefaults(suiteName: lyricsXGroupIdentifier)!
+// UserDefaults is documented as thread-safe but not marked Sendable.
+nonisolated(unsafe) let defaults = UserDefaults.standard
+nonisolated(unsafe) let groupDefaults = UserDefaults(suiteName: lyricsXGroupIdentifier)!
 
 extension UserDefaults.DefaultsKeys {
     static let noSearchingTrackIds = Key<[String]>("NoSearchingTrackIds")

@@ -6,5 +6,6 @@ extension DispatchQueue {
 }
 
 extension CAMediaTimingFunction {
-    static let swiftOut = CAMediaTimingFunction(controlPoints: 0.4, 0.0, 0.2, 1)
+    // Immutable once created; CAMediaTimingFunction just isn't marked Sendable.
+    nonisolated(unsafe) static let swiftOut = CAMediaTimingFunction(controlPoints: 0.4, 0.0, 0.2, 1)
 }

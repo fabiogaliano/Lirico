@@ -34,9 +34,9 @@ final class AutomaticLyricsSearch {
     /// - Parameter displayed: the lyrics currently on screen.
     func run(
         _ request: Request,
-        isCurrent: @escaping @MainActor () -> Bool,
-        displayed: @escaping @MainActor () -> Lyrics?,
-        report: @escaping @MainActor (Decision) -> Void
+        isCurrent: @escaping @MainActor @Sendable () -> Bool,
+        displayed: @escaping @MainActor @Sendable () -> Lyrics?,
+        report: @escaping @MainActor @Sendable (Decision) -> Void
     ) async {
         let query = LyricsSearchQuery.automatic(
             title: request.title,
@@ -44,21 +44,9 @@ final class AutomaticLyricsSearch {
             album: request.album,
             duration: request.duration
         )
-        let stream = pipeline.events(for: query)
-        // Both racing children run on the main actor, so sharing this is safe.
-        var selection = AutomaticLyricsSelection(
-            mode: query.mode,
-            policy: request.policy,
-            configuration: searchSettings.rankingConfiguration
-        )
-
         await withTaskGroup(of: Void.self) { group in
-            group.addTask { @MainActor in
-                for await event in stream {
-                    guard isCurrent() else { break }
-                    guard case .candidate(let candidate) = event else { continue }
-                    selection.add(candidate, displayed: displayed()).forEach(report)
-                }
+            group.addTask {
+                await self.collect(query, policy: request.policy, isCurrent: isCurrent, displayed: displayed, report: report)
             }
             group.addTask {
                 try? await Task.sleep(for: AutomaticLyricsSelection.deadline)
@@ -67,7 +55,27 @@ final class AutomaticLyricsSearch {
             await group.next()
             group.cancelAll()
         }
+    }
 
+    /// Feeds the query's candidates to a selection until the stream ends, which is also
+    /// how the deadline stops it (by cancelling this task), then reports `.finished`.
+    private func collect(
+        _ query: LyricsSearchQuery,
+        policy: AutomaticAcceptancePolicy,
+        isCurrent: @MainActor () -> Bool,
+        displayed: @MainActor () -> Lyrics?,
+        report: @MainActor (Decision) -> Void
+    ) async {
+        var selection = AutomaticLyricsSelection(
+            mode: query.mode,
+            policy: policy,
+            configuration: searchSettings.rankingConfiguration
+        )
+        for await event in pipeline.events(for: query) {
+            guard isCurrent() else { break }
+            guard case .candidate(let candidate) = event else { continue }
+            selection.add(candidate, displayed: displayed()).forEach(report)
+        }
         guard isCurrent() else { return }
         report(selection.finish(displayed: displayed()))
     }

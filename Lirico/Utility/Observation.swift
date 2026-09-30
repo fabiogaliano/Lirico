@@ -65,7 +65,8 @@ private class NotificationObservationToken {
 }
 
 extension NSObject {
-    private static var autoDestructionTokens: Void?
+    // Only its address is used, as the associated-object key.
+    nonisolated(unsafe) private static var autoDestructionTokens: Void?
 
     // using [Any] causes unexpected destruction, use NSMutableArray instead.
     private var autoDestruction: NSMutableArray {
@@ -77,14 +78,16 @@ extension NSObject {
         return arr
     }
 
+    /// Delivers on the main queue.
     func observeNotification(
         center: NotificationCenter = .default,
         name: NSNotification.Name,
         object: Any? = nil,
-        queue: OperationQueue? = nil,
-        using: @escaping (Notification) -> Void
+        using: @escaping @MainActor @Sendable () -> Void
     ) {
-        let token = center.addObserver(forName: name, object: object, queue: queue, using: using)
+        let token = center.addObserver(forName: name, object: object, queue: .main) { _ in
+            MainActor.assumeIsolated { using() }
+        }
         autoDestruction.add(NotificationObservationToken(center: center, token: token))
     }
 
@@ -92,7 +95,7 @@ extension NSObject {
         _ object: Target,
         keyPath: KeyPath<Target, Value>,
         options: NSKeyValueObservingOptions,
-        changeHandler: @escaping (NSObject, NSKeyValueObservedChange<Value>) -> Void
+        changeHandler: @escaping @Sendable (NSObject, NSKeyValueObservedChange<Value>) -> Void
     ) {
         let token = object.observe(keyPath, options: options, changeHandler: changeHandler)
         autoDestruction.add(token)

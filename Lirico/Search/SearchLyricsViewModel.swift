@@ -228,28 +228,30 @@ final class SearchLyricsViewModel: ObservableObject {
 
     private func runSearch(_ query: LyricsSearchQuery, generation: Int) async {
         await withTaskGroup(of: Bool.self) { group in
-            group.addTask { @MainActor in
+            group.addTask {
                 await self.consumeEventStream(query, generation: generation)
                 return true
             }
 
-            group.addTask { @MainActor in
+            group.addTask {
                 do {
                     try await Task.sleep(nanoseconds: 30_000_000_000)
                 } catch {
                     return false
                 }
-                guard self.searchGeneration == generation, self.isSearching else {
-                    return false
-                }
-                self.flushPendingCandidates(force: true)
-                self.searchStatus = .timedOut
+                await self.timeOutSearch(generation: generation)
                 return false
             }
 
             _ = await group.next()
             group.cancelAll()
         }
+    }
+
+    private func timeOutSearch(generation: Int) {
+        guard searchGeneration == generation, isSearching else { return }
+        flushPendingCandidates(force: true)
+        searchStatus = .timedOut
     }
 
     private func consumeEventStream(_ query: LyricsSearchQuery, generation: Int) async {

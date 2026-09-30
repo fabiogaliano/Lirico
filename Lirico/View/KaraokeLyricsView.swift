@@ -148,7 +148,7 @@ class KaraokeLyricsView: NSView {
             isHidden = shouldHideAll
             layoutSubtreeIfNeeded()
         }, completionHandler: {
-            self.mouseTest()
+            MainActor.assumeIsolated { self.mouseTest() }
         })
     }
 
@@ -171,6 +171,7 @@ class KaraokeLyricsView: NSView {
 }
 
 extension NSEvent {
+    @MainActor
     class func mouseLocation(in view: NSView) -> NSPoint? {
         guard let window = view.window else { return nil }
         let windowLocation = window.convertFromScreen(NSRect(origin: NSEvent.mouseLocation, size: .zero)).origin

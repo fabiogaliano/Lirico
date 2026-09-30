@@ -12,6 +12,7 @@ import SwiftUI
 private struct NowPlayingApplicationListRepresentable: NSViewControllerRepresentable {
     let onDismiss: () -> Void
 
+    @MainActor
     final class Coordinator: NSObject {
         let onDismiss: () -> Void
         // Held weakly so the coordinator doesn't extend VC lifetime.

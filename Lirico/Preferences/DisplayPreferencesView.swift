@@ -99,6 +99,7 @@ final class DisplayPreferencesViewModel: ObservableObject {
 
 // MARK: - Font Picker Bridge
 
+@MainActor
 private final class FontPickerCoordinator: NSObject {
     var onFontChange: (NSFont, NSFont) -> Void
     var currentFont: NSFont

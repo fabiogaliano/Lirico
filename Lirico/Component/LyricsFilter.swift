@@ -2,7 +2,8 @@ import Foundation
 import GenericID
 import LiricoFoundation
 
-final class LyricsFilter {
+/// Unchecked because the predicate, the only mutable state, sits behind `lock`.
+final class LyricsFilter: @unchecked Sendable {
     private let defaults: UserDefaults
     private let lock = NSLock()
     private var predicate: NSPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [])

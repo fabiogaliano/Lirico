@@ -21,7 +21,8 @@ struct LyricsStorageDirectory {
 ///
 /// Persistence (`LyricsPersister`) and loading (`LocalLyricsLoader`) read these
 /// through this struct; the preferences UI also binds the plain keys with `@AppStorage`.
-struct PersistenceSettings {
+/// Unchecked because `UserDefaults` is documented as thread-safe but not marked Sendable.
+struct PersistenceSettings: @unchecked Sendable {
     private let defaults: UserDefaults
 
     init(defaults: UserDefaults = .standard) {

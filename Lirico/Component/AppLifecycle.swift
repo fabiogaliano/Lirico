@@ -43,6 +43,7 @@ final class PlayerLifecycle {
             self?.settingChanged()
         }
         terminationObservation = workspaceNC.publisher(for: NSWorkspace.didTerminateApplicationNotification, object: nil)
+            .receive(on: DispatchQueue.main)
             .sink { [settings] notification in
                 guard settings.launchAndQuitWithPlayer,
                       let application = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
@@ -51,7 +52,7 @@ final class PlayerLifecycle {
                     .filter { $0 != application && !$0.isTerminated }
                     .compactMap(\.bundleIdentifier)
                 if ScriptablePlayers.isLastToQuit(bundleID, stillRunning: stillRunning) {
-                    NSApplication.shared.terminate(nil)
+                    MainActor.assumeIsolated { NSApplication.shared.terminate(nil) }
                 }
             }
     }
