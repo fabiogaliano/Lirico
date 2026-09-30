@@ -345,7 +345,6 @@ private let libraries: [Acknowledgement] = [
     Acknowledgement(name: "SnapKit", license: "MIT", url: URL(string: "https://github.com/SnapKit/SnapKit")!),
     Acknowledgement(name: "MarqueeLabel", license: "MIT", url: URL(string: "https://github.com/MxIris-LyricsX-Project/MarqueeLabel")!),
     Acknowledgement(name: "BigInt", license: "MIT", url: URL(string: "https://github.com/attaswift/BigInt")!),
-    Acknowledgement(name: "LaunchAtLogin", license: "MIT", url: URL(string: "https://github.com/sindresorhus/LaunchAtLogin-Legacy")!),
     Acknowledgement(name: "UIFoundation", license: "MIT", url: URL(string: "https://github.com/Mx-Iris/UIFoundation")!),
     Acknowledgement(name: "FrameworkToolbox", license: "MIT", url: URL(string: "https://github.com/Mx-Iris/FrameworkToolbox")!),
     Acknowledgement(name: "CombineX", license: "MIT", url: URL(string: "https://github.com/cx-org/CombineX")!),

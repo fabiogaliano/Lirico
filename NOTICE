@@ -44,7 +44,6 @@ SnapKit            Copyright (c) 2011-Present SnapKit Team
 MarqueeLabel       Copyright (c) Charles Powell  (fork carries no license file;
                    upstream is MIT)
 BigInt             Copyright (c) 2016-2017 Károly Lőrentey
-LaunchAtLogin      Copyright (c) Sindre Sorhus
 UIFoundation       Copyright (c) 2024 Mx-Iris
 FrameworkToolbox   Copyright (c) 2025 Mx-Iris
 CombineX           Copyright (c) 2019 Quentin Jin  (vendored in

@@ -1,5 +1,4 @@
 import AppKit
-import LaunchAtLogin
 import MusicPlayer
 import SwiftUI
 
@@ -7,7 +6,7 @@ import SwiftUI
 
 struct GeneralPreferencesView: View {
     // Player selection — -1 = auto, 0-4 = specific player (MusicPlayerName(index:))
-    @AppStorage("PreferredPlayerIndex") private var preferredPlayerIndex = 1
+    @AppStorage("PreferredPlayerIndex") private var preferredPlayerIndex = -1
 
     // Lyrics saving path popup index — 0 = default, 1 = custom
     @AppStorage("LyricsSavingPathPopUpIndex") private var savingPathPopUpIndex = 0
@@ -27,6 +26,10 @@ struct GeneralPreferencesView: View {
     // Custom saving path display name — derived from bookmark on appear, updated
     // after the user picks a new directory via NSOpenPanel.
     @State private var customDirectoryName: String = ""
+
+    // Read from the system each time the pane appears: the user can also change it in
+    // System Settings → General → Login Items.
+    @State private var launchAtLogin = MainAppLoginItem.isEnabled
 
     // Language picker — index 0 = system, 2+ = specific localization
     @State private var languagePickerIndex = 0
@@ -81,10 +84,14 @@ struct GeneralPreferencesView: View {
                         setHelperLoginItemEnabled(false)
                     }
                 }
-            // Controls whether the main Lirico app itself launches at system login,
-            // independently of any music player. Mirrors the storyboard's "Launch at login"
-            // checkbox which was bound to LaunchAtLogin.kvo.isEnabled.
-            LaunchAtLogin.Toggle("Launch at login")
+            Toggle("Launch at login", isOn: Binding(
+                get: { launchAtLogin },
+                set: { enabled in
+                    MainAppLoginItem.setEnabled(enabled)
+                    launchAtLogin = MainAppLoginItem.isEnabled
+                }
+            ))
+            .onAppear { launchAtLogin = MainAppLoginItem.isEnabled }
         }
     }
 
