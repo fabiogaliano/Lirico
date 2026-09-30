@@ -21,8 +21,15 @@ opt_in_rules:
   - unneeded_parentheses_in_closure_argument
   - untyped_error_in_catch
   - yoda_condition
+included:
+  - Lirico
+  - LiricoHelper
+  - LiricoPackage/Sources
+  - LiricoPackage/Tests
 excluded:
-  - Carthage
+  - build
+  - .derivedData
+  - LiricoPackage/.build
 
 line_length: 150
 identifier_name:
