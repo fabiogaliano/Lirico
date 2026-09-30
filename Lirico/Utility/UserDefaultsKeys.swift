@@ -5,7 +5,6 @@ let defaults = UserDefaults.standard
 let groupDefaults = UserDefaults(suiteName: lyricsXGroupIdentifier)!
 
 extension UserDefaults.DefaultsKeys {
-    static let notifiedUpdateVersion = Key<String?>("NotifiedUpdateVersion")
     static let noSearchingTrackIds = Key<[String]>("NoSearchingTrackIds")
     static let noSearchingAlbumNames = Key<[String]>("NoSearchingAlbumNames")
 
@@ -57,9 +56,7 @@ extension UserDefaults.DefaultsKeys {
 
     static let lyricsWindowFontName = Key<String>("LyricsWindowFontName")
     static let lyricsWindowFontSize = Key<Int>("LyricsWindowFontSize")
-    static let lyricsWindowFontNameFallback = Key<[String]>("LyricsWindowFontNameFallback")
 
-    static let lyricsWindowTextColor = Key<NSColor>("LyricsWindowTextColor", transformer: .keyedArchive)
     static let lyricsWindowHighlightColor = Key<NSColor>("LyricsWindowHighlightColor", transformer: .keyedArchive)
 
     // Shortcut
@@ -75,7 +72,6 @@ extension UserDefaults.DefaultsKeys {
 
     // Filter
     static let lyricsFilterEnabled = Key<Bool>("LyricsFilterEnabled")
-    static let lyricsSmartFilterEnabled = Key<Bool>("LyricsSmartFilterEnabled")
     static let lyricsFilterKeys = Key<[String]>("LyricsFilterKeys")
 
     // Explicit-word restoration

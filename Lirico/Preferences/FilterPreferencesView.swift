@@ -2,7 +2,6 @@ import SwiftUI
 
 struct FilterPreferencesView: View {
     @AppStorage("LyricsFilterEnabled") private var filterEnabled = true
-    @AppStorage("LyricsSmartFilterEnabled") private var smartFilterEnabled = true
     @AppStorage("LyricsExplicitRestorationEnabled") private var explicitRestorationEnabled = false
 
     @State private var keywords: [String] = []
@@ -31,7 +30,6 @@ struct FilterPreferencesView: View {
     private var filterSettingsSection: some View {
         SettingsSection(title: "Filter Settings") {
             Toggle("Enable lyrics filter", isOn: $filterEnabled)
-            Toggle("Smart filter", isOn: $smartFilterEnabled)
         }
     }
 

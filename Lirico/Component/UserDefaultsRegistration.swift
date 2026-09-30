@@ -41,7 +41,6 @@ enum UserDefaultsRegistration {
             .desktopLyricsProgressColor: NSColor.controlAccentColor,
             .desktopLyricsShadowColor: #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.55),
             .desktopLyricsBackgroundColor: #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.85),
-            .lyricsWindowTextColor: #colorLiteral(red: 0.6, green: 0.6, blue: 0.6, alpha: 1),
             .lyricsWindowHighlightColor: NSColor.controlAccentColor,
             .preferBilingualLyrics: isZh,
             .chineseConversionIndex: isHant ? 2 : 0,

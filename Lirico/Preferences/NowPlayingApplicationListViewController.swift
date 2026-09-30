@@ -177,7 +177,10 @@ final class NowPlayingApplicationListViewController: NSViewController {
         panel.allowedContentTypes = [.application]
         panel.beginSheetModal(for: window) { [weak panel, weak self] response in
             guard let self, let panel, response == .OK else { return }
-            applications.append(contentsOf: panel.urls.compactMap(NowPlayingApplication.init))
+            // The diffable data source throws on duplicate items, and apps compare equal by bundle ID.
+            var seen = Set(applications.map(\.bundleIdentifier))
+            let added = panel.urls.compactMap(NowPlayingApplication.init).filter { seen.insert($0.bundleIdentifier).inserted }
+            applications.append(contentsOf: added)
         }
     }
 

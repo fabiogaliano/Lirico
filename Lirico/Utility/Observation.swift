@@ -34,7 +34,6 @@ extension UserDefaults.DefaultsKeys {
              UserDefaults.DefaultsKeys.desktopLyricsProgressColor.key,
              UserDefaults.DefaultsKeys.desktopLyricsShadowColor.key,
              UserDefaults.DefaultsKeys.desktopLyricsBackgroundColor.key,
-             UserDefaults.DefaultsKeys.lyricsWindowTextColor.key,
              UserDefaults.DefaultsKeys.lyricsWindowHighlightColor.key:
             return true
         default:
@@ -76,14 +75,6 @@ extension NSObject {
         let arr = NSMutableArray()
         objc_setAssociatedObject(self, &NSObject.autoDestructionTokens, arr, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         return arr
-    }
-
-    func postNotification(
-        center: NotificationCenter = .default,
-        name: NSNotification.Name,
-        userInfo: [String: Any] = [:]
-    ) {
-        center.post(name: name, object: self, userInfo: userInfo)
     }
 
     func observeNotification(
