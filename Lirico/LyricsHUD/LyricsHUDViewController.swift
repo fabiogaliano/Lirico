@@ -33,20 +33,14 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
     private let emptySearchButton = NSButton()
     private let resumeButton = NSButton()
 
-    /// `true` while the music drives the scroll position; `false` once the user
-    /// scrolls to browse. The "Resume" pill is shown only while browsing.
-    @objc dynamic var isTracking = true {
-        didSet {
-            resumeButton.isHidden = isTracking
-            if !oldValue, isTracking { follow() }
-        }
-    }
-
-    /// Drives the intra-line karaoke fill while playing. Line-index changes alone
-    /// are too coarse for word-level progress, so this ticks ~30Hz and repaints
-    /// the current line's sung prefix; it's stopped when paused or hidden.
-    private lazy var follower = LyricsLineFollower(
-        scrollView: lyricsScrollView, nowBand: nowBand, session: session, hidesBandOnKaraokeLines: false
+    private lazy var scrollback = LyricsScrollback(
+        scrollView: lyricsScrollView,
+        nowBand: nowBand,
+        player: player,
+        session: session,
+        chineseConverter: chineseConverter,
+        explicitResolver: explicitResolver,
+        hidesBandOnKaraokeLines: false
     )
 
     private var isWillTerminate = false
@@ -207,13 +201,16 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
         // already shows progress. (The box is the Sync panel's click feedback.)
         lyricsScrollView.showsWordBox = false
 
-        lyricsScrollView.bind(\.fontName, withDefaultName: .lyricsWindowFontName)
-        lyricsScrollView.bind(\.fontSize, withUnmatchedDefaultName: .lyricsWindowFontSize)
-        // Base (non-current) lines read the desktop karaoke's color so the HUD, the
-        // Sync by Ear strip, and the overlay all share one palette; the current line
-        // keeps the lyrics-window highlight color. Mirrors `LyricsSyncViewController`.
-        lyricsScrollView.bind(\.textColor, withDefaultName: .desktopLyricsColor)
-        lyricsScrollView.bind(\.highlightColor, withDefaultName: .lyricsWindowHighlightColor)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(applicationWillTerminate(_:)),
+            name: NSApplication.willTerminateNotification,
+            object: nil
+        )
+
+        scrollback.onFollowingChange = { [unowned self] in self.resumeButton.isHidden = $0 }
+        scrollback.onContentChange = { [unowned self] in self.emptyStateView.isHidden = $0 }
+        scrollback.start()
 
         // Keep the empty state on the same color as the lyrics, live. Observing the
         // scroll view's bound `textColor` (rather than the raw default) means we
@@ -222,124 +219,44 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
             self.applyEmptyStateColors()
         }
 
-        // Any user scroll means "I'm browsing" — stop following so the strip stays
-        // where it was scrolled. `scrollWheelDidStartScroll` covers the same intent
-        // for non-inertial wheels; both routes are harmless to keep.
-        observeNotification(
-            name: NSScrollView.willStartLiveScrollNotification,
-            object: lyricsScrollView,
-            queue: .main
-        ) { [unowned self] _ in self.isTracking = false }
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(applicationWillTerminate(_:)),
-            name: NSApplication.willTerminateNotification,
-            object: nil
-        )
-
-        refreshTextContents()
-
-        // The HUD owns full-scrollback layout, so it observes raw lyrics for now;
-        // line-only surfaces consume `LyricsDisplayCoordinator` snapshots.
-        session.$currentLyrics
-            .signal()
-            .receive(on: DispatchQueue.main)
-            .invoke(LyricsHUDViewController.lyricsChanged, weaklyOn: self)
-            .store(in: &cancelBag)
-        session.$currentLineIndex
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] _ in self.follow() }
-            .store(in: &cancelBag)
         session.$status
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] in self.applyEmptyStateText(for: $0) }
-            .store(in: &cancelBag)
-        chineseConverter.converterPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] _ in self.refreshTextContents() }
-            .store(in: &cancelBag)
-        // Restoration evidence and the lexicon/toggle both affect the full
-        // scrollback text, so rebuild contents when either changes.
-        session.$supportingLyrics
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] _ in self.refreshTextContents() }
-            .store(in: &cancelBag)
-        explicitResolver.settingsDidChange
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] in self.refreshTextContents() }
-            .store(in: &cancelBag)
-        // Run the word fill only while playing and on screen; pausing freezes it in place,
-        // and `viewWillAppear` restarts it for a window that was closed meanwhile.
-        player.playbackStateWillChange
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] state in
-                self.follower.setFillActive(state.isPlaying && self.view.window?.isVisible == true)
-            }
             .store(in: &cancelBag)
     }
 
     override func viewWillAppear() {
         super.viewWillAppear()
         session.refreshNoTrackStatus()
-        isTracking = true
-        refreshTextContents()
-        follower.setFillActive(player.playbackState.isPlaying)
+        scrollback.viewWillAppear()
     }
 
     override func viewWillDisappear() {
         super.viewWillDisappear()
-        follower.setFillActive(false)
+        scrollback.viewWillDisappear()
     }
 
     /// Re-center on the current line and resume auto-follow. Called when the panel
     /// is (re)shown so it never reappears stuck where the user last scrolled.
     func resumeFollowing() {
-        isTracking = true
-        follow(animated: false)
-    }
-
-    // MARK: - Display
-
-    private func lyricsChanged() {
-        DispatchQueue.main.async { self.refreshTextContents() }
-    }
-
-    private func refreshTextContents() {
-        let newLyrics = session.currentLyrics
-        let restoreExplicit = explicitResolver.makeRenderRestoration(
-            context: ExplicitRestorationContext(supportingCandidates: session.supportingLyrics)
-        )
-        lyricsScrollView.setupTextContents(
-            lyrics: newLyrics,
-            converter: chineseConverter.converter,
-            restoreExplicit: restoreExplicit
-        )
-        let hasLyrics = newLyrics != nil
-        emptyStateView.isHidden = hasLyrics
-        nowBand.isHidden = !hasLyrics
-        follow(animated: false)
-    }
-
-    private func follow(animated: Bool = true) {
-        follower.follow(animated: animated, scrolling: isTracking)
+        scrollback.resume(animated: false)
     }
 
     // MARK: - Actions
 
     @objc private func resume() {
-        isTracking = true
-        follow()
+        scrollback.resume()
     }
 
     // MARK: - ScrollLyricsViewDelegate
 
     func doubleClickLyricsLine(at position: TimeInterval) {
         session.seek(toLyricsPosition: position)
-        isTracking = true
+        scrollback.resume()
     }
 
     func scrollWheelDidStartScroll() {
-        isTracking = false
+        scrollback.browse()
     }
 
     func scrollWheelDidEndScroll() {}
@@ -359,7 +276,7 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
     // MARK: - NSWindowDelegate
 
     func windowDidResize(_ notification: Notification) {
-        DispatchQueue.main.async { self.follow(animated: false) }
+        scrollback.viewDidResize()
     }
 
     func windowWillClose(_ notification: Notification) {

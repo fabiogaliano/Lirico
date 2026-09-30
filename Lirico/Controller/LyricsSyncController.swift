@@ -111,20 +111,17 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
     private let doneButton = NSButton()
     private let recenterButton = NSButton()
 
-    /// `true` while the music drives the scroll position; `false` once the user
-    /// scrolls to browse. Toggling visibility of the "Now" pill follows it.
-    private var isFollowing = true {
-        didSet { recenterButton.isHidden = isFollowing }
-    }
-
     private var cancelBag = Set<AnyCancellable>()
     private var offsetObservation: NSKeyValueObservation?
 
-    /// Drives the intra-line karaoke fill while playing. Line-index changes alone
-    /// are too coarse for word-level progress, so this ticks ~30Hz and repaints
-    /// the current line's sung prefix; it's stopped when paused or hidden.
-    private lazy var follower = LyricsLineFollower(
-        scrollView: scrollLyricsView, nowBand: nowBand, session: session, hidesBandOnKaraokeLines: true
+    private lazy var scrollback = LyricsScrollback(
+        scrollView: scrollLyricsView,
+        nowBand: nowBand,
+        player: player,
+        session: session,
+        chineseConverter: chineseConverter,
+        explicitResolver: explicitResolver,
+        hidesBandOnKaraokeLines: true
     )
 
     init(
@@ -257,53 +254,19 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
 
         scrollLyricsView.delegate = self
         scrollLyricsView.clickToSyncEnabled = true
-        scrollLyricsView.bind(\.fontName, withDefaultName: .lyricsWindowFontName)
-        scrollLyricsView.bind(\.fontSize, withUnmatchedDefaultName: .lyricsWindowFontSize)
-        // Non-current lines read the desktop karaoke's base text color
-        // (`.desktopLyricsColor`) so the sync strip and the overlay share one
-        // palette and both follow the user's display settings; the synced line
-        // keeps its own highlight color.
-        scrollLyricsView.bind(\.textColor, withDefaultName: .desktopLyricsColor)
-        scrollLyricsView.bind(\.highlightColor, withDefaultName: .lyricsWindowHighlightColor)
+        scrollback.onFollowingChange = { [unowned self] in self.recenterButton.isHidden = $0 }
+        scrollback.onContentChange = { [unowned self] hasLyrics in
+            self.noLyricsLabel.isHidden = hasLyrics
+            [self.decreaseButton, self.increaseButton, self.resetButton].forEach { $0.isEnabled = hasLyrics }
+            self.updateOffsetLabel()
+        }
+        scrollback.start()
 
-        refreshTextContents()
         updatePlayPauseIcon(isPlaying: player.playbackState.isPlaying)
-
-        session.$currentLyrics
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] _ in self.refreshTextContents() }
-            .store(in: &cancelBag)
-        session.$currentLineIndex
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] _ in self.follow() }
-            .store(in: &cancelBag)
-        session.$supportingLyrics
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] _ in self.refreshTextContents() }
-            .store(in: &cancelBag)
-        chineseConverter.converterPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] _ in self.refreshTextContents() }
-            .store(in: &cancelBag)
-        explicitResolver.settingsDidChange
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] in self.refreshTextContents() }
-            .store(in: &cancelBag)
         player.playbackStateWillChange
             .receive(on: DispatchQueue.main)
-            .sink { [unowned self] state in
-                self.updatePlayPauseIcon(isPlaying: state.isPlaying)
-                // Run the word fill only while playing and on screen; pausing freezes it in place,
-                // and `viewWillAppear` restarts it for a window that was closed meanwhile.
-                self.follower.setFillActive(state.isPlaying && self.view.window?.isVisible == true)
-            }
+            .sink { [unowned self] in self.updatePlayPauseIcon(isPlaying: $0.isPlaying) }
             .store(in: &cancelBag)
-
-        // Any user scroll means "I'm browsing" — stop following so the strip
-        // stays put. Offset is never touched here; only a tap commits.
-        observeNotification(
-            name: NSScrollView.willStartLiveScrollNotification, object: scrollLyricsView, queue: .main
-        ) { [unowned self] _ in self.isFollowing = false }
 
         // Reflect the offset from any source (tap, buttons, menu stepper, shortcut).
         offsetObservation = session.observe(\.lyricsOffset, options: [.initial, .new]) { [weak self] _, _ in
@@ -312,47 +275,23 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
                 self.updateOffsetLabel()
                 // Re-tuning shifts where the fill sits within the line; refresh it
                 // so the change is visible immediately, even while paused.
-                self.follower.updateHighlight()
+                self.scrollback.updateHighlight()
             }
         }
     }
 
     override func viewWillAppear() {
         super.viewWillAppear()
-        isFollowing = true
-        refreshTextContents()
+        scrollback.viewWillAppear()
         updatePlayPauseIcon(isPlaying: player.playbackState.isPlaying)
-        follower.setFillActive(player.playbackState.isPlaying)
     }
 
     override func viewWillDisappear() {
         super.viewWillDisappear()
-        follower.setFillActive(false)
+        scrollback.viewWillDisappear()
     }
 
     // MARK: - Display
-
-    private func refreshTextContents() {
-        let lyrics = session.currentLyrics
-        let restoreExplicit = explicitResolver.makeRenderRestoration(
-            context: ExplicitRestorationContext(supportingCandidates: session.supportingLyrics)
-        )
-        scrollLyricsView.setupTextContents(
-            lyrics: lyrics,
-            converter: chineseConverter.converter,
-            restoreExplicit: restoreExplicit
-        )
-        let hasLyrics = lyrics != nil
-        noLyricsLabel.isHidden = hasLyrics
-        nowBand.isHidden = !hasLyrics
-        [decreaseButton, increaseButton, resetButton].forEach { $0.isEnabled = hasLyrics }
-        updateOffsetLabel()
-        follow(animated: false)
-    }
-
-    private func follow(animated: Bool = true) {
-        follower.follow(animated: animated, scrolling: isFollowing)
-    }
 
     private func updateOffsetLabel() {
         offsetLabel.stringValue = String(format: "%+d ms", session.lyricsOffset)
@@ -381,21 +320,18 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
     // reset from a scrolled-away position returns you to where the song is.
     @objc private func resetOffset() {
         session.lyricsOffset = 0
-        isFollowing = true
-        follow()
+        scrollback.resume()
     }
     @objc private func done() { view.window?.close() }
 
     @objc private func recenter() {
-        isFollowing = true
-        follow()
+        scrollback.resume()
     }
 
     /// Re-center on the current line and resume auto-follow. Called when the panel
     /// is (re)shown so it never reappears stuck where the user last scrolled.
     func resumeFollowing() {
-        isFollowing = true
-        follow(animated: false)
+        scrollback.resume(animated: false)
     }
 
     // MARK: - ScrollLyricsViewDelegate
@@ -406,8 +342,8 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
         // If they've scrolled away to hunt for a line, the click commits without
         // yanking them back (the "Now" pill returns them); if they're following,
         // it re-centres on the synced line as before. `follow()` already scrolls
-        // only while `isFollowing`, so this is exactly that.
-        follow()
+        // only while following, so this is exactly that.
+        scrollback.follow()
     }
 
     // Tapping is the sync gesture here; route an accidental double-click to the
@@ -416,12 +352,12 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
         syncToLyricsLine(at: position)
     }
 
-    func scrollWheelDidStartScroll() { isFollowing = false }
+    func scrollWheelDidStartScroll() { scrollback.browse() }
     func scrollWheelDidEndScroll() {}
 
     // MARK: - NSWindowDelegate
 
     func windowDidResize(_ notification: Notification) {
-        DispatchQueue.main.async { self.follow(animated: false) }
+        scrollback.viewDidResize()
     }
 }
