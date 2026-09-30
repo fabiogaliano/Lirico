@@ -19,6 +19,20 @@ enum AutomaticAcceptancePolicy {
     case localUpgradeOnly(existing: Lyrics, existingEvaluation: LyricsCandidateEvaluation)
 }
 
+// MARK: - LyricsStatus
+
+/// What the session is doing for the current track, so surfaces can tell
+/// "still searching" apart from "nothing found" or "blocked" instead of all
+/// three looking like an empty screen.
+enum LyricsStatus: Equatable {
+    case noTrack
+    case automationDenied(playerName: String)
+    case searching
+    case loaded
+    case notFound
+    case blocked
+}
+
 // MARK: - LyricsSession
 
 class LyricsSession: NSObject {
@@ -58,6 +72,8 @@ class LyricsSession: NSObject {
     }
 
     @Published var currentLineIndex: Int?
+
+    @Published private(set) var status: LyricsStatus = .noTrack
 
     /// Immutable, main-actor-captured snapshot of the current lyrics' display
     /// metadata, consumed by `LyricsDisplayCoordinator` instead of the live struct.
@@ -240,6 +256,7 @@ class LyricsSession: NSObject {
         }
         lyrics.metadata.persistenceAllowed = true
         currentLyrics = lyrics
+        status = .loaded
         // Retain the manual search's other same-song results as restoration
         // evidence for the chosen lyrics.
         supportingLyrics = boundedSupporting(supporting, excluding: lyrics)
@@ -271,6 +288,8 @@ class LyricsSession: NSObject {
         }
         currentLyrics = nil
         supportingLyrics = []
+        // Rejecting a match is paired with blocking the track or album, so no search follows.
+        status = deleteOnDisk ? .blocked : .notFound
     }
 
     @MainActor
@@ -288,6 +307,7 @@ class LyricsSession: NSObject {
         automaticSearchTrackID = player.currentTrack?.id
 
         guard let track = player.currentTrack else {
+            refreshNoTrackStatus()
             return
         }
         // FIXME: deal with optional value
@@ -295,6 +315,7 @@ class LyricsSession: NSObject {
         let artist = track.artist ?? ""
 
         guard !SearchBlocklist.isBlocked(track: track) else {
+            status = .blocked
             return
         }
 
@@ -311,6 +332,7 @@ class LyricsSession: NSObject {
             currentLyrics = lyrics
             if lyrics.isKaraokeTimed {
                 // Local karaoke is the best we can get — no network search.
+                status = .loaded
                 return
             }
             // Local line-synced: display immediately but search for a clearly better remote.
@@ -333,8 +355,10 @@ class LyricsSession: NSObject {
         }
 
         if let album = track.album, SearchBlocklist.isBlocked(album: album) {
+            status = currentLyrics == nil ? .blocked : .loaded
             return
         }
+        status = currentLyrics == nil ? .searching : .loaded
 
         let duration = track.duration ?? 0
         // Album metadata is included in automatic-track requests so providers
@@ -373,6 +397,17 @@ class LyricsSession: NSObject {
                 initialLyrics: initialLyrics,
                 generation: generation
             )
+        }
+    }
+
+    /// Re-checks why no track is visible. Permission can be granted or revoked in System
+    /// Settings without any track change reaching the session, so surfaces call this when shown.
+    func refreshNoTrackStatus() {
+        guard player.currentTrack == nil else { return }
+        let denied = AutomationPermission.deniedPlayerName(designatedBundleID: player.designatedPlayerBundleID)
+        let newStatus: LyricsStatus = denied.map { .automationDenied(playerName: $0) } ?? .noTrack
+        if status != newStatus {
+            status = newStatus
         }
     }
 
@@ -519,6 +554,8 @@ class LyricsSession: NSObject {
             }
         }
 
+        status = currentLyrics == nil ? .notFound : .loaded
+
         // Final restoration evidence: the other same-song candidates for whatever
         // lyrics ended up displayed (the new pick, or retained local lyrics).
         supportingLyrics = boundedSupporting(from: collectedCandidates, selected: currentLyrics)
@@ -581,6 +618,7 @@ class LyricsSession: NSObject {
         }
         // Interim: update display but do NOT set needsPersist / export.
         currentLyrics = best.lyrics
+        status = .loaded
     }
 
     private func isCurrentAutomaticSearch(_ generation: Int) -> Bool {
@@ -734,6 +772,7 @@ extension LyricsSession {
         lrc.metadata.needsPersist = true
         lrc.metadata.persistenceAllowed = true
         currentLyrics = lrc
+        status = .loaded
         supportingLyrics = []
         SearchBlocklist.unblock(track: track)
         SearchBlocklist.unblock(album: track.album ?? "")

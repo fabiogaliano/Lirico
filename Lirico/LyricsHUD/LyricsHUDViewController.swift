@@ -30,6 +30,7 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
     private let emptyIcon = NSImageView()
     private let emptyTitle = NSTextField(labelWithString: "")
     private let emptyHint = NSTextField(labelWithString: "")
+    private let emptySearchButton = NSButton()
     private let resumeButton = NSButton()
 
     /// `true` while the music drives the scroll position; `false` once the user
@@ -124,14 +125,9 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
         emptyIcon.image = NSImage(systemSymbolName: "music.note.list", accessibilityDescription: nil)
         emptyIcon.symbolConfiguration = .init(pointSize: 30, weight: .regular)
 
-        emptyTitle.stringValue = NSLocalizedString("No Lyrics", comment: "HUD empty state title")
         emptyTitle.font = .systemFont(ofSize: 15, weight: .semibold)
         emptyTitle.alignment = .center
 
-        emptyHint.stringValue = NSLocalizedString(
-            "Drag & drop an .lrc file to import",
-            comment: "HUD empty state hint"
-        )
         emptyHint.font = .systemFont(ofSize: 11)
         emptyHint.alignment = .center
         emptyHint.maximumNumberOfLines = 0
@@ -139,8 +135,54 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
         emptyStateView.orientation = .vertical
         emptyStateView.alignment = .centerX
         emptyStateView.spacing = 6
-        emptyStateView.setViews([emptyIcon, emptyTitle, emptyHint], in: .center)
+        emptySearchButton.bezelStyle = .push
+        emptySearchButton.controlSize = .small
+        emptySearchButton.target = self
+
+        emptyStateView.setViews([emptyIcon, emptyTitle, emptyHint, emptySearchButton], in: .center)
         emptyStateView.setCustomSpacing(12, after: emptyIcon)
+        emptyStateView.setCustomSpacing(12, after: emptyHint)
+        applyEmptyStateText(for: session.status)
+    }
+
+    private func applyEmptyStateText(for status: LyricsStatus) {
+        let dropHint = NSLocalizedString("Drag & drop an .lrc file to import", comment: "HUD empty state hint")
+        emptySearchButton.action = #selector(openSearchWindow)
+        let (title, hint, offersSearch): (String, String, Bool) = switch status {
+        case let .automationDenied(playerName):
+            (String(format: NSLocalizedString("Lirico Can't See What %@ Is Playing", comment: "HUD empty state title"), playerName),
+             NSLocalizedString("Allow Lirico in System Settings → Privacy & Security → Automation.", comment: "HUD empty state hint"),
+             true)
+        case .noTrack:
+            (NSLocalizedString("Nothing Playing", comment: "HUD empty state title"),
+             NSLocalizedString("Play a song to see its lyrics", comment: "HUD empty state hint"),
+             false)
+        case .searching:
+            (NSLocalizedString("Searching for Lyrics…", comment: "HUD empty state title"), dropHint, false)
+        case .blocked:
+            (NSLocalizedString("Lyrics Disabled", comment: "HUD empty state title"),
+             NSLocalizedString("Lyrics are turned off for this song or album. Pick some manually to turn them back on.", comment: "HUD empty state hint"),
+             true)
+        case .notFound, .loaded:
+            (NSLocalizedString("No Lyrics", comment: "HUD empty state title"), dropHint, true)
+        }
+        emptyTitle.stringValue = title
+        emptyHint.stringValue = hint
+        emptySearchButton.isHidden = !offersSearch
+        if case .automationDenied = status {
+            emptySearchButton.title = NSLocalizedString("Open System Settings", comment: "HUD empty state button")
+            emptySearchButton.action = #selector(openAutomationSettings)
+        } else {
+            emptySearchButton.title = NSLocalizedString("Search Lyrics…", comment: "HUD empty state button")
+        }
+    }
+
+    @objc private func openAutomationSettings() {
+        AutomationPermission.openSystemSettings()
+    }
+
+    @objc private func openSearchWindow() {
+        NSApp.sendAction(#selector(AppDelegate.searchLyrics(_:)), to: nil, from: self)
     }
 
     /// Color the empty state with the same color the lyrics use. `lyricsScrollView`
@@ -206,6 +248,10 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] _ in self.follow() }
             .store(in: &cancelBag)
+        session.$status
+            .receive(on: DispatchQueue.main)
+            .sink { [unowned self] in self.applyEmptyStateText(for: $0) }
+            .store(in: &cancelBag)
         chineseConverter.converterPublisher
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] _ in self.refreshTextContents() }
@@ -232,6 +278,7 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
 
     override func viewWillAppear() {
         super.viewWillAppear()
+        session.refreshNoTrackStatus()
         isTracking = true
         refreshTextContents()
         setKaraokeFill(active: player.playbackState.isPlaying)
@@ -276,7 +323,7 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
         let index = session.currentLineIndex
         updateHighlight(forLineIndex: index)
         guard isTracking else { return }
-        if animated {
+        if animated, !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
             NSAnimationContext.runAnimationGroup { context in
                 context.duration = 0.3
                 context.allowsImplicitAnimation = true

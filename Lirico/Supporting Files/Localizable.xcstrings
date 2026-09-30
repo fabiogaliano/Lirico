@@ -463,13 +463,13 @@
     "Back 5 Seconds" : {
       "comment" : "sync"
     },
-    "Check For Update..." : {
+    "Check for Updates…" : {
       "comment" : "menu",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "التحقق من وجود تحديثات..."
+            "value" : "التحقق من وجود تحديثات…"
           }
         },
         "de" : {
@@ -481,85 +481,85 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Check For Update..."
+            "value" : "Check For Update…"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Comprobar actualizaciones..."
+            "value" : "Comprobar actualizaciones…"
           }
         },
         "fa" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "بررسی برای بروز رسانی..."
+            "value" : "بررسی برای بروز رسانی…"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rechercher des mises à jour..."
+            "value" : "Rechercher des mises à jour…"
           }
         },
         "id" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Periksa Pembaruan..."
+            "value" : "Periksa Pembaruan…"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verifica aggiornamenti..."
+            "value" : "Verifica aggiornamenti…"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アップデートの確認..."
+            "value" : "アップデートの確認…"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "업데이트 확인..."
+            "value" : "업데이트 확인…"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Controleren op updates..."
+            "value" : "Controleren op updates…"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sprawdź dostępność aktualizacji..."
+            "value" : "Sprawdź dostępność aktualizacji…"
           }
         },
         "pt" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verificar Por Atualizações..."
+            "value" : "Verificar Por Atualizações…"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Проверить обновление..."
+            "value" : "Проверить обновление…"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Перевірити оновлення..."
+            "value" : "Перевірити оновлення…"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "检查更新..."
+            "value" : "检查更新…"
           }
         },
         "zh-Hant" : {
@@ -1883,108 +1883,108 @@
     "Prefer bilingual lyrics" : {
 
     },
-    "Preferences..." : {
+    "Settings…" : {
       "comment" : "menu",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "الإعدادات..."
+            "state" : "needs_review",
+            "value" : "الإعدادات…"
           }
         },
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Einstellungen..."
+            "state" : "needs_review",
+            "value" : "Einstellungen…"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Preferences..."
+            "value" : "Preferences…"
           }
         },
         "es" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Preferencias..."
+            "state" : "needs_review",
+            "value" : "Preferencias…"
           }
         },
         "fa" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "تنظیمات..."
+            "state" : "needs_review",
+            "value" : "تنظیمات…"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Préférences..."
+            "state" : "needs_review",
+            "value" : "Préférences…"
           }
         },
         "id" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Preferensi..."
+            "state" : "needs_review",
+            "value" : "Preferensi…"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Preferenze..."
+            "state" : "needs_review",
+            "value" : "Preferenze…"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "環境設定..."
+            "state" : "needs_review",
+            "value" : "環境設定…"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "환경설정..."
+            "state" : "needs_review",
+            "value" : "환경설정…"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Voorkeuren..."
+            "state" : "needs_review",
+            "value" : "Voorkeuren…"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ustawienia..."
+            "state" : "needs_review",
+            "value" : "Ustawienia…"
           }
         },
         "pt" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Preferências..."
+            "state" : "needs_review",
+            "value" : "Preferências…"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Настройки..."
+            "state" : "needs_review",
+            "value" : "Настройки…"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Налаштування..."
+            "state" : "needs_review",
+            "value" : "Налаштування…"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "偏好设置..."
+            "state" : "needs_review",
+            "value" : "偏好设置…"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "偏好設定⋯"
           }
         }
@@ -2363,103 +2363,103 @@
         }
       }
     },
-    "Search Lyrics..." : {
+    "Search Lyrics…" : {
       "comment" : "menu",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "البحث عن كلمات الأغاني..."
+            "value" : "البحث عن كلمات الأغاني…"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nach Songtext suchen..."
+            "value" : "Nach Songtext suchen…"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Search Lyrics..."
+            "value" : "Search Lyrics…"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Buscar letras..."
+            "value" : "Buscar letras…"
           }
         },
         "fa" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "جستجوی ترانه..."
+            "value" : "جستجوی ترانه…"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Chercher des paroles..."
+            "value" : "Chercher des paroles…"
           }
         },
         "id" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cari Lirik..."
+            "value" : "Cari Lirik…"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cerca testo..."
+            "value" : "Cerca testo…"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "歌詞を検索..."
+            "value" : "歌詞を検索…"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "가사 검색..."
+            "value" : "가사 검색…"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Songteksten zoeken..."
+            "value" : "Songteksten zoeken…"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Szukaj tekstu..."
+            "value" : "Szukaj tekstu…"
           }
         },
         "pt" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pesquisar Letras..."
+            "value" : "Pesquisar Letras…"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Искать текст..."
+            "value" : "Искать текст…"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Шукати текст..."
+            "value" : "Шукати текст…"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "搜索歌词..."
+            "value" : "搜索歌词…"
           }
         },
         "zh-Hant" : {
@@ -2828,7 +2828,7 @@
     "Swinsian" : {
 
     },
-    "Sync by Ear..." : {
+    "Sync by Ear…" : {
       "comment" : "menu"
     },
     "Sync Lyrics" : {
