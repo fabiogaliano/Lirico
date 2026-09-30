@@ -25,12 +25,10 @@ final class LyricsSearchPipeline {
     init(settings: SearchSettings = SearchSettings(), preparation: LyricsPreparation) {
         self.settings = settings
         candidateProcessor = LyricsSearchCandidateProcessor(preparation: preparation)
+        // Defaults changes arrive on the writer's thread; this sink is main-actor isolated.
         settings.musixmatchTokenPublisher()
-            .sink { [weak self] in
-                Task { @MainActor in
-                    self?.rebuildProviders()
-                }
-            }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in self?.rebuildProviders() }
             .store(in: &cancelBag)
         rebuildProviders()
     }

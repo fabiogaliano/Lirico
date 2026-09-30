@@ -1,12 +1,14 @@
 import Foundation
 import LiricoFoundation
+// `LyricsLine` isn't marked Sendable, though it's a value type the snapshot only copies.
+@preconcurrency import LyricsCore
 
 /// Pre-rendered display data for the currently active lyric line.
 ///
 /// Computed once by `LyricsDisplayCoordinator` so each surface stops re-deriving
 /// the same `LineRenderer.render(...)` calls and timetag lookups. Surfaces just
 /// pick the fields they care about.
-struct LyricsDisplayLine {
+struct LyricsDisplayLine: Sendable {
     let line: LyricsLine
 
     /// Main-line text after Chinese conversion.
@@ -27,7 +29,7 @@ struct LyricsDisplayLine {
 /// Published whenever lyrics, line index, playback state, or
 /// `disableLyricsWhenPaused` change. Surfaces map this to UI; suppression
 /// policy is decided here, not in each controller.
-struct LyricsDisplaySnapshot {
+struct LyricsDisplaySnapshot: Sendable {
     /// The active-line snapshot, or nil when there is no current line.
     let line: LyricsDisplayLine?
 

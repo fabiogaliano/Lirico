@@ -1,5 +1,7 @@
 import Foundation
 import LiricoFoundation
+// `Lyrics` isn't Sendable; `LocalLyrics` hands freshly loaded lyrics from the lookup to the session.
+@preconcurrency import LyricsCore
 import MusicPlayer
 
 /// Attempts to satisfy a lyrics request from local sources before any network search runs.
@@ -40,7 +42,7 @@ enum LocalLyricsLoader {
 // MARK: - LocalLyrics
 
 /// Local lyrics for a track, and what they mean for the remote search that may follow.
-struct LocalLyrics {
+struct LocalLyrics: Sendable {
     let lyrics: Lyrics?
     let policy: AutomaticAcceptancePolicy
     /// False for local karaoke: word timing is the best any source offers.

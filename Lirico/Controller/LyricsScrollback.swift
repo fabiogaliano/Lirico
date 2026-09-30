@@ -30,10 +30,11 @@ final class LyricsScrollback {
     private let explicitResolver: ExplicitLyricsResolver
     /// Sync by Ear boxes the sung word on karaoke lines, which stands in for the band.
     private let hidesBandOnKaraokeLines: Bool
-    private var fillTimer: Timer?
+    // Read by deinit, which isn't main-actor isolated; the owner releases this on main.
+    nonisolated(unsafe) private var fillTimer: Timer?
     private var refreshScheduled = false
     private var cancelBag = Set<AnyCancellable>()
-    private var liveScrollObserver: NSObjectProtocol?
+    nonisolated(unsafe) private var liveScrollObserver: NSObjectProtocol?
 
     init(
         scrollView: ScrollLyricsView,

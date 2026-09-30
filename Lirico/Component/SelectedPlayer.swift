@@ -5,7 +5,8 @@ import Combine
 import LiricoFoundation
 
 extension MusicPlayers {
-    final class Selected: Agent {
+    /// Unchecked because all of its mutable state is confined to `stateQueue`.
+    final class Selected: Agent, @unchecked Sendable {
         static let shared = MusicPlayers.Selected()
 
         private var defaultsObservation: DefaultsObservation?
@@ -36,7 +37,7 @@ extension MusicPlayers {
                 scheduleManualUpdate()
             }
             self.defaultsObservation = defaults.observe(keys: [.useSystemWideNowPlaying, .systemWideNowPlayingAppList]) { [weak self] in
-                self?.stateQueue.async { self?.selectPlayer() }
+                self?.stateQueue.async { [weak self] in self?.selectPlayer() }
             }
             self.manualUpdateObservation = playbackStateWillChange
                 .receive(on: stateQueue)

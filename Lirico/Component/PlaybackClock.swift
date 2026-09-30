@@ -1,6 +1,8 @@
 import Combine
 import Foundation
 import LiricoFoundation
+// `Lyrics` isn't Sendable; the clock only reads the lyrics it's handed, on its queue.
+@preconcurrency import LyricsCore
 import MusicPlayer
 
 /// PlaybackClock centralises the single concept "given current lyrics + playback state,
@@ -14,8 +16,9 @@ import MusicPlayer
 ///
 /// All mutable state is confined to `DispatchQueue.lyricsDisplay`: ticks fire there from
 /// playback-state changes and line-boundary timers, so main-thread callers hop onto it
-/// rather than touching the state directly.
-final class PlaybackClock {
+/// rather than touching the state directly. That confinement, plus the lock around the
+/// song offset, is why the Sendable conformance is unchecked.
+final class PlaybackClock: @unchecked Sendable {
     /// An active-line emission, tagged with the lyrics it was computed against so a
     /// subscriber can drop emissions that arrive after the lyrics were replaced.
     struct LineIndexUpdate {

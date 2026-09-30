@@ -12,7 +12,8 @@ import Cocoa
 /// Stays running in the background while "Open and quit with music player" is on, and opens
 /// Lirico whenever a supported player launches. It used to quit after opening Lirico and rely on
 /// Lirico relaunching it on the way out, but a quitting app can't reliably launch another one.
-@NSApplicationMain
+@main
+@MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         guard groupDefaults.bool(forKey: launchAndQuitWithPlayer) else {
@@ -79,10 +80,11 @@ let playerBundleIdentifiers = [
 ]
 
 // Must match lyricsXGroupIdentifier in the main app's AppIdentifiers.swift.
+// UserDefaults is documented as thread-safe but not marked Sendable.
 #if DEBUG
-let groupDefaults = UserDefaults(suiteName: "dev.fabiogaliano.Lirico.shared")!
+nonisolated(unsafe) let groupDefaults = UserDefaults(suiteName: "dev.fabiogaliano.Lirico.shared")!
 #else
-let groupDefaults = UserDefaults(suiteName: "com.fabiogaliano.Lirico.shared")!
+nonisolated(unsafe) let groupDefaults = UserDefaults(suiteName: "com.fabiogaliano.Lirico.shared")!
 #endif
 
 // Preference

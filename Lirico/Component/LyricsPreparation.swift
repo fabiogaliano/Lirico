@@ -6,7 +6,7 @@ import LiricoFoundation
 ///
 /// Owns a `LyricsFilter` instance so the predicate's lifecycle is anchored at
 /// `AppContainer` construction rather than triggered lazily on first call.
-final class LyricsPreparation {
+final class LyricsPreparation: Sendable {
     private let filter: LyricsFilter
 
     init(filter: LyricsFilter) {

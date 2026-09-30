@@ -2,6 +2,7 @@ import AppKit
 import LiricoFoundation
 import OpenCC
 
+@MainActor
 protocol ScrollLyricsViewDelegate: AnyObject {
     func doubleClickLyricsLine(at position: TimeInterval)
     func scrollWheelDidStartScroll()
@@ -92,7 +93,8 @@ class ScrollLyricsView: NSScrollView {
     /// "the user is browsing".
     private var suppressScrollDetection = false
     private var unsuppressWorkItem: DispatchWorkItem?
-    private var boundsObserver: NSObjectProtocol?
+    // Read by deinit, which isn't main-actor isolated; views are only released on main.
+    nonisolated(unsafe) private var boundsObserver: NSObjectProtocol?
 
     /// Karaoke "now" marker: a rounded box drawn around the word currently being
     /// sung. Lives inside the text view so it scrolls with the lyrics; hidden for
@@ -182,8 +184,10 @@ class ScrollLyricsView: NSScrollView {
             object: contentView,
             queue: .main
         ) { [weak self] _ in
-            guard let self, !self.suppressScrollDetection else { return }
-            self.delegate?.scrollWheelDidStartScroll()
+            MainActor.assumeIsolated {
+                guard let self, !self.suppressScrollDetection else { return }
+                self.delegate?.scrollWheelDidStartScroll()
+            }
         }
     }
 

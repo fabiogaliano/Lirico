@@ -5,6 +5,7 @@ import LiricoFoundation
 import MusicPlayer
 import MarqueeLabel
 
+@MainActor
 class MenuBarLyricsController {
     private let settings: DisplaySettings
 

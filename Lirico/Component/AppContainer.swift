@@ -8,6 +8,7 @@ import MusicPlayer
 /// controllers) so the previous "order matters" comment in
 /// `applicationDidFinishLaunching` becomes type-level wiring instead of an
 /// informal contract.
+@MainActor
 final class AppContainer {
     let player: PlayerHandle
     private let playbackClock: PlaybackClock
@@ -44,7 +45,6 @@ final class AppContainer {
     private(set) lazy var preferencesWindowController: PreferenceWindowController = .create()
     private(set) lazy var aboutWindowController: AboutWindowController = AboutWindowController()
 
-    @MainActor
     init(player: PlayerHandle = SelectedPlayerHandle()) {
         self.player = player
         let clock = PlaybackClock(player: player)

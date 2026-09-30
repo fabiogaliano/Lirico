@@ -216,7 +216,7 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
         // scroll view's bound `textColor` (rather than the raw default) means we
         // read the value the binding has already resolved, in any update order.
         observeObject(lyricsScrollView, keyPath: \.textColor, options: [.new, .initial]) { [unowned self] _, _ in
-            self.applyEmptyStateColors()
+            MainActor.assumeIsolated { self.applyEmptyStateColors() }
         }
 
         session.$status

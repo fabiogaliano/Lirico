@@ -29,7 +29,10 @@ struct LyricsDisplayMetadata: Equatable {
 /// Output: `@Published snapshot: LyricsDisplaySnapshot`. Line-oriented surfaces
 /// (desktop karaoke, menu bar) subscribe here instead of reaching
 /// back into the session's raw publishers and re-deriving render policy.
-final class LyricsDisplayCoordinator {
+///
+/// Unchecked Sendable: the inputs are confined to `DispatchQueue.lyricsDisplay` and
+/// `snapshot` is only assigned on main.
+final class LyricsDisplayCoordinator: @unchecked Sendable {
     /// Latest resolved display state. Always assigned on the main queue so
     /// subscribers can update UI without an extra hop.
     @Published private(set) var snapshot: LyricsDisplaySnapshot = .empty

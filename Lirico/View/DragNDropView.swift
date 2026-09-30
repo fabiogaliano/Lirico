@@ -1,5 +1,6 @@
 import AppKit
 
+@MainActor
 protocol DragNDropDelegate: AnyObject {
     func dragFinished(content: String)
 }

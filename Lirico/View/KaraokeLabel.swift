@@ -283,12 +283,17 @@ class KaraokeLabel: NSTextField {
                 timer.invalidate()
                 return
             }
-            self.needsDisplay = true
-            if self.progressLayer.animation(forKey: "inlineProgress") == nil {
-                timer.invalidate()
-                if self.progressDisplayTimer === timer {
+            let firing = ObjectIdentifier(timer)
+            let finished = MainActor.assumeIsolated {
+                self.needsDisplay = true
+                guard self.progressLayer.animation(forKey: "inlineProgress") == nil else { return false }
+                if self.progressDisplayTimer.map(ObjectIdentifier.init) == firing {
                     self.progressDisplayTimer = nil
                 }
+                return true
+            }
+            if finished {
+                timer.invalidate()
             }
         }
         progressDisplayTimer = timer

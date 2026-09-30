@@ -3,7 +3,7 @@ import Combine
 import GenericID
 import LiricoFoundation
 import MusicPlayer
-import SnapKit
+@preconcurrency import SnapKit
 import SwiftCF
 import CoreGraphicsExt
 
@@ -17,7 +17,8 @@ class KaraokeLyricsWindowController: NSWindowController {
     private let settings: DisplaySettings
 
     private var cancelBag = Set<AnyCancellable>()
-    private var mouseMonitors: [Any] = []
+    // Read by deinit, which isn't main-actor isolated; the controller is only released on main.
+    nonisolated(unsafe) private var mouseMonitors: [Any] = []
 
     init(player: PlayerHandle, display: LyricsDisplayCoordinator, clock: PlaybackClock, settings: DisplaySettings = DisplaySettings()) {
         self.player = player
@@ -120,10 +121,10 @@ class KaraokeLyricsWindowController: NSWindowController {
             self.lyricsView.font = defaults.desktopLyricsFont
         }
 
-        observeNotification(name: NSApplication.didChangeScreenParametersNotification, queue: .main) { [unowned self] _ in
+        observeNotification(name: NSApplication.didChangeScreenParametersNotification) { [unowned self] in
             self.updateWindowFrame(animate: true)
         }
-        observeNotification(center: workspaceNC, name: NSWorkspace.activeSpaceDidChangeNotification, queue: .main) { [unowned self] _ in
+        observeNotification(center: workspaceNC, name: NSWorkspace.activeSpaceDidChangeNotification) { [unowned self] in
             self.updateWindowFrame(animate: true)
         }
     }

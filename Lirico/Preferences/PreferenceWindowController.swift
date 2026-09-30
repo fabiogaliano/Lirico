@@ -73,6 +73,7 @@ private enum PreferencePane: CaseIterable {
         }
     }
 
+    @MainActor
     var view: AnyView {
         switch self {
         case .general: AnyView(GeneralPreferencesView())

@@ -3,6 +3,7 @@ import AppKit
 /// Programmatic main menu and status bar menu construction.
 ///
 /// Replaces the former `Main.storyboard` "Application" scene.
+@MainActor
 enum MainMenuBuilder {
 
     /// Bundle of objects returned to `AppDelegate` so the offset view and

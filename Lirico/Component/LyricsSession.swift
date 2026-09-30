@@ -1,6 +1,7 @@
 import AppKit
 import Combine
-import MusicPlayer
+// `MusicTrack` isn't marked Sendable; the local lookup only reads it off the main thread.
+@preconcurrency import MusicPlayer
 import LiricoFoundation
 
 // MARK: - LyricsStatus
