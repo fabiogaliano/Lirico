@@ -115,14 +115,14 @@ struct SourcePreferencesView: View {
 
     private func commitOrder() {
         searchSettings.sourcePriorityOrder = sources
-        LyricsSelector.shared.normalize(against: availableLyricsSources(for: searchSettings), settings: searchSettings)
+        searchSettings.normalizeSourcePriorityOrder()
         sources = searchSettings.sourcePriorityOrder
     }
 
     // MARK: - Load
 
     private func loadSettings() {
-        LyricsSelector.shared.normalize(against: availableLyricsSources(for: searchSettings), settings: searchSettings)
+        searchSettings.normalizeSourcePriorityOrder()
         sourcePriorityEnabled = searchSettings.sourcePriorityEnabled
         sources = searchSettings.sourcePriorityOrder
         musixmatchToken = searchSettings.musixmatchToken ?? ""

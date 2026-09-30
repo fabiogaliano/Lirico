@@ -104,7 +104,7 @@ class LyricsSession: NSObject {
         pipeline: LyricsSearchPipeline,
         preparation: LyricsPreparation,
         chineseConverter: ChineseConverterProvider,
-        explicitResolver: ExplicitLyricsResolving = ExplicitLyricsResolver(),
+        explicitResolver: ExplicitLyricsResolver = ExplicitLyricsResolver(),
         displaySettings: DisplaySettings = DisplaySettings(),
         persistenceSettings: PersistenceSettings = PersistenceSettings(),
         searchSettings: SearchSettings = SearchSettings(),

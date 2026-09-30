@@ -7,7 +7,7 @@ import LiricoFoundation
 ///
 /// Owns the keys that decide which lyrics candidates make it through search:
 /// source-priority ordering, the per-search collection window, and the
-/// optional Musixmatch credential. `LyricsSelector`, `LyricsSearchPipeline`,
+/// optional Musixmatch credential. The source preferences, `LyricsSearchPipeline`,
 /// and the session's automatic-search loop consume one of these rather than
 /// reaching back into the flat `defaults[...]` namespace.
 struct SearchSettings {
@@ -29,6 +29,18 @@ struct SearchSettings {
     var sourcePriorityOrder: [String] {
         get { defaults[.lyricsSourcePriorityOrder] ?? [] }
         nonmutating set { defaults[.lyricsSourcePriorityOrder] = newValue }
+    }
+
+    /// Source names the search pipeline queries with these settings, from the same
+    /// descriptors it builds its providers from, so priority entries and candidate
+    /// source names always match. Musixmatch is included only with a token.
+    var availableSources: [String] {
+        makeProviderDescriptors(musixmatchToken: musixmatchToken).map(\.source)
+    }
+
+    /// Drop sources that no longer exist from the saved priority order and append new ones.
+    func normalizeSourcePriorityOrder() {
+        sourcePriorityOrder = normalizedSourceOrder(sourcePriorityOrder, known: availableSources)
     }
 
     /// Musixmatch user token. Nil/empty means the Musixmatch provider is not

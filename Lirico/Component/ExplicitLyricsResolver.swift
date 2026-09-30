@@ -36,24 +36,12 @@ struct ExplicitRenderRestoration {
     )
 }
 
-// MARK: - ExplicitLyricsResolving
-
-protocol ExplicitLyricsResolving: AnyObject {
-    var isEnabled: Bool { get }
-    /// Emits when the enablement flag or lexicon entries change, so display
-    /// surfaces can recompute visible text without reloading lyrics.
-    var settingsDidChange: AnyPublisher<Void, Never> { get }
-    /// Builds the display-time restorers bound to `context`. Returns identity
-    /// closures when the feature is disabled, so call sites stay branch-free.
-    func makeRenderRestoration(context: ExplicitRestorationContext) -> ExplicitRenderRestoration
-}
-
 // MARK: - ExplicitLyricsResolver
 
 /// App-side adapter between the explicit-restoration preferences and the pure
 /// `ExplicitWordRestorer`. Owns the cached restorer and rebuilds it when the
 /// lexicon entries change.
-final class ExplicitLyricsResolver: ExplicitLyricsResolving {
+final class ExplicitLyricsResolver {
     private let defaults: UserDefaults
     /// The display coordinator builds restorations on its background queue while
     /// lexicon edits rebuild the restorer on main, so shared state sits behind a lock.
@@ -78,14 +66,18 @@ final class ExplicitLyricsResolver: ExplicitLyricsResolving {
             .store(in: &cancelBag)
     }
 
-    var isEnabled: Bool {
+    private var isEnabled: Bool {
         defaults[.lyricsExplicitRestorationEnabled]
     }
 
+    /// Emits when the enablement flag or lexicon entries change, so display
+    /// surfaces can recompute visible text without reloading lyrics.
     var settingsDidChange: AnyPublisher<Void, Never> {
         changeSubject.eraseToAnyPublisher()
     }
 
+    /// Builds the display-time restorers bound to `context`. Returns identity
+    /// closures when the feature is disabled, so call sites stay branch-free.
     func makeRenderRestoration(context: ExplicitRestorationContext) -> ExplicitRenderRestoration {
         guard isEnabled else { return .identity }
 

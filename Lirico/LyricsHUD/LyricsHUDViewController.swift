@@ -21,7 +21,7 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
     private let player: PlayerHandle
     private let session: LyricsSession
     private let chineseConverter: ChineseConverterProvider
-    private let explicitResolver: ExplicitLyricsResolving
+    private let explicitResolver: ExplicitLyricsResolver
 
     private let dragNDropView = DragNDropView(frame: .zero)
     private let lyricsScrollView = ScrollLyricsView(frame: .zero)
@@ -56,7 +56,7 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
         player: PlayerHandle,
         session: LyricsSession,
         chineseConverter: ChineseConverterProvider,
-        explicitResolver: ExplicitLyricsResolving
+        explicitResolver: ExplicitLyricsResolver
     ) {
         self.player = player
         self.session = session

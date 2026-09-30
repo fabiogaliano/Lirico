@@ -7,15 +7,11 @@ import LiricoFoundation
 /// the same `LineRenderer.render(...)` calls and timetag lookups. Surfaces just
 /// pick the fields they care about.
 struct LyricsDisplayLine {
-    let lyrics: Lyrics
-    let index: Int
     let line: LyricsLine
-    let nextEnabledLine: LyricsLine?
 
     /// Main-line text after Chinese conversion.
     let primaryText: String
-    /// Translation text after Chinese conversion, when a translation
-    /// attachment exists under `translationLanguageCode`.
+    /// Translation text after Chinese conversion, when the lyrics have a translation.
     let translationText: String?
     /// Next-enabled-line text after Chinese conversion — used by the
     /// desktop karaoke surface as the second visible row.
@@ -24,7 +20,6 @@ struct LyricsDisplayLine {
     /// How long the active line is expected to remain on screen. Falls back
     /// to the gap to the next line, then to 2s. Used by the menu-bar marquee.
     let duration: TimeInterval
-    let translationLanguageCode: String?
 }
 
 /// A single resolved view of "what should the lyric surfaces be doing right now".

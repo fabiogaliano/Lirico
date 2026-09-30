@@ -37,7 +37,7 @@ final class LyricsDisplayCoordinator {
     private let player: PlayerHandle
     private let settings: DisplaySettings
     private let chineseConverter: ChineseConverterProvider
-    private let explicitResolver: ExplicitLyricsResolving
+    private let explicitResolver: ExplicitLyricsResolver
     private var currentLyrics: Lyrics?
     private var currentIndex: Int?
     private var currentSupporting: [Lyrics] = []
@@ -51,7 +51,7 @@ final class LyricsDisplayCoordinator {
         player: PlayerHandle,
         settings: DisplaySettings = DisplaySettings(),
         chineseConverter: ChineseConverterProvider,
-        explicitResolver: ExplicitLyricsResolving = ExplicitLyricsResolver()
+        explicitResolver: ExplicitLyricsResolver = ExplicitLyricsResolver()
     ) {
         self.player = player
         self.settings = settings
@@ -185,15 +185,11 @@ final class LyricsDisplayCoordinator {
         }
 
         let line = LyricsDisplayLine(
-            lyrics: lyrics,
-            index: index,
             line: currentLine,
-            nextEnabledLine: nextEnabled,
             primaryText: primaryText,
             translationText: translationText,
             nextLineText: nextLineText,
-            duration: duration,
-            translationLanguageCode: languageCode
+            duration: duration
         )
         return LyricsDisplaySnapshot(line: line, isPausedAndHidden: isPausedAndHidden)
     }

@@ -17,7 +17,7 @@ final class LyricsSyncWindowController: NSWindowController {
         player: PlayerHandle,
         session: LyricsSession,
         chineseConverter: ChineseConverterProvider,
-        explicitResolver: ExplicitLyricsResolving
+        explicitResolver: ExplicitLyricsResolver
     ) {
         let styleMask: NSWindow.StyleMask = [
             .titled, .closable, .resizable,
@@ -97,7 +97,7 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
     private let player: PlayerHandle
     private let session: LyricsSession
     private let chineseConverter: ChineseConverterProvider
-    private let explicitResolver: ExplicitLyricsResolving
+    private let explicitResolver: ExplicitLyricsResolver
 
     private let scrollLyricsView = ScrollLyricsView(frame: .zero)
     private let nowBand = LyricsNowBandView()
@@ -132,7 +132,7 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
         player: PlayerHandle,
         session: LyricsSession,
         chineseConverter: ChineseConverterProvider,
-        explicitResolver: ExplicitLyricsResolving
+        explicitResolver: ExplicitLyricsResolver
     ) {
         self.player = player
         self.session = session

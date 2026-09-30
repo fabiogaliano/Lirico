@@ -81,7 +81,7 @@ Run `./diag.sh` with the suspect song playing, then:
 
 To avoid re-implementing app logic that could silently diverge, the two pieces most likely to change live in the `LiricoFoundation` package and are used by **both** the app and this tool:
 
-- **`makeProviderDescriptors(musixmatchToken:)`** — the canonical lyrics-source list/order (app's `LyricsSearchPipeline`/`LyricsSelector` and this tool call it).
+- **`makeProviderDescriptors(musixmatchToken:)`** — the canonical lyrics-source list/order (the app's `LyricsSearchPipeline` and `SearchSettings`, and this tool, call it).
 - **`makeLyricsFilterPredicate(keys:enabled:)`** — the line-filter predicate (app's `LyricsFilter` and this tool call it).
 
 Add or change a provider, or the filter logic, in one place and both follow.

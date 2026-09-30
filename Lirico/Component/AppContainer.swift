@@ -10,19 +10,19 @@ import MusicPlayer
 /// informal contract.
 final class AppContainer {
     let player: PlayerHandle
-    let playbackClock: PlaybackClock
-    let searchPipeline: LyricsSearchPipeline
-    let displaySettings: DisplaySettings
-    let searchSettings: SearchSettings
-    let exportSettings: ExportSettings
+    private let playbackClock: PlaybackClock
+    private let searchPipeline: LyricsSearchPipeline
+    private let displaySettings: DisplaySettings
+    private let searchSettings: SearchSettings
+    private let exportSettings: ExportSettings
     let playerSettings: PlayerSettings
-    let lyricsFilter: LyricsFilter
-    let lyricsPreparation: LyricsPreparation
-    let chineseConverterProvider: ChineseConverterProvider
-    let explicitResolver: ExplicitLyricsResolver
+    private let lyricsFilter: LyricsFilter
+    private let lyricsPreparation: LyricsPreparation
+    private let chineseConverterProvider: ChineseConverterProvider
+    private let explicitResolver: ExplicitLyricsResolver
     let session: LyricsSession
-    let menuBarController: MenuBarLyricsController
-    let karaokeWindowController: KaraokeLyricsWindowController
+    private let menuBarController: MenuBarLyricsController
+    private let karaokeWindowController: KaraokeLyricsWindowController
 
     private(set) lazy var lyricsHUD: LyricsHUDWindowController = LyricsHUDWindowController(
         player: player,
@@ -86,7 +86,7 @@ final class AppContainer {
     /// side effects on the container (rather than inside individual inits)
     /// means the constructor stays free of "and now show a window" magic.
     func start(statusBarMenu: NSMenu) {
-        LyricsSelector.shared.normalize(against: availableLyricsSources(for: searchSettings), settings: searchSettings)
+        searchSettings.normalizeSourcePriorityOrder()
         karaokeWindowController.showWindow(nil)
         menuBarController.statusBarMenu = statusBarMenu
     }

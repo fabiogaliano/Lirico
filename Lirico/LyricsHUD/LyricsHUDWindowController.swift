@@ -19,7 +19,7 @@ final class LyricsHUDWindowController: NSWindowController {
         player: PlayerHandle,
         session: LyricsSession,
         chineseConverter: ChineseConverterProvider,
-        explicitResolver: ExplicitLyricsResolving
+        explicitResolver: ExplicitLyricsResolver
     ) {
         // Matches the storyboard's `NSPanel` config: HUD style, utility, non-
         // activating, full-size content view, hidden title, persistent frame.

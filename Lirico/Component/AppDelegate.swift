@@ -38,11 +38,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         container.start(statusBarMenu: built.menu)
         built.menu.delegate = self
 
-        LyricsOffsetMenuBindings.install(
-            stepper: built.lyricsOffsetStepper,
-            textField: built.lyricsOffsetTextField,
-            session: container.session
-        )
+        for control in [built.lyricsOffsetStepper, built.lyricsOffsetTextField] as [NSControl] {
+            control.bind(
+                .value,
+                to: container.session,
+                withKeyPath: #keyPath(LyricsSession.lyricsOffset),
+                options: [.continuouslyUpdatesValue: true]
+            )
+        }
 
         ShortcutBindings.install(actionTarget: self)
 
