@@ -8,7 +8,6 @@ final class DisplayPreferencesViewModel: ObservableObject {
     @Published var desktopProgressColor: Color = .accentColor
     @Published var desktopShadowColor: Color = Color(NSColor.black.withAlphaComponent(0.55))
     @Published var desktopBackgroundColor: Color = Color(NSColor.black.withAlphaComponent(0.85))
-    @Published var hudTextColor: Color = Color(NSColor(calibratedWhite: 0.6, alpha: 1))
     @Published var hudHighlightColor: Color = .accentColor
 
     @Published var desktopFont: NSFont = .systemFont(ofSize: NSFont.systemFontSize)
@@ -24,20 +23,17 @@ final class DisplayPreferencesViewModel: ObservableObject {
         let nsAccent = NSColor.controlAccentColor
         let nsShadow = NSColor.black.withAlphaComponent(0.55)
         let nsBg = NSColor.black.withAlphaComponent(0.85)
-        let nsGray = NSColor(calibratedWhite: 0.6, alpha: 1)
 
         let dtc: NSColor = defaults[.desktopLyricsColor] ?? nsWhite
         let dpc: NSColor = defaults[.desktopLyricsProgressColor] ?? nsAccent
         let dsc: NSColor = defaults[.desktopLyricsShadowColor] ?? nsShadow
         let dbc: NSColor = defaults[.desktopLyricsBackgroundColor] ?? nsBg
-        let htc: NSColor = defaults[.lyricsWindowTextColor] ?? nsGray
         let hhc: NSColor = defaults[.lyricsWindowHighlightColor] ?? nsAccent
 
         desktopTextColor = Color(dtc)
         desktopProgressColor = Color(dpc)
         desktopShadowColor = Color(dsc)
         desktopBackgroundColor = Color(dbc)
-        hudTextColor = Color(htc)
         hudHighlightColor = Color(hhc)
 
         desktopFont = defaults.desktopLyricsFont
@@ -64,11 +60,6 @@ final class DisplayPreferencesViewModel: ObservableObject {
     func saveDesktopBackgroundColor() {
         let c: NSColor = NSColor(desktopBackgroundColor)
         defaults[.desktopLyricsBackgroundColor] = c
-    }
-
-    func saveHudTextColor() {
-        let c: NSColor = NSColor(hudTextColor)
-        defaults[.lyricsWindowTextColor] = c
     }
 
     func saveHudHighlightColor() {
@@ -177,6 +168,22 @@ struct DisplayPreferencesView: View {
 
     @StateObject private var vm = DisplayPreferencesViewModel()
 
+    /// Saves only when the user picks a color. Saving from `onChange` also fired when `load()`
+    /// replaced the placeholders, writing every registered default into the user's domain
+    /// just by opening this pane, so later default changes never reached them.
+    private func colorBinding(
+        _ keyPath: ReferenceWritableKeyPath<DisplayPreferencesViewModel, Color>,
+        save: @escaping (DisplayPreferencesViewModel) -> () -> Void
+    ) -> Binding<Color> {
+        Binding(
+            get: { vm[keyPath: keyPath] },
+            set: { newValue in
+                vm[keyPath: keyPath] = newValue
+                save(vm)()
+            }
+        )
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -206,24 +213,20 @@ struct DisplayPreferencesView: View {
                 }
             }
             SettingsRow(label: "Text Color") {
-                ColorPicker("", selection: $vm.desktopTextColor, supportsOpacity: true)
+                ColorPicker("Text Color", selection: colorBinding(\.desktopTextColor, save: { $0.saveDesktopTextColor }), supportsOpacity: true)
                     .labelsHidden()
-                    .onChange(of: vm.desktopTextColor) { vm.saveDesktopTextColor() }
             }
             SettingsRow(label: "Karaoke Color") {
-                ColorPicker("", selection: $vm.desktopProgressColor, supportsOpacity: true)
+                ColorPicker("Karaoke Color", selection: colorBinding(\.desktopProgressColor, save: { $0.saveDesktopProgressColor }), supportsOpacity: true)
                     .labelsHidden()
-                    .onChange(of: vm.desktopProgressColor) { vm.saveDesktopProgressColor() }
             }
             SettingsRow(label: "Shadow Color") {
-                ColorPicker("", selection: $vm.desktopShadowColor, supportsOpacity: true)
+                ColorPicker("Shadow Color", selection: colorBinding(\.desktopShadowColor, save: { $0.saveDesktopShadowColor }), supportsOpacity: true)
                     .labelsHidden()
-                    .onChange(of: vm.desktopShadowColor) { vm.saveDesktopShadowColor() }
             }
             SettingsRow(label: "Background Color") {
-                ColorPicker("", selection: $vm.desktopBackgroundColor, supportsOpacity: true)
+                ColorPicker("Background Color", selection: colorBinding(\.desktopBackgroundColor, save: { $0.saveDesktopBackgroundColor }), supportsOpacity: true)
                     .labelsHidden()
-                    .onChange(of: vm.desktopBackgroundColor) { vm.saveDesktopBackgroundColor() }
             }
             Toggle("One line mode", isOn: $oneLineMode)
             Toggle("Vertical mode", isOn: $verticalMode)
@@ -233,7 +236,10 @@ struct DisplayPreferencesView: View {
 
     private var desktopLyricsBehaviorSection: some View {
         SettingsSection(title: "Desktop Lyrics Behavior") {
+            // Dragging needs the lyrics to stay under the pointer, so the overlay ignores this while draggable.
             Toggle("Hide when mouse passes by", isOn: $hideWhenMousePassingBy)
+                .disabled(draggable)
+                .help(draggable ? "Turn off Draggable to hide lyrics when the mouse passes over them." : "")
             Toggle("Disable when paused", isOn: $disableWhenPaused)
             Toggle("Disable during screenshot", isOn: $disableWhenScreenShot)
         }
@@ -246,15 +252,9 @@ struct DisplayPreferencesView: View {
                     vm.hudFontChanged(from: old, to: new)
                 }
             }
-            SettingsRow(label: "Text Color") {
-                ColorPicker("", selection: $vm.hudTextColor, supportsOpacity: true)
-                    .labelsHidden()
-                    .onChange(of: vm.hudTextColor) { vm.saveHudTextColor() }
-            }
             SettingsRow(label: "Highlight Color") {
-                ColorPicker("", selection: $vm.hudHighlightColor, supportsOpacity: true)
+                ColorPicker("Highlight Color", selection: colorBinding(\.hudHighlightColor, save: { $0.saveHudHighlightColor }), supportsOpacity: true)
                     .labelsHidden()
-                    .onChange(of: vm.hudHighlightColor) { vm.saveHudHighlightColor() }
             }
         }
     }

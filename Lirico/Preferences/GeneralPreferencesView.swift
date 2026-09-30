@@ -245,8 +245,6 @@ struct GeneralPreferencesView: View {
         panel.beginSheetModal(for: window) { result in
             if result == .OK, let url = panel.url {
                 commitSavingDirectory(url)
-            } else {
-                savingPathPopUpIndex = 0
             }
         }
     }
@@ -255,8 +253,6 @@ struct GeneralPreferencesView: View {
         let result = panel.runModal()
         if result == .OK, let url = panel.url {
             commitSavingDirectory(url)
-        } else {
-            savingPathPopUpIndex = 0
         }
     }
 

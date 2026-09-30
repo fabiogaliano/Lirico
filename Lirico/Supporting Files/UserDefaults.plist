@@ -2,35 +2,29 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>DesktopLyricsEnabled</key>
-	<true/>
 	<key>DesktopLyricsDraggable</key>
 	<true/>
-	<key>PreferredPlayerIndex</key>
-	<integer>1</integer>
-	<key>HideLyricsWhenMousePassingBy</key>
+	<key>DesktopLyricsEnableFurigana</key>
+	<false/>
+	<key>DesktopLyricsEnabled</key>
+	<true/>
+	<key>DesktopLyricsFontName</key>
+	<string>SFProDisplay-Semibold</string>
+	<key>DesktopLyricsFontSize</key>
+	<integer>22</integer>
+	<key>DesktopLyricsInsetBottom</key>
+	<integer>20</integer>
+	<key>DesktopLyricsInsetBottomEnabled</key>
 	<true/>
 	<key>DisableLyricsWhenPaused</key>
 	<true/>
 	<key>DisableLyricsWhenSreenShot</key>
 	<true/>
-	<key>DesktopLyricsInsetBottomEnabled</key>
+	<key>GlobalLyricsOffset</key>
+	<integer>0</integer>
+	<key>HideLyricsWhenMousePassingBy</key>
 	<true/>
-	<key>DesktopLyricsInsetBottom</key>
-	<integer>20</integer>
-	<key>DesktopLyricsEnableFurigana</key>
-	<false/>
-	<key>DesktopLyricsFontName</key>
-	<string>SFProDisplay-Semibold</string>
-	<key>DesktopLyricsFontSize</key>
-	<integer>22</integer>
-	<key>LyricsWindowFontName</key>
-	<string>SFProText-Regular</string>
-	<key>LyricsWindowFontSize</key>
-	<string>15</string>
 	<key>LyricsFilterEnabled</key>
-	<true/>
-	<key>LyricsSmartFilterEnabled</key>
 	<true/>
 	<key>LyricsFilterKeys</key>
 	<array>
@@ -65,8 +59,6 @@
 		<string>SoundTrack</string>
 		<string>アニメ</string>
 	</array>
-	<key>GlobalLyricsOffset</key>
-	<integer>0</integer>
 	<key>LyricsSourcePriorityEnabled</key>
 	<false/>
 	<key>LyricsSourcePriorityOrder</key>
@@ -78,7 +70,13 @@
 		<string>QQMusic</string>
 		<string>Spotify</string>
 	</array>
+	<key>LyricsWindowFontName</key>
+	<string>SFProText-Regular</string>
+	<key>LyricsWindowFontSize</key>
+	<integer>15</integer>
 	<key>NSApplicationCrashOnExceptions</key>
 	<true/>
+	<key>PreferredPlayerIndex</key>
+	<integer>-1</integer>
 </dict>
 </plist>
