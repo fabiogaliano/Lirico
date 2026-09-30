@@ -45,7 +45,9 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
     /// Drives the intra-line karaoke fill while playing. Line-index changes alone
     /// are too coarse for word-level progress, so this ticks ~30Hz and repaints
     /// the current line's sung prefix; it's stopped when paused or hidden.
-    private var karaokeFillTimer: Timer?
+    private lazy var follower = LyricsLineFollower(
+        scrollView: lyricsScrollView, nowBand: nowBand, session: session, hidesBandOnKaraokeLines: false
+    )
 
     private var isWillTerminate = false
     private var cancelBag = Set<AnyCancellable>()
@@ -271,7 +273,7 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
         player.playbackStateWillChange
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] state in
-                self.setKaraokeFill(active: state.isPlaying && self.view.window?.isVisible == true)
+                self.follower.setFillActive(state.isPlaying && self.view.window?.isVisible == true)
             }
             .store(in: &cancelBag)
     }
@@ -281,12 +283,12 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
         session.refreshNoTrackStatus()
         isTracking = true
         refreshTextContents()
-        setKaraokeFill(active: player.playbackState.isPlaying)
+        follower.setFillActive(player.playbackState.isPlaying)
     }
 
     override func viewWillDisappear() {
         super.viewWillDisappear()
-        stopKaraokeFill()
+        follower.setFillActive(false)
     }
 
     /// Re-center on the current line and resume auto-follow. Called when the panel
@@ -318,91 +320,8 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
         follow(animated: false)
     }
 
-    /// Highlight the synced line always; scroll to it only while following.
     private func follow(animated: Bool = true) {
-        let index = session.currentLineIndex
-        updateHighlight(forLineIndex: index)
-        guard isTracking else { return }
-        if animated, !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
-            NSAnimationContext.runAnimationGroup { context in
-                context.duration = 0.3
-                context.allowsImplicitAnimation = true
-                context.timingFunction = .swiftOut
-                self.lyricsScrollView.scroll(lineIndex: index)
-            }
-        } else {
-            lyricsScrollView.scroll(lineIndex: index)
-        }
-    }
-
-    /// Paint the current line. When it carries word timetags, fill it
-    /// progressively from the offset-adjusted playback time (karaoke style);
-    /// otherwise highlight the whole line. Either way the "now" band frames the
-    /// centered line — unlike the Sync panel the HUD draws no per-word box, since
-    /// the fill alone shows progress and there's nothing to sync by word here.
-    /// Called both on line-index changes (`follow`) and, while playing, ~30Hz by
-    /// `karaokeFillTimer` for the intra-line word fill.
-    private func updateHighlight(forLineIndex index: Int?) {
-        nowBand.isHidden = session.currentLyrics == nil
-        guard let index,
-              let lyrics = session.currentLyrics,
-              lyrics.lines.indices.contains(index),
-              let timetag = lyrics.lines[index].attachments.timetag,
-              !timetag.tags.isEmpty
-        else {
-            lyricsScrollView.highlight(lineIndex: index)
-            return
-        }
-        // Mirror PlaybackClock.adjustedPlaybackTime: per-song offset plus the
-        // app-wide offset, so the fill reflects exactly the synced position.
-        let adjustedTime = player.playbackState.time
-            + Double(session.lyricsOffset + defaults[.globalLyricsOffset]) / 1000.0
-        let elapsed = adjustedTime - lyrics.lines[index].position
-        let sung = sungCharacters(elapsed: elapsed, tags: timetag.tags)
-        lyricsScrollView.highlight(lineIndex: index, sungCharacters: sung)
-    }
-
-    /// Piecewise-linear map from time-into-line to the UTF-16 character the fill
-    /// has reached, matching the karaoke overlay: at each tag's `time` the fill
-    /// sits at that tag's `index`, interpolated between and clamped at both ends.
-    private func sungCharacters(
-        elapsed: TimeInterval,
-        tags: [LyricsLine.Attachments.InlineTimeTag.Tag]
-    ) -> Int {
-        guard let first = tags.first else { return 0 }
-        if elapsed <= first.time { return first.index }
-        for i in 1 ..< tags.count {
-            let prev = tags[i - 1]
-            let cur = tags[i]
-            if elapsed < cur.time {
-                let span = cur.time - prev.time
-                guard span > 0 else { return cur.index }
-                let frac = (elapsed - prev.time) / span
-                return prev.index + Int((Double(cur.index - prev.index) * frac).rounded())
-            }
-        }
-        return tags.last!.index
-    }
-
-    private func setKaraokeFill(active: Bool) {
-        active ? startKaraokeFill() : stopKaraokeFill()
-    }
-
-    private func startKaraokeFill() {
-        karaokeFillTimer?.invalidate()
-        // `.common` keeps the fill advancing during scroll/menu tracking runloops.
-        let timer = Timer(timeInterval: 1.0 / 30.0, repeats: true) { [weak self] _ in
-            guard let self else { return }
-            self.updateHighlight(forLineIndex: self.session.currentLineIndex)
-        }
-        RunLoop.main.add(timer, forMode: .common)
-        karaokeFillTimer = timer
-        updateHighlight(forLineIndex: session.currentLineIndex)
-    }
-
-    private func stopKaraokeFill() {
-        karaokeFillTimer?.invalidate()
-        karaokeFillTimer = nil
+        follower.follow(animated: animated, scrolling: isTracking)
     }
 
     // MARK: - Actions
