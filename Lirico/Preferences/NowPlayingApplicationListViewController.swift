@@ -65,7 +65,7 @@ final class NowPlayingApplicationListViewController: NSViewController {
 
     typealias Snapshot = NSDiffableDataSourceSnapshot<Section, NowPlayingApplication>
 
-    let titleLabel = NSTextField(labelWithString: "Now Playing Applications")
+    let titleLabel = NSTextField(labelWithString: NSLocalizedString("Now Playing Applications", comment: "now playing apps sheet title"))
 
     let scrollView = NSScrollView()
 
@@ -77,7 +77,7 @@ final class NowPlayingApplicationListViewController: NSViewController {
 
     lazy var removeButton = NSButton(image: .init(named: NSImage.removeTemplateName)!, target: self, action: #selector(removeButtonAction(_:)))
 
-    lazy var closeButton = NSButton(title: "Close", target: self, action: #selector(closeButtonAction(_:)))
+    lazy var closeButton = NSButton(title: NSLocalizedString("Close", comment: "now playing apps sheet"), target: self, action: #selector(closeButtonAction(_:)))
 
     lazy var dataSource = makeDataSource()
 

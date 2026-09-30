@@ -294,7 +294,7 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
     // MARK: - Display
 
     private func updateOffsetLabel() {
-        offsetLabel.stringValue = String(format: "%+d ms", session.lyricsOffset)
+        offsetLabel.stringValue = String(format: NSLocalizedString("%+d ms", comment: "sync offset readout in milliseconds"), session.lyricsOffset)
     }
 
     private func updatePlayPauseIcon(isPlaying: Bool) {

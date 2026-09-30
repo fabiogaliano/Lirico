@@ -54,7 +54,7 @@ struct SearchLyricsView: View {
         }
     }
 
-    private var buttonTitle: String {
+    private var buttonTitle: LocalizedStringKey {
         switch viewModel.buttonLabel {
         case .search:      return "Search"
         case .cancel:      return "Cancel"
@@ -75,28 +75,28 @@ struct SearchLyricsView: View {
     private var statusCopy: String {
         switch viewModel.searchStatus {
         case .idle:
-            return "Enter a title, artist, or both to search"
+            return String(localized: "Enter a title, artist, or both to search")
         case .searching(let summary):
             return summary
         case .finished:
             return viewModel.likelyCount > 0 || viewModel.unlikelyCount > 0
                 ? SearchStatus.matchSummary(likely: viewModel.likelyCount, hiddenUnlikely: viewModel.hiddenUnlikelyCount)
-                : "No matching lyrics found"
+                : String(localized: "No matching lyrics found")
         case .failed(let message):
             let count = viewModel.visibleRows.count
             return count > 0
-                ? "\(message) · \(SearchStatus.partialMatches(count))"
-                : "Search failed. Check your connection and try again."
+                ? String(localized: "\(message) · \(SearchStatus.partialMatches(count))", comment: "search status; the first %@ lists the failed sources")
+                : String(localized: "Search failed. Check your connection and try again.")
         case .timedOut:
             let count = viewModel.visibleRows.count
             return count > 0
-                ? "Search timed out · \(SearchStatus.partialMatches(count))"
-                : "Search timed out. Try again."
+                ? String(localized: "Search timed out · \(SearchStatus.partialMatches(count))", comment: "search status")
+                : String(localized: "Search timed out. Try again.")
         case .cancelled:
             let count = viewModel.visibleRows.count
             return count > 0
-                ? "Cancelled · showing \(count) \(count == 1 ? "result" : "results")"
-                : "Search cancelled"
+                ? String(localized: "Cancelled · showing \(count) results", comment: "search status")
+                : String(localized: "Search cancelled")
         }
     }
 
