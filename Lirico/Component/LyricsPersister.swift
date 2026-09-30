@@ -76,8 +76,8 @@ enum LyricsPersister {
         }
     }
 
-    /// Write `lyrics` to the currently playing Apple Music track.
-    /// No-op if the player isn't Apple Music or there's no scriptable track.
+    /// Write `lyrics` to `track` in Apple Music.
+    /// No-op unless Apple Music is still playing `track` and it's scriptable.
     /// When `overwrite` is false, existing non-empty lyrics on the track are preserved.
     ///
     /// The `settings` parameter carries the formatting policy (plain-LRC export
@@ -85,13 +85,16 @@ enum LyricsPersister {
     /// namespace defaults-free in the same shape as `saveToDisk(_:to:)`.
     static func writeToiTunes(
         _ lyrics: Lyrics,
+        to track: MusicTrack,
         player: PlayerHandle,
         overwrite: Bool,
         settings: ExportSettings,
         converter: ChineseConverter?
     ) {
+        // `originalTrack` is only an Apple Music object while Apple Music is playing it.
         guard player.name == .appleMusic,
-              let sbTrack = player.currentTrack?.originalTrack,
+              player.currentTrack?.id == track.id,
+              let sbTrack = track.originalTrack,
               overwrite || (sbTrack.value(forKey: "lyrics") as! String?)?.isEmpty != false else {
             return
         }

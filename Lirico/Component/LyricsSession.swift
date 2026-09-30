@@ -80,7 +80,7 @@ class LyricsSession: NSObject {
     /// The track the running automatic search belongs to. Track changes reach the
     /// session through a main-actor hop, so a result can land after the player has
     /// already moved on while the generation still matches; this catches that gap.
-    private var automaticSearchTrackID: String?
+    private var automaticSearchTrack: MusicTrack?
 
     private var cancelBag = Set<AnyCancellable>()
 
@@ -179,9 +179,15 @@ class LyricsSession: NSObject {
     }
 
     func writeToiTunes(overwrite: Bool) {
+        guard let track = player.currentTrack else { return }
+        writeToiTunes(overwrite: overwrite, to: track)
+    }
+
+    private func writeToiTunes(overwrite: Bool, to track: MusicTrack) {
         guard let currentLyrics else { return }
         LyricsPersister.writeToiTunes(
             currentLyrics,
+            to: track,
             player: player,
             overwrite: overwrite,
             settings: exportSettings,
@@ -289,7 +295,7 @@ class LyricsSession: NSObject {
         automaticSearchGeneration &+= 1
         searchTask?.cancel()
         searchTask = nil
-        automaticSearchTrackID = track?.id
+        automaticSearchTrack = track
 
         guard let track else {
             updateNoTrackStatus()
@@ -377,40 +383,54 @@ class LyricsSession: NSObject {
     // MARK: - Applying automatic search decisions
 
     private func isCurrentAutomaticSearch(_ generation: Int) -> Bool {
-        automaticSearchGeneration == generation && player.currentTrack?.id == automaticSearchTrackID
+        automaticSearchGeneration == generation && player.currentTrack?.id == automaticSearchTrack?.id
     }
 
     @MainActor
     private func apply(_ decision: AutomaticLyricsSearch.Decision, initialLyrics: Lyrics?) {
         switch decision {
+        // Bind results to the searched track, not the live one, so a change that lands after
+        // the currency check can't label, save or export this song's lyrics under the next.
         case .interim(let lyrics):
             // Interim results are display-only: not marked for persistence or exported.
-            if let track = player.currentTrack {
+            if let track = automaticSearchTrack {
                 lyrics.associateWithTrack(track)
             }
             currentLyrics = lyrics
             status = .loaded
 
         case .supporting(let supporting):
-            supportingLyrics = supporting
+            updateSupportingLyrics(supporting)
 
         case .finished(let accepted, let supporting):
             if let accepted {
-                if let track = player.currentTrack {
+                if let track = automaticSearchTrack {
                     accepted.associateWithTrack(track)
                 }
                 accepted.metadata.persistenceAllowed = true
-                currentLyrics = accepted
+                // Usually already on screen as the interim pick; assigning it again resets
+                // the line index and makes the karaoke line blink.
+                if accepted !== currentLyrics {
+                    currentLyrics = accepted
+                }
             }
-            supportingLyrics = supporting
+            updateSupportingLyrics(supporting)
             status = currentLyrics == nil ? .notFound : .loaded
             persistCurrentLyricsIfNeeded()
             // Kept local lyrics are already what the user has; re-exporting them would
             // cost an Apple Event per track and clobber Apple Music's field for nothing.
-            if exportSettings.writeToiTunesAutomatically, currentLyrics !== initialLyrics {
-                writeToiTunes(overwrite: true)
+            if exportSettings.writeToiTunesAutomatically, currentLyrics !== initialLyrics,
+               let track = automaticSearchTrack {
+                writeToiTunes(overwrite: true, to: track)
             }
         }
+    }
+
+    /// Every assignment rebuilds the lyrics window and Sync by Ear text, and the search
+    /// reports the same set again as each new candidate arrives.
+    private func updateSupportingLyrics(_ supporting: [Lyrics]) {
+        guard !supporting.elementsEqual(supportingLyrics, by: ===) else { return }
+        supportingLyrics = supporting
     }
 }
 

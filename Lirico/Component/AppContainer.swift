@@ -42,7 +42,7 @@ final class AppContainer {
     private(set) lazy var aboutWindowController: AboutWindowController = AboutWindowController()
 
     @MainActor
-    init(player: PlayerHandle = MusicPlayers.Selected.shared) {
+    init(player: PlayerHandle = SelectedPlayerHandle()) {
         self.player = player
         let clock = PlaybackClock(player: player)
         self.playbackClock = clock

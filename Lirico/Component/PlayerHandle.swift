@@ -9,8 +9,8 @@ import MusicPlayer
 /// or setter-time. The protocol exists to (a) document the actual API surface used by
 /// the app in one place and (b) eliminate the module-level `selectedPlayer` global.
 ///
-/// `MusicPlayers.Selected` already satisfies every member except `designatedPlayerBundleID`,
-/// which hides the `as? MusicPlayers.Scriptable` cast that LyricsSession used to do inline.
+/// Reading `currentTrack` / `playbackState` after receiving an announcement returns the
+/// announced value (or a later one), never the value it replaced.
 protocol PlayerHandle: AnyObject {
     var name: MusicPlayerName? { get }
     var currentTrack: MusicTrack? { get }
@@ -29,10 +29,49 @@ protocol PlayerHandle: AnyObject {
     func skipToPreviousItem()
 }
 
-extension MusicPlayers.Selected: PlayerHandle {
-    var designatedPlayerBundleID: String? {
-        (designatedPlayer as? MusicPlayers.Scriptable)?.playerBundleID
+/// The player announces a change from `willSet` on its own queue, so its properties still
+/// hold the old value when subscribers run; anyone who hops queues and then re-reads them
+/// can pick up the previous song or state and never hear about the new one. This adapter
+/// records each announcement before passing it on, and answers reads from those records.
+final class SelectedPlayerHandle: PlayerHandle {
+    private let player: MusicPlayers.Selected
+    // `CurrentValueSubject` stores the value before notifying and replays it on subscribe,
+    // matching the `@Published` publishers it stands in for.
+    private let track: CurrentValueSubject<MusicTrack?, Never>
+    private let state: CurrentValueSubject<PlaybackState, Never>
+    private var cancelBag = Set<AnyCancellable>()
+
+    init(player: MusicPlayers.Selected = .shared) {
+        self.player = player
+        track = CurrentValueSubject(player.currentTrack)
+        state = CurrentValueSubject(player.playbackState)
+        player.currentTrackWillChange
+            .sink { [track] in track.send($0) }
+            .store(in: &cancelBag)
+        player.playbackStateWillChange
+            .sink { [state] in state.send($0) }
+            .store(in: &cancelBag)
     }
+
+    var name: MusicPlayerName? { player.name }
+    var currentTrack: MusicTrack? { track.value }
+    var playbackState: PlaybackState { state.value }
+
+    var playbackTime: TimeInterval {
+        get { state.value.time }
+        set { player.playbackTime = newValue }
+    }
+
+    var currentTrackWillChange: AnyPublisher<MusicTrack?, Never> { track.eraseToAnyPublisher() }
+    var playbackStateWillChange: AnyPublisher<PlaybackState, Never> { state.eraseToAnyPublisher() }
+
+    var designatedPlayerBundleID: String? {
+        (player.designatedPlayer as? MusicPlayers.Scriptable)?.playerBundleID
+    }
+
+    func playPause() { player.playPause() }
+    func skipToNextItem() { player.skipToNextItem() }
+    func skipToPreviousItem() { player.skipToPreviousItem() }
 }
 
 /// Detects the one failure that otherwise looks exactly like "nothing is playing":
