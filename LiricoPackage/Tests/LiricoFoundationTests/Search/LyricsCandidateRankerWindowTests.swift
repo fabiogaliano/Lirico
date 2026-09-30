@@ -1,0 +1,118 @@
+import Testing
+import Foundation
+@testable import LiricoFoundation
+
+private let ranker = LyricsCandidateRanker()
+private let titleMode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
+
+private func candidate(
+    score: Double,
+    service: String,
+    tier: LyricsCandidateMatchTier = .exactTitleArtist,
+    syncKind: LyricsSyncKind = .lineSynced,
+    mode: LyricsSearchMode = titleMode,
+    title: String = "lacy",
+    arrivalIndex: Int
+) -> EvaluatedLyricsCandidate {
+    let lyrics = Lyrics("[ti:\(title)]\n[ar:Olivia Rodrigo]\n[00:01.000]line one\n[00:05.000]line two")!
+    lyrics.metadata.service = service
+    let evaluation = LyricsCandidateEvaluation(
+        mode: mode,
+        visibility: .normal,
+        matchTier: tier,
+        syncKind: syncKind,
+        titleScore: 100,
+        artistScore: 100,
+        durationScore: 50,
+        albumScore: 50,
+        overallScore: score,
+        rejectionReason: nil
+    )
+    return EvaluatedLyricsCandidate(lyrics: lyrics, evaluation: evaluation, arrivalIndex: arrivalIndex)
+}
+
+private let priority = LyricsCandidateRankingConfiguration(
+    sourcePriorityEnabled: true,
+    sourcePriorityOrder: ["QQMusic", "NetEase", "Kugou"],
+    nearEqualSourcePriorityWindow: 2
+)
+
+@Suite("Near-Equal Source Priority Window")
+struct NearEqualSourcePriorityWindowTests {
+    @Test("Preferred source wins when its score is within the window")
+    func preferredWithinWindow() {
+        let better = candidate(score: 98, service: "NetEase", arrivalIndex: 0)
+        let preferred = candidate(score: 97, service: "QQMusic", arrivalIndex: 1)
+        let ranked = ranker.rankedCandidates([better, preferred], mode: titleMode, configuration: priority)
+        #expect(ranked.map(\.lyrics.metadata.service) == ["QQMusic", "NetEase"])
+    }
+
+    @Test("Preferred source loses when its score is outside the window")
+    func preferredOutsideWindow() {
+        let better = candidate(score: 99, service: "NetEase", arrivalIndex: 0)
+        let preferred = candidate(score: 96, service: "QQMusic", arrivalIndex: 1)
+        let ranked = ranker.rankedCandidates([better, preferred], mode: titleMode, configuration: priority)
+        #expect(ranked.map(\.lyrics.metadata.service) == ["NetEase", "QQMusic"])
+    }
+
+    @Test("Chained near-equal scores never let a candidate jump more than the window", arguments: [
+        [0, 1, 2], [2, 1, 0], [1, 0, 2], [0, 2, 1],
+    ])
+    func chainIsConsistent(order: [Int]) {
+        // 84 ≈ 82 ≈ 80 pairwise, but 80 is 4 points below 84.
+        let all = [
+            candidate(score: 84, service: "Kugou", arrivalIndex: 0),
+            candidate(score: 82, service: "NetEase", arrivalIndex: 1),
+            candidate(score: 80, service: "QQMusic", arrivalIndex: 2),
+        ]
+        let ranked = ranker.rankedCandidates(order.map { all[$0] }, mode: titleMode, configuration: priority)
+        #expect(ranked.map(\.lyrics.metadata.service) == ["NetEase", "Kugou", "QQMusic"])
+    }
+
+    @Test("Source priority never crosses tiers")
+    func tierDominates() {
+        let exact = candidate(score: 96, service: "Kugou", arrivalIndex: 0)
+        let strong = candidate(score: 95, service: "QQMusic", tier: .strongTitleArtist, arrivalIndex: 1)
+        let ranked = ranker.rankedCandidates([strong, exact], mode: titleMode, configuration: priority)
+        #expect(ranked.map(\.lyrics.metadata.service) == ["Kugou", "QQMusic"])
+    }
+
+    @Test("Source priority does not undo a karaoke promotion")
+    func karaokePromotionSurvives() {
+        let lineSynced = candidate(score: 98, service: "QQMusic", arrivalIndex: 0)
+        let karaoke = candidate(score: 97, service: "Kugou", syncKind: .karaoke, arrivalIndex: 1)
+        let ranked = ranker.rankedCandidates([lineSynced, karaoke], mode: titleMode, configuration: priority)
+        #expect(ranked.first?.evaluation.syncKind == .karaoke)
+    }
+
+    @Test("Artist-only duplicates: near-equal preferred source first, regardless of input order", arguments: [
+        [0, 1, 2], [2, 1, 0], [1, 2, 0],
+    ])
+    func artistOnlyConsistent(order: [Int]) {
+        let mode = LyricsSearchMode.artistOnly(artist: "Olivia Rodrigo")
+        let all = [
+            candidate(score: 84, service: "Kugou", tier: .exactArtistCatalog, mode: mode, arrivalIndex: 0),
+            candidate(score: 82, service: "NetEase", tier: .exactArtistCatalog, mode: mode, arrivalIndex: 1),
+            candidate(score: 80, service: "QQMusic", tier: .exactArtistCatalog, mode: mode, arrivalIndex: 2),
+        ]
+        let ranked = ranker.rankedCandidates(order.map { all[$0] }, mode: mode, configuration: priority)
+        #expect(ranked.map(\.lyrics.metadata.service) == ["NetEase", "Kugou", "QQMusic"])
+    }
+}
+
+@Suite("Karaoke Promotion Baseline")
+struct KaraokePromotionBaselineTests {
+    @Test("Promotion compares against the best line-synced score in the same tier")
+    func sameTierBaseline() {
+        let noPriority = LyricsCandidateRankingConfiguration(sourcePriorityEnabled: false, karaokePreferenceWindow: 10)
+        let exactLineSynced = candidate(score: 100, service: "A", arrivalIndex: 0)
+        let strongLineSynced = candidate(score: 94, service: "B", tier: .strongTitleArtist, arrivalIndex: 1)
+        let strongKaraoke = candidate(score: 88, service: "C", tier: .strongTitleArtist, syncKind: .karaoke, arrivalIndex: 2)
+        let ranked = ranker.rankedCandidates(
+            [exactLineSynced, strongLineSynced, strongKaraoke],
+            mode: titleMode,
+            configuration: noPriority
+        )
+        #expect(ranked.map(\.lyrics.metadata.service) == ["A", "C", "B"])
+    }
+}

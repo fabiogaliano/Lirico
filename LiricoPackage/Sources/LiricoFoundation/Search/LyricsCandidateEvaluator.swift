@@ -11,26 +11,36 @@ import Foundation
 /// The goal is practical comparability, not equivalence — "lacy" and
 /// "drivers license" must NOT become identical tokens.
 func normalizedTokens(_ string: String) -> [String] {
-    // Fold diacritics + lowercase via linguistic decomposition
-    var s = string
-        .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .init(identifier: "en"))
+    var tokens: [String] = []
+    var current = ""
+    for character in foldedForMatching(string) {
+        if apostrophes.contains(character) {
+            // Deleted rather than spaced so "don't" and "dont" produce the same token.
+            continue
+        } else if character == "&" {
+            if !current.isEmpty { tokens.append(current) }
+            current = ""
+            tokens.append("and")
+        } else if character.isLetter || character.isNumber {
+            current.append(character)
+        } else {
+            if !current.isEmpty { tokens.append(current) }
+            current = ""
+        }
+    }
+    if !current.isEmpty { tokens.append(current) }
+    return tokens
+}
+
+private let apostrophes: Set<Character> = ["'", "\u{2018}", "\u{2019}", "\u{02BC}", "`", "\u{00B4}"]
+
+/// Case-, diacritic-, and width-folds a string. Iteration over the result must be by
+/// `Character`: scalar-wise iteration would split words at combining marks such as the
+/// Devanagari virama.
+private func foldedForMatching(_ string: String) -> String {
+    string
+        .folding(options: [.diacriticInsensitive, .caseInsensitive, .widthInsensitive], locale: .init(identifier: "en"))
         .lowercased()
-    // Normalize apostrophes / smart quotes / dashes to ASCII equivalents
-    s = s
-        .replacingOccurrences(of: "\u{2018}", with: "'")
-        .replacingOccurrences(of: "\u{2019}", with: "'")
-        .replacingOccurrences(of: "\u{201C}", with: "\"")
-        .replacingOccurrences(of: "\u{201D}", with: "\"")
-        .replacingOccurrences(of: "\u{2013}", with: "-")
-        .replacingOccurrences(of: "\u{2014}", with: "-")
-    // Collapse all punctuation/symbols (except alphanumerics and spaces) to spaces
-    s = s.unicodeScalars.map { scalar in
-        let c = Character(scalar)
-        if c.isLetter || c.isNumber { return String(c) }
-        return " "
-    }.joined()
-    // Split on whitespace, discard empties
-    return s.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
 }
 
 /// Rejoins normalized tokens into a single string for whole-string comparison.
@@ -60,9 +70,55 @@ private func strippedTrailingCollaborationSuffix(_ title: String) -> String? {
     return nil
 }
 
+/// Words that mark a trailing bracketed or dash-separated segment as release decoration
+/// ("(2014 Remaster)", "- Single Version", "(From 'Frozen')") rather than part of the song's name.
+private let decorationKeywords: Set<String> = [
+    "remaster", "remastered", "version", "ver", "edit", "mix", "remix", "live", "acoustic",
+    "mono", "stereo", "single", "deluxe", "edition", "bonus", "demo", "from", "feat", "ft",
+    "featuring", "with", "sped", "slowed", "reverb", "nightcore", "instrumental", "karaoke",
+    "radio", "extended", "original", "soundtrack", "ost", "anniversary",
+]
+
+private let trailingDecorationPatterns: [String] = [
+    #"\s*[\(\[]([^\(\)\[\]]*)[\)\]]\s*$"#,
+    #"\s+[-–—]\s+([^-–—]*)$"#,
+]
+
+private func isDecoration(_ segment: String) -> Bool {
+    normalizedTokens(segment).contains { token in
+        if decorationKeywords.contains(token) { return true }
+        // A bare release year: "(2014 Remaster)", "- 2011".
+        return token.count == 4 && (token.hasPrefix("19") || token.hasPrefix("20")) && token.allSatisfy(\.isNumber)
+    }
+}
+
+/// Repeatedly strips trailing decoration segments, so "Song (feat. X) [2011 Remaster]" → "Song".
+func strippedTrailingDecorations(_ title: String) -> String? {
+    var current = title.trimmingCharacters(in: .whitespacesAndNewlines)
+    var didStrip = false
+    stripping: while true {
+        for pattern in trailingDecorationPatterns {
+            guard let regex = try? NSRegularExpression(pattern: pattern),
+                  let match = regex.firstMatch(in: current, range: NSRange(current.startIndex..., in: current)),
+                  let segmentRange = Range(match.range(at: 1), in: current),
+                  let fullRange = Range(match.range, in: current),
+                  isDecoration(String(current[segmentRange])) else {
+                continue
+            }
+            let stripped = String(current[..<fullRange.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !stripped.isEmpty else { break stripping }
+            current = stripped
+            didStrip = true
+            continue stripping
+        }
+        break
+    }
+    return didStrip ? current : nil
+}
+
 private func normalizedTitleVariants(_ title: String) -> [String] {
     var variants = [normalizedString(title)]
-    if let stripped = strippedTrailingCollaborationSuffix(title) {
+    for stripped in [strippedTrailingCollaborationSuffix(title), strippedTrailingDecorations(title)].compactMap({ $0 }) {
         let normalized = normalizedString(stripped)
         if !normalized.isEmpty, !variants.contains(normalized) {
             variants.append(normalized)
@@ -123,7 +179,7 @@ enum TitleMatchLevel {
     case exact
     /// Core tokens are identical (variant suffix stripped).
     case strong
-    /// Candidate title contains all query tokens as whole tokens (loose overlap).
+    /// One title's tokens all appear as whole tokens in the other (loose overlap).
     case loose
     /// No meaningful overlap.
     case none
@@ -136,7 +192,7 @@ enum TitleMatchLevel {
 /// 2. Strong: titles differ only by a trailing collaboration suffix
 ///    (e.g. "song" vs "song (feat. artist)") OR core tokens are identical
 ///    (e.g. "lacy" matches "lacy acoustic").
-/// 3. Loose: all query tokens appear as whole tokens in the candidate token set.
+/// 3. Loose: all tokens of one title appear as whole tokens in the other.
 ///    For single-token queries (short one-word titles) the query token must
 ///    appear verbatim in the candidate token set — no substring/fuzzy matching.
 /// 4. None: otherwise.
@@ -152,7 +208,7 @@ func titleMatchLevel(query: String, candidate: String) -> TitleMatchLevel {
     // 1. Exact
     if qNorm == cNorm { return .exact }
 
-    // 2a. Strong: differ only by a trailing collaboration suffix.
+    // 2a. Strong: differ only by trailing collaboration or release-decoration suffixes.
     let qVariants = Set(normalizedTitleVariants(query))
     let cVariants = Set(normalizedTitleVariants(candidate))
     if !qVariants.isDisjoint(with: cVariants) { return .strong }
@@ -164,10 +220,11 @@ func titleMatchLevel(query: String, candidate: String) -> TitleMatchLevel {
         return .strong
     }
 
-    // 3. Loose: all query tokens appear as whole tokens in candidate
+    // 3. Loose: one title's tokens all appear as whole tokens in the other. Checked both
+    // ways because the player's title is as likely to be the longer one as the provider's.
+    let qSet = Set(qTokens)
     let cSet = Set(cTokens)
-    let allQueryTokensPresent = qTokens.allSatisfy { cSet.contains($0) }
-    if allQueryTokensPresent { return .loose }
+    if qSet.isSubset(of: cSet) || cSet.isSubset(of: qSet) { return .loose }
 
     return .none
 }
@@ -186,7 +243,7 @@ func titleScore(query: String, candidate: String, level: TitleMatchLevel) -> Dou
 
     case .strong:
         // Deduct for extra tokens in the candidate beyond the core query
-        let qCore = coreTokens(qTokens)
+        let qCore = strippedTrailingDecorations(query).map(normalizedTokens) ?? coreTokens(qTokens)
         let extraTokens = cTokens.count - qCore.count
         // Band: 88–99 (keeps strong well below exact's 100)
         let penalty = Double(max(0, extraTokens)) * 3.0
@@ -194,8 +251,7 @@ func titleScore(query: String, candidate: String, level: TitleMatchLevel) -> Dou
 
     case .loose:
         // Scale by ratio of matched query tokens to candidate length
-        let cSet = Set(cTokens)
-        let matched = Double(qTokens.filter { cSet.contains($0) }.count)
+        let matched = Double(Set(qTokens).intersection(cTokens).count)
         let ratio = matched / Double(max(cTokens.count, qTokens.count))
         // Band: 75–87
         return 75 + ratio * 12
@@ -219,24 +275,13 @@ enum ArtistRelation {
 }
 
 /// Collaboration separators that make the *first* listed artist primary.
-private let symmetricSeparators: Set<String> = [",", "、", "&", "and", "/"]
+private let symmetricSeparators: Set<String> = [",", "、", "&", "and", "/", "×", "+", ";"]
 /// Feature separators — tokens after these are non-primary featured artists.
 private let featureSeparators: Set<String> = ["feat", "ft", "featuring", "with", "x"]
 
-private let preservedArtistSeparators: Set<Character> = [",", "、", "&", "/"]
+private let preservedArtistSeparators: Set<Character> = [",", "、", "&", "/", "×", "+", ";"]
 
 private func normalizedArtistTokens(_ artist: String) -> [String] {
-    var s = artist
-        .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .init(identifier: "en"))
-        .lowercased()
-    s = s
-        .replacingOccurrences(of: "\u{2018}", with: "'")
-        .replacingOccurrences(of: "\u{2019}", with: "'")
-        .replacingOccurrences(of: "\u{201C}", with: "\"")
-        .replacingOccurrences(of: "\u{201D}", with: "\"")
-        .replacingOccurrences(of: "\u{2013}", with: "-")
-        .replacingOccurrences(of: "\u{2014}", with: "-")
-
     var tokens: [String] = []
     var current = ""
 
@@ -246,9 +291,10 @@ private func normalizedArtistTokens(_ artist: String) -> [String] {
         current.removeAll(keepingCapacity: true)
     }
 
-    for scalar in s.unicodeScalars {
-        let character = Character(scalar)
-        if character.isLetter || character.isNumber {
+    for character in foldedForMatching(artist) {
+        if apostrophes.contains(character) {
+            continue
+        } else if character.isLetter || character.isNumber {
             current.append(character)
         } else if preservedArtistSeparators.contains(character) {
             flushCurrent()
@@ -260,6 +306,15 @@ private func normalizedArtistTokens(_ artist: String) -> [String] {
     flushCurrent()
 
     return tokens
+}
+
+/// Whole-name comparison key in which every symmetric separator spelling collapses to one
+/// form, so "Florence + The Machine" and "Florence and the Machine" compare equal before
+/// splitting would otherwise treat "The Machine" as a separate collaborator.
+private func artistComparisonKey(_ artist: String) -> String {
+    normalizedArtistTokens(artist)
+        .map { symmetricSeparators.contains($0) ? "&" : $0 }
+        .joined(separator: " ")
 }
 
 /// Splits an artist string into (primaryToken, [allNormalizedTokens]).
@@ -286,10 +341,19 @@ func splitArtistTokens(_ artist: String) -> (primary: String, all: [String]) {
 
 /// Determines the relation between a searched artist and a candidate artist.
 func artistRelation(query: String, candidate: String) -> ArtistRelation {
+    let qKey = artistComparisonKey(query)
+    if !qKey.isEmpty, qKey == artistComparisonKey(candidate) { return .exactPrimary }
+
     let (qPrimary, qAll) = splitArtistTokens(query)
     let (cPrimary, cAll) = splitArtistTokens(candidate)
 
-    guard !qPrimary.isEmpty, !cPrimary.isEmpty else { return .weak }
+    guard !qPrimary.isEmpty, !cPrimary.isEmpty else {
+        // Names made only of punctuation ("!!!") normalize to nothing; compare them as written.
+        let qRaw = foldedForMatching(query).trimmingCharacters(in: .whitespaces)
+        return !qRaw.isEmpty && qRaw == foldedForMatching(candidate).trimmingCharacters(in: .whitespaces)
+            ? .exactPrimary
+            : .weak
+    }
 
     // Primary exact match — strongest possible relation
     if qPrimary == cPrimary { return .exactPrimary }
@@ -383,8 +447,6 @@ public struct LyricsCandidateEvaluator: Sendable {
                 candidateTitle: candidateTitle,
                 candidateArtist: candidateArtist,
                 syncKind: syncKind,
-                titleScore: 0,  // computed inside
-                artistScore: 0,
                 durationScore: durScore,
                 albumScore: albScore,
                 mode: mode
@@ -394,7 +456,6 @@ public struct LyricsCandidateEvaluator: Sendable {
             return evaluateTitleOnly(
                 queryTitle: queryTitle,
                 candidateTitle: candidateTitle,
-                candidateArtist: candidateArtist,
                 syncKind: syncKind,
                 durationScore: durScore,
                 albumScore: albScore,
@@ -422,8 +483,6 @@ public struct LyricsCandidateEvaluator: Sendable {
         candidateTitle: String,
         candidateArtist: String,
         syncKind: LyricsSyncKind,
-        titleScore tScore: Double,
-        artistScore aScore: Double,
         durationScore durScore: Double,
         albumScore albScore: Double,
         mode: LyricsSearchMode
@@ -585,7 +644,6 @@ public struct LyricsCandidateEvaluator: Sendable {
     private func evaluateTitleOnly(
         queryTitle: String,
         candidateTitle: String,
-        candidateArtist: String,
         syncKind: LyricsSyncKind,
         durationScore durScore: Double,
         albumScore albScore: Double,
@@ -597,14 +655,8 @@ public struct LyricsCandidateEvaluator: Sendable {
 
         // Artist is a tiebreaker only in titleOnly mode — it cannot reject a
         // candidate whose title matches.
-        let aRawScore: Double
-        if candidateArtist.isEmpty {
-            aRawScore = 50
-        } else {
-            // Use score as a soft tiebreaker without a query artist to compare against;
-            // give a neutral mid score since we have no query to compare against.
-            aRawScore = 50
-        }
+        // With no query artist to compare against, every candidate gets the same neutral score.
+        let aRawScore: Double = 50
 
         func makeEval(
             visibility: LyricsCandidateVisibility,
