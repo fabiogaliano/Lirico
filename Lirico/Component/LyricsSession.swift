@@ -137,7 +137,8 @@ class LyricsSession: NSObject {
         // could still return the previous song, re-search it, and strand the new one.
         // The publisher replays the current track on subscribe, which runs the first sync.
         player.currentTrackWillChange
-            .removeDuplicates { $0?.id == $1?.id && $0?.title == $1?.title && $0?.artist == $1?.artist }
+            // @Sendable keeps this off the main actor: it runs on the player's queue, before the hop.
+            .removeDuplicates { @Sendable in $0?.id == $1?.id && $0?.title == $1?.title && $0?.artist == $1?.artist }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] track in
                 MainActor.assumeIsolated {
