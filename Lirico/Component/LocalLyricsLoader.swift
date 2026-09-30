@@ -9,29 +9,17 @@ import MusicPlayer
 ///   2. `.lrcx` beside the track file (gated on `loadLyricsBesideTrack`)
 ///   3. `.lrc` beside the track file (gated on `loadLyricsBesideTrack`)
 ///   4. `.lrcx` in the saving path (always)
-///   5. `.lrc` in the saving path (always) — the only source that returns `.foundPartial`
+///   5. `.lrc` in the saving path (always) — the only source that returns `.savedLRC`
 ///
 /// The trackId blocklist and the album-name blocklist are the caller's responsibility.
 enum LocalLyricsLoader {
-    /// The outcome of loading from local sources.
-    enum Result {
-        /// A complete local match — display this. The network is skipped only for karaoke;
-        /// line-synced matches may still be upgraded by a clearly better remote candidate.
-        case found(Lyrics)
-        /// Saved-path `.lrc` matched — display this but still run the network search,
-        /// since `.lrc` files lack timing precision and a better match may arrive.
-        case foundPartial(Lyrics)
-        /// No local match — proceed to network search.
-        case none
-    }
-
     static func load(
         track: MusicTrack,
         title: String,
         artist: String,
         preparation: LyricsPreparation,
         settings: PersistenceSettings = PersistenceSettings()
-    ) -> Result {
+    ) -> LocalLyricsFind? {
         if settings.shouldLoadLyricsBesideTrack {
             if let result = loadEmbedded(track: track, title: title, artist: artist, preparation: preparation) {
                 return result
@@ -65,41 +53,31 @@ struct LocalLyrics {
         preparation: LyricsPreparation,
         persistenceSettings: PersistenceSettings
     ) -> LocalLyrics {
-        switch LocalLyricsLoader.load(
+        let find = LocalLyricsLoader.load(
             track: track,
             title: title,
             artist: artist,
             preparation: preparation,
             settings: persistenceSettings
-        ) {
-        case .found(let lyrics) where lyrics.isKaraokeTimed:
-            return LocalLyrics(lyrics: lyrics, policy: .normal, needsRemoteSearch: false)
-        case .found(let lyrics):
-            let evaluation = evaluateLocal(
-                lyrics,
-                title: title,
-                artist: artist,
-                duration: track.duration,
-                album: track.album,
-                persistenceSettings: persistenceSettings
-            )
-            return LocalLyrics(
-                lyrics: lyrics,
-                policy: .localUpgradeOnly(local: evaluation),
-                needsRemoteSearch: true
-            )
-        case .foundPartial(let lyrics):
-            return LocalLyrics(lyrics: lyrics, policy: .normal, needsRemoteSearch: true)
-        case .none:
-            return LocalLyrics(lyrics: nil, policy: .normal, needsRemoteSearch: true)
-        }
+        )
+        // For diagnostics only: not a remote source-priority entry, so it takes no part in ranking.
+        find?.lyrics.metadata.service = localSourceName(for: find?.lyrics, persistenceSettings: persistenceSettings)
+        let plan = LocalSearchPlan(after: find, title: title, artist: artist, duration: track.duration, album: track.album)
+        return LocalLyrics(lyrics: find?.lyrics, policy: plan.policy, needsRemoteSearch: plan.needsRemoteSearch)
+    }
+
+    /// "Embedded" when read from the track's own tags, "Local Storage" when saved in
+    /// Lirico's directory, otherwise "Beside Track".
+    private static func localSourceName(for lyrics: Lyrics?, persistenceSettings: PersistenceSettings) -> String {
+        guard let localURL = lyrics?.metadata.localURL else { return "Embedded" }
+        return persistenceSettings.storageDirectoryContains(localURL) ? "Local Storage" : "Beside Track"
     }
 }
 
 // MARK: - Private sources
 
 private extension LocalLyricsLoader {
-    static func loadEmbedded(track: MusicTrack, title: String, artist: String, preparation: LyricsPreparation) -> Result? {
+    static func loadEmbedded(track: MusicTrack, title: String, artist: String, preparation: LyricsPreparation) -> LocalLyricsFind? {
         guard let embeddedLyrics = track.lyrics,
               !embeddedLyrics.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               let lyrics = Lyrics(embeddedLyrics) else {
@@ -113,25 +91,30 @@ private extension LocalLyricsLoader {
             lyrics.metadata.artist = artist
         }
         preparation.prepare(lyrics)
-        return .found(lyrics)
+        return .complete(lyrics)
     }
 
-    static func loadBesideTrack(track: MusicTrack, title: String, artist: String, preparation: LyricsPreparation) -> Result? {
+    static func loadBesideTrack(track: MusicTrack, title: String, artist: String, preparation: LyricsPreparation) -> LocalLyricsFind? {
         guard let base = track.localFileURL?.deletingPathExtension() else { return nil }
         for ext in ["lrcx", "lrc"] {
             let url = base.appendingPathExtension(ext)
             if let lyrics = parseLyricsFile(at: url, title: title, artist: artist, preparation: preparation) {
-                return .found(lyrics)
+                return .complete(lyrics)
             }
         }
         return nil
     }
 
-    static func loadFromSavingPath(title: String, artist: String, directory: LyricsStorageDirectory, preparation: LyricsPreparation) -> Result {
+    static func loadFromSavingPath(
+        title: String,
+        artist: String,
+        directory: LyricsStorageDirectory,
+        preparation: LyricsPreparation
+    ) -> LocalLyricsFind? {
         let savingDir = directory.url
         let didAccessSecurityScopedResource: Bool
         if directory.requiresSecurityScope {
-            guard savingDir.startAccessingSecurityScopedResource() else { return .none }
+            guard savingDir.startAccessingSecurityScopedResource() else { return nil }
             didAccessSecurityScopedResource = true
         } else {
             didAccessSecurityScopedResource = false
@@ -145,12 +128,12 @@ private extension LocalLyricsLoader {
         let base = savingDir.appendingPathComponent(LyricsPersister.baseName(title: title, artist: artist))
 
         if let lyrics = parseLyricsFile(at: base.appendingPathExtension("lrcx"), title: title, artist: artist, preparation: preparation) {
-            return .found(lyrics)
+            return .complete(lyrics)
         }
         if let lyrics = parseLyricsFile(at: base.appendingPathExtension("lrc"), title: title, artist: artist, preparation: preparation) {
-            return .foundPartial(lyrics)
+            return .savedLRC(lyrics)
         }
-        return .none
+        return nil
     }
 
     /// Read, parse, and annotate a lyrics file. Returns `nil` if the file is inaccessible or unparseable.
@@ -166,36 +149,5 @@ private extension LocalLyricsLoader {
         lyrics.metadata.artist = artist
         preparation.prepare(lyrics)
         return lyrics
-    }
-}
-
-// MARK: - Local lyrics evaluation
-
-extension LocalLyrics {
-    /// Scores local line-synced lyrics so remote candidates can be compared against them.
-    /// Stamps a synthetic source name into `metadata.service` for diagnostics; it is not
-    /// a remote source-priority entry and doesn't take part in source ranking.
-    fileprivate static func evaluateLocal(
-        _ lyrics: Lyrics,
-        title: String,
-        artist: String,
-        duration: TimeInterval?,
-        album: String?,
-        persistenceSettings: PersistenceSettings
-    ) -> LyricsCandidateEvaluation {
-        lyrics.metadata.service = localSourceName(for: lyrics, persistenceSettings: persistenceSettings)
-        return LyricsCandidateEvaluator().evaluate(
-            lyrics: lyrics,
-            mode: .titleAndArtist(title: title, artist: artist),
-            requestedDuration: duration,
-            requestedAlbum: album
-        )
-    }
-
-    /// "Embedded" when read from the track's own tags, "Local Storage" when saved in
-    /// Lirico's directory, otherwise "Beside Track".
-    private static func localSourceName(for lyrics: Lyrics, persistenceSettings: PersistenceSettings) -> String {
-        guard let localURL = lyrics.metadata.localURL else { return "Embedded" }
-        return persistenceSettings.storageDirectoryContains(localURL) ? "Local Storage" : "Beside Track"
     }
 }
