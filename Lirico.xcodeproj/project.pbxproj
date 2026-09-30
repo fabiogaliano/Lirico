@@ -92,7 +92,6 @@
 		BBE2A79824041E36004A7E93 /* CombineExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE2A79724041E36004A7E93 /* CombineExtension.swift */; };
 		BBE8FC751F6BEA6200122AFA /* Then.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE8FC741F6BEA6200122AFA /* Then.swift */; };
 		E960A9A22D68F9FA00A32EEC /* NowPlayingApplicationListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E960A9A12D68F9FA00A32EEC /* NowPlayingApplicationListViewController.swift */; };
-		E967A20C2D2AD6DB00982E06 /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = E967A20B2D2AD6DB00982E06 /* LaunchAtLogin */; };
 		E975C5BC2D380B920059BE92 /* PreferenceWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E975C5BA2D380B920059BE92 /* PreferenceWindowController.swift */; };
 		F1D0000100000000000A0001 /* MainMenuBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D0000000000000000A0001 /* MainMenuBuilder.swift */; };
 		F1D0000300000000000A0002 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D0000200000000000A0002 /* main.swift */; };
@@ -240,7 +239,6 @@
 				E9EF0D512D6F5ECD00D45E0F /* UIFoundation in Frameworks */,
 				E9C4E29C2AC9A124004B9EB2 /* SnapKit in Frameworks */,
 				BBA82F0A256AB8620076831F /* Sparkle in Frameworks */,
-				E967A20C2D2AD6DB00982E06 /* LaunchAtLogin in Frameworks */,
 				BBB03F3A2331D8A800A3879E /* OpenCC in Frameworks */,
 				BBB03F30232FB40400A3879E /* Semver in Frameworks */,
 				BB6C75E8248B908500804AEB /* TouchBarHelper in Frameworks */,
@@ -491,7 +489,6 @@
 				BB4141A71E458BA800A51775 /* Frameworks */,
 				BB4141A81E458BA800A51775 /* Resources */,
 				BB60F3111E889FC000BA1FD2 /* Copy Helper */,
-				E967A20D2D2AD6F800982E06 /* Copy “Launch at Login Helper” */,
 				BB0A3AE02280312A006C2E52 /* Update Build Time */,
 				BBC1D5811E4AFE64008869EC /* Bump Build */,
 			);
@@ -510,7 +507,6 @@
 				E9C4E29B2AC9A124004B9EB2 /* SnapKit */,
 				E9C4E2A12AC9A3D6004B9EB2 /* SwiftCF */,
 				E983FA232C86302200170CF7 /* MarqueeLabel */,
-				E967A20B2D2AD6DB00982E06 /* LaunchAtLogin */,
 				E9EF0D502D6F5ECD00D45E0F /* UIFoundation */,
 				E9EF0D522D6F5ECD00D45E0F /* UIFoundationToolbox */,
 				E9C5763C2DEDF539009107B5 /* LiricoFoundation */,
@@ -617,7 +613,6 @@
 				E9C4E29A2AC9A124004B9EB2 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				E9C4E2A02AC9A3D6004B9EB2 /* XCRemoteSwiftPackageReference "SwiftCF" */,
 				E983FA222C86302200170CF7 /* XCRemoteSwiftPackageReference "MarqueeLabel" */,
-				E967A20A2D2AD6DB00982E06 /* XCRemoteSwiftPackageReference "LaunchAtLogin-Legacy" */,
 				E9EF0D4F2D6F5ECD00D45E0F /* XCRemoteSwiftPackageReference "UIFoundation" */,
 			);
 			productRefGroup = BB4141AB1E458BA800A51775 /* Products */;
@@ -702,25 +697,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# Derives CFBundleVersion from the git commit count plus a fixed offset and\n# writes the result into the built bundle's Info.plist. The tracked source\n# plist is never modified, eliminating the build-time diff noise that the\n# previous in-place bump produced.\n#\n# The offset (1304) reconciles the commit count at the time of this change\n# (1643) with the last in-place-bumped CFBundleVersion (2947), so future\n# commits keep producing monotonically increasing build numbers without a\n# regression jump that the App Store would reject on archive.\nset -euo pipefail\ncommitCount=$(git -C \"${SRCROOT}\" rev-list --count HEAD)\nbuildNumber=$((commitCount + 1304))\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n";
-		};
-		E967A20D2D2AD6F800982E06 /* Copy “Launch at Login Helper” */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Copy “Launch at Login Helper”";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${BUILT_PRODUCTS_DIR}/LaunchAtLogin_LaunchAtLogin.bundle/Contents/Resources/copy-helper-swiftpm.sh\"\n\n# The vendored script rewrites the copied helper's CFBundleIdentifier and then\n# re-signs it with --sign=\"$EXPANDED_CODE_SIGN_IDENTITY_NAME\", which is empty\n# under an ad-hoc identity. That codesign call fails silently (the script checks\n# no exit codes), leaving the prebuilt zip's original signature sealing an\n# Info.plist that has since changed, so `codesign --deep --strict` rejects the\n# whole app. Re-sign with the identity actually in use, and without the sandbox\n# entitlement the script would otherwise apply — Lirico ships unsandboxed.\nset -euo pipefail\ncodesign --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY:--}\" \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/Library/LoginItems/LaunchAtLoginHelper.app\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1141,14 +1117,6 @@
 				kind = branch;
 			};
 		};
-		E967A20A2D2AD6DB00982E06 /* XCRemoteSwiftPackageReference "LaunchAtLogin-Legacy" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sindresorhus/LaunchAtLogin-Legacy";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.0.0;
-			};
-		};
 		E983FA222C86302200170CF7 /* XCRemoteSwiftPackageReference "MarqueeLabel" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/MxIris-LyricsX-Project/MarqueeLabel";
@@ -1216,11 +1184,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = BBB03F382331D8A800A3879E /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */;
 			productName = OpenCC;
-		};
-		E967A20B2D2AD6DB00982E06 /* LaunchAtLogin */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E967A20A2D2AD6DB00982E06 /* XCRemoteSwiftPackageReference "LaunchAtLogin-Legacy" */;
-			productName = LaunchAtLogin;
 		};
 		E983FA232C86302200170CF7 /* MarqueeLabel */ = {
 			isa = XCSwiftPackageProductDependency;

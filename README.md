@@ -101,7 +101,6 @@ foundation Lirico is built on.
 - [SnapKit](https://github.com/SnapKit/SnapKit) — MIT
 - [MarqueeLabel](https://github.com/MxIris-LyricsX-Project/MarqueeLabel) — MIT
 - [BigInt](https://github.com/attaswift/BigInt) — MIT
-- [LaunchAtLogin](https://github.com/sindresorhus/LaunchAtLogin-Legacy) — MIT
 - [UIFoundation](https://github.com/Mx-Iris/UIFoundation) — MIT
 - [FrameworkToolbox](https://github.com/Mx-Iris/FrameworkToolbox) — MIT
 - [CombineX](https://github.com/cx-org/CombineX) — MIT (vendored)

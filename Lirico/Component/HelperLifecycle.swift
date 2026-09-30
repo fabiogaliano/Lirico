@@ -1,6 +1,25 @@
 import AppKit
 import ServiceManagement
 
+/// Lirico itself launching at login, independent of the helper that waits for a player.
+enum MainAppLoginItem {
+    static var isEnabled: Bool {
+        SMAppService.mainApp.status == .enabled
+    }
+
+    static func setEnabled(_ enabled: Bool) {
+        do {
+            if enabled {
+                try SMAppService.mainApp.register()
+            } else {
+                try SMAppService.mainApp.unregister()
+            }
+        } catch {
+            log("Failed to \(enabled ? "register" : "unregister") Lirico as a login item. reason: \(error.localizedDescription)")
+        }
+    }
+}
+
 enum HelperLifecycle {
     static func setLoginItemEnabled(_ enabled: Bool) -> Result<Void, Error> {
         let service = SMAppService.loginItem(identifier: lyricsXHelperIdentifier)

@@ -47,15 +47,6 @@
       }
     },
     {
-      "identity" : "launchatlogin-legacy",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/sindresorhus/LaunchAtLogin-Legacy",
-      "state" : {
-        "revision" : "9a894d799269cb591037f9f9cb0961510d4dca81",
-        "version" : "5.0.2"
-      }
-    },
-    {
       "identity" : "lyricskit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/fabiogaliano/LyricsKit",
