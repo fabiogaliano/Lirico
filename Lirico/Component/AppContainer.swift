@@ -21,6 +21,9 @@ final class AppContainer {
     private let chineseConverterProvider: ChineseConverterProvider
     private let explicitResolver: ExplicitLyricsResolver
     let session: LyricsSession
+    /// Held here because nothing else keeps it alive: the session only wires its inputs, and
+    /// the surfaces only subscribe to its snapshot.
+    private let display: LyricsDisplayCoordinator
     private let menuBarController: MenuBarLyricsController
     private let karaokeWindowController: KaraokeLyricsWindowController
 
@@ -70,6 +73,7 @@ final class AppContainer {
             chineseConverter: chineseConverter,
             explicitResolver: explicitResolver
         )
+        self.display = display
         self.session = LyricsSession(
             player: player,
             clock: clock,
