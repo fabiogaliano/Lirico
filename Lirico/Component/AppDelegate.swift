@@ -2,6 +2,7 @@ import AppKit
 import GenericID
 import MusicPlayer
 
+@MainActor
 class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenuDelegate {
     static var shared: AppDelegate? {
         return NSApplication.shared.delegate as? AppDelegate
