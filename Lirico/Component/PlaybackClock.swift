@@ -10,16 +10,23 @@ typealias LyricsPosition = TimeInterval
 /// PlaybackClock centralises the single concept "given current lyrics + playback state,
 /// which line is active and where are we inside it?"
 ///
-/// It exposes the current active line index as a publisher (`currentLineIndex`); the
-/// lyrics session subscribes and mirrors the value into its own `@Published
-/// currentLineIndex`. It also exposes `adjustedPlaybackTime` so karaoke/touchbar
-/// timetag progress can read the offset-corrected position without recomputing it.
+/// It exposes the active line index as a publisher (`lineIndexUpdates`); the lyrics
+/// session subscribes and mirrors the value into its own `@Published currentLineIndex`.
+/// It also exposes `adjustedPlaybackTime` so karaoke/touchbar timetag progress can read
+/// the offset-corrected position without recomputing it. The clock holds no reference
+/// to the session type.
 ///
-/// The clock is a publisher: lyrics are pushed in via `setLyrics(_:)`, and a dedup
-/// hook (`dedupTarget`) lets the session report what value it has already mirrored so
-/// duplicate emissions can be suppressed. The clock holds no reference to the session
-/// type.
+/// All mutable state is confined to `DispatchQueue.lyricsDisplay`: ticks fire there from
+/// playback-state changes and line-boundary timers, so main-thread callers hop onto it
+/// rather than touching the state directly.
 final class PlaybackClock {
+    /// An active-line emission, tagged with the lyrics it was computed against so a
+    /// subscriber can drop emissions that arrive after the lyrics were replaced.
+    struct LineIndexUpdate {
+        let lyrics: Lyrics
+        let index: Int?
+    }
+
     // MARK: - Public interface
 
     /// Offset-corrected playback position in the lyrics file coordinate space.
@@ -29,18 +36,22 @@ final class PlaybackClock {
         player.playbackState.time + adjustedDelay
     }
 
-    /// Emits the current active line index whenever it changes.
-    /// `nil` means there is no current line (no lyrics loaded, before-first-line, etc.).
-    var currentLineIndex: AnyPublisher<Int?, Never> {
-        currentLineIndexSubject.eraseToAnyPublisher()
+    /// Emits the active line index whenever it changes, and always once after new lyrics
+    /// are set. `nil` index means there is no current line (before-first-line, etc.).
+    var lineIndexUpdates: AnyPublisher<LineIndexUpdate, Never> {
+        lineIndexSubject.eraseToAnyPublisher()
     }
 
     /// Replace the lyrics the clock is computing against and re-tick. Called by the
     /// lyrics session from its `currentLyrics.didSet`.
     func setLyrics(_ lyrics: Lyrics?) {
-        self.lyrics = lyrics
-        songOffsetMilliseconds = lyrics?.offset ?? 0
-        tick()
+        let offset = lyrics?.offset ?? 0
+        songOffsetMilliseconds = offset
+        queue.async { [self] in
+            self.lyrics = lyrics
+            lastEmittedIndex = .none
+            tick()
+        }
     }
 
     /// Update the captured per-song offset (ms) and re-tick. Called on the main
@@ -48,30 +59,32 @@ final class PlaybackClock {
     /// never has to read `Lyrics.idTags` from its background queue.
     func updateSongOffset(_ milliseconds: Int) {
         songOffsetMilliseconds = milliseconds
-        tick()
+        queue.async { [self] in tick() }
     }
-
-    /// Returns the index the subscriber has already mirrored, so the clock can skip
-    /// re-emitting an unchanged value. Defaults to `{ nil }`, which lets the first
-    /// tick after construction always emit.
-    var dedupTarget: () -> Int? = { nil }
 
     // MARK: - Private state
 
     private let player: PlayerHandle
+    private let queue = DispatchQueue.lyricsDisplay
     private var lyrics: Lyrics?
+    /// `.none` means nothing has been emitted for the current lyrics yet.
+    private var lastEmittedIndex: Int??
 
     /// Per-song offset (ms), captured on the main actor whenever lyrics or the
-    /// offset changes. `tick()` runs on the `lyricsDisplay` queue and must not
-    /// read `Lyrics.idTags` there — that would race the main-thread offset writes
-    /// and tear the dictionary. A stale plain-`Int` read is harmless by contrast.
-    /// The app-wide global offset is added live as a thread-safe `UserDefaults` read.
-    private var songOffsetMilliseconds = 0
+    /// offset changes, because `Lyrics.idTags` must not be read off the main thread.
+    /// It is also read from main by `adjustedPlaybackTime`, so it lives behind a lock
+    /// rather than on the queue.
+    private var songOffsetMilliseconds: Int {
+        get { songOffsetLock.withLock { _songOffsetMilliseconds } }
+        set { songOffsetLock.withLock { _songOffsetMilliseconds = newValue } }
+    }
+    private var _songOffsetMilliseconds = 0
+    private let songOffsetLock = NSLock()
 
     private var adjustedDelay: TimeInterval {
         TimeInterval(songOffsetMilliseconds + defaults[.globalLyricsOffset]) / 1000
     }
-    private let currentLineIndexSubject = CurrentValueSubject<Int?, Never>(nil)
+    private let lineIndexSubject = PassthroughSubject<LineIndexUpdate, Never>()
     private var lineCheckSchedule: Cancellable?
     private var cancelBag = Set<AnyCancellable>()
 
@@ -79,7 +92,7 @@ final class PlaybackClock {
         self.player = player
         player.playbackStateWillChange
             .signal()
-            .receive(on: DispatchQueue.lyricsDisplay)
+            .receive(on: queue)
             .sink { [unowned self] in self.tick() }
             .store(in: &cancelBag)
     }
@@ -87,7 +100,8 @@ final class PlaybackClock {
     // MARK: - Core tick
 
     /// Recompute the current line index and schedule the next tick at the upcoming line boundary.
-    func tick() {
+    private func tick() {
+        dispatchPrecondition(condition: .onQueue(queue))
         lineCheckSchedule?.cancel()
 
         guard let lyrics else { return }
@@ -97,16 +111,16 @@ final class PlaybackClock {
         let delay = adjustedDelay
 
         let (index, next) = lyrics[playbackTime + delay]
-        if dedupTarget() != index {
-            currentLineIndexSubject.send(index)
+        if lastEmittedIndex != .some(index) {
+            lastEmittedIndex = .some(index)
+            lineIndexSubject.send(LineIndexUpdate(lyrics: lyrics, index: index))
         }
 
         guard let next = next, playbackState.isPlaying else { return }
 
         let dt = lyrics.lines[next].position - playbackTime - delay
-        let q = DispatchQueue.lyricsDisplay
-        lineCheckSchedule = q.schedule(
-            after: q.now.advanced(by: .seconds(dt)),
+        lineCheckSchedule = queue.schedule(
+            after: queue.now.advanced(by: .seconds(dt)),
             interval: .seconds(42),
             tolerance: .milliseconds(20)
         ) { [unowned self] in
