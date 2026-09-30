@@ -71,7 +71,7 @@ let package = Package(
             ),
             remote: .package(
                 url: "https://github.com/fabiogaliano/LyricsKit",
-                from: "1.9.0"
+                from: "1.9.1"
             )
         ),
         .package(

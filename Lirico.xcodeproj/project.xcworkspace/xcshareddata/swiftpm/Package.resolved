@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/fabiogaliano/LyricsKit",
       "state" : {
-        "revision" : "f6dccd028038516806d06553b12992786af86144",
-        "version" : "1.9.0"
+        "revision" : "049a4cf4c54c57447d0f9086d4c804d0a5924672",
+        "version" : "1.9.1"
       }
     },
     {
