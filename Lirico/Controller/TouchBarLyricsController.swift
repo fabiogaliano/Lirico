@@ -1,7 +1,6 @@
 import AppKit
 import LiricoFoundation
 import TouchBarHelper
-import OpenCC
 
 class TouchBarLyricsController: TouchBarSystemModalController {
     private let player: PlayerHandle
@@ -9,7 +8,7 @@ class TouchBarLyricsController: TouchBarSystemModalController {
 
     init(player: PlayerHandle, session: LyricsSession, clock: PlaybackClock) {
         self.player = player
-        self.lyricsItem = TouchBarLyricsItem(identifier: .lyrics, session: session, clock: clock)
+        self.lyricsItem = TouchBarLyricsItem(identifier: .lyrics, session: session, clock: clock, player: player)
         super.init()
     }
 
