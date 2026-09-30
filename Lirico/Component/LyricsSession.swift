@@ -151,11 +151,16 @@ class LyricsSession: NSObject {
             supporting: $supportingLyrics,
             metadata: $displayMetadata
         )
+        // Use the track the player announces instead of re-reading `player.currentTrack`:
+        // the announcement is a `willSet` on the player's background queue, so a later read
+        // could still return the previous song, re-search it, and strand the new one.
+        // The publisher replays the current track on subscribe, which runs the first sync.
         player.currentTrackWillChange
-            .signal()
-            .sink { [weak self] in
-                Task { @MainActor in
-                    self?.currentTrackChanged()
+            .removeDuplicates { $0?.id == $1?.id && $0?.title == $1?.title && $0?.artist == $1?.artist }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] track in
+                MainActor.assumeIsolated {
+                    self?.currentTrackChanged(to: track)
                 }
             }
             .store(in: &cancelBag)
@@ -184,13 +189,6 @@ class LyricsSession: NSObject {
                 }
             }.store(in: &cancelBag)
 
-        // Run the first track sync on the next runloop tick so callers have a
-        // chance to retain the session before subscribers start firing.
-        DispatchQueue.main.async { [weak self] in
-            Task { @MainActor in
-                self?.currentTrackChanged()
-            }
-        }
     }
 
     func writeToiTunes(overwrite: Bool) {
@@ -293,7 +291,7 @@ class LyricsSession: NSObject {
     }
 
     @MainActor
-    func currentTrackChanged() {
+    func currentTrackChanged(to track: MusicTrack?) {
         persistCurrentLyricsIfNeeded()
         currentLyrics = nil
         currentLineIndex = nil
@@ -304,10 +302,10 @@ class LyricsSession: NSObject {
         automaticSearchGeneration &+= 1
         searchTask?.cancel()
         searchTask = nil
-        automaticSearchTrackID = player.currentTrack?.id
+        automaticSearchTrackID = track?.id
 
-        guard let track = player.currentTrack else {
-            refreshNoTrackStatus()
+        guard let track else {
+            updateNoTrackStatus()
             return
         }
         // FIXME: deal with optional value
@@ -404,6 +402,10 @@ class LyricsSession: NSObject {
     /// Settings without any track change reaching the session, so surfaces call this when shown.
     func refreshNoTrackStatus() {
         guard player.currentTrack == nil else { return }
+        updateNoTrackStatus()
+    }
+
+    private func updateNoTrackStatus() {
         let denied = AutomationPermission.deniedPlayerName(designatedBundleID: player.designatedPlayerBundleID)
         let newStatus: LyricsStatus = denied.map { .automationDenied(playerName: $0) } ?? .noTrack
         if status != newStatus {
