@@ -9,6 +9,7 @@ nonisolated(unsafe) let groupDefaults = UserDefaults(suiteName: lyricsXGroupIden
 extension UserDefaults.DefaultsKeys {
     static let noSearchingTrackIds = Key<[String]>("NoSearchingTrackIds")
     static let noSearchingAlbumNames = Key<[String]>("NoSearchingAlbumNames")
+    static let confirmBeforeBlockingLyrics = Key<Bool>("ConfirmBeforeBlockingLyrics")
 
     // Menu
     static let desktopLyricsEnabled = Key<Bool>("DesktopLyricsEnabled")

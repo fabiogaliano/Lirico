@@ -16,6 +16,8 @@ struct LyricsPreferencesView: View {
     @AppStorage(.writeiTunesWithTranslation) private var writeWithTranslation = false
     @AppStorage(.writeiTunesConvertToPlainLRC) private var convertToPlainLRC = false
 
+    @AppStorage(.confirmBeforeBlockingLyrics) private var confirmBeforeBlocking = true
+
     // Custom saving path display name — derived from bookmark on appear, updated
     // after the user picks a new directory via NSOpenPanel.
     @State private var customDirectoryName: String = ""
@@ -27,6 +29,7 @@ struct LyricsPreferencesView: View {
             displaySection
             filesSection
             appleMusicSection
+            blockedSection
         }
         .onAppear(perform: loadInitialState)
     }
@@ -102,6 +105,12 @@ struct LyricsPreferencesView: View {
             // LRC export is single-line per timestamp, so translations are never written into it.
             Toggle("Include translation", isOn: $writeWithTranslation)
                 .disabled(convertToPlainLRC)
+        }
+    }
+
+    private var blockedSection: some View {
+        Section("Blocked Songs & Albums") {
+            Toggle("Ask before blocking lyrics", isOn: $confirmBeforeBlocking)
         }
     }
 
