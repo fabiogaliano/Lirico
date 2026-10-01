@@ -149,11 +149,58 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     @IBAction func wrongLyrics(_ sender: Any?) {
+        rejectCurrentLyricsAfterConfirming(blocking: .track)
+    }
+
+    /// The shortcut skips the confirmation: it is a key the user bound on purpose,
+    /// and a dialog would pull Lirico in front of whatever app they're using.
+    @objc func wrongLyricsFromShortcut(_ sender: Any?) {
         container?.session.rejectCurrentLyrics(blocking: .track)
     }
 
     @IBAction func doNotSearchLyricsForThisAlbum(_ sender: Any?) {
-        container?.session.rejectCurrentLyrics(blocking: .album)
+        rejectCurrentLyricsAfterConfirming(blocking: .album)
+    }
+
+    private func rejectCurrentLyricsAfterConfirming(blocking scope: LyricsSession.RejectionScope) {
+        guard let container else { return }
+        guard defaults[.confirmBeforeBlockingLyrics] else {
+            container.session.rejectCurrentLyrics(blocking: scope)
+            return
+        }
+        let trackID = container.player.currentTrack?.id
+
+        let alert = NSAlert()
+        switch scope {
+        case .track:
+            alert.messageText = NSLocalizedString("Mark these lyrics as wrong?", comment: "confirm dialog title")
+            alert.informativeText = NSLocalizedString(
+                "Lirico won't search lyrics for this song again until you pick some manually.",
+                comment: "confirm dialog body"
+            )
+            alert.addButton(withTitle: NSLocalizedString("Mark as Wrong", comment: "confirm dialog button"))
+        case .album:
+            alert.messageText = NSLocalizedString("Disable lyrics for this album?", comment: "confirm dialog title")
+            alert.informativeText = NSLocalizedString(
+                "Lirico won't search lyrics for any song on this album until you pick lyrics for one of them manually.",
+                comment: "confirm dialog body"
+            )
+            alert.addButton(withTitle: NSLocalizedString("Disable Lyrics", comment: "confirm dialog button"))
+        }
+        alert.buttons[0].hasDestructiveAction = true
+        alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "confirm dialog button"))
+        alert.showsSuppressionButton = true
+        alert.suppressionButton?.title = NSLocalizedString("Don't ask again", comment: "confirm dialog checkbox")
+
+        // A menu-bar app isn't active, so without this the dialog opens behind the frontmost app.
+        NSApp.activate()
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        if alert.suppressionButton?.state == .on {
+            defaults[.confirmBeforeBlockingLyrics] = false
+        }
+        // The song can change while the dialog is open; blocking the new one isn't what was confirmed.
+        guard container.player.currentTrack?.id == trackID else { return }
+        container.session.rejectCurrentLyrics(blocking: scope)
     }
 
     func menuWillOpen(_ menu: NSMenu) {

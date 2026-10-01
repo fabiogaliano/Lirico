@@ -28,7 +28,7 @@ enum ShortcutBindings {
         binder.bindShortcut(.shortcutOffsetIncrease, on: actionTarget, to: #selector(AppDelegate.increaseOffset(_:)))
         binder.bindShortcut(.shortcutOffsetDecrease, on: actionTarget, to: #selector(AppDelegate.decreaseOffset(_:)))
         binder.bindShortcut(.shortcutWriteToiTunes, on: actionTarget, to: #selector(AppDelegate.writeToiTunes(_:)))
-        binder.bindShortcut(.shortcutWrongLyrics, on: actionTarget, to: #selector(AppDelegate.wrongLyrics(_:)))
+        binder.bindShortcut(.shortcutWrongLyrics, on: actionTarget, to: #selector(AppDelegate.wrongLyricsFromShortcut(_:)))
         binder.bindShortcut(.shortcutSearchLyrics, on: actionTarget, to: #selector(AppDelegate.searchLyrics(_:)))
         binder.bindShortcut(.shortcutTogglePreferences, on: actionTarget, to: #selector(AppDelegate.togglePreferences(_:)))
     }

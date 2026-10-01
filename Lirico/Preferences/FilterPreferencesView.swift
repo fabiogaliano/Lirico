@@ -10,6 +10,9 @@ struct FilterPreferencesView: View {
     @State private var lexicon: [String] = []
     @State private var lexiconSelectedIndex: Int? = nil
 
+    @State private var confirmingKeywordReset = false
+    @State private var confirmingLexiconReset = false
+
     // Rows are mostly text field, which swallows the row's tap, so focusing a field is what
     // selects it; this is also the only way keyboard and VoiceOver users can reach Remove.
     @FocusState private var focusedKeyword: Int?
@@ -23,6 +26,18 @@ struct FilterPreferencesView: View {
         .onAppear {
             loadKeywords()
             loadLexicon()
+        }
+        .alert("Reset filter keywords to defaults?", isPresented: $confirmingKeywordReset) {
+            Button("Reset", role: .destructive, action: resetKeywords)
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Keywords you added or changed will be lost.")
+        }
+        .alert("Reset censored words to defaults?", isPresented: $confirmingLexiconReset) {
+            Button("Reset", role: .destructive, action: resetLexicon)
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Words you added or changed will be lost.")
         }
         .onChange(of: focusedKeyword) { _, index in
             if let index { selectedIndex = index }
@@ -45,7 +60,7 @@ struct FilterPreferencesView: View {
                 canRemove: selectedIndex != nil,
                 add: addKeyword,
                 remove: removeSelected,
-                reset: resetKeywords
+                reset: { confirmingKeywordReset = true }
             )
             .disabled(!filterEnabled)
         } header: {
@@ -66,7 +81,7 @@ struct FilterPreferencesView: View {
                 canRemove: lexiconSelectedIndex != nil,
                 add: addLexiconWord,
                 remove: removeLexiconSelected,
-                reset: resetLexicon
+                reset: { confirmingLexiconReset = true }
             )
             .disabled(!explicitRestorationEnabled)
         } header: {

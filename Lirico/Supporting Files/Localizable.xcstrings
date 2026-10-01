@@ -646,24 +646,6 @@
         "ar" : {
           "variations" : {
             "plural" : {
-              "zero" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "%lld تطابق محتمل"
-                }
-              },
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "%lld تطابق محتمل"
-                }
-              },
-              "two" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "%lld تطابقان محتملان"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "needs_review",
@@ -676,7 +658,25 @@
                   "value" : "%lld تطابقًا محتملًا"
                 }
               },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "%lld تطابق محتمل"
+                }
+              },
               "other" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "%lld تطابق محتمل"
+                }
+              },
+              "two" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "%lld تطابقان محتملان"
+                }
+              },
+              "zero" : {
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "%lld تطابق محتمل"
@@ -760,16 +760,16 @@
         "fr" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "%lld correspondance probable"
-                }
-              },
               "many" : {
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "%lld correspondances probables"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "%lld correspondance probable"
                 }
               },
               "other" : {
@@ -796,16 +796,16 @@
         "it" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "%lld corrispondenza probabile"
-                }
-              },
               "many" : {
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "%lld corrispondenze probabili"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "%lld corrispondenza probabile"
                 }
               },
               "other" : {
@@ -862,12 +862,6 @@
         "pl" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "%lld prawdopodobne dopasowanie"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "needs_review",
@@ -878,6 +872,12 @@
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "%lld prawdopodobnych dopasowań"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "%lld prawdopodobne dopasowanie"
                 }
               },
               "other" : {
@@ -892,16 +892,16 @@
         "pt" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "%lld correspondência provável"
-                }
-              },
               "many" : {
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "%lld de correspondências prováveis"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "%lld correspondência provável"
                 }
               },
               "other" : {
@@ -916,12 +916,6 @@
         "ru" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "%lld вероятное совпадение"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "needs_review",
@@ -932,6 +926,12 @@
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "%lld вероятных совпадений"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "%lld вероятное совпадение"
                 }
               },
               "other" : {
@@ -946,12 +946,6 @@
         "uk" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "%lld ймовірний збіг"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "needs_review",
@@ -962,6 +956,12 @@
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "%lld ймовірних збігів"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "%lld ймовірний збіг"
                 }
               },
               "other" : {
@@ -2334,6 +2334,106 @@
         }
       }
     },
+    "Ask before blocking lyrics" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "السؤال قبل حظر كلمات الأغاني"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Vor dem Blockieren von Songtexten fragen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Preguntar antes de bloquear letras"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "پرسیدن پیش از مسدود کردن ترانه"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Demander avant de bloquer des paroles"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Tanya sebelum memblokir lirik"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Chiedi prima di bloccare i testi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "歌詞をブロックする前に確認"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "가사 차단 전에 묻기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Vraag voor het blokkeren van songteksten"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Pytaj przed blokowaniem tekstów"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Perguntar antes de bloquear letras"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Спрашивать перед блокировкой текстов"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Питати перед блокуванням текстів"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "禁用歌词前询问"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "停用歌詞前先詢問"
+          }
+        }
+      }
+    },
     "Back 5 Seconds" : {
       "comment" : "sync",
       "localizations" : {
@@ -2535,7 +2635,108 @@
         }
       }
     },
+    "Blocked Songs & Albums" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "الأغاني والألبومات المحظورة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Blockierte Songs & Alben"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Canciones y álbumes bloqueados"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "آهنگ‌ها و آلبوم‌های مسدودشده"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Morceaux et albums bloqués"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lagu & Album yang Diblokir"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Brani e album bloccati"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "ブロックした曲とアルバム"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "차단된 노래 및 앨범"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Geblokkeerde nummers en albums"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Zablokowane utwory i albumy"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Músicas e Álbuns Bloqueados"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Заблокированные песни и альбомы"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Заблоковані пісні й альбоми"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "已禁用歌词的歌曲与专辑"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "已停用歌詞的歌曲與專輯"
+          }
+        }
+      }
+    },
     "Cancel" : {
+      "comment" : "confirm dialog button",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2641,24 +2842,6 @@
         "ar" : {
           "variations" : {
             "plural" : {
-              "zero" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "تم الإلغاء · عرض %lld نتيجة"
-                }
-              },
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "تم الإلغاء · عرض %lld نتيجة"
-                }
-              },
-              "two" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "تم الإلغاء · عرض %lld نتيجتين"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "needs_review",
@@ -2671,7 +2854,25 @@
                   "value" : "تم الإلغاء · عرض %lld نتيجة"
                 }
               },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "تم الإلغاء · عرض %lld نتيجة"
+                }
+              },
               "other" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "تم الإلغاء · عرض %lld نتيجة"
+                }
+              },
+              "two" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "تم الإلغاء · عرض %lld نتيجتين"
+                }
+              },
+              "zero" : {
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "تم الإلغاء · عرض %lld نتيجة"
@@ -2755,16 +2956,16 @@
         "fr" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "Annulée · %lld résultat affiché"
-                }
-              },
               "many" : {
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "Annulée · %lld résultats affichés"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "Annulée · %lld résultat affiché"
                 }
               },
               "other" : {
@@ -2791,16 +2992,16 @@
         "it" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "Annullata · %lld risultato mostrato"
-                }
-              },
               "many" : {
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "Annullata · %lld risultati mostrati"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "Annullata · %lld risultato mostrato"
                 }
               },
               "other" : {
@@ -2857,12 +3058,6 @@
         "pl" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "Anulowano · pokazano %lld wynik"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "needs_review",
@@ -2873,6 +3068,12 @@
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "Anulowano · pokazano %lld wyników"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "Anulowano · pokazano %lld wynik"
                 }
               },
               "other" : {
@@ -2887,16 +3088,16 @@
         "pt" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "Cancelado · mostrando %lld resultado"
-                }
-              },
               "many" : {
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "Cancelado · mostrando %lld de resultados"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "Cancelado · mostrando %lld resultado"
                 }
               },
               "other" : {
@@ -2911,12 +3112,6 @@
         "ru" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "Отменено · показан %lld результат"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "needs_review",
@@ -2927,6 +3122,12 @@
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "Отменено · показано %lld результатов"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "Отменено · показан %lld результат"
                 }
               },
               "other" : {
@@ -2941,12 +3142,6 @@
         "uk" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "Скасовано · показано %lld результат"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "needs_review",
@@ -2957,6 +3152,12 @@
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "Скасовано · показано %lld результатів"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "Скасовано · показано %lld результат"
                 }
               },
               "other" : {
@@ -4316,6 +4517,107 @@
         }
       }
     },
+    "Disable Lyrics" : {
+      "comment" : "confirm dialog button",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "تعطيل كلمات الأغاني"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Songtexte deaktivieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Desactivar letras"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "غیرفعال کردن ترانه"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Désactiver les paroles"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Matikan Lirik"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Disattiva testi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "歌詞を無効にする"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "가사 끄기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Songteksten uitschakelen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Wyłącz tekst"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Desativar Letras"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Отключить текст"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Вимкнути текст"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "禁用歌词"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "停用歌詞"
+          }
+        }
+      }
+    },
     "Disable Lyrics for Entire Album" : {
       "comment" : "menu",
       "localizations" : {
@@ -4423,6 +4725,107 @@
         }
       }
     },
+    "Disable lyrics for this album?" : {
+      "comment" : "confirm dialog title",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "هل تريد تعطيل كلمات الأغاني لهذا الألبوم؟"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Songtexte für dieses Album deaktivieren?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "¿Desactivar las letras de este álbum?"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "ترانه برای این آلبوم غیرفعال شود؟"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Désactiver les paroles pour cet album ?"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Matikan lirik untuk album ini?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Disattivare i testi per questo album?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "このアルバムの歌詞を無効にしますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "이 앨범의 가사를 끄겠습니까?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Songteksten uitschakelen voor dit album?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Wyłączyć tekst dla tego albumu?"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Desativar as letras deste álbum?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Отключить тексты для этого альбома?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Вимкнути тексти для цього альбому?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "要禁用此专辑的歌词吗？"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "要停用此專輯的歌詞嗎？"
+          }
+        }
+      }
+    },
     "Display" : {
       "localizations" : {
         "ar" : {
@@ -4519,6 +4922,107 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "顯示"
+          }
+        }
+      }
+    },
+    "Don't ask again" : {
+      "comment" : "confirm dialog checkbox",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "عدم السؤال مرة أخرى"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Nicht mehr fragen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "No volver a preguntar"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "دیگر نپرس"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Ne plus demander"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Jangan tanya lagi"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Non chiedere più"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "今後確認しない"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "다시 묻지 않음"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Niet meer vragen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Nie pytaj ponownie"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Não perguntar novamente"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Больше не спрашивать"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Більше не питати"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "不再询问"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "不再詢問"
           }
         }
       }
@@ -7970,6 +8474,106 @@
         }
       }
     },
+    "Keywords you added or changed will be lost." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "ستُفقد الكلمات المفتاحية التي أضفتها أو غيّرتها."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Von dir hinzugefügte oder geänderte Schlüsselwörter gehen verloren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Se perderán las palabras clave que hayas añadido o modificado."
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "کلیدواژه‌هایی که افزوده یا تغییر داده‌اید از بین می‌روند."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Les mots-clés que vous avez ajoutés ou modifiés seront perdus."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Kata kunci yang Anda tambahkan atau ubah akan hilang."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Le parole chiave che hai aggiunto o modificato andranno perse."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "追加または変更したキーワードは失われます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "추가하거나 변경한 키워드가 사라집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Trefwoorden die je hebt toegevoegd of gewijzigd, gaan verloren."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Dodane lub zmienione słowa kluczowe zostaną utracone."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "As palavras-chave que você adicionou ou alterou serão perdidas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Добавленные или измененные вами ключевые слова будут потеряны."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Додані або змінені вами ключові слова буде втрачено."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "你添加或更改的关键词将会丢失。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "你加入或更改的關鍵字將會遺失。"
+          }
+        }
+      }
+    },
     "Language" : {
       "localizations" : {
         "ar" : {
@@ -8470,6 +9074,208 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "Lirico 無法得知 %@ 正在播放的內容"
+          }
+        }
+      }
+    },
+    "Lirico won't search lyrics for any song on this album until you pick lyrics for one of them manually." : {
+      "comment" : "confirm dialog body",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "لن يبحث Lirico عن كلمات أي أغنية في هذا الألبوم حتى تختار كلمات إحداها يدويًا."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lirico sucht für keinen Song dieses Albums mehr nach Songtexten, bis du für einen davon manuell einen Songtext auswählst."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lirico no buscará letras para ninguna canción de este álbum hasta que elijas manualmente la letra de una de ellas."
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "تا زمانی که ترانه یکی از آهنگ‌های این آلبوم را دستی انتخاب نکنید، Lirico برای هیچ آهنگی از این آلبوم ترانه جستجو نمی‌کند."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lirico ne cherchera plus de paroles pour les morceaux de cet album tant que vous n'en aurez pas choisi manuellement pour l'un d'eux."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lirico tidak akan mencari lirik untuk lagu apa pun di album ini sampai Anda memilih lirik untuk salah satunya secara manual."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lirico non cercherà testi per nessun brano di questo album finché non sceglierai manualmente il testo di uno di essi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "このアルバムのいずれかの曲の歌詞を手動で選択するまで、Liricoはこのアルバムのどの曲の歌詞も検索しません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "이 앨범의 노래 중 하나에 대해 가사를 직접 선택할 때까지 Lirico는 이 앨범의 어떤 노래도 가사를 검색하지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lirico zoekt geen songteksten meer voor nummers op dit album totdat je voor een ervan handmatig een songtekst kiest."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lirico nie będzie szukać tekstów dla żadnego utworu z tego albumu, dopóki ręcznie nie wybierzesz tekstu dla jednego z nich."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "O Lirico não pesquisará letras para nenhuma música deste álbum até que você escolha manualmente a letra de uma delas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lirico не будет искать тексты для песен этого альбома, пока вы вручную не выберете текст для одной из них."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lirico не шукатиме тексти для пісень цього альбому, доки ви вручну не виберете текст для однієї з них."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "在你为此专辑中的某首歌曲手动选取歌词之前，Lirico 不会为此专辑中的任何歌曲搜索歌词。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "在你為此專輯中的某首歌曲手動選擇歌詞之前，Lirico 不會為此專輯中的任何歌曲搜尋歌詞。"
+          }
+        }
+      }
+    },
+    "Lirico won't search lyrics for this song again until you pick some manually." : {
+      "comment" : "confirm dialog body",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "لن يبحث Lirico عن كلمات هذه الأغنية مرة أخرى حتى تختار كلمات يدويًا."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lirico sucht für diesen Song nicht mehr nach Songtexten, bis du manuell einen auswählst."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lirico no volverá a buscar letras para esta canción hasta que elijas unas manualmente."
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "تا زمانی که ترانه‌ای را دستی انتخاب نکنید، Lirico دیگر برای این آهنگ ترانه جستجو نمی‌کند."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lirico ne cherchera plus de paroles pour ce morceau tant que vous n'en aurez pas choisi manuellement."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lirico tidak akan mencari lirik untuk lagu ini lagi sampai Anda memilihnya secara manual."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lirico non cercherà più il testo di questo brano finché non ne sceglierai uno manualmente."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "歌詞を手動で選択するまで、Liricoはこの曲の歌詞を検索しません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "가사를 직접 선택할 때까지 Lirico는 이 노래의 가사를 다시 검색하지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lirico zoekt geen songteksten meer voor dit nummer totdat je er handmatig een kiest."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lirico nie będzie już szukać tekstu dla tego utworu, dopóki nie wybierzesz go ręcznie."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "O Lirico não pesquisará mais letras para esta música até que você escolha alguma manualmente."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lirico больше не будет искать текст для этой песни, пока вы не выберете его вручную."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lirico більше не шукатиме текст для цієї пісні, доки ви не виберете його вручну."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "在你手动选取歌词之前，Lirico 不会再为此歌曲搜索歌词。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "在你手動選擇歌詞之前，Lirico 不會再為此歌曲搜尋歌詞。"
           }
         }
       }
@@ -9506,6 +10312,107 @@
         }
       }
     },
+    "Mark as Wrong" : {
+      "comment" : "confirm dialog button",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "وضع علامة كخاطئة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Als falsch markieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Marcar como equivocada"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "علامت‌گذاری به‌عنوان اشتباه"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Signaler comme mauvaises"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Tandai sebagai Salah"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Segnala come errato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "間違いとしてマーク"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "잘못됨으로 표시"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Markeer als verkeerd"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Oznacz jako zły"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Marcar como Erradas"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Отметить как неверный"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Позначити як невірний"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "标记为错误"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "標示為錯誤"
+          }
+        }
+      }
+    },
     "Mark as wrong lyrics" : {
       "localizations" : {
         "ar" : {
@@ -9602,6 +10509,107 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "標示為錯誤的歌詞"
+          }
+        }
+      }
+    },
+    "Mark these lyrics as wrong?" : {
+      "comment" : "confirm dialog title",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "هل تريد وضع علامة على هذه الكلمات كخاطئة؟"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Diesen Songtext als falsch markieren?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "¿Marcar esta letra como equivocada?"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "این ترانه به‌عنوان اشتباه علامت‌گذاری شود؟"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Signaler ces paroles comme mauvaises ?"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Tandai lirik ini sebagai salah?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Segnalare questo testo come errato?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "この歌詞を間違った歌詞としてマークしますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "이 가사를 잘못된 가사로 표시하겠습니까?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Deze songtekst als verkeerd markeren?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Oznaczyć ten tekst jako zły?"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Marcar estas letras como erradas?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Отметить этот текст как неверный?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Позначити цей текст як невірний?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "要将此歌词标记为错误吗？"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "要將此歌詞標示為錯誤嗎？"
           }
         }
       }
@@ -13564,6 +14572,206 @@
         }
       }
     },
+    "Reset censored words to defaults?" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "هل تريد إعادة تعيين الكلمات المحجوبة إلى الإعدادات الافتراضية؟"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Zensierte Wörter auf Standard zurücksetzen?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "¿Restablecer las palabras censuradas por omisión?"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "واژه‌های سانسورشده به پیش‌فرض‌ها بازنشانی شوند؟"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Rétablir les mots censurés par défaut ?"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Kembalikan kata bersensor ke default?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Ripristinare le parole censurate predefinite?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "伏せ字の単語をデフォルトに戻しますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "검열된 단어를 기본값으로 재설정하겠습니까?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Gecensureerde woorden herstellen naar standaardwaarden?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Przywrócić domyślne ocenzurowane słowa?"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Restaurar os padrões das palavras censuradas?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Восстановить стандартный список нецензурных слов?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Відновити стандартний список нецензурних слів?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "要将屏蔽词恢复为默认设置吗？"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "要將遮蔽字詞回復為預設值嗎？"
+          }
+        }
+      }
+    },
+    "Reset filter keywords to defaults?" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "هل تريد إعادة تعيين كلمات التصفية المفتاحية إلى الإعدادات الافتراضية؟"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Filter-Schlüsselwörter auf Standard zurücksetzen?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "¿Restablecer las palabras clave del filtro por omisión?"
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "کلیدواژه‌های فیلتر به پیش‌فرض‌ها بازنشانی شوند؟"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Rétablir les mots-clés du filtre par défaut ?"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Kembalikan kata kunci filter ke default?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Ripristinare le parole chiave del filtro predefinite?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "フィルタのキーワードをデフォルトに戻しますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "필터 키워드를 기본값으로 재설정하겠습니까?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Filtertrefwoorden herstellen naar standaardwaarden?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Przywrócić domyślne słowa kluczowe filtru?"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Restaurar os padrões das palavras-chave do filtro?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Восстановить стандартные ключевые слова фильтра?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Відновити стандартні ключові слова фільтра?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "要将过滤关键词恢复为默认设置吗？"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "要將過濾關鍵字回復為預設值嗎？"
+          }
+        }
+      }
+    },
     "Reset to Defaults" : {
       "localizations" : {
         "ar" : {
@@ -16825,24 +18033,6 @@
         "ar" : {
           "variations" : {
             "plural" : {
-              "zero" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "عرض %lld تطابق جزئي"
-                }
-              },
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "عرض %lld تطابق جزئي"
-                }
-              },
-              "two" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "عرض %lld تطابقين جزئيين"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "needs_review",
@@ -16855,7 +18045,25 @@
                   "value" : "عرض %lld تطابقًا جزئيًا"
                 }
               },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "عرض %lld تطابق جزئي"
+                }
+              },
               "other" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "عرض %lld تطابق جزئي"
+                }
+              },
+              "two" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "عرض %lld تطابقين جزئيين"
+                }
+              },
+              "zero" : {
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "عرض %lld تطابق جزئي"
@@ -16939,16 +18147,16 @@
         "fr" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "%lld correspondance partielle affichée"
-                }
-              },
               "many" : {
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "%lld correspondances partielles affichées"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "%lld correspondance partielle affichée"
                 }
               },
               "other" : {
@@ -16975,16 +18183,16 @@
         "it" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "%lld corrispondenza parziale mostrata"
-                }
-              },
               "many" : {
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "%lld corrispondenze parziali mostrate"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "%lld corrispondenza parziale mostrata"
                 }
               },
               "other" : {
@@ -17041,12 +18249,6 @@
         "pl" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "pokazano %lld częściowe dopasowanie"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "needs_review",
@@ -17057,6 +18259,12 @@
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "pokazano %lld częściowych dopasowań"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "pokazano %lld częściowe dopasowanie"
                 }
               },
               "other" : {
@@ -17071,16 +18279,16 @@
         "pt" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "mostrando %lld correspondência parcial"
-                }
-              },
               "many" : {
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "mostrando %lld de correspondências parciais"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "mostrando %lld correspondência parcial"
                 }
               },
               "other" : {
@@ -17095,12 +18303,6 @@
         "ru" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "показано %lld частичное совпадение"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "needs_review",
@@ -17111,6 +18313,12 @@
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "показано %lld частичных совпадений"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "показано %lld частичное совпадение"
                 }
               },
               "other" : {
@@ -17125,12 +18333,6 @@
         "uk" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "показано %lld частковий збіг"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "needs_review",
@@ -17141,6 +18343,12 @@
                 "stringUnit" : {
                   "state" : "needs_review",
                   "value" : "показано %lld часткових збігів"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "показано %lld частковий збіг"
                 }
               },
               "other" : {
@@ -20105,6 +21313,106 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "逐字同步（卡拉 OK）"
+          }
+        }
+      }
+    },
+    "Words you added or changed will be lost." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "ستُفقد الكلمات التي أضفتها أو غيّرتها."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Von dir hinzugefügte oder geänderte Wörter gehen verloren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Se perderán las palabras que hayas añadido o modificado."
+          }
+        },
+        "fa" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "واژه‌هایی که افزوده یا تغییر داده‌اید از بین می‌روند."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Les mots que vous avez ajoutés ou modifiés seront perdus."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Kata yang Anda tambahkan atau ubah akan hilang."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Le parole che hai aggiunto o modificato andranno perse."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "追加または変更した単語は失われます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "추가하거나 변경한 단어가 사라집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Woorden die je hebt toegevoegd of gewijzigd, gaan verloren."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Dodane lub zmienione słowa zostaną utracone."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "As palavras que você adicionou ou alterou serão perdidas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Добавленные или измененные вами слова будут потеряны."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Додані або змінені вами слова буде втрачено."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "你添加或更改的词语将会丢失。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "你加入或更改的字詞將會遺失。"
           }
         }
       }
