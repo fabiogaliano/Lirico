@@ -78,6 +78,9 @@ class LyricsSession: NSObject {
     /// session through a main-actor hop, so a result can land after the player has
     /// already moved on while the generation still matches; this catches that gap.
     private var automaticSearchTrack: MusicTrack?
+    /// Set when a block stopped the search for the current track. The status alone can't
+    /// tell: an album block with local lyrics leaves it `.loaded`.
+    private var searchStoppedByBlock = false
 
     private var cancelBag = Set<AnyCancellable>()
 
@@ -239,6 +242,8 @@ class LyricsSession: NSObject {
     func select(_ lyrics: Lyrics, writeToiTunesIfAuto: Bool = false, supporting: [Lyrics] = []) {
         invalidateAutomaticSearch()
         let track = player.currentTrack
+        // The lyrics picked here replace the blocked state; nothing to search again for.
+        searchStoppedByBlock = false
         if let track {
             blocklist.unblock(track)
         }
@@ -281,12 +286,13 @@ class LyricsSession: NSObject {
         currentLyrics = nil
         supportingLyrics = []
         status = .blocked
+        searchStoppedByBlock = true
     }
 
     /// Settings can lift the block on the song that's playing; search for it now rather
     /// than leaving it blocked until the next track change.
     private func searchAgainIfUnblocked() {
-        guard status == .blocked, let track = player.currentTrack, !blocklist.isBlocked(track: track) else { return }
+        guard searchStoppedByBlock, let track = player.currentTrack, !blocklist.isBlocked(track: track) else { return }
         if let album = track.album, blocklist.isBlocked(album: album) { return }
         currentTrackChanged(to: track)
     }
@@ -298,6 +304,7 @@ class LyricsSession: NSObject {
         supportingLyrics = []
         invalidateAutomaticSearch()
         automaticSearchTrack = track
+        searchStoppedByBlock = false
 
         guard let track else {
             updateNoTrackStatus()
@@ -309,6 +316,7 @@ class LyricsSession: NSObject {
 
         guard !blocklist.isBlocked(track: track) else {
             status = .blocked
+            searchStoppedByBlock = true
             return
         }
         status = .searching
@@ -347,6 +355,7 @@ class LyricsSession: NSObject {
         }
         if let album = track.album, blocklist.isBlocked(album: album) {
             status = currentLyrics == nil ? .blocked : .loaded
+            searchStoppedByBlock = true
             return
         }
         status = currentLyrics == nil ? .searching : .loaded
@@ -469,6 +478,7 @@ extension LyricsSession {
 
         preparation.prepare(lrc)
         lrc.metadata.needsPersist = true
+        searchStoppedByBlock = false
         blocklist.unblock(track)
         adopt(lrc, for: track, persist: true)
         supportingLyrics = []
