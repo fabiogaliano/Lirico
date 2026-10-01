@@ -147,6 +147,15 @@ class LyricsSession: NSObject {
             }
             .store(in: &cancelBag)
 
+        blocklist.changes
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                MainActor.assumeIsolated {
+                    self?.searchAgainIfUnblocked()
+                }
+            }
+            .store(in: &cancelBag)
+
         clock.lineIndexUpdates
             // Mirror onto the main thread before driving UI. The clock emits on
             // its background queue; assigning the @Published property there let
@@ -272,6 +281,14 @@ class LyricsSession: NSObject {
         currentLyrics = nil
         supportingLyrics = []
         status = .blocked
+    }
+
+    /// Settings can lift the block on the song that's playing; search for it now rather
+    /// than leaving it blocked until the next track change.
+    private func searchAgainIfUnblocked() {
+        guard status == .blocked, let track = player.currentTrack, !blocklist.isBlocked(track: track) else { return }
+        if let album = track.album, blocklist.isBlocked(album: album) { return }
+        currentTrackChanged(to: track)
     }
 
     func currentTrackChanged(to track: MusicTrack?) {

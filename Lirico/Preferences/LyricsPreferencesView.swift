@@ -1,4 +1,5 @@
 import AppKit
+import LiricoFoundation
 import SwiftUI
 
 struct LyricsPreferencesView: View {
@@ -17,12 +18,15 @@ struct LyricsPreferencesView: View {
     @AppStorage(.writeiTunesConvertToPlainLRC) private var convertToPlainLRC = false
 
     @AppStorage(.confirmBeforeBlockingLyrics) private var confirmBeforeBlocking = true
+    @State private var blockedEntries: [BlockedEntry] = []
+    @State private var selectedBlock: BlockedEntry.Kind?
 
     // Custom saving path display name — derived from bookmark on appear, updated
     // after the user picks a new directory via NSOpenPanel.
     @State private var customDirectoryName: String = ""
 
     private let persistenceSettings = PersistenceSettings()
+    private let blocklist = SearchBlocklist()
 
     var body: some View {
         SettingsForm {
@@ -32,6 +36,12 @@ struct LyricsPreferencesView: View {
             blockedSection
         }
         .onAppear(perform: loadInitialState)
+        // Blocks are added from the status menu while Settings may be open. Hop to main
+        // before the main-actor handler: defaults can change on any thread.
+        .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
+            .receive(on: DispatchQueue.main)) { _ in
+            reloadBlockedEntries()
+        }
     }
 
     // MARK: - Sections
@@ -109,14 +119,110 @@ struct LyricsPreferencesView: View {
     }
 
     private var blockedSection: some View {
-        Section("Blocked Songs & Albums") {
+        Section {
             Toggle("Ask before blocking lyrics", isOn: $confirmBeforeBlocking)
+            if blockedEntries.isEmpty {
+                Text("No blocked songs or albums")
+                    .foregroundStyle(.secondary)
+            } else {
+                blockedList
+                HStack(spacing: 0) {
+                    Button(action: removeSelectedBlock) {
+                        Image(systemName: "minus").frame(width: 22, height: 18)
+                    }
+                    .disabled(selectedBlock == nil)
+                    .accessibilityLabel(Text("Unblock selected item"))
+                    .help(Text("Unblock selected item"))
+                    Spacer()
+                }
+                .buttonStyle(.borderless)
+            }
+        } header: {
+            Text("Blocked Songs & Albums")
+        } footer: {
+            SettingsFooter("Lirico doesn't search lyrics for these. Unblock one to search again, or pick lyrics for the song manually.")
+        }
+    }
+
+    private var blockedList: some View {
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                ForEach(blockedEntries) { entry in
+                    blockedRow(entry)
+                    if entry.id != blockedEntries.last?.id {
+                        Divider()
+                    }
+                }
+            }
+        }
+        .frame(height: CGFloat(min(blockedEntries.count, 5)) * Self.blockedRowHeight)
+        .background(Color(NSColor.textBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(Color(NSColor.separatorColor), lineWidth: 1)
+        )
+    }
+
+    private static let blockedRowHeight: CGFloat = 28
+
+    private func blockedRow(_ entry: BlockedEntry) -> some View {
+        let isAlbum = if case .album = entry.kind { true } else { false }
+        let isSelected = selectedBlock == entry.kind
+        // A button rather than a tap gesture so VoiceOver can select the row too.
+        return Button {
+            selectedBlock = entry.kind
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: isAlbum ? "square.stack" : "music.note")
+                    .foregroundStyle(.secondary)
+                    .frame(width: 16)
+                    .accessibilityHidden(true)
+                blockedEntryName(entry)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                Spacer()
+                Text(isAlbum ? "Album" : "Song")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 8)
+            .frame(height: Self.blockedRowHeight - 1)
+            .background(isSelected ? Color.accentColor.opacity(0.15) : Color.clear)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
+    private func blockedEntryName(_ entry: BlockedEntry) -> Text {
+        switch (entry.title, entry.artist) {
+        case (let title?, let artist?): Text(verbatim: "\(title) — \(artist)")
+        case (let title?, nil): Text(verbatim: title)
+        case (nil, _): Text("Unknown track").foregroundStyle(.secondary)
         }
     }
 
     // MARK: - Helpers
 
+    private func reloadBlockedEntries() {
+        let entries = blocklist.entries
+        guard entries != blockedEntries else { return }
+        blockedEntries = entries
+        if let selectedBlock, !entries.contains(where: { $0.kind == selectedBlock }) {
+            self.selectedBlock = nil
+        }
+    }
+
+    private func removeSelectedBlock() {
+        guard let selectedBlock, let entry = blockedEntries.first(where: { $0.kind == selectedBlock }) else { return }
+        blocklist.remove(entry)
+        self.selectedBlock = nil
+        reloadBlockedEntries()
+    }
+
     private func loadInitialState() {
+        reloadBlockedEntries()
         if let url = persistenceSettings.customSavingDirectory {
             customDirectoryName = url.lastPathComponent
         } else {
