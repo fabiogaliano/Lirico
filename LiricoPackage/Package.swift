@@ -25,15 +25,9 @@ extension Package.Dependency {
         case package(path: String, isRelative: Bool, isEnabled: Bool)
     }
 
+    /// An enabled local path that doesn't exist falls back to `remote` without notice: with no
+    /// sibling `MusicPlayer` checkout, `LIRICO_USE_LOCAL_DEPENDENCY=1` switches only LiricoKit.
     static func package(local localSearchPaths: LocalSearchPath..., remote: Package.Dependency) -> Package.Dependency {
-        let currentFilePath = #filePath
-        let isClonedDependency = currentFilePath.contains("/checkouts/") ||
-            currentFilePath.contains("/SourcePackages/") ||
-            currentFilePath.contains("/.build/")
-
-        if isClonedDependency {
-            return remote
-        }
         for local in localSearchPaths {
             switch local {
             case .package(let path, let isRelative, let isEnabled):

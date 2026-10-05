@@ -2,8 +2,8 @@ import Foundation
 
 /// Everything one manual search has returned so far, and which of it the user is offered.
 public struct ManualSearchResults {
-    public let mode: LyricsSearchMode
-    public private(set) var candidates: [EvaluatedLyricsCandidate] = []
+    private let mode: LyricsSearchMode
+    private var candidates: [EvaluatedLyricsCandidate] = []
     private let ranker = LyricsCandidateRanker()
 
     public init(mode: LyricsSearchMode) {

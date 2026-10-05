@@ -4,8 +4,8 @@
 /// kept alongside to make the list readable. Tracks blocked before names were recorded
 /// have no name, and older versions could store the same ID or album more than once.
 public struct BlocklistContents: Equatable, Sendable {
-    public static let titleKey = "title"
-    public static let artistKey = "artist"
+    private static let titleKey = "title"
+    private static let artistKey = "artist"
 
     public private(set) var trackIDs: [String]
     public private(set) var trackNames: [String: [String: String]]

@@ -8,8 +8,8 @@
 /// caller — the app's search pipeline and source preferences, and the
 /// `lyrics-diag` tool — at once.
 ///
-/// Musixmatch is appended only when a non-empty token is supplied, matching the
-/// app's conditional provider group.
+/// Musixmatch is appended only when a non-empty token is supplied: the source
+/// returns nothing without a user token.
 public func makeProviderDescriptors(musixmatchToken: String?) -> [LyricsProviders.ProviderDescriptor] {
     var descriptors: [LyricsProviders.ProviderDescriptor] = [
         LyricsProviders.ProviderDescriptor(

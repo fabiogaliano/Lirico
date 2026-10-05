@@ -89,7 +89,7 @@ public struct AutomaticLyricsSelection {
     /// How long an automatic search waits for providers before settling on what it has.
     public static let deadline: Duration = .seconds(15)
 
-    public private(set) var candidates: [EvaluatedLyricsCandidate] = []
+    private var candidates: [EvaluatedLyricsCandidate] = []
     private let mode: LyricsSearchMode
     private let policy: AutomaticAcceptancePolicy
     private let configuration: LyricsCandidateRankingConfiguration

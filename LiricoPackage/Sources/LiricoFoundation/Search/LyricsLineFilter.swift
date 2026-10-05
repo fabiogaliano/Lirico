@@ -5,14 +5,12 @@ import Foundation
 /// `Lyrics` object: a line is kept only when it matches **none** of the filter
 /// keys.
 ///
-/// - `/`-prefixed keys are treated as regular expressions.
+/// - `/`-prefixed keys are treated as regular expressions; invalid ones are ignored.
 /// - All other keys are literal substrings (`.ignoreMetacharacters`).
 ///
-/// Matching is case-sensitive and searches anywhere in the line — the same
-/// configuration the app's `LyricsFilter` uses. (That type's `Regex` dependency
-/// is a thin `NSRegularExpression` wrapper, so building with `NSRegularExpression`
-/// here is behaviorally identical.) Sharing this builder means the app and the
-/// `lyrics-diag` tool filter lines by one definition.
+/// Matching is case-sensitive and searches anywhere in the line. The app's
+/// `LyricsFilter` and the `lyrics-diag` tool both build their predicate here so
+/// they filter lines identically.
 ///
 /// Apply the result with `Lyrics.filtrate(isIncluded:)`, which disables
 /// (not deletes) non-matching lines.
