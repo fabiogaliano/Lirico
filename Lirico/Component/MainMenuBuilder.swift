@@ -98,6 +98,7 @@ enum MainMenuBuilder {
     // MARK: - Status Bar Menu
 
     /// Build the menu shown from the menu-bar status item, plus the inline
+    /// lyrics-offset controls that `AppDelegate` binds to the session.
     static func statusBarMenu(target: AppDelegate) -> StatusBarMenu {
         let menu = NSMenu()
 

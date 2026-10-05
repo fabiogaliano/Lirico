@@ -20,7 +20,7 @@ enum LocalLyricsLoader {
         title: String,
         artist: String,
         preparation: LyricsPreparation,
-        settings: PersistenceSettings = PersistenceSettings()
+        settings: PersistenceSettings
     ) -> LocalLyricsFind? {
         if settings.shouldLoadLyricsBesideTrack {
             if let result = loadEmbedded(track: track, title: title, artist: artist, preparation: preparation) {
@@ -144,8 +144,8 @@ private extension LocalLyricsLoader {
               let lyrics = Lyrics(lrcContents) else {
             return nil
         }
-        // File-based sources always overwrite title and artist, unlike embedded which preserves
-        // existing metadata values. This asymmetry matches the original LyricsSession behaviour.
+        // Labelled with the playing track, not the file's own tags: saving names the file from
+        // these, so an offset tweak re-saves to the name it was found under.
         lyrics.metadata.localURL = url
         lyrics.metadata.title = title
         lyrics.metadata.artist = artist

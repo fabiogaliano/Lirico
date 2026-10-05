@@ -6,8 +6,7 @@ import LiricoFoundation
 /// Typed view of the search-policy slice of `UserDefaults`.
 ///
 /// Owns the keys that decide which lyrics candidates make it through search:
-/// source-priority ordering, the per-search collection window, and the
-/// optional Musixmatch credential. The source preferences, `LyricsSearchPipeline`,
+/// source-priority ordering and the optional Musixmatch credential. The source preferences, `LyricsSearchPipeline`,
 /// and the session's automatic-search loop consume one of these rather than
 /// reaching back into the flat `defaults[...]` namespace.
 struct SearchSettings {
@@ -66,19 +65,12 @@ struct SearchSettings {
 
 extension SearchSettings {
     /// Maps user preferences into the ranker configuration consumed by
-    /// `LyricsCandidateRanker`.
-    ///
-    /// Window constants (`karaokePreferenceWindow`, `nearEqualSourcePriorityWindow`,
-    /// `automaticLooseFallbackMinimumScore`) are not yet exposed as user-facing
-    /// preferences; the SR-04 defaults (10 / 2 / 80) are used directly until
-    /// SR-08 decides whether tuning controls are needed.
+    /// `LyricsCandidateRanker`. The scoring windows aren't user preferences, so
+    /// they keep the configuration's defaults.
     var rankingConfiguration: LyricsCandidateRankingConfiguration {
         LyricsCandidateRankingConfiguration(
             sourcePriorityEnabled: sourcePriorityEnabled,
             sourcePriorityOrder: sourcePriorityOrder
-            // karaokePreferenceWindow: 10 (SR-04 default)
-            // nearEqualSourcePriorityWindow: 2 (SR-04 default)
-            // automaticLooseFallbackMinimumScore: 80 (SR-04 default)
         )
     }
 }

@@ -51,7 +51,7 @@ final class AutomaticLyricsSearch {
             group.addTask {
                 try? await Task.sleep(for: AutomaticLyricsSelection.deadline)
             }
-            // Whichever finishes first wins; the other is cancelled (DEC-003).
+            // Whichever finishes first wins; the other is cancelled.
             await group.next()
             group.cancelAll()
         }

@@ -22,7 +22,7 @@ final class LyricsSearchPipeline {
     private let candidateProcessor: LyricsSearchCandidateProcessor
     private var cancelBag = Set<AnyCancellable>()
 
-    init(settings: SearchSettings = SearchSettings(), preparation: LyricsPreparation) {
+    init(settings: SearchSettings, preparation: LyricsPreparation) {
         self.settings = settings
         candidateProcessor = LyricsSearchCandidateProcessor(preparation: preparation)
         // Defaults changes arrive on the writer's thread; this sink is main-actor isolated.

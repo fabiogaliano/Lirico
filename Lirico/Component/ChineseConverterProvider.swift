@@ -8,8 +8,8 @@ import OpenCC
 ///
 /// Constructed once during app startup so the converter's lifecycle is visible
 /// at the composition root rather than spun up lazily by the first call site.
-/// Consumers read `converter` at render/export time and pass it to
-/// `LineRenderer.render` or `LyricsPersister.writeToiTunes`.
+/// Main-thread consumers read `converter` at render/export time; the display
+/// coordinator, which renders on its own queue, takes it from `converterPublisher`.
 final class ChineseConverterProvider {
     @Published private(set) var converter: ChineseConverter?
 

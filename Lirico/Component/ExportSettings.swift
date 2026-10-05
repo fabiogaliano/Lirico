@@ -3,7 +3,7 @@ import Foundation
 /// Typed view of the Apple Music / iTunes export-policy slice of `UserDefaults`.
 ///
 /// Consumed by `LyricsPersister.writeToiTunes` and by `LyricsSession`'s
-/// auto-write paths (`select`, `clear`, `currentTrackChanged`). Centralising
+/// auto-write paths (`select`, automatic search, rejection). Centralising
 /// these three keys keeps the "should we push lyrics into Apple Music?" /
 /// "how should we format them?" policy out of arbitrary call sites.
 struct ExportSettings {
