@@ -48,13 +48,14 @@ build:
 release:
 	$(MAKE) build CONFIG=Release
 
-# The 'Update Build Time' and 'Bump Build' phases always run and rewrite the
-# bundle's Info.plist, but on an incremental build where nothing else changed
-# Xcode skips re-signing — leaving a signature that seals the *previous*
-# Info.plist and fails `codesign --verify --strict`. Re-seal before installing
-# so the app in /Applications is always consistently signed.
+# The 'Bump Build' phase always runs and rewrites the bundle's Info.plist, but
+# on an incremental build where nothing else changed Xcode skips re-signing —
+# leaving a signature that seals the *previous* Info.plist and fails
+# `codesign --verify --strict`. Re-seal before installing so the app in
+# /Applications is always consistently signed; a bare re-sign would drop the
+# Apple Events entitlement, so keep the one Xcode signed in.
 install: build
-	codesign --force --sign "-" $(APP)
+	codesign --force --sign "-" --preserve-metadata=entitlements $(APP)
 	-killall $(PRODUCT) 2>/dev/null || true
 	@i=0; while pgrep -x $(PRODUCT) >/dev/null 2>&1 && [ $$i -lt 50 ]; do sleep 0.1; i=$$((i+1)); done
 	-killall -9 $(PRODUCT) 2>/dev/null || true

@@ -6,20 +6,6 @@
 	objectVersion = 60;
 	objects = {
 
-/* Begin PBXAggregateTarget section */
-		BB30651020878608008A9AC8 /* SwiftLint */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = BB30651320878608008A9AC8 /* Build configuration list for PBXAggregateTarget "SwiftLint" */;
-			buildPhases = (
-				BB30651420878623008A9AC8 /* ShellScript */,
-			);
-			dependencies = (
-			);
-			name = SwiftLint;
-			productName = SwiftLint;
-		};
-/* End PBXAggregateTarget section */
-
 /* Begin PBXBuildFile section */
 		F1C0001100000000010A0001 /* ChineseConverterProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C0001000000000010A0001 /* ChineseConverterProvider.swift */; };
 		F1C0001100000000010A0002 /* LyricsFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C0001000000000010A0002 /* LyricsFilter.swift */; };
@@ -35,7 +21,6 @@
 		BB4141B21E458BA800A51775 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB4141B11E458BA800A51775 /* Assets.xcassets */; };
 		BB4141C01E45B67800A51775 /* KaraokeLyricsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4141BF1E45B67800A51775 /* KaraokeLyricsController.swift */; };
 		BB58B0821E82971400598D4F /* UserDefaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB58B0811E82971400598D4F /* UserDefaults.plist */; };
-		BB58B0891E82CA9B00598D4F /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = BB58B0881E82CA9B00598D4F /* Credits.rtf */; };
 		BB60F3041E889A1B00BA1FD2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB60F3031E889A1B00BA1FD2 /* AppDelegate.swift */; };
 		BB60F3061E889A1B00BA1FD2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB60F3051E889A1B00BA1FD2 /* Assets.xcassets */; };
 		BB60F3091E889A1B00BA1FD2 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = BB60F3071E889A1B00BA1FD2 /* MainMenu.xib */; };
@@ -67,7 +52,6 @@
 		E9FA2B1E2E900000000FFF1E /* PersistenceSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FA2B1D2E900000000FFF1D /* PersistenceSettings.swift */; };
 		F1B0001100000000000A0001 /* AppIdentifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0001 /* AppIdentifiers.swift */; };
 		F1B0001100000000000A0002 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0002 /* AppConstants.swift */; };
-		F1B0001100000000000A0003 /* AppURLs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0003 /* AppURLs.swift */; };
 		F1B0001100000000000A0005 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0005 /* Logging.swift */; };
 		F1B0001100000000000A0006 /* LyricsAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0006 /* LyricsAnimation.swift */; };
 		F1B0001100000000000A0008 /* NotificationCenters.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0001000000000000A0008 /* NotificationCenters.swift */; };
@@ -92,7 +76,6 @@
 		FA0000012F200000000A0008 /* SourcePreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0008 /* SourcePreferencesView.swift */; };
 		FA0000012F200000000A0009 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000002F200000000A0009 /* AboutView.swift */; };
 		E97F2CFD2E757C19005466D1 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97F2CF92E757C19005466D1 /* Signal.swift */; };
-		E97F2D012E757C19005466D1 /* Invoke.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97F2CF72E757C19005466D1 /* Invoke.swift */; };
 		E983FA242C86302200170CF7 /* MarqueeLabel in Frameworks */ = {isa = PBXBuildFile; productRef = E983FA232C86302200170CF7 /* MarqueeLabel */; };
 		E9A38A6B2D7337E700DEFE0E /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = E9A38A6A2D7337E700DEFE0E /* Localizable.xcstrings */; };
 		E9A38A6E2D7337E700DEFE0E /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = E9A38A6D2D7337E700DEFE0E /* InfoPlist.xcstrings */; };
@@ -136,7 +119,6 @@
 		BB4141B61E458BA900A51775 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB4141BF1E45B67800A51775 /* KaraokeLyricsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaraokeLyricsController.swift; sourceTree = "<group>"; };
 		BB58B0811E82971400598D4F /* UserDefaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = UserDefaults.plist; sourceTree = "<group>"; };
-		BB58B0881E82CA9B00598D4F /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		BB60F3011E889A1B00BA1FD2 /* LiricoHelper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LiricoHelper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB60F3031E889A1B00BA1FD2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BB60F3051E889A1B00BA1FD2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -169,7 +151,6 @@
 		E9FA2B1D2E900000000FFF1D /* PersistenceSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceSettings.swift; sourceTree = "<group>"; };
 		F1B0001000000000000A0001 /* AppIdentifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIdentifiers.swift; sourceTree = "<group>"; };
 		F1B0001000000000000A0002 /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
-		F1B0001000000000000A0003 /* AppURLs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppURLs.swift; sourceTree = "<group>"; };
 		F1B0001000000000000A0005 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		F1B0001000000000000A0006 /* LyricsAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsAnimation.swift; sourceTree = "<group>"; };
 		F1B0001000000000000A0008 /* NotificationCenters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCenters.swift; sourceTree = "<group>"; };
@@ -191,7 +172,6 @@
 		FA0000002F200000000A0007 /* DisplayPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayPreferencesView.swift; sourceTree = "<group>"; };
 		FA0000002F200000000A0008 /* SourcePreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcePreferencesView.swift; sourceTree = "<group>"; };
 		FA0000002F200000000A0009 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
-		E97F2CF72E757C19005466D1 /* Invoke.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Invoke.swift; sourceTree = "<group>"; };
 		E97F2CF92E757C19005466D1 /* Signal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Signal.swift; sourceTree = "<group>"; };
 		E9A38A6A2D7337E700DEFE0E /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		E9A38A6D2D7337E700DEFE0E /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
@@ -284,7 +264,6 @@
 				BB9BCEB81E84120D001BC54B /* Lirico.entitlements */,
 				BB4141B61E458BA900A51775 /* Info.plist */,
 				BB58B0811E82971400598D4F /* UserDefaults.plist */,
-				BB58B0881E82CA9B00598D4F /* Credits.rtf */,
 			);
 			path = "Supporting Files";
 			sourceTree = "<group>";
@@ -315,7 +294,6 @@
 				E97F2CF22E757C0A005466D1 /* CXExtensions */,
 				F1B0001000000000000A0001 /* AppIdentifiers.swift */,
 				F1B0001000000000000A0002 /* AppConstants.swift */,
-				F1B0001000000000000A0003 /* AppURLs.swift */,
 				F1B0001000000000000A0005 /* Logging.swift */,
 				F1B0001000000000000A0006 /* LyricsAnimation.swift */,
 				F1B0001000000000000A0008 /* NotificationCenters.swift */,
@@ -362,7 +340,6 @@
 		E97F2CF22E757C0A005466D1 /* CXExtensions */ = {
 			isa = PBXGroup;
 			children = (
-				E97F2CF72E757C19005466D1 /* Invoke.swift */,
 				E97F2CF92E757C19005466D1 /* Signal.swift */,
 			);
 			path = CXExtensions;
@@ -438,7 +415,6 @@
 				BB4141A71E458BA800A51775 /* Frameworks */,
 				BB4141A81E458BA800A51775 /* Resources */,
 				BB60F3111E889FC000BA1FD2 /* Copy Helper */,
-				BB0A3AE02280312A006C2E52 /* Update Build Time */,
 				BBC1D5811E4AFE64008869EC /* Bump Build */,
 			);
 			buildRules = (
@@ -484,41 +460,16 @@
 			attributes = {
 				LastSwiftUpdateCheck = 0820;
 				LastUpgradeCheck = 1200;
-				ORGANIZATIONNAME = ddddxxx;
+				ORGANIZATIONNAME = fabiogaliano;
 				TargetAttributes = {
-					BB30651020878608008A9AC8 = {
-						CreatedOnToolsVersion = 9.3;
-					};
 					BB4141A91E458BA800A51775 = {
 						CreatedOnToolsVersion = 8.2.1;
 						LastSwiftMigration = 1020;
-						SystemCapabilities = {
-							com.apple.ApplicationGroups.Mac = {
-								enabled = 1;
-							};
-							com.apple.HardenedRuntime = {
-								enabled = 1;
-							};
-							com.apple.Sandbox = {
-								enabled = 1;
-							};
-						};
 					};
 					BB60F3001E889A1B00BA1FD2 = {
 						CreatedOnToolsVersion = 8.2.1;
 						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
-						SystemCapabilities = {
-							com.apple.ApplicationGroups.Mac = {
-								enabled = 1;
-							};
-							com.apple.HardenedRuntime = {
-								enabled = 1;
-							};
-							com.apple.Sandbox = {
-								enabled = 1;
-							};
-						};
 					};
 				};
 			};
@@ -561,7 +512,6 @@
 			targets = (
 				BB4141A91E458BA800A51775 /* Lirico */,
 				BB60F3001E889A1B00BA1FD2 /* LiricoHelper */,
-				BB30651020878608008A9AC8 /* SwiftLint */,
 			);
 		};
 /* End PBXProject section */
@@ -575,7 +525,6 @@
 				E9A38A6E2D7337E700DEFE0E /* InfoPlist.xcstrings in Resources */,
 				BB4141B21E458BA800A51775 /* Assets.xcassets in Resources */,
 				BB58B0821E82971400598D4F /* UserDefaults.plist in Resources */,
-				BB58B0891E82CA9B00598D4F /* Credits.rtf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -591,38 +540,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		BB0A3AE02280312A006C2E52 /* Update Build Time */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Update Build Time";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Writes LIRICO_BUILD_TIME into the built bundle's Info.plist rather than the\n# tracked source plist, so the source file stays clean across builds.\n# Runs after the Resources phase so ${TARGET_BUILD_DIR}/${INFOPLIST_PATH} exists.\n/usr/libexec/PlistBuddy -c \"Set :LIRICO_BUILD_TIME $(date +\"%s\")\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n";
-		};
-		BB30651420878623008A9AC8 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if which swiftlint >/dev/null; then\n    swiftlint\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi";
-		};
 		BBC1D5811E4AFE64008869EC /* Bump Build */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -636,7 +553,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Derives CFBundleVersion from the git commit count plus a fixed offset and\n# writes the result into the built bundle's Info.plist. The tracked source\n# plist is never modified, eliminating the build-time diff noise that the\n# previous in-place bump produced.\n#\n# The offset (1304) reconciles the commit count at the time of this change\n# (1643) with the last in-place-bumped CFBundleVersion (2947), so future\n# commits keep producing monotonically increasing build numbers without a\n# regression jump that the App Store would reject on archive.\nset -euo pipefail\ncommitCount=$(git -C \"${SRCROOT}\" rev-list --count HEAD)\nbuildNumber=$((commitCount + 1304))\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n";
+			shellScript = "# Derives CFBundleVersion from the git commit count plus a fixed offset and\n# writes the result into the built bundle's Info.plist. The tracked source\n# plist is never modified, eliminating the build-time diff noise that the\n# previous in-place bump produced.\n#\n# The offset (1304) reconciles the commit count at the time of this change\n# (1643) with the last in-place-bumped CFBundleVersion (2947), so future\n# commits keep producing monotonically increasing build numbers (shown in\n# About) without jumping backwards.\nset -euo pipefail\ncommitCount=$(git -C \"${SRCROOT}\" rev-list --count HEAD)\nbuildNumber=$((commitCount + 1304))\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -656,7 +573,6 @@
 				F1A5EA0100000000000A0001 /* SearchLyricsView.swift in Sources */,
 				F1A5EA0100000000000A0002 /* SearchLyricsViewModel.swift in Sources */,
 				E97F2CFD2E757C19005466D1 /* Signal.swift in Sources */,
-				E97F2D012E757C19005466D1 /* Invoke.swift in Sources */,
 				BB1B631B1E8CD7CA004CC9E0 /* ScrollLyricsView.swift in Sources */,
 				BB1B300520E87CC9002F1AF8 /* KaraokeLabel.swift in Sources */,
 				BBD03C371E9B2C7200EFB975 /* DragNDropView.swift in Sources */,
@@ -676,7 +592,6 @@
 				FA0000012F200000000A0009 /* AboutView.swift in Sources */,
 				F1B0001100000000000A0001 /* AppIdentifiers.swift in Sources */,
 				F1B0001100000000000A0002 /* AppConstants.swift in Sources */,
-				F1B0001100000000000A0003 /* AppURLs.swift in Sources */,
 				F1B0001100000000000A0005 /* Logging.swift in Sources */,
 				F1B0001100000000000A0006 /* LyricsAnimation.swift in Sources */,
 				F1B0001100000000000A0008 /* NotificationCenters.swift in Sources */,
@@ -736,18 +651,6 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		BB30651120878608008A9AC8 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-			};
-			name = Debug;
-		};
-		BB30651220878608008A9AC8 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-			};
-			name = Release;
-		};
 		BB4141B71E458BA900A51775 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -797,9 +700,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				LIRICO_BUNDLE_ID_PREFIX = dev.fabiogaliano;
-				LIRICO_HELPER_BUNDLE_ID = dev.fabiogaliano.LiricoHelper;
-				LIRICO_ICLOUD_CONTAINER = iCloud.dev.fabiogaliano.Lirico;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -856,12 +756,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				LIRICO_BUNDLE_ID_PREFIX = com.fabiogaliano;
-				LIRICO_HELPER_BUNDLE_ID = com.fabiogaliano.LiricoHelper;
-				LIRICO_ICLOUD_CONTAINER = iCloud.com.fabiogaliano.Lirico;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_SWIFT_FLAGS = "-DRELEASE";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -967,15 +863,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		BB30651320878608008A9AC8 /* Build configuration list for PBXAggregateTarget "SwiftLint" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				BB30651120878608008A9AC8 /* Debug */,
-				BB30651220878608008A9AC8 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		BB4141A51E458BA800A51775 /* Build configuration list for PBXProject "Lirico" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

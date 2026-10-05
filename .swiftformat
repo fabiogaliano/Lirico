@@ -1,3 +1,4 @@
+--exclude build,.derivedData,.build,LiricoPackage/.build,scripts/**/.build,Lirico/Utility/Then.swift,Lirico/Utility/CXExtensions
 --acronyms ID,URL,UUID
 --allman false
 --anonymousforeach ignore
