@@ -485,20 +485,16 @@ class LyricsSession: NSObject {
 extension LyricsSession {
     func importLyrics(_ lyricsString: String) throws {
         guard let lrc = Lyrics(lyricsString) else {
-            let errorInfo = [
-                NSLocalizedDescriptionKey: "Invalid lyric file",
-                NSLocalizedRecoverySuggestionErrorKey: "Please try another one.",
-            ]
-            let error = NSError(domain: lyricsXErrorDomain, code: 0, userInfo: errorInfo)
-            throw error
+            throw Self.importError(NSLocalizedString(
+                "Lirico couldn't find timed lyrics in what you dropped. Try an LRC file.",
+                comment: "import error"
+            ))
         }
         guard let track = player.currentTrack else {
-            let errorInfo = [
-                NSLocalizedDescriptionKey: "No music playing",
-                NSLocalizedRecoverySuggestionErrorKey: "Play a music and try again.",
-            ]
-            let error = NSError(domain: lyricsXErrorDomain, code: 0, userInfo: errorInfo)
-            throw error
+            throw Self.importError(NSLocalizedString(
+                "Start playing the song, then drop the lyrics again.",
+                comment: "import error"
+            ))
         }
         // Only after validation, so a bad import leaves the running search alone.
         invalidateAutomaticSearch()
@@ -509,5 +505,12 @@ extension LyricsSession {
         blocklist.unblock(track)
         adopt(lrc, for: track, persist: true)
         supportingLyrics = []
+    }
+
+    private static func importError(_ suggestion: String) -> NSError {
+        NSError(domain: lyricsXErrorDomain, code: 0, userInfo: [
+            NSLocalizedDescriptionKey: NSLocalizedString("Couldn't Import Lyrics", comment: "import error title"),
+            NSLocalizedRecoverySuggestionErrorKey: suggestion,
+        ])
     }
 }

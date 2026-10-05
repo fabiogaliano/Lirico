@@ -29,7 +29,11 @@ final class SearchLyricsWindowController: NSWindowController {
         trackChange = player.currentTrackWillChange
             .receive(on: DispatchQueue.main)
             .sink { [weak self] track in
-                guard let self, self.window?.isVisible == true else { return }
+                guard let self else { return }
+                guard self.window?.isVisible == true else {
+                    self.viewModel.playingTrackDidChange(to: track)
+                    return
+                }
                 self.viewModel.reload(for: track)
             }
     }

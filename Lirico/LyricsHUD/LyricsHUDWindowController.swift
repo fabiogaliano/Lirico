@@ -73,7 +73,7 @@ final class LyricsHUDWindowController: NSWindowController {
     ///
     /// The panel is built with a `(0,0)` content rect, which lands bottom-left in
     /// macOS's flipped screen coordinates — often under the Dock or off-screen on a
-    /// multi-monitor setup, which is why "Show Lyrics Window" looked like it did
+    /// multi-monitor setup, which is why the Lyrics Window menu item looked like it did
     /// nothing. We restore the user's saved frame once per launch; with no saved
     /// frame (first run) or one that lands off-screen, we center on the active
     /// screen instead. After that, the user owns the position.

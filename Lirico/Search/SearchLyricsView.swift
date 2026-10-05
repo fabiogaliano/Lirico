@@ -62,42 +62,43 @@ struct SearchLyricsView: View {
         }
     }
 
+    /// Summarises the results above the table. With no rows the table's empty state says it
+    /// instead; the line keeps its height so the table doesn't jump when results arrive.
     @ViewBuilder
     private var statusLine: some View {
-        Text(statusCopy)
+        let hasRows = !viewModel.visibleRows.isEmpty
+        Text(hasRows ? statusCopy : " ")
             .font(.callout)
             .foregroundStyle(statusColor)
             .frame(maxWidth: .infinity, alignment: .leading)
             .lineLimit(1)
+            .help(failureDetails)
+            .accessibilityHidden(!hasRows)
             .animation(.default, value: statusCopy)
     }
 
     private var statusCopy: String {
+        let count = viewModel.visibleRows.count
         switch viewModel.searchStatus {
         case .idle:
-            return String(localized: "Enter a title, artist, or both to search")
+            return ""
         case .searching(let summary):
             return summary
         case .finished:
-            return viewModel.likelyCount > 0 || viewModel.unlikelyCount > 0
-                ? SearchStatus.matchSummary(likely: viewModel.likelyCount, hiddenUnlikely: viewModel.hiddenUnlikelyCount)
-                : String(localized: "No matching lyrics found")
-        case .failed(let message):
-            let count = viewModel.visibleRows.count
-            return count > 0
-                ? String(localized: "\(message) · \(SearchStatus.partialMatches(count))", comment: "search status; the first %@ lists the failed sources")
-                : String(localized: "Search failed. Check your connection and try again.")
+            return SearchStatus.matchSummary(likely: viewModel.likelyCount, hiddenUnlikely: viewModel.hiddenUnlikelyCount)
+        case .failed:
+            return String(localized: "Some sources failed · \(SearchStatus.partialMatches(count))", comment: "search status; the tooltip lists the failed sources")
         case .timedOut:
-            let count = viewModel.visibleRows.count
-            return count > 0
-                ? String(localized: "Search timed out · \(SearchStatus.partialMatches(count))", comment: "search status")
-                : String(localized: "Search timed out. Try again.")
+            return String(localized: "Search timed out · \(SearchStatus.partialMatches(count))", comment: "search status")
         case .cancelled:
-            let count = viewModel.visibleRows.count
-            return count > 0
-                ? String(localized: "Cancelled · showing \(count) results", comment: "search status")
-                : String(localized: "Search cancelled")
+            return String(localized: "Cancelled · showing \(count) results", comment: "search status")
         }
+    }
+
+    /// The per-source errors, one per line, for the tooltip on a failed search.
+    private var failureDetails: Text {
+        guard case .failed(let failures) = viewModel.searchStatus else { return Text(verbatim: "") }
+        return Text(verbatim: failures.joined(separator: "\n"))
     }
 
     private var statusColor: Color {
@@ -177,12 +178,13 @@ struct SearchLyricsView: View {
             switch viewModel.searchStatus {
             case .idle:
                 Text("Enter a title, artist, or both to search")
-            case .searching:
-                Text("Searching…")
+            case .searching(let summary):
+                Text(summary)
             case .finished:
                 Text(viewModel.unlikelyCount > 0 ? "No likely matches found" : "No matching lyrics found")
             case .failed:
                 Text("Search failed. Check your connection and try again.")
+                    .help(failureDetails)
             case .timedOut:
                 Text("Search timed out. Try again.")
             case .cancelled:
@@ -220,6 +222,15 @@ struct SearchLyricsView: View {
                 RoundedRectangle(cornerRadius: 6)
                     .stroke(Color(NSColor.separatorColor), lineWidth: 1)
             )
+            .overlay {
+                if viewModel.selectionID == nil, !viewModel.visibleRows.isEmpty {
+                    Text("Select a result to preview its lyrics")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding()
+                }
+            }
         }
     }
 
@@ -249,9 +260,21 @@ struct SearchLyricsView: View {
 
     private var footer: some View {
         HStack {
+            if !viewModel.visibleRows.isEmpty, let block = viewModel.applyBlock {
+                Text(applyBlockCopy(block))
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
             Spacer()
             Button("Apply") { viewModel.apply() }
                 .disabled(!viewModel.canApply)
+        }
+    }
+
+    private func applyBlockCopy(_ block: ApplyBlock) -> LocalizedStringKey {
+        switch block {
+        case .nothingPlaying: "Nothing is playing. Play the song to apply lyrics to it."
+        case .songChanged: "The playing song changed. Search again to apply lyrics to it."
         }
     }
 

@@ -22,9 +22,10 @@ enum MainMenuBuilder {
     /// Build the app-level menu (Application / Edit / Window).
     ///
     /// Lirico is `LSUIElement`, so this menu is rarely visible, but Cocoa
-    /// still requires it for key-equivalent dispatch (⌘Q, text-editing
+    /// still requires it for key-equivalent dispatch (⌘Q, ⌘, , text-editing
     /// shortcuts, window minimize/close). Main-menu targets stay `nil` so
-    /// actions route through the responder chain to NSApp / focused text view.
+    /// actions route through the responder chain to the focused text view,
+    /// NSApp, and finally the app delegate.
     static func mainMenu() -> NSMenu {
         let menu = NSMenu(title: "Main Menu")
         menu.addItem(applicationMenuItem())
@@ -36,12 +37,23 @@ enum MainMenuBuilder {
     private static func applicationMenuItem() -> NSMenuItem {
         let item = NSMenuItem()
         let submenu = NSMenu(title: "Application")
-        let quit = NSMenuItem(
-            title: NSLocalizedString("Quit Application", comment: "app menu"),
-            action: #selector(NSApplication.terminate(_:)),
-            keyEquivalent: "q"
+
+        submenu.addItem(NSMenuItem(title: NSLocalizedString("About Lirico", comment: "menu"), action: #selector(AppDelegate.aboutLiricoAction(_:)), keyEquivalent: ""))
+        submenu.addItem(.separator())
+        submenu.addItem(NSMenuItem(title: NSLocalizedString("Settings…", comment: "menu"), action: #selector(AppDelegate.showPreferences(_:)), keyEquivalent: ","))
+        submenu.addItem(.separator())
+        submenu.addItem(NSMenuItem(title: NSLocalizedString("Hide Lirico", comment: "app menu"), action: #selector(NSApplication.hide(_:)), keyEquivalent: "h"))
+
+        let hideOthers = NSMenuItem(
+            title: NSLocalizedString("Hide Others", comment: "menu"),
+            action: #selector(NSApplication.hideOtherApplications(_:)),
+            keyEquivalent: "h"
         )
-        submenu.addItem(quit)
+        hideOthers.keyEquivalentModifierMask = [.option, .command]
+        submenu.addItem(hideOthers)
+        submenu.addItem(.separator())
+
+        submenu.addItem(NSMenuItem(title: NSLocalizedString("Quit Lirico", comment: "menu"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         item.submenu = submenu
         return item
     }
@@ -78,17 +90,6 @@ enum MainMenuBuilder {
         NSApp.windowsMenu = submenu
 
         submenu.addItem(NSMenuItem(title: NSLocalizedString("Minimize", comment: "menu"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m"))
-
-        submenu.addItem(NSMenuItem(title: NSLocalizedString("Hide Application", comment: "menu"), action: #selector(NSApplication.hide(_:)), keyEquivalent: "h"))
-
-        let hideOthers = NSMenuItem(
-            title: NSLocalizedString("Hide Others", comment: "menu"),
-            action: #selector(NSApplication.hideOtherApplications(_:)),
-            keyEquivalent: "h"
-        )
-        hideOthers.keyEquivalentModifierMask = [.option, .command]
-        submenu.addItem(hideOthers)
-
         submenu.addItem(NSMenuItem(title: NSLocalizedString("Close", comment: "menu"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w"))
 
         item.submenu = submenu
@@ -163,7 +164,7 @@ enum MainMenuBuilder {
 
     private static func showLyricsWindowItem(target: AppDelegate) -> NSMenuItem {
         let item = NSMenuItem(
-            title: NSLocalizedString("Show Lyrics Window", comment: "menu"),
+            title: NSLocalizedString("Lyrics Window", comment: "menu; checked while the window is open"),
             action: #selector(AppDelegate.showLyricsHUD(_:)),
             keyEquivalent: ""
         )
@@ -203,7 +204,7 @@ enum MainMenuBuilder {
         let submenu = NSMenu(title: NSLocalizedString("Lyrics", comment: "menu"))
 
         let showInFinder = NSMenuItem(
-            title: NSLocalizedString("Show In Finder", comment: "menu"),
+            title: NSLocalizedString("Show in Finder", comment: "menu"),
             action: #selector(AppDelegate.showCurrentLyricsInFinder(_:)),
             keyEquivalent: ""
         )

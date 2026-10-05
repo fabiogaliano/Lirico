@@ -12,7 +12,8 @@ enum SearchStatus: Equatable {
     case idle
     case searching(summary: String)
     case finished
-    case failed(message: String)
+    /// One "Source: reason" entry per source that failed.
+    case failed(failures: [String])
     case timedOut
     case cancelled
 
@@ -28,6 +29,14 @@ enum SearchStatus: Equatable {
     static func partialMatches(_ count: Int) -> String {
         String(localized: "showing \(count) partial matches", comment: "search status suffix after a failure")
     }
+}
+
+// MARK: - ApplyBlock
+
+/// Why results can't be applied even with one selected.
+enum ApplyBlock {
+    case nothingPlaying
+    case songChanged
 }
 
 // MARK: - SearchButtonLabel
@@ -56,6 +65,9 @@ final class SearchLyricsViewModel: ObservableObject {
     }
     @Published private(set) var searchStatus: SearchStatus = .idle
     @Published private(set) var unlikelyCount: Int = 0
+    /// The playing track as last announced, published so Apply follows the player even while
+    /// the window is hidden. `player.currentTrack` is updated only after the announcement.
+    @Published private var playingTrackID: String?
 
     var likelyCount: Int { visibleRows.count { !$0.isUnlikely } }
     var hiddenUnlikelyCount: Int { showUnlikelyResults ? 0 : unlikelyCount }
@@ -65,9 +77,13 @@ final class SearchLyricsViewModel: ObservableObject {
             || !artist.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
+    var applyBlock: ApplyBlock? {
+        guard let playingTrackID else { return .nothingPlaying }
+        return playingTrackID == searchedTrack?.id ? nil : .songChanged
+    }
+
     var canApply: Bool {
-        guard let trackID = player.currentTrack?.id, trackID == searchedTrack?.id,
-              let id = selectionID else { return false }
+        guard applyBlock == nil, let id = selectionID else { return false }
         return visibleRows.contains(where: { $0.id == id })
     }
 
@@ -135,10 +151,15 @@ final class SearchLyricsViewModel: ObservableObject {
         DispatchTime.now().uptimeNanoseconds
     }
 
+    func playingTrackDidChange(to track: MusicTrack?) {
+        playingTrackID = track?.id
+    }
+
     /// Takes the track rather than reading `player.currentTrack`: on a track change the
     /// player announces the new track before its property is updated.
     func reload(for track: MusicTrack?) {
         loadedLyrics = session.currentLyrics
+        playingTrackID = track?.id
         searchedTrack = track
         rebuildVisibleRows()
         guard let track else {
@@ -159,11 +180,18 @@ final class SearchLyricsViewModel: ObservableObject {
         if (artist, title) != (trackArtist, trackTitle) {
             artist = trackArtist
             title = trackTitle
-            search()
+            startSearch()
         }
     }
 
+    /// A search the user starts is for whatever is playing now, so its results can be applied
+    /// even if the song changed while the window was hidden.
     func search() {
+        searchedTrack = player.currentTrack
+        startSearch()
+    }
+
+    private func startSearch() {
         guard let query = LyricsSearchQuery.manual(title: title, artist: artist, duration: searchedTrack?.duration) else {
             return
         }
@@ -294,7 +322,7 @@ final class SearchLyricsViewModel: ObservableObject {
         guard searchGeneration == generation, isSearching else { return }
 
         if completedNormally {
-            searchStatus = failureMessages.isEmpty ? .finished : .failed(message: failureMessages.joined(separator: " · "))
+            searchStatus = failureMessages.isEmpty ? .finished : .failed(failures: failureMessages)
         } else if isSearching {
             searchStatus = .cancelled
         }
@@ -440,9 +468,9 @@ struct LyricsResult: Identifiable, Hashable {
 
     var id: ObjectIdentifier { ObjectIdentifier(lyrics) }
 
-    var title: String { lyrics.idTags[.title] ?? "[lacking]" }
-    var artist: String { lyrics.idTags[.artist] ?? "[lacking]" }
-    var source: String { lyrics.metadata.service ?? "[lacking]" }
+    var title: String { lyrics.idTags[.title] ?? String(localized: "Unknown", comment: "search result missing its title, artist or source") }
+    var artist: String { lyrics.idTags[.artist] ?? String(localized: "Unknown", comment: "search result missing its title, artist or source") }
+    var source: String { lyrics.metadata.service ?? String(localized: "Unknown", comment: "search result missing its title, artist or source") }
     var syncIconName: String { evaluation.syncKind == .karaoke ? "music.mic" : "" }
 
     init(candidate: EvaluatedLyricsCandidate, isLoaded: Bool) {

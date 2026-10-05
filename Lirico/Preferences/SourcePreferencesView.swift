@@ -44,7 +44,13 @@ struct SourcePreferencesView: View {
             } header: {
                 Text("Musixmatch")
             } footer: {
-                SettingsFooter("Musixmatch is only searched once a token is set.")
+                VStack(alignment: .leading, spacing: 4) {
+                    // Musixmatch never rejects a token: a bad one gets scrambled decoy lyrics back,
+                    // so there is nothing to check it against here.
+                    SettingsFooter("Musixmatch is only searched once a token is set. With an invalid token it returns no usable lyrics.")
+                    Link("How to get a token", destination: musixmatchTokenHelpURL)
+                        .font(.callout)
+                }
             }
         }
         .onAppear { loadSettings() }
@@ -136,3 +142,5 @@ struct SourcePreferencesView: View {
         loadSettings()
     }
 }
+
+private let musixmatchTokenHelpURL = URL(string: "https://gist.github.com/TrueMyst/0461aea999e347182486934fd83a4cf9")!
