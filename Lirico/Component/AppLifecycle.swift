@@ -25,7 +25,7 @@ enum MainAppLoginItem {
 }
 
 /// macOS can register a login item yet hold it back until the user allows it in
-/// System Settings › General › Login Items; nothing else reports that.
+/// System Settings › General › Login Items & Extensions; nothing else reports that.
 enum LoginItemApproval {
     static var isPending: Bool {
         SMAppService.mainApp.status == .requiresApproval

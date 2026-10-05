@@ -59,7 +59,7 @@ struct GeneralPreferencesView: View {
     @AppStorage(.hideMenuBarItems) private var hideMenuBarItems = false
 
     // Read from the system each time the pane appears: the user can also change it in
-    // System Settings → General → Login Items.
+    // System Settings › General › Login Items & Extensions.
     @State private var launchAtLogin = MainAppLoginItem.isEnabled
     @State private var loginItemApprovalPending = LoginItemApproval.isPending
     @State private var followsAllNowPlayingApps = defaults[.systemWideNowPlayingAppList].isEmpty
@@ -104,7 +104,7 @@ struct GeneralPreferencesView: View {
             Toggle("Open and quit with music player", isOn: $launchAndQuitWithPlayer)
                 .onChange(of: launchAndQuitWithPlayer) { _, _ in refreshLoginItemState() }
             if loginItemApprovalPending {
-                LabeledContent("Allow Lirico in System Settings › General › Login Items.") {
+                LabeledContent("Allow Lirico in System Settings › General › Login Items & Extensions.") {
                     Button("Open Login Items…", action: LoginItemApproval.openSystemSettings)
                 }
             }
