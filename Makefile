@@ -17,8 +17,15 @@ SCHEME   := Lirico
 APP_NAME       := Lirico
 APP_NAME_Debug := Lirico-Debug
 
-DERIVED := build
+# .noindex keeps Spotlight from listing the built .app copies in app launchers.
+DERIVED := build.noindex
 CONFIG  ?= Debug
+# CFBundleVersion. The offset continues the build numbers LyricsX bumped in
+# place (last: 2947), so they keep increasing. Passed as a build setting so
+# Info.plist processing bakes it in before signing; Xcode IDE builds fall back
+# to the project's CURRENT_PROJECT_VERSION (0).
+BUILD_NUMBER := $(shell echo $$(( $$(git rev-list --count HEAD) + 1304 )))
+
 PRODUCT := $(if $(APP_NAME_$(CONFIG)),$(APP_NAME_$(CONFIG)),$(APP_NAME))
 APP     := $(DERIVED)/Build/Products/$(CONFIG)/$(PRODUCT).app
 DEST    := /Applications/$(PRODUCT).app
@@ -43,19 +50,12 @@ help:
 build:
 	xcodebuild -project $(PROJECT) -scheme $(SCHEME) \
 	  -configuration $(CONFIG) -derivedDataPath $(DERIVED) \
-	  -quiet build
+	  CURRENT_PROJECT_VERSION=$(BUILD_NUMBER) -quiet build
 
 release:
 	$(MAKE) build CONFIG=Release
 
-# The 'Bump Build' phase always runs and rewrites the bundle's Info.plist, but
-# on an incremental build where nothing else changed Xcode skips re-signing —
-# leaving a signature that seals the *previous* Info.plist and fails
-# `codesign --verify --strict`. Re-seal before installing so the app in
-# /Applications is always consistently signed; a bare re-sign would drop the
-# Apple Events entitlement, so keep the one Xcode signed in.
 install: build
-	codesign --force --sign "-" --preserve-metadata=entitlements $(APP)
 	-killall $(PRODUCT) 2>/dev/null || true
 	@i=0; while pgrep -x $(PRODUCT) >/dev/null 2>&1 && [ $$i -lt 50 ]; do sleep 0.1; i=$$((i+1)); done
 	-killall -9 $(PRODUCT) 2>/dev/null || true

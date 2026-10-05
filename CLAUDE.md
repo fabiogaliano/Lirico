@@ -13,7 +13,7 @@ Lirico is a macOS menu-bar application (`LSUIElement`) that automatically search
 ## Build Commands
 
 ```bash
-# Preferred: Makefile wrappers (build into ./build)
+# Preferred: Makefile wrappers (build into ./build.noindex, which Spotlight skips)
 make build            # Debug
 make release          # Release
 make install          # Debug build → /Applications, relaunch (install-release for Release)
@@ -27,6 +27,18 @@ xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Release build
 
 Builds are ad-hoc signed; there is no archive/notarization pipeline.
 
+The version is the project-level `MARKETING_VERSION`; both Info.plists read it and `CURRENT_PROJECT_VERSION`. `make` sets the build number to the commit count + 1304; Xcode IDE builds show build 0. Scratch builds outside `make` should use a derived-data path ending in `.noindex` so the `.app` stays out of Spotlight.
+
+## Releasing
+
+Versions are lightweight git tags `X.Y.Z` (no "v", no GitHub Releases), as in LiricoKit.
+
+1. Bump `MARKETING_VERSION` in `Lirico.xcodeproj` (project-level Debug and Release).
+2. Add a `## X.Y.Z` entry to `CHANGELOG.md`: short, user-facing bullets.
+3. Commit, then `git tag X.Y.Z`.
+4. `git push && git push origin X.Y.Z`.
+5. `make install-release`.
+
 ## Tests
 
 The Xcode scheme has no tests. Search, restoration and sync logic lives in `LiricoPackage` and is covered by `LiricoFoundationTests` (Swift Testing):
@@ -35,13 +47,13 @@ The Xcode scheme has no tests. Search, restoration and sync logic lives in `Liri
 cd LiricoPackage && swift test
 ```
 
-CI (`.github/workflows/tests.yml`) runs `swift test --force-resolved-versions` on `macos-26` for pushes to `main` and PRs. `LiricoPackage/Package.resolved` is committed, so commit it whenever the package's dependencies change.
+There is no CI; run the tests locally. `LiricoPackage/Package.resolved` is committed, so commit it whenever the package's dependencies change.
 
 `scripts/lyrics-diag/diag.sh` runs the app's search queries, ranker and auto-pick against the current track with the app's saved settings (Release domain; `--debug` for the Debug one) — use it to debug search results. It ignores local lyrics, the blocklist, system-wide Now Playing, and which player the app already follows; its README lists the gaps.
 
 ## Linting & Formatting
 
-Neither tool ships with the repo or runs in the build or CI; install them yourself (`brew install swiftlint swiftformat`). Both configs skip build output and the vendored `Lirico/Utility/Then.swift` and `Lirico/Utility/CXExtensions/`.
+Neither tool ships with the repo or runs in the build; install them yourself (`brew install swiftlint swiftformat`). Both configs skip build output and the vendored `Lirico/Utility/Then.swift` and `Lirico/Utility/CXExtensions/`.
 
 ```bash
 # SwiftLint (configured in .swiftlint.yml, line_length: 150)

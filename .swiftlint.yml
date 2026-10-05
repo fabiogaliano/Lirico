@@ -27,7 +27,7 @@ included:
   - LiricoPackage/Sources
   - LiricoPackage/Tests
 excluded:
-  - build
+  - build.noindex
   - .derivedData
   - LiricoPackage/.build
   - Lirico/Utility/Then.swift
