@@ -145,11 +145,6 @@ struct GeneralPreferencesView: View {
             .onChange(of: languagePickerIndex) { _, idx in
                 applyLanguageSelection(idx)
             }
-            LabeledContent("Translations") {
-                Button("Help Translate…") {
-                    NSWorkspace.shared.open(crowdinProjectURL)
-                }
-            }
         }
     }
 

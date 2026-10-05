@@ -55,6 +55,12 @@ final class PlaybackClock: @unchecked Sendable {
         lineIndexSubject.eraseToAnyPublisher()
     }
 
+    /// Emits on main after the song or app-wide offset changes. Word fills animate against
+    /// `adjustedPlaybackTime` and otherwise keep the old timing until the next line.
+    var offsetChanges: AnyPublisher<Void, Never> {
+        offsetChangeSubject.eraseToAnyPublisher()
+    }
+
     /// Replace the lyrics the clock is computing against and re-tick. Called by the
     /// lyrics session from its `currentLyrics.didSet`.
     func setLyrics(_ lyrics: Lyrics?) {
@@ -73,6 +79,7 @@ final class PlaybackClock: @unchecked Sendable {
     func updateSongOffset(_ milliseconds: Int) {
         songOffsetMilliseconds = milliseconds
         queue.async { [self] in tick() }
+        offsetChangeSubject.send()
     }
 
     // MARK: - Private state
@@ -100,6 +107,7 @@ final class PlaybackClock: @unchecked Sendable {
         TimeInterval(songOffsetMilliseconds + globalOffsetMilliseconds) / 1000
     }
     private let lineIndexSubject = PassthroughSubject<LineIndexUpdate, Never>()
+    private let offsetChangeSubject = PassthroughSubject<Void, Never>()
     private var lineCheckSchedule: Cancellable?
     private var cancelBag = Set<AnyCancellable>()
 
@@ -109,6 +117,14 @@ final class PlaybackClock: @unchecked Sendable {
             .signal()
             .receive(on: queue)
             .sink { [unowned self] in self.tick() }
+            .store(in: &cancelBag)
+        // While paused nothing else re-ticks, so the line would stay put until playback resumes.
+        defaults.publisher(for: [.globalLyricsOffset])
+            .receive(on: DispatchQueue.main)
+            .sink { [unowned self] in
+                self.queue.async { self.tick() }
+                self.offsetChangeSubject.send()
+            }
             .store(in: &cancelBag)
     }
 

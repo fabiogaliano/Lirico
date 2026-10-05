@@ -33,6 +33,8 @@ final class LyricsScrollback {
     // Read by deinit, which isn't main-actor isolated; the owner releases this on main.
     nonisolated(unsafe) private var fillTimer: Timer?
     private var refreshScheduled = false
+    /// A closed window skips rebuilds and catches up when it's shown again.
+    private var isStale = false
     private var cancelBag = Set<AnyCancellable>()
     nonisolated(unsafe) private var liveScrollObserver: NSObjectProtocol?
 
@@ -119,6 +121,10 @@ final class LyricsScrollback {
     /// Return to following the synced line.
     func resume(animated: Bool = true) {
         isFollowing = true
+        // Window controllers resume when shown; `viewWillAppear` isn't dependable for a reused window.
+        if isStale {
+            refresh()
+        }
         follow(animated: animated)
     }
 
@@ -165,6 +171,10 @@ final class LyricsScrollback {
     }
 
     private func setNeedsRefresh() {
+        guard scrollView.window?.isVisible == true else {
+            isStale = true
+            return
+        }
         guard !refreshScheduled else { return }
         refreshScheduled = true
         DispatchQueue.main.async { [weak self] in
@@ -175,6 +185,7 @@ final class LyricsScrollback {
     }
 
     private func refresh() {
+        isStale = false
         let lyrics = session.currentLyrics
         let restoreExplicit = explicitResolver.makeRenderRestoration(
             context: ExplicitRestorationContext(supportingCandidates: session.supportingLyrics)

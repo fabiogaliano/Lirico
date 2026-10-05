@@ -79,7 +79,6 @@ enum LyricsPersister {
     /// No-op unless `track` came from Apple Music. The caller must check Apple Music is
     /// still playing it (`LyricsSession.canWriteToAppleMusic`): `originalTrack` is only
     /// this track's Apple Music object while Apple Music is playing it.
-    /// When `overwrite` is false, existing non-empty lyrics on the track are preserved.
     ///
     /// The `settings` parameter carries the formatting policy (plain-LRC export
     /// vs. enhanced; include translation or not). Passing it in keeps this
@@ -87,14 +86,10 @@ enum LyricsPersister {
     static func writeToiTunes(
         _ lyrics: Lyrics,
         to track: MusicTrack,
-        overwrite: Bool,
         settings: ExportSettings,
         converter: ChineseConverter?
     ) {
-        guard let sbTrack = track.originalTrack,
-              overwrite || (sbTrack.value(forKey: "lyrics") as! String?)?.isEmpty != false else {
-            return
-        }
+        guard let sbTrack = track.originalTrack else { return }
 
         let text = AppleMusicExport.text(
             for: lyrics,

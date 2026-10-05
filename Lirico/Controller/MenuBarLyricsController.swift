@@ -39,9 +39,7 @@ class MenuBarLyricsController {
 
     private var screenLyrics: (lyrics: String, duration: TimeInterval) = (MenuBarLyricsController.defaultLyric, 2) {
         didSet {
-            DispatchQueue.main.async {
-                self.updateStatusItems()
-            }
+            updateStatusItems()
         }
     }
 
@@ -52,35 +50,39 @@ class MenuBarLyricsController {
         if !settings.hideMenuBarItems {
             updateStatusItems()
         }
+        // The coordinator assigns `snapshot` on main.
         display.$snapshot
-            .receive(on: DispatchQueue.main)
             .sink { [weak self] snapshot in
                 self?.handle(snapshot: snapshot)
             }
             .store(in: &cancelBag)
         workspaceNC
             .publisher(for: NSWorkspace.didActivateApplicationNotification)
-            .signal()
             .receive(on: DispatchQueue.main)
-            .invoke(MenuBarLyricsController.updateStatusItems, weaklyOn: self)
+            .sink { [weak self] _ in self?.updateStatusItems() }
             .store(in: &cancelBag)
         defaults.publisher(for: [.menuBarLyricsEnabled, .combinedMenubarLyrics, .hideMenuBarItems])
             .prepend()
             .receive(on: DispatchQueue.main)
-            .invoke(MenuBarLyricsController.updateStatusItems, weaklyOn: self)
+            .sink { [weak self] in self?.updateStatusItems() }
             .store(in: &cancelBag)
     }
 
-    // Preserves the long-standing menu-bar behavior of NOT clearing the
-    // marquee on `.empty` / `.paused` snapshots — the last seen line keeps
-    // cycling until a fresh active line replaces it.
+    // While paused the last line keeps cycling, as it always has, but once the lyrics are
+    // gone (new track, rejected, nothing found) the previous song's line must not linger.
     private func handle(snapshot: LyricsDisplaySnapshot) {
+        guard snapshot.hasLyrics else {
+            if screenLyrics.lyrics != MenuBarLyricsController.defaultLyric {
+                screenLyrics = (MenuBarLyricsController.defaultLyric, 2)
+            }
+            return
+        }
         guard snapshot.isLive, let line = snapshot.line else { return }
         if line.primaryText == screenLyrics.lyrics { return }
         screenLyrics = (line.primaryText, line.duration)
     }
 
-    @objc private func updateStatusItems() {
+    private func updateStatusItems() {
         guard !settings.hideMenuBarItems else {
             marqueeLabel.removeFromSuperview()
             iconStatusItem = nil

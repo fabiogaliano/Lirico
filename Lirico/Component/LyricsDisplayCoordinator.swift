@@ -22,9 +22,10 @@ struct LyricsDisplayMetadata: Equatable {
 /// Owns the "what should each lyric surface show right now" calculation.
 ///
 /// Inputs:
-///   - `LyricsSession`'s `$currentLyrics` and `$currentLineIndex`
+///   - `LyricsSession`'s current lyrics, line index, supporting lyrics and display metadata
 ///   - `PlayerHandle`'s `playbackStateWillChange`
-///   - The `disableLyricsWhenPaused` preference
+///   - The `disableLyricsWhenPaused` preference, the Chinese converter and the
+///     explicit-restoration settings
 ///
 /// Output: `@Published snapshot: LyricsDisplaySnapshot`. Line-oriented surfaces
 /// (desktop karaoke, menu bar) subscribe here instead of reaching
@@ -52,9 +53,9 @@ final class LyricsDisplayCoordinator: @unchecked Sendable {
 
     init(
         player: PlayerHandle,
-        settings: DisplaySettings = DisplaySettings(),
+        settings: DisplaySettings,
         chineseConverter: ChineseConverterProvider,
-        explicitResolver: ExplicitLyricsResolver = ExplicitLyricsResolver()
+        explicitResolver: ExplicitLyricsResolver
     ) {
         self.player = player
         self.settings = settings
@@ -147,7 +148,7 @@ final class LyricsDisplayCoordinator: @unchecked Sendable {
         guard let lyrics = currentLyrics,
               let index = currentIndex,
               lyrics.lines.indices.contains(index) else {
-            return LyricsDisplaySnapshot(line: nil, isPausedAndHidden: isPausedAndHidden)
+            return LyricsDisplaySnapshot(line: nil, hasLyrics: currentLyrics != nil, isPausedAndHidden: isPausedAndHidden)
         }
 
         let currentLine = lyrics.lines[index]
@@ -194,6 +195,6 @@ final class LyricsDisplayCoordinator: @unchecked Sendable {
             nextLineText: nextLineText,
             duration: duration
         )
-        return LyricsDisplaySnapshot(line: line, isPausedAndHidden: isPausedAndHidden)
+        return LyricsDisplaySnapshot(line: line, hasLyrics: true, isPausedAndHidden: isPausedAndHidden)
     }
 }

@@ -52,7 +52,7 @@ class LyricsSession: NSObject {
         }
     }
 
-    @Published var currentLineIndex: Int?
+    @Published private(set) var currentLineIndex: Int?
 
     @Published private(set) var status: LyricsStatus = .noTrack
 
@@ -68,10 +68,10 @@ class LyricsSession: NSObject {
 
     private var searchTask: Task<Void, Never>?
 
-    /// Monotonically-increasing counter. Incremented on every track change,
-    /// manual select, and manual clear. Any automatic event that arrives with a
-    /// stale generation number is silently dropped, closing the correctness gap
-    /// (DEC-007) where late async events could overwrite a user selection.
+    /// Monotonically-increasing counter. Incremented on every track change, manual
+    /// select, import and rejection. Any automatic event that arrives with a stale
+    /// generation number is silently dropped, so a late result can't overwrite what
+    /// the user chose.
     private var automaticSearchGeneration: Int = 0
 
     /// The track the running automatic search belongs to. Track changes reach the
@@ -144,18 +144,14 @@ class LyricsSession: NSObject {
             .removeDuplicates { @Sendable in $0?.id == $1?.id && $0?.title == $1?.title && $0?.artist == $1?.artist }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] track in
-                MainActor.assumeIsolated {
-                    self?.currentTrackChanged(to: track)
-                }
+                self?.currentTrackChanged(to: track)
             }
             .store(in: &cancelBag)
 
         blocklist.changes
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
-                MainActor.assumeIsolated {
-                    self?.searchAgainIfUnblocked()
-                }
+                self?.searchAgainIfUnblocked()
             }
             .store(in: &cancelBag)
 
@@ -185,17 +181,16 @@ class LyricsSession: NSObject {
         player.name == .appleMusic && player.currentTrack?.id == track.id
     }
 
-    func writeToiTunes(overwrite: Bool) {
+    func writeToiTunes() {
         guard let track = player.currentTrack else { return }
-        writeToiTunes(overwrite: overwrite, to: track)
+        writeToiTunes(to: track)
     }
 
-    private func writeToiTunes(overwrite: Bool, to track: MusicTrack) {
+    private func writeToiTunes(to track: MusicTrack) {
         guard let currentLyrics, canWriteToAppleMusic(track) else { return }
         LyricsPersister.writeToiTunes(
             currentLyrics,
             to: track,
-            overwrite: overwrite,
             settings: exportSettings,
             converter: chineseConverter.converter
         )
@@ -206,11 +201,17 @@ class LyricsSession: NSObject {
     /// Flush the current lyrics to disk when they've been marked dirty and are
     /// eligible for persistence. This is the only place in the app that should
     /// drive a disk write — everywhere else asks the session.
-    func persistCurrentLyricsIfNeeded() {
+    private func persistCurrentLyricsIfNeeded() {
         guard let lyrics = currentLyrics,
               lyrics.metadata.needsPersist,
               lyrics.metadata.persistenceAllowed else { return }
         LyricsPersister.saveToDisk(lyrics, to: persistenceSettings.storageDirectory())
+    }
+
+    /// Embedded lyrics and automatic interim picks have no file, and never get one.
+    var canRevealCurrentLyricsInFinder: Bool {
+        guard let metadata = currentLyrics?.metadata else { return false }
+        return metadata.localURL != nil || (metadata.needsPersist && metadata.persistenceAllowed)
     }
 
     /// Persist (if dirty) and reveal the current lyrics file in Finder. Returns
@@ -252,7 +253,7 @@ class LyricsSession: NSObject {
         // evidence for the chosen lyrics.
         supportingLyrics = SupportingLyrics.bounded(supporting, excluding: lyrics)
         if writeToiTunesIfAuto, exportSettings.writeToiTunesAutomatically {
-            writeToiTunes(overwrite: true)
+            writeToiTunes()
         }
     }
 
@@ -297,20 +298,22 @@ class LyricsSession: NSObject {
         currentTrackChanged(to: track)
     }
 
-    func currentTrackChanged(to track: MusicTrack?) {
+    private func currentTrackChanged(to track: MusicTrack?) {
         persistCurrentLyricsIfNeeded()
         currentLyrics = nil
-        currentLineIndex = nil
         supportingLyrics = []
         invalidateAutomaticSearch()
         automaticSearchTrack = track
         searchStoppedByBlock = false
 
         guard let track else {
+            // Until the permission check answers; a known denial stays up rather than flickering.
+            if case .automationDenied = status {} else {
+                status = .noTrack
+            }
             updateNoTrackStatus()
             return
         }
-        // FIXME: deal with optional value
         let title = track.title ?? ""
         let artist = track.artist ?? ""
 
@@ -383,10 +386,17 @@ class LyricsSession: NSObject {
     }
 
     private func updateNoTrackStatus() {
-        let denied = AutomationPermission.deniedPlayerName(designatedBundleID: player.designatedPlayerBundleID)
-        let newStatus: LyricsStatus = denied.map { .automationDenied(playerName: $0) } ?? .noTrack
-        if status != newStatus {
-            status = newStatus
+        let candidates = AutomationPermission.runningCandidates(designatedBundleID: player.designatedPlayerBundleID)
+        Task { [weak self] in
+            let denied = await Task.detached(priority: .userInitiated) {
+                AutomationPermission.deniedPlayerName(among: candidates)
+            }.value
+            // A track that arrived meanwhile owns the status now.
+            guard let self, self.player.currentTrack == nil else { return }
+            let newStatus: LyricsStatus = denied.map { .automationDenied(playerName: $0) } ?? .noTrack
+            if self.status != newStatus {
+                self.status = newStatus
+            }
         }
     }
 
@@ -442,7 +452,7 @@ class LyricsSession: NSObject {
             // cost an Apple Event per track and clobber Apple Music's field for nothing.
             if exportSettings.writeToiTunesAutomatically, currentLyrics !== initialLyrics,
                let track = automaticSearchTrack {
-                writeToiTunes(overwrite: true, to: track)
+                writeToiTunes(to: track)
             }
         }
     }

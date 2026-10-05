@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import GenericID
 import MusicPlayer
 
@@ -19,6 +20,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     /// so that `MusicPlayers.Selected.init()` (which reads `UserDefaults`) sees
     /// the registered values.
     private var container: AppContainer!
+    private var cancelBag = Set<AnyCancellable>()
 
     /// Install the app's main menu before the run loop processes key events.
     /// Without this, Cocoa has no menu to dispatch key equivalents to and
@@ -50,6 +52,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
         ShortcutBindings.install(actionTarget: self)
 
+        // The permission check behind the header answers asynchronously, possibly while the
+        // menu is open. The hop reads the status after `@Published` has stored it.
+        container.session.$status
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.updateNowPlayingItem() }
+            .store(in: &cancelBag)
+
         if defaults[.isShowLyricsHUD] {
             container.lyricsHUD.showWindow(nil)
         }
@@ -64,7 +73,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         container?.session.prepareForTermination()
     }
 
-    // MARK: - NSMenuDelegate
+    // MARK: - NSMenuItemValidation
 
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         guard let container else { return false }
@@ -78,9 +87,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             menuItem.state = defaults[.isShowLyricsHUD] ? .on : .off
             return true
         case #selector(showLyricsSync(_:))?,
-             #selector(showCurrentLyricsInFinder(_:))?,
              #selector(wrongLyrics(_:))?:
             return container.session.currentLyrics != nil
+        case #selector(showCurrentLyricsInFinder(_:))?:
+            return container.session.canRevealCurrentLyricsInFinder
         case #selector(doNotSearchLyricsForThisAlbum(_:))?:
             return container.player.currentTrack?.album?.isEmpty == false
         default:
@@ -90,6 +100,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
     // MARK: - Menubar Action
 
+    /// No `NSApp.activate()`: the lyrics window is a non-activating panel, and the global
+    /// shortcut would otherwise pull focus from the app the user is typing in.
     @IBAction func showLyricsHUD(_ sender: Any?) {
         guard let container else { return }
         if defaults[.isShowLyricsHUD] {
@@ -99,8 +111,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             container.lyricsHUD.showWindow(nil)
             defaults[.isShowLyricsHUD] = true
         }
-
-        NSApp.activate()
     }
 
     @IBAction func showLyricsSync(_ sender: Any?) {
@@ -120,7 +130,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
     @objc func togglePreferences(_ sender: Any?) {
         guard let prefs = container?.preferencesWindowController else { return }
-        if prefs.window?.isVisible ?? false {
+        // Visible but buried behind another app's windows, the shortcut should bring it forward.
+        if NSApp.isActive, prefs.window?.isKeyWindow == true {
             prefs.close()
         } else {
             prefs.showWindow(nil)
@@ -140,7 +151,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     }
 
     @IBAction func writeToiTunes(_ sender: Any?) {
-        container?.session.writeToiTunes(overwrite: true)
+        container?.session.writeToiTunes()
     }
 
     @IBAction func searchLyrics(_ sender: Any?) {
@@ -203,7 +214,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         container.session.rejectCurrentLyrics(blocking: scope)
     }
 
+    // MARK: - NSMenuDelegate
+
     func menuWillOpen(_ menu: NSMenu) {
+        container?.session.refreshNoTrackStatus()
         updateNowPlayingItem()
         let menuHasOnState = statusBarMenu.items.contains(where: { $0.state == .on })
         let lyricsOffsetConstraint = lyricsOffsetView.constraints.first(where: { $0.identifier == "lyricsOffsetConstraint" })
@@ -219,7 +233,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
               let item = statusBarMenu.items.first(where: { $0.identifier == MainMenuBuilder.nowPlayingIdentifier }) else { return }
         item.action = nil
         guard let track = container.player.currentTrack else {
-            container.session.refreshNoTrackStatus()
             if case let .automationDenied(playerName) = container.session.status {
                 item.title = String(
                     format: NSLocalizedString("Lirico Can't See What %@ Is Playing", comment: "menu header when Automation access is denied"),

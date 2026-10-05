@@ -33,6 +33,9 @@ struct LyricsDisplaySnapshot: Sendable {
     /// The active-line snapshot, or nil when there is no current line.
     let line: LyricsDisplayLine?
 
+    /// Lyrics are loaded, even if no line is active yet (before the first line).
+    let hasLyrics: Bool
+
     /// True when the user has `disableLyricsWhenPaused` on and playback is
     /// paused. Surfaces that hide while paused should treat this as
     /// "do not render the line right now".
@@ -42,5 +45,5 @@ struct LyricsDisplaySnapshot: Sendable {
     /// preferred read for surfaces that hide while paused (Karaoke / MenuBar).
     var isLive: Bool { line != nil && !isPausedAndHidden }
 
-    static let empty = LyricsDisplaySnapshot(line: nil, isPausedAndHidden: false)
+    static let empty = LyricsDisplaySnapshot(line: nil, hasLyrics: false, isPausedAndHidden: false)
 }

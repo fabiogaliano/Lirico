@@ -26,8 +26,6 @@ protocol PlayerHandle: AnyObject {
     var designatedPlayerBundleID: String? { get }
 
     func playPause()
-    func skipToNextItem()
-    func skipToPreviousItem()
 }
 
 /// The player announces a change from `willSet` on its own queue, so its properties still
@@ -35,17 +33,27 @@ protocol PlayerHandle: AnyObject {
 /// can pick up the previous song or state and never hear about the new one. This adapter
 /// records each announcement before passing it on, and answers reads from those records.
 final class SelectedPlayerHandle: PlayerHandle {
-    private let player: MusicPlayers.Selected
     // `CurrentValueSubject` stores the value before notifying and replays it on subscribe,
     // matching the `@Published` publishers it stands in for.
     private let track: CurrentValueSubject<MusicTrack?, Never>
     private let state: CurrentValueSubject<PlaybackState, Never>
     private var cancelBag = Set<AnyCancellable>()
 
+    /// `MusicPlayers.Selected` swaps its designated player on its own queue, so reading it
+    /// through the agent from main races the swap; this copy is replaced under a lock instead.
+    private var designated: MusicPlayerProtocol? {
+        get { designatedLock.withLock { _designated } }
+        set { designatedLock.withLock { _designated = newValue } }
+    }
+    private var _designated: MusicPlayerProtocol?
+    private let designatedLock = NSLock()
+
     init(player: MusicPlayers.Selected = .shared) {
-        self.player = player
         track = CurrentValueSubject(player.currentTrack)
         state = CurrentValueSubject(player.playbackState)
+        player.$designatedPlayer
+            .sink { [weak self] in self?.designated = $0 }
+            .store(in: &cancelBag)
         player.currentTrackWillChange
             .sink { [track] in track.send($0) }
             .store(in: &cancelBag)
@@ -54,43 +62,55 @@ final class SelectedPlayerHandle: PlayerHandle {
             .store(in: &cancelBag)
     }
 
-    var name: MusicPlayerName? { player.name }
+    var name: MusicPlayerName? { designated?.name }
     var currentTrack: MusicTrack? { track.value }
     var playbackState: PlaybackState { state.value }
 
     var playbackTime: TimeInterval {
         get { state.value.time }
-        set { player.playbackTime = newValue }
+        set { designated?.playbackTime = newValue }
     }
 
     var currentTrackWillChange: AnyPublisher<MusicTrack?, Never> { track.eraseToAnyPublisher() }
     var playbackStateWillChange: AnyPublisher<PlaybackState, Never> { state.eraseToAnyPublisher() }
 
     var designatedPlayerBundleID: String? {
-        (player.designatedPlayer as? MusicPlayers.Scriptable)?.playerBundleID
+        (designated as? MusicPlayers.Scriptable)?.playerBundleID
     }
 
-    func playPause() { player.playPause() }
-    func skipToNextItem() { player.skipToNextItem() }
-    func skipToPreviousItem() { player.skipToPreviousItem() }
+    func playPause() { designated?.playPause() }
 }
 
 /// Detects the one failure that otherwise looks exactly like "nothing is playing":
 /// the user declined (or later revoked) Lirico's Automation access to their player.
 enum AutomationPermission {
-    /// Name of a running player that Lirico is not allowed to automate, if any. Never prompts.
-    /// Without a designated player (Auto), every scriptable player is checked.
-    static func deniedPlayerName(designatedBundleID: String?) -> String? {
-        let candidates = designatedBundleID.map { [$0] } ?? ScriptablePlayers.bundleIDs
-        for app in NSWorkspace.shared.runningApplications {
-            guard let bundleID = app.bundleIdentifier, candidates.contains(bundleID) else { continue }
+    struct Candidate: Sendable {
+        let bundleID: String
+        let name: String
+    }
+
+    /// Running players whose permission matters. Without a designated player (Auto), every
+    /// scriptable player is a candidate.
+    @MainActor
+    static func runningCandidates(designatedBundleID: String?) -> [Candidate] {
+        let bundleIDs = designatedBundleID.map { [$0] } ?? ScriptablePlayers.bundleIDs
+        return NSWorkspace.shared.runningApplications.compactMap { app in
+            guard let bundleID = app.bundleIdentifier, bundleIDs.contains(bundleID) else { return nil }
+            return Candidate(bundleID: bundleID, name: app.localizedName ?? bundleID)
+        }
+    }
+
+    /// Name of the first candidate Lirico is not allowed to automate, if any. Never prompts, but
+    /// it waits on a reply from the system, which Apple says must not happen on the main thread.
+    static func deniedPlayerName(among candidates: [Candidate]) -> String? {
+        for candidate in candidates {
             var address = AEAddressDesc()
-            let bytes = Array(bundleID.utf8)
+            let bytes = Array(candidate.bundleID.utf8)
             guard AECreateDesc(DescType(typeApplicationBundleID), bytes, bytes.count, &address) == noErr else { continue }
             defer { AEDisposeDesc(&address) }
             let status = AEDeterminePermissionToAutomateTarget(&address, AEEventClass(typeWildCard), AEEventID(typeWildCard), false)
             if status == OSStatus(errAEEventNotPermitted) {
-                return app.localizedName ?? bundleID
+                return candidate.name
             }
         }
         return nil

@@ -45,8 +45,8 @@ class KaraokeLyricsWindowController: NSWindowController {
         lyricsView.displayLrc("Lirico")
         splashActive = true
 
+        // The coordinator assigns `snapshot` on main.
         display.$snapshot
-            .receive(on: DispatchQueue.main)
             .sink { [weak self] snapshot in
                 guard let self = self else { return }
                 self.latestSnapshot = snapshot
@@ -55,9 +55,12 @@ class KaraokeLyricsWindowController: NSWindowController {
                 }
             }
             .store(in: &cancelBag)
-        defaults.publisher(for: [.preferBilingualLyrics, .desktopLyricsOneLineMode])
+        // Turning the overlay back on must re-render: the disabled state rendered nothing, and
+        // while paused no new snapshot arrives to replace it.
+        defaults.publisher(for: [.preferBilingualLyrics, .desktopLyricsOneLineMode, .desktopLyricsEnabled])
             .prepend()
             .receive(on: DispatchQueue.main)
+            .merge(with: clock.offsetChanges)
             .sink { [weak self] in
                 guard let self = self, !self.splashActive else { return }
                 self.renderCurrentSnapshot()
@@ -254,6 +257,9 @@ extension NSScreen {
         guard let windowInfoList = CGWindowListCopyWindowInfo(.optionOnScreenOnly, kCGNullWindowID) as? [[String: Any]] else {
             return false
         }
+        // Window bounds are in Quartz space (origin top-left of the primary display, y down) and
+        // `frame` in Cocoa space (origin bottom-left, y up). They only agree on the primary display.
+        let primaryHeight = NSScreen.screens.first?.frame.height ?? 0
         return !windowInfoList.contains { info in
             guard info[kCGWindowOwnerName as String] as? String == "Window Server",
                   info[kCGWindowName as String] as? String == "Menubar",
@@ -261,7 +267,8 @@ extension NSScreen {
                   let bounds = CGRect(dictionaryRepresentation: boundsDict) else {
                 return false
             }
-            return frame.contains(bounds)
+            let cocoaBounds = CGRect(x: bounds.minX, y: primaryHeight - bounds.maxY, width: bounds.width, height: bounds.height)
+            return frame.contains(cocoaBounds)
         }
     }
 }
