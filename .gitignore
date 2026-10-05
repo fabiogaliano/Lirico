@@ -6,10 +6,10 @@ xcuserdata
 **/project.xcworkspace/xcshareddata/*
 !**/project.xcworkspace/xcshareddata/swiftpm/
 **/project.xcworkspace/xcshareddata/swiftpm/*
-# Pin the app's dependency graph (several deps track branches); the library package stays unpinned.
+# Pin the app's dependency graph (several deps track branches).
 !**/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 .claude
 .derivedData/
 build/
 .pi/
-LiricoPackage/Package.resolved
+docs/tmp/
