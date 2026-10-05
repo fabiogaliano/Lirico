@@ -17,11 +17,69 @@ class MenuBarLyricsController {
 
     private var iconStatusItem: NSStatusItem?
     private var lyricStatusItem: NSStatusItem?
+    // The logo uses a beamed double note with an ascending slant; SF Symbols only offers
+    // a single eighth note (`music.note`), so the symbol is drawn as a template path.
     private var buttonImage: NSImage = {
-        let config = NSImage.SymbolConfiguration(pointSize: 14, weight: .medium)
-        let image = NSImage(systemSymbolName: "music.note", accessibilityDescription: "Lirico")?
-            .withSymbolConfiguration(config) ?? NSImage()
+        let size = NSSize(width: 18, height: 18)
+        let image = NSImage(size: size, flipped: false) { bounds in
+            let sx = bounds.width / 18.0
+            let sy = bounds.height / 18.0
+            func pt(_ x: CGFloat, _ y: CGFloat) -> NSPoint {
+                NSPoint(x: bounds.origin.x + x * sx, y: bounds.origin.y + y * sy)
+            }
+
+            let path = NSBezierPath()
+
+            // Left notehead
+            let leftCenter = pt(4.4, 4.4)
+            let leftTransform = NSAffineTransform()
+            leftTransform.translateX(by: leftCenter.x, yBy: leftCenter.y)
+            leftTransform.rotate(byDegrees: 25)
+            let leftHead = NSBezierPath(ovalIn: NSRect(x: -2.7 * sx, y: -1.9 * sy, width: 5.4 * sx, height: 3.8 * sy))
+            leftHead.transform(using: leftTransform as AffineTransform)
+            path.append(leftHead)
+
+            // Right notehead
+            let rightCenter = pt(11.8, 6.6)
+            let rightTransform = NSAffineTransform()
+            rightTransform.translateX(by: rightCenter.x, yBy: rightCenter.y)
+            rightTransform.rotate(byDegrees: 25)
+            let rightHead = NSBezierPath(ovalIn: NSRect(x: -2.7 * sx, y: -1.9 * sy, width: 5.4 * sx, height: 3.8 * sy))
+            rightHead.transform(using: rightTransform as AffineTransform)
+            path.append(rightHead)
+
+            // Left stem
+            let stemWidth: CGFloat = 1.35 * sx
+            let leftStem = NSBezierPath(
+                roundedRect: NSRect(x: pt(5.6, 4.4).x, y: pt(0, 4.4).y, width: stemWidth, height: 9.8 * sy),
+                xRadius: 0.2 * sx,
+                yRadius: 0.2 * sy
+            )
+            path.append(leftStem)
+
+            // Right stem
+            let rightStem = NSBezierPath(
+                roundedRect: NSRect(x: pt(13.0, 6.6).x, y: pt(0, 6.6).y, width: stemWidth, height: 9.6 * sy),
+                xRadius: 0.2 * sx,
+                yRadius: 0.2 * sy
+            )
+            path.append(rightStem)
+
+            // Top beam connecting the two stems
+            let beam = NSBezierPath()
+            beam.move(to: pt(5.6, 12.0))
+            beam.line(to: pt(14.35, 14.2))
+            beam.line(to: pt(14.35, 16.5))
+            beam.line(to: pt(5.6, 14.3))
+            beam.close()
+            path.append(beam)
+
+            NSColor.black.setFill()
+            path.fill()
+            return true
+        }
         image.isTemplate = true
+        image.accessibilityDescription = "Lirico"
         return image
     }()
     private var buttonlength: CGFloat = 30
