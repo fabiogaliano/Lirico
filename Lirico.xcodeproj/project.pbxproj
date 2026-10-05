@@ -19,6 +19,7 @@
 		FA5117C000000000000A0004 /* LyricsScrollback.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5117C000000000000A0003 /* LyricsScrollback.swift */; };
 		FA5117C000000000000A0006 /* ShortcutNotice.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5117C000000000000A0005 /* ShortcutNotice.swift */; };
 		BB4141AE1E458BA800A51775 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4141AD1E458BA800A51775 /* AppDelegate.swift */; };
+		F1C0A1C000000000000A0002 /* Lirico.icon in Resources */ = {isa = PBXBuildFile; fileRef = F1C0A1C000000000000A0001 /* Lirico.icon */; };
 		BB4141B21E458BA800A51775 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB4141B11E458BA800A51775 /* Assets.xcassets */; };
 		BB4141C01E45B67800A51775 /* KaraokeLyricsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4141BF1E45B67800A51775 /* KaraokeLyricsController.swift */; };
 		BB58B0821E82971400598D4F /* UserDefaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB58B0811E82971400598D4F /* UserDefaults.plist */; };
@@ -117,6 +118,7 @@
 		FA5117C000000000000A0005 /* ShortcutNotice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutNotice.swift; sourceTree = "<group>"; };
 		BB4141AA1E458BA800A51775 /* Lirico-Debug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Lirico-Debug.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB4141AD1E458BA800A51775 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		F1C0A1C000000000000A0001 /* Lirico.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = Lirico.icon; sourceTree = "<group>"; };
 		BB4141B11E458BA800A51775 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../Assets.xcassets; sourceTree = "<group>"; };
 		BB4141B61E458BA900A51775 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB4141BF1E45B67800A51775 /* KaraokeLyricsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaraokeLyricsController.swift; sourceTree = "<group>"; };
@@ -261,6 +263,7 @@
 			isa = PBXGroup;
 			children = (
 				BB4141B11E458BA800A51775 /* Assets.xcassets */,
+				F1C0A1C000000000000A0001 /* Lirico.icon */,
 				E9A38A6A2D7337E700DEFE0E /* Localizable.xcstrings */,
 				E9A38A6D2D7337E700DEFE0E /* InfoPlist.xcstrings */,
 				BB9BCEB81E84120D001BC54B /* Lirico.entitlements */,
@@ -526,6 +529,7 @@
 				E9A38A6B2D7337E700DEFE0E /* Localizable.xcstrings in Resources */,
 				E9A38A6E2D7337E700DEFE0E /* InfoPlist.xcstrings in Resources */,
 				BB4141B21E458BA800A51775 /* Assets.xcassets in Resources */,
+				F1C0A1C000000000000A0002 /* Lirico.icon in Resources */,
 				BB58B0821E82971400598D4F /* UserDefaults.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -759,7 +763,7 @@
 		BB4141BA1E458BA900A51775 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Lirico;
 				CODE_SIGN_ENTITLEMENTS = "Lirico/Supporting Files/Lirico.entitlements";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
@@ -785,7 +789,7 @@
 		BB4141BB1E458BA900A51775 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Lirico;
 				CODE_SIGN_ENTITLEMENTS = "Lirico/Supporting Files/Lirico.entitlements";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;

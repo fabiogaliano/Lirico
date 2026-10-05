@@ -1,0 +1,21 @@
+{
+  "fill" : { "linear-gradient" : [ "srgb:0.86970,0.78941,0.74341,1.00000", "srgb:0.87362,0.80682,0.78780,1.00000" ] },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "blend-mode" : "normal",
+          "fill" : "automatic",
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "art.png",
+          "name" : "art",
+          "position" : { "scale" : 1, "translation-in-points" : [ 0, 0 ] }
+        }
+      ],
+      "shadow" : { "kind" : "neutral", "opacity" : 0 },
+      "translucency" : { "enabled" : false, "value" : 0.5 }
+    }
+  ],
+  "supported-platforms" : { "squares" : [ "macOS" ] }
+}
