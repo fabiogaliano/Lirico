@@ -2,7 +2,7 @@
 
 Diagnostic that shows **which lyrics candidates the app finds, how they rank, which one gets auto-picked, and how their timing/metadata differ** — for whatever is playing in the music player Lirico/Lirico is configured to use.
 
-It reuses the app's real ranking brain (`LiricoFoundation`: `LyricsCandidateEvaluator` + `LyricsCandidateRanker`) and the same pinned `LyricsKit 1.9.0` providers, so results match the shipping app. It also reads your **real app settings** (`com.fabiogaliano.Lirico`): source-priority order/toggle, Musixmatch token, and the line filter.
+It reuses the app's real ranking brain (`LiricoFoundation`: `LyricsCandidateEvaluator` + `LyricsCandidateRanker`) and the same pinned `LiricoKit 2.0.0` providers, so results match the shipping app. It also reads your **real app settings** (`com.fabiogaliano.Lirico`): source-priority order/toggle, Musixmatch token, and the line filter.
 
 ## Usage
 

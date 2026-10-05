@@ -1,6 +1,6 @@
 import AppKit
 import Combine
-@preconcurrency import LyricsKit
+@preconcurrency import LiricoKit
 import LiricoFoundation
 import MusicPlayer
 

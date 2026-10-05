@@ -1,4 +1,4 @@
-import LyricsKit
+import LiricoKit
 
 /// Whether a lyrics candidate carries karaoke (word-level) timing.
 ///

@@ -1,1 +1,1 @@
-@_exported import LyricsKit
+@_exported import LiricoKit

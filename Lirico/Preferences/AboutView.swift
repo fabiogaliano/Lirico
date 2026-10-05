@@ -326,7 +326,7 @@ private let contributors: [Contributor] = [
 
 // Lirico's two core engines, both forked from the LyricsX project (MPL-2.0).
 private let components: [Acknowledgement] = [
-    Acknowledgement(name: "LyricsKit", license: "MPL-2.0", url: URL(string: "https://github.com/fabiogaliano/LyricsKit")!),
+    Acknowledgement(name: "LiricoKit", license: "MPL-2.0", url: URL(string: "https://github.com/fabiogaliano/LiricoKit")!),
     Acknowledgement(name: "MusicPlayer", license: "MPL-2.0", url: URL(string: "https://github.com/MxIris-LyricsX-Project/MusicPlayer")!),
 ]
 

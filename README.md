@@ -47,7 +47,7 @@ To see why a lyric was chosen for the playing song (every candidate, its rank an
 ## Features
 
 - Works with your music players. [Supported players](https://github.com/MxIris-LyricsX-Project/MusicPlayer#supported-players)
-- Searches and downloads synced lyrics from multiple sources. [Supported sources](https://github.com/MxIris-LyricsX-Project/LyricsKit#supported-sources)
+- Searches and downloads synced lyrics from multiple sources. [Supported sources](https://github.com/fabiogaliano/LiricoKit#supported-sources)
 - Matches the song you're playing rather than favoring one source.
 - Prefers karaoke lyrics and upgrades plain lyrics when a good karaoke version appears.
 - Shows lyrics on your desktop and in the menu bar, with your choice of font, color and position.
@@ -87,7 +87,7 @@ foundation Lirico is built on.
 
 #### Components
 
-- [LyricsKit](https://github.com/fabiogaliano/LyricsKit) (MPL-2.0)
+- [LiricoKit](https://github.com/fabiogaliano/LiricoKit) (MPL-2.0)
 - [MusicPlayer](https://github.com/MxIris-LyricsX-Project/MusicPlayer) (MPL-2.0)
 
 #### Open Source Libraries

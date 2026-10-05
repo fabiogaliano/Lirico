@@ -1,4 +1,4 @@
-import LyricsKit
+import LiricoKit
 import Foundation
 
 // MARK: - Normalization helpers

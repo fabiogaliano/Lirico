@@ -1,4 +1,4 @@
-@preconcurrency import LyricsKit
+@preconcurrency import LiricoKit
 
 // MARK: - LyricsCandidateVisibility
 

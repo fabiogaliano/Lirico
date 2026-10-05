@@ -18,7 +18,7 @@ func envEnable(_ key: String, default defaultValue: Bool = false) -> Bool {
 }
 
 let useLocalDependency = envEnable("LIRICO_USE_LOCAL_DEPENDENCY")
-let useLocalLyricsKit = envEnable("LIRICO_USE_LOCAL_LYRICSKIT", default: useLocalDependency)
+let useLocalLiricoKit = envEnable("LIRICO_USE_LOCAL_LIRICOKIT", default: useLocalDependency)
 
 extension Package.Dependency {
     enum LocalSearchPath {
@@ -65,13 +65,13 @@ let package = Package(
     dependencies: [
         .package(
             local: .package(
-                path: "../../LyricsKit",
+                path: "../../LiricoKit",
                 isRelative: true,
-                isEnabled: useLocalLyricsKit
+                isEnabled: useLocalLiricoKit
             ),
             remote: .package(
-                url: "https://github.com/fabiogaliano/LyricsKit",
-                from: "1.9.1"
+                url: "https://github.com/fabiogaliano/LiricoKit",
+                from: "2.0.0"
             )
         ),
         .package(
@@ -90,7 +90,7 @@ let package = Package(
         .target(
             name: "LiricoFoundation",
             dependencies: [
-                .product(name: "LyricsKit", package: "LyricsKit"),
+                .product(name: "LiricoKit", package: "LiricoKit"),
                 .product(name: "MusicPlayer", package: "MusicPlayer"),
                 .product(name: "LXMusicPlayer", package: "MusicPlayer"),
             ]

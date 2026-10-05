@@ -2,7 +2,7 @@ import Foundation
 
 /// The text Lirico writes into an Apple Music track's lyrics field.
 public enum AppleMusicExport {
-    /// Plain LRC is LyricsKit's legacy format: one line per timestamp, with any translation
+    /// Plain LRC is LiricoKit's legacy format: one line per timestamp, with any translation
     /// inline in 【】 whatever `includeTranslation` says. Otherwise lines are plain text, each
     /// followed by its translation when `includeTranslation`. Restoration is never applied,
     /// so the export stays canonical.

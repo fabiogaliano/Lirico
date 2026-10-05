@@ -392,7 +392,7 @@ print(" Player   : \(playerName)")
 print(" Query    : \"\(title)\" — \(artist)")
 print(" Album    : \(album ?? "—")    Duration: \(duration.map { String(format: "%.2fs (%@)", $0, mmss($0)) } ?? "—")")
 print(" Settings : sourcePriority=\(sourcePriorityEnabled ? "ON \(sourcePriorityOrder)" : "OFF (order ignored)")  musixmatch=\(musixmatchToken != nil ? "on" : "off")  filter=\(filterEnabled ? "ON (\(filterKeys.count) keys)" : "OFF")")
-print(" Ranker   : karaokeWindow=\(Int(configuration.karaokePreferenceWindow))  looseFloor=\(Int(configuration.automaticLooseFallbackMinimumScore))  LyricsKit=1.9.0 (same as app)")
+print(" Ranker   : karaokeWindow=\(Int(configuration.karaokePreferenceWindow))  looseFloor=\(Int(configuration.automaticLooseFallbackMinimumScore))  LiricoKit=2.0.0 (same as app)")
 
 print("")
 print("══ AUTOMATIC SEARCH (what runs on track change: limit 5, album passed, auto-picks one) ══")

@@ -63,9 +63,9 @@ Hybrid Xcode project + Swift Package Manager. The Xcode project (`Lirico.xcodepr
 
 ### Core Dependencies (via SPM)
 
-- **LyricsKit** (`fabiogaliano/LyricsKit`, from 1.9.0) — lyrics search/parsing engine
+- **LiricoKit** (`fabiogaliano/LiricoKit`, from 2.0.0) — lyrics search/parsing engine
 - **MusicPlayer** (`MxIris-LyricsX-Project/MusicPlayer`, from 1.8.0) — music player abstraction layer
-- **LiricoFoundation** (local package in `LiricoPackage/`) — re-exports LyricsKit and holds the testable domain logic: `Search/` (candidate evaluation + ranking, automatic and manual result policy), `Restoration/` (explicit-word restoration), `Rendering/` (line rendering, language tagging, Apple Music export text), `Player/` (auto-player choice), `Sync/`
+- **LiricoFoundation** (local package in `LiricoPackage/`) — re-exports LiricoKit and holds the testable domain logic: `Search/` (candidate evaluation + ranking, automatic and manual result policy), `Restoration/` (explicit-word restoration), `Rendering/` (line rendering, language tagging, Apple Music export text), `Player/` (auto-player choice), `Sync/`
 
 ### App Internal Structure (`Lirico/`)
 
@@ -94,4 +94,4 @@ The app uses a **Combine-driven reactive architecture** with shared singletons:
 
 ### Local Development with Dependencies
 
-`LiricoPackage/Package.swift` switches to sibling checkouts (`../../LyricsKit`, `../../MusicPlayer`) via env vars: `LIRICO_USE_LOCAL_DEPENDENCY=1` enables both, `LIRICO_USE_LOCAL_LYRICSKIT=1` just LyricsKit.
+`LiricoPackage/Package.swift` switches to sibling checkouts (`../../LiricoKit`, `../../MusicPlayer`) via env vars: `LIRICO_USE_LOCAL_DEPENDENCY=1` enables both, `LIRICO_USE_LOCAL_LIRICOKIT=1` just LiricoKit.

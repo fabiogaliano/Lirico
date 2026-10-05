@@ -1,6 +1,6 @@
 import Combine
 import Foundation
-@preconcurrency import LyricsKit
+@preconcurrency import LiricoKit
 import LiricoFoundation
 
 // MARK: - LyricsSearchEvent

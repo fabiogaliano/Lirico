@@ -1,5 +1,5 @@
 {
-  "originHash" : "064062de8d22734125348798dace762263c9416004d9037b24f33d072bbcd72b",
+  "originHash" : "0ce9ac2353fe4de22b65f7a6b9ebc605b59b6f62b1f3e9214b9b845f8e245829",
   "pins" : [
     {
       "identity" : "bigint",
@@ -38,12 +38,12 @@
       }
     },
     {
-      "identity" : "lyricskit",
+      "identity" : "liricokit",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/fabiogaliano/LyricsKit",
+      "location" : "https://github.com/fabiogaliano/LiricoKit",
       "state" : {
-        "revision" : "049a4cf4c54c57447d0f9086d4c804d0a5924672",
-        "version" : "1.9.1"
+        "revision" : "4748cfca855cbdd22fe2b7b337179c5fe20c2d89",
+        "version" : "2.0.0"
       }
     },
     {

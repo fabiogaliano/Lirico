@@ -545,7 +545,7 @@ struct AlbumTiebreakerRankingTests {
 @Suite("Case 20: Correctness does not depend on Lyrics.isMatched()")
 struct IsMatchedIndependenceTests {
     /// Case 20: The evaluator/ranker must determine candidate correctness from
-    /// its own title/artist comparison logic, not from LyricsKit's `Lyrics.isMatched()`.
+    /// its own title/artist comparison logic, not from LiricoKit's `Lyrics.isMatched()`.
     /// This test verifies that candidates the evaluator accepts are accepted, and
     /// candidates the evaluator rejects are rejected, independently of `isMatched`.
     @Test("Case 20: Candidates accepted/rejected by evaluator do not require isMatched to agree")
