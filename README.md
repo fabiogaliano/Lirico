@@ -1,3 +1,5 @@
+<img src="docs/img/icon.png" width="128" alt="Lirico app icon: a glossy lilac-to-pink speech bubble with a heavy gold rim and a white music note">
+
 # Lirico
 
 <img src="docs/img/screenshot.jpg" width="900px" alt="Lirico showing karaoke lyrics over a playing track, with the search window listing matches marked by a mic icon">
