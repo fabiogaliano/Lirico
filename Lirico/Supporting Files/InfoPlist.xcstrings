@@ -38,7 +38,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lirico necesita saber que canción se está reproduciéndo ahora, para mostrar letras acordemente."
+            "value" : "Lirico necesita saber qué canción se está reproduciendo para mostrar su letra."
           }
         },
         "fa" : {

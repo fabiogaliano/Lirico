@@ -172,8 +172,11 @@ struct FilterPreferencesView: View {
 
     private func addKeyword() {
         keywords.append("")
-        selectedIndex = keywords.count - 1
+        let index = keywords.count - 1
+        selectedIndex = index
         saveKeywords()
+        // Next turn of the main actor, once the new row's field exists to take focus.
+        Task { focusedKeyword = index }
     }
 
     private func removeSelected() {
@@ -195,8 +198,10 @@ struct FilterPreferencesView: View {
 
     private func addLexiconWord() {
         lexicon.append("")
-        lexiconSelectedIndex = lexicon.count - 1
+        let index = lexicon.count - 1
+        lexiconSelectedIndex = index
         saveLexicon()
+        Task { focusedLexiconWord = index }
     }
 
     private func removeLexiconSelected() {

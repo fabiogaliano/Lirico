@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SourcePreferencesView: View {
-    @State private var sourcePriorityEnabled: Bool = false
+    @AppStorage(.lyricsSourcePriorityEnabled) private var sourcePriorityEnabled = false
     @State private var sources: [String] = []
     @State private var selectedSource: String? = nil
     // Musixmatch token is String? — @AppStorage doesn't support optionals, so
@@ -18,9 +18,6 @@ struct SourcePreferencesView: View {
         SettingsForm {
             Section {
                 Toggle("Prefer sources in this order", isOn: $sourcePriorityEnabled)
-                    .onChange(of: sourcePriorityEnabled) { _, enabled in
-                        searchSettings.sourcePriorityEnabled = enabled
-                    }
                 sourceList
                     .disabled(!sourcePriorityEnabled)
                 moveButtons
@@ -129,7 +126,6 @@ struct SourcePreferencesView: View {
 
     private func loadSettings() {
         searchSettings.normalizeSourcePriorityOrder()
-        sourcePriorityEnabled = searchSettings.sourcePriorityEnabled
         sources = searchSettings.sourcePriorityOrder
         musixmatchToken = searchSettings.musixmatchToken ?? ""
     }

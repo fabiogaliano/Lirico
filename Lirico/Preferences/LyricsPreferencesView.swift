@@ -91,11 +91,6 @@ struct LyricsPreferencesView: View {
                     }
                     .labelsHidden()
                     .fixedSize()
-                    .onChange(of: savingPathPopUpIndex) { _, idx in
-                        if idx == 0 {
-                            defaults[.lyricsSavingPathPopUpIndex] = 0
-                        }
-                    }
                     Button("Choose…") { chooseSavingPath() }
                     Button {
                         NSWorkspace.shared.open(persistenceSettings.storageDirectory().url)

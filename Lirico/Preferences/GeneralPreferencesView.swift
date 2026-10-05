@@ -222,12 +222,18 @@ struct GeneralPreferencesView: View {
         language(at: languagePickerIndex) != selectedLanguageAtLaunch
     }
 
+    /// Each language in its own name, capitalized the way macOS lists them ("Español", not
+    /// "español"): only the first letter, using that language's casing rules.
     private func localizedLanguageName(for lan: String) -> String {
+        let locale = Locale(identifier: lan)
+        let name: String
         if let idx = lan.firstIndex(of: "-") {
             let script = lan[idx...].dropFirst()
-            return Locale(identifier: lan).localizedString(forScriptCode: String(script)) ?? lan
+            name = locale.localizedString(forScriptCode: String(script)) ?? lan
+        } else {
+            name = locale.localizedString(forLanguageCode: lan) ?? lan
         }
-        return Locale(identifier: lan).localizedString(forLanguageCode: lan) ?? lan
+        return name.prefix(1).uppercased(with: locale) + name.dropFirst()
     }
 }
 
