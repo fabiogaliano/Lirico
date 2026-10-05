@@ -201,11 +201,17 @@ class LyricsSession: NSObject {
     /// Flush the current lyrics to disk when they've been marked dirty and are
     /// eligible for persistence. This is the only place in the app that should
     /// drive a disk write — everywhere else asks the session.
-    private func persistCurrentLyricsIfNeeded() {
+    @discardableResult
+    private func persistCurrentLyricsIfNeeded() -> Task<Void, Never>? {
+        guard let lyrics = currentLyricsNeedingPersist else { return nil }
+        return LyricsPersister.saveToDisk(lyrics, to: persistenceSettings.storageDirectory())
+    }
+
+    private var currentLyricsNeedingPersist: Lyrics? {
         guard let lyrics = currentLyrics,
               lyrics.metadata.needsPersist,
-              lyrics.metadata.persistenceAllowed else { return }
-        LyricsPersister.saveToDisk(lyrics, to: persistenceSettings.storageDirectory())
+              lyrics.metadata.persistenceAllowed else { return nil }
+        return lyrics
     }
 
     /// Embedded lyrics and automatic interim picks have no file, and never get one.
@@ -218,16 +224,20 @@ class LyricsSession: NSObject {
     /// silently if there is no current lyrics or it has no resolvable URL after
     /// the write attempt.
     func revealCurrentLyricsInFinder() {
-        persistCurrentLyricsIfNeeded()
-        guard let url = currentLyrics?.metadata.localURL else { return }
-        NSWorkspace.shared.activateFileViewerSelecting([url])
+        let save = persistCurrentLyricsIfNeeded()
+        let lyrics = currentLyrics
+        Task {
+            await save?.value
+            guard let url = lyrics?.metadata.localURL else { return }
+            NSWorkspace.shared.activateFileViewerSelecting([url])
+        }
     }
 
     /// Last-chance flush before the app exits. Called from
     /// `AppDelegate.applicationWillTerminate` so the terminate path doesn't
-    /// have to know about the `needsPersist` flag.
+    /// have to know about the `needsPersist` flag. Blocks until every save is on disk.
     func prepareForTermination() {
-        persistCurrentLyricsIfNeeded()
+        LyricsPersister.saveToDiskNow(currentLyricsNeedingPersist, to: persistenceSettings.storageDirectory())
     }
 
     // MARK: - Commands
@@ -277,12 +287,19 @@ class LyricsSession: NSObject {
         }
         invalidateAutomaticSearch()
         if exportSettings.writeToiTunesAutomatically, canWriteToAppleMusic(track) {
-            track.setLyrics("")
+            LyricsPersister.clearAppleMusicLyrics(of: track)
         }
         // Only files Lirico saved itself: a `.lrc` beside the audio file is the
         // user's own, and this app is unsandboxed, so deleting it would be permanent.
-        if let url = currentLyrics?.metadata.localURL, persistenceSettings.storageDirectoryContains(url) {
-            try? FileManager.default.removeItem(at: url)
+        // A save may still be queued, with `localURL` not set yet. Lyrics that may not be
+        // persisted were never saved, and that path can hold an earlier save worth keeping.
+        if let lyrics = currentLyrics {
+            let directory = persistenceSettings.storageDirectory()
+            let queued = lyrics.metadata.persistenceAllowed ? LyricsPersister.fileURL(for: lyrics, in: directory) : nil
+            let saved = [lyrics.metadata.localURL, queued]
+            for url in Set(saved.compactMap { $0 }) where persistenceSettings.storageDirectoryContains(url) {
+                LyricsPersister.deleteFromDisk(url)
+            }
         }
         currentLyrics = nil
         supportingLyrics = []

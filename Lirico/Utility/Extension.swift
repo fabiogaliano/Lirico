@@ -23,14 +23,6 @@ extension MusicTrack {
         return originalTrack.value(forKey: "lyrics") as? String
     }
 
-    func setLyrics(_ lyrics: String) {
-        guard let originalTrack = originalTrack,
-              originalTrack.responds(to: Selector(("setLyrics:"))) else {
-            return
-        }
-        originalTrack.setValue(lyrics, forKey: "lyrics")
-    }
-    
     var localFileURL: URL? {
         if let url = fileURL {
             return url

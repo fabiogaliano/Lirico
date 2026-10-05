@@ -27,52 +27,54 @@ enum LyricsPersister {
         return baseName(title: title, artist: artist) + ".lrcx"
     }
 
-    /// Write `lyrics` to disk in `directory`. On success the lyrics'
-    /// `metadata.localURL` is updated to the freshly written file and
-    /// `metadata.needsPersist` is cleared. Failures (no fileName, unwritable
-    /// directory, …) are logged and silently swallowed.
+    /// Disk writes run here in order, so a later save of the same lyrics always lands last.
+    private static let diskQueue = DispatchQueue(label: "Lirico.LyricsPersister.disk", qos: .utility)
+    /// An Apple Event blocks until Music answers, which takes seconds when it's busy; on main,
+    /// the whole UI would freeze with it. Serial, so a clear can't overtake an earlier export.
+    private static let appleMusicQueue = DispatchQueue(label: "Lirico.LyricsPersister.appleMusic", qos: .utility)
+
+    /// Save `lyrics` to `directory` without blocking the main thread. `needsPersist` is cleared
+    /// right away so a second call doesn't queue a duplicate; once written, `localURL` points at
+    /// the file, and a failed write sets `needsPersist` again so a later save retries.
+    /// Returns nil when there's nothing to write (no title or artist to name the file).
     ///
     /// The directory is resolved by `PersistenceSettings`. Passing it in
     /// rather than reading defaults here keeps this namespace defaults-free.
-    static func saveToDisk(_ lyrics: Lyrics, to directory: LyricsStorageDirectory) {
-        let url = directory.url
-        let security = directory.requiresSecurityScope
-        if security {
-            guard url.startAccessingSecurityScopedResource() else {
-                return
+    @MainActor
+    @discardableResult
+    static func saveToDisk(_ lyrics: Lyrics, to directory: LyricsStorageDirectory) -> Task<Void, Never>? {
+        guard let file = LyricsFile(lyrics, in: directory) else { return nil }
+        lyrics.metadata.needsPersist = false
+        return Task { @MainActor in
+            let written = await withCheckedContinuation { continuation in
+                diskQueue.async { continuation.resume(returning: file.write()) }
             }
-        }
-        defer {
-            if security {
-                url.stopAccessingSecurityScopedResource()
-            }
-        }
-        let fileManager = FileManager.default
-
-        do {
-            var isDir: ObjCBool = false
-            if fileManager.fileExists(atPath: url.path, isDirectory: &isDir) {
-                if !isDir.boolValue {
-                    return
-                }
+            if written {
+                lyrics.metadata.localURL = file.url
             } else {
-                try fileManager.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
+                lyrics.metadata.needsPersist = true
             }
-
-            guard let lrcFileURL = fileName(for: lyrics).map(url.appendingPathComponent) else {
-                return
-            }
-
-            if fileManager.fileExists(atPath: lrcFileURL.path) {
-                try fileManager.removeItem(at: lrcFileURL)
-            }
-            try lyrics.description.write(to: lrcFileURL, atomically: true, encoding: .utf8)
-            lyrics.metadata.localURL = lrcFileURL
-            lyrics.metadata.needsPersist = false
-        } catch {
-            log(error.localizedDescription)
-            return
         }
+    }
+
+    /// Where `saveToDisk` puts `lyrics`, whether or not that save has happened yet.
+    @MainActor
+    static func fileURL(for lyrics: Lyrics, in directory: LyricsStorageDirectory) -> URL? {
+        fileName(for: lyrics).map(directory.url.appendingPathComponent)
+    }
+
+    /// Runs after any save still queued, so a save in flight can't recreate the file.
+    static func deleteFromDisk(_ url: URL) {
+        diskQueue.async {
+            try? FileManager.default.removeItem(at: url)
+        }
+    }
+
+    /// For termination: waits for queued saves, then writes `lyrics` before returning.
+    @MainActor
+    static func saveToDiskNow(_ lyrics: Lyrics?, to directory: LyricsStorageDirectory) {
+        let file = lyrics.flatMap { LyricsFile($0, in: directory) }
+        diskQueue.sync { _ = file?.write() }
     }
 
     /// Write `lyrics` to `track` in Apple Music.
@@ -83,20 +85,81 @@ enum LyricsPersister {
     /// The `settings` parameter carries the formatting policy (plain-LRC export
     /// vs. enhanced; include translation or not). Passing it in keeps this
     /// namespace defaults-free in the same shape as `saveToDisk(_:to:)`.
+    @MainActor
     static func writeToiTunes(
         _ lyrics: Lyrics,
         to track: MusicTrack,
         settings: ExportSettings,
         converter: ChineseConverter?
     ) {
-        guard let sbTrack = track.originalTrack else { return }
-
         let text = AppleMusicExport.text(
             for: lyrics,
             plainLRC: settings.convertToPlainLRC,
             includeTranslation: settings.writeWithTranslation,
             converter: converter?.convert
         )
-        sbTrack.setValue(text, forKey: "lyrics")
+        setAppleMusicLyrics(text, of: track)
+    }
+
+    /// Empty `track`'s lyrics field in Apple Music. Same caller contract as `writeToiTunes`.
+    static func clearAppleMusicLyrics(of track: MusicTrack) {
+        setAppleMusicLyrics("", of: track)
+    }
+
+    private static func setAppleMusicLyrics(_ text: String, of track: MusicTrack) {
+        guard let scriptingTrack = track.originalTrack,
+              scriptingTrack.responds(to: Selector(("setLyrics:"))) else { return }
+        // Only this serial queue sends to it from here on; the embedded-lyrics read at track
+        // change happens before any export of that track can be queued.
+        nonisolated(unsafe) let target = scriptingTrack
+        appleMusicQueue.async {
+            target.setValue(text, forKey: "lyrics")
+        }
+    }
+}
+
+/// A save, captured on the main actor (where `Lyrics` lives) so the write can run elsewhere.
+private struct LyricsFile: Sendable {
+    let directory: URL
+    let url: URL
+    let requiresSecurityScope: Bool
+    let text: String
+
+    @MainActor
+    init?(_ lyrics: Lyrics, in directory: LyricsStorageDirectory) {
+        guard let name = LyricsPersister.fileName(for: lyrics) else { return nil }
+        self.directory = directory.url
+        url = directory.url.appendingPathComponent(name)
+        requiresSecurityScope = directory.requiresSecurityScope
+        text = lyrics.description
+    }
+
+    /// Failures (unwritable directory, a file where the directory should be, …) are logged.
+    func write() -> Bool {
+        if requiresSecurityScope {
+            guard directory.startAccessingSecurityScopedResource() else { return false }
+        }
+        defer {
+            if requiresSecurityScope {
+                directory.stopAccessingSecurityScopedResource()
+            }
+        }
+        let fileManager = FileManager.default
+        do {
+            var isDir: ObjCBool = false
+            if fileManager.fileExists(atPath: directory.path, isDirectory: &isDir) {
+                guard isDir.boolValue else { return false }
+            } else {
+                try fileManager.createDirectory(at: directory, withIntermediateDirectories: true, attributes: nil)
+            }
+            if fileManager.fileExists(atPath: url.path) {
+                try fileManager.removeItem(at: url)
+            }
+            try text.write(to: url, atomically: true, encoding: .utf8)
+            return true
+        } catch {
+            log(error.localizedDescription)
+            return false
+        }
     }
 }
