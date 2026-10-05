@@ -295,9 +295,8 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
 
 /// Titlebar accessory hosting the "always on top" lock toggle.
 ///
-/// Programmatic equivalent of the storyboard's "Lyrics HUD Accessory" scene:
-/// a small lock button that toggles its window between `.floating` (on, the
-/// default — matching the level the panel opens at) and `.normal` (off).
+/// A small lock button that toggles its window between `.floating` (on) and `.normal` (off),
+/// remembered across launches.
 final class LyricsHUDAccessoryViewController: NSTitlebarAccessoryViewController {
 
     override func loadView() {
@@ -312,8 +311,9 @@ final class LyricsHUDAccessoryViewController: NSTitlebarAccessoryViewController 
         button.alternateImage = NSImage(systemSymbolName: "lock.fill", accessibilityDescription: nil)
         button.imagePosition = .imageOnly
         button.imageScaling = .scaleProportionallyUpOrDown
-        button.toolTip = NSLocalizedString("Always on top", comment: "HUD accessory")
-        button.state = .on
+        button.toolTip = NSLocalizedString("Keep on top", comment: "lyrics window lock button")
+        button.setAccessibilityLabel(button.toolTip)
+        button.state = defaults[.lyricsWindowKeepsOnTop] ? .on : .off
         button.target = self
         button.action = #selector(lockAction(_:))
 
@@ -331,6 +331,8 @@ final class LyricsHUDAccessoryViewController: NSTitlebarAccessoryViewController 
     }
 
     @objc func lockAction(_ sender: NSButton) {
-        view.window?.level = sender.state == .on ? .floating : .normal
+        let keepsOnTop = sender.state == .on
+        defaults[.lyricsWindowKeepsOnTop] = keepsOnTop
+        view.window?.level = keepsOnTop ? .floating : .normal
     }
 }

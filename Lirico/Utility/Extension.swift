@@ -14,6 +14,19 @@ extension MusicPlayerName {
     }
 }
 
+extension NSWindow {
+    /// Restore the frame saved under `name`, or center on the active screen when nothing is saved
+    /// or the saved frame no longer lands on any screen (a display was unplugged).
+    func restoreFrame(named name: FrameAutosaveName) {
+        if setFrameUsingName(name), NSScreen.screens.contains(where: { $0.visibleFrame.intersects(frame) }) {
+            return
+        }
+        guard let screen = screen ?? NSScreen.main else { return }
+        let visible = screen.visibleFrame
+        setFrameOrigin(NSPoint(x: visible.midX - frame.width / 2, y: visible.midY - frame.height / 2))
+    }
+}
+
 extension MusicTrack {
     var lyrics: String? {
         guard let originalTrack = originalTrack,

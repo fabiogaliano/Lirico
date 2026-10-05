@@ -61,6 +61,8 @@ struct GeneralPreferencesView: View {
     // Read from the system each time the pane appears: the user can also change it in
     // System Settings → General → Login Items.
     @State private var launchAtLogin = MainAppLoginItem.isEnabled
+    @State private var loginItemApprovalPending = LoginItemApproval.isPending
+    @State private var followsAllNowPlayingApps = defaults[.systemWideNowPlayingAppList].isEmpty
 
     // Language picker — index 0 = system, 2+ = specific localization
     @State private var languagePickerIndex = 0
@@ -75,7 +77,13 @@ struct GeneralPreferencesView: View {
             languageSection
         }
         .onAppear(perform: loadInitialState)
-        .sheet(isPresented: $showingNowPlayingSheet) {
+        // Approval happens in System Settings, so look again whenever the user comes back.
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            refreshLoginItemState()
+        }
+        .sheet(isPresented: $showingNowPlayingSheet, onDismiss: {
+            followsAllNowPlayingApps = defaults[.systemWideNowPlayingAppList].isEmpty
+        }) {
             NowPlayingApplicationListRepresentable(onDismiss: { showingNowPlayingSheet = false })
                 .frame(width: 600, height: 500)
         }
@@ -89,11 +97,17 @@ struct GeneralPreferencesView: View {
                 get: { launchAtLogin },
                 set: { enabled in
                     MainAppLoginItem.setEnabled(enabled)
-                    launchAtLogin = MainAppLoginItem.isEnabled
+                    refreshLoginItemState()
                 }
             ))
             // `PlayerLifecycle` follows the setting: it registers the helper and starts or stops it.
             Toggle("Open and quit with music player", isOn: $launchAndQuitWithPlayer)
+                .onChange(of: launchAndQuitWithPlayer) { _, _ in refreshLoginItemState() }
+            if loginItemApprovalPending {
+                LabeledContent("Allow Lirico in System Settings › General › Login Items.") {
+                    Button("Open Login Items…", action: LoginItemApproval.openSystemSettings)
+                }
+            }
         } header: {
             Text("Startup")
         } footer: {
@@ -109,15 +123,25 @@ struct GeneralPreferencesView: View {
             }
             if useSystemWideNowPlaying {
                 LabeledContent("Apps") {
-                    Button("Choose…") { showingNowPlayingSheet = true }
+                    HStack {
+                        // An empty list doesn't limit anything.
+                        if followsAllNowPlayingApps {
+                            Text("All apps").foregroundStyle(.secondary)
+                        }
+                        Button("Choose…") { showingNowPlayingSheet = true }
+                    }
                 }
             }
         } header: {
             Text("Music Player")
         } footer: {
-            SettingsFooter(useSystemWideNowPlaying
-                ? "Follows whatever macOS shows as Now Playing, limited to the apps you choose."
-                : "Follows whichever of Music, Spotify, Vox, Audirvana or Swinsian is playing.")
+            if !useSystemWideNowPlaying {
+                SettingsFooter("Follows whichever of Music, Spotify, Vox, Audirvana or Swinsian is playing.")
+            } else if followsAllNowPlayingApps {
+                SettingsFooter("Follows whatever macOS shows as Now Playing, from any app. Choose apps to limit it.")
+            } else {
+                SettingsFooter("Follows whatever macOS shows as Now Playing, limited to the apps you choose.")
+            }
         }
     }
 
@@ -165,13 +189,19 @@ struct GeneralPreferencesView: View {
     // MARK: - Helpers
 
     private func loadInitialState() {
-        launchAtLogin = MainAppLoginItem.isEnabled
+        refreshLoginItemState()
+        followsAllNowPlayingApps = defaults[.systemWideNowPlayingAppList].isEmpty
         if let lan = defaults[.selectedLanguage],
            let idx = localizations.firstIndex(of: lan) {
             languagePickerIndex = idx + 2
         } else {
             languagePickerIndex = 0
         }
+    }
+
+    private func refreshLoginItemState() {
+        launchAtLogin = MainAppLoginItem.isEnabled
+        loginItemApprovalPending = LoginItemApproval.isPending
     }
 
     private func applyLanguageSelection(_ index: Int) {

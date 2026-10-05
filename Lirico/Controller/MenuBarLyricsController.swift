@@ -116,7 +116,7 @@ class MenuBarLyricsController {
             setupLyricStatusItem()
         }
 
-        marqueeLabel.setStringValue(screenLyrics.lyrics, lineDisplayTime: screenLyrics.duration)
+        showInMarquee(screenLyrics)
         updateLyricAccessibilityLabel()
     }
 
@@ -126,8 +126,17 @@ class MenuBarLyricsController {
             setupLyricStatusItem()
         }
 
-        marqueeLabel.setStringValue(screenLyrics.lyrics, lineDisplayTime: screenLyrics.duration)
+        showInMarquee(screenLyrics)
         updateLyricAccessibilityLabel()
+    }
+
+    /// Lines too long for the item scroll across it; under Reduce Motion they stay put, showing
+    /// their start. The label schedules the scroll with `perform(_:with:afterDelay:)`.
+    private func showInMarquee(_ lyrics: (lyrics: String, duration: TimeInterval)) {
+        marqueeLabel.setStringValue(lyrics.lyrics, lineDisplayTime: lyrics.duration)
+        if NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
+            NSObject.cancelPreviousPerformRequests(withTarget: marqueeLabel)
+        }
     }
 
     // The lyric item's button has an empty title with the marquee drawn on top, so VoiceOver

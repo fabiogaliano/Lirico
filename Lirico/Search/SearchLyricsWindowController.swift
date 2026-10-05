@@ -3,6 +3,8 @@ import Combine
 import SwiftUI
 
 final class SearchLyricsWindowController: NSWindowController {
+    private static let windowFrame = NSWindow.FrameAutosaveName("SearchLyrics")
+
     private let player: PlayerHandle
     private let viewModel: SearchLyricsViewModel
     private var trackChange: AnyCancellable?
@@ -21,7 +23,7 @@ final class SearchLyricsWindowController: NSWindowController {
         window.title = NSLocalizedString("Search Lyrics", comment: "window title")
         window.styleMask = [.titled, .closable, .resizable]
         window.setContentSize(NSSize(width: 760, height: 520))
-        window.center()
+        window.setFrameAutosaveName(Self.windowFrame)
         super.init(window: window)
 
         // Results are only meaningful for the track they were searched for, so follow the
@@ -39,6 +41,9 @@ final class SearchLyricsWindowController: NSWindowController {
     }
 
     override func showWindow(_ sender: Any?) {
+        if let window, !window.isVisible {
+            window.restoreFrame(named: Self.windowFrame)
+        }
         super.showWindow(sender)
         viewModel.reload(for: player.currentTrack)
     }

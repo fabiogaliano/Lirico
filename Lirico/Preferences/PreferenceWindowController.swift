@@ -3,6 +3,7 @@ import SwiftUI
 
 class PreferenceWindowController: NSWindowController {
     private static let contentSize = NSSize(width: 620, height: 600)
+    private static let windowFrame = NSWindow.FrameAutosaveName("Settings")
 
     convenience init() {
         // Toolbar-style tabs are what macOS apps use for Settings; a SwiftUI TabView in a plain
@@ -25,7 +26,7 @@ class PreferenceWindowController: NSWindowController {
         window.styleMask = [.titled, .closable]
         window.toolbarStyle = .preference
         window.setContentSize(Self.contentSize)
-        window.center()
+        window.setFrameAutosaveName(Self.windowFrame)
         self.init(window: window)
     }
 
@@ -37,6 +38,9 @@ class PreferenceWindowController: NSWindowController {
         // Activate first: a menu-bar app isn't active when its menu is used, and a window shown
         // before activation opens behind the frontmost app, needing a second click to surface.
         NSApp.activate()
+        if let window, !window.isVisible {
+            window.restoreFrame(named: Self.windowFrame)
+        }
         super.showWindow(sender)
         window?.makeKeyAndOrderFront(sender)
     }

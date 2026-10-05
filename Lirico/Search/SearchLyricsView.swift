@@ -3,6 +3,7 @@ import SwiftUI
 
 struct SearchLyricsView: View {
     @ObservedObject var viewModel: SearchLyricsViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 0) {
@@ -74,7 +75,7 @@ struct SearchLyricsView: View {
             .lineLimit(1)
             .help(failureDetails)
             .accessibilityHidden(!hasRows)
-            .animation(.default, value: statusCopy)
+            .animation(reduceMotion ? nil : .default, value: statusCopy)
     }
 
     private var statusCopy: String {

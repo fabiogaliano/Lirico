@@ -53,19 +53,11 @@ final class LyricsSyncWindowController: NSWindowController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    /// Center the panel on every open. The autosaved frame still restores the
-    /// user's chosen *size*, but the origin is always re-centered so the panel
-    /// never reappears in a screen corner (the default `(0,0)` content rect lands
-    /// bottom-left in macOS's flipped screen coordinates). `visibleFrame` excludes
-    /// the menu bar and Dock, so midX/midY give a true horizontal+vertical center.
+    /// The panel is built with a `(0,0)` content rect, which lands in a screen corner,
+    /// so it opens where the user left it, or centered.
     override func showWindow(_ sender: Any?) {
-        if let window, let screen = window.screen ?? NSScreen.main {
-            let visible = screen.visibleFrame
-            let size = window.frame.size
-            window.setFrameOrigin(NSPoint(
-                x: visible.midX - size.width / 2,
-                y: visible.midY - size.height / 2
-            ))
+        if let window, !window.isVisible {
+            window.restoreFrame(named: Self.windowFrame)
         }
         super.showWindow(sender)
         // Always reopen following the current line, even if the user had scrolled
@@ -167,6 +159,11 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
         playPauseButton.toolTip = NSLocalizedString("Play / Pause", comment: "sync")
         configureTextButton(decreaseButton, title: "−100", action: #selector(decreaseOffset))
         configureTextButton(increaseButton, title: "+100", action: #selector(increaseOffset))
+        // The titles leave out the unit and direction, which the readout between them shows.
+        decreaseButton.setAccessibilityLabel(NSLocalizedString("Show lyrics 100 ms later", comment: "sync button"))
+        increaseButton.setAccessibilityLabel(NSLocalizedString("Show lyrics 100 ms earlier", comment: "sync button"))
+        decreaseButton.toolTip = decreaseButton.accessibilityLabel()
+        increaseButton.toolTip = increaseButton.accessibilityLabel()
         configureTextButton(resetButton, title: NSLocalizedString("Reset", comment: "sync"), action: #selector(resetOffset))
         configureTextButton(doneButton, title: NSLocalizedString("Done", comment: "sync"), action: #selector(done))
         doneButton.keyEquivalent = "\r"

@@ -39,6 +39,7 @@ final class AboutWindowController: NSWindowController {
 
 struct AboutView: View {
     @State private var showAcknowledgements = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ScrollView {
@@ -120,7 +121,7 @@ struct AboutView: View {
     private var acknowledgementsCard: some View {
         VStack(spacing: 0) {
             Button {
-                withAnimation(.snappy(duration: 0.22)) { showAcknowledgements.toggle() }
+                withAnimation(reduceMotion ? nil : .snappy(duration: 0.22)) { showAcknowledgements.toggle() }
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: "chevron.right")

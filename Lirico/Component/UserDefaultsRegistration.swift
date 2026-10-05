@@ -44,6 +44,7 @@ enum UserDefaultsRegistration {
             // The lyrics window and Sync by Ear are always dark panels.
             .lyricsWindowTextColor: NSColor.white,
             .lyricsWindowHighlightColor: NSColor.controlAccentColor,
+            .lyricsWindowKeepsOnTop: true,
             .preferBilingualLyrics: isZh,
             .chineseConversionIndex: isHant ? 2 : 0,
             .desktopLyricsXPositionFactor: 0.5,

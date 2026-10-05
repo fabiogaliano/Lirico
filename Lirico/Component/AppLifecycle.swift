@@ -6,8 +6,9 @@ import ServiceManagement
 
 /// Lirico itself launching at login, independent of the helper that waits for a player.
 enum MainAppLoginItem {
+    /// On, including while macOS waits for the user to allow it.
     static var isEnabled: Bool {
-        SMAppService.mainApp.status == .enabled
+        [.enabled, .requiresApproval].contains(SMAppService.mainApp.status)
     }
 
     static func setEnabled(_ enabled: Bool) {
@@ -20,6 +21,19 @@ enum MainAppLoginItem {
         } catch {
             log("Failed to \(enabled ? "register" : "unregister") Lirico as a login item. reason: \(error.localizedDescription)")
         }
+    }
+}
+
+/// macOS can register a login item yet hold it back until the user allows it in
+/// System Settings › General › Login Items; nothing else reports that.
+enum LoginItemApproval {
+    static var isPending: Bool {
+        SMAppService.mainApp.status == .requiresApproval
+            || SMAppService.loginItem(identifier: lyricsXHelperIdentifier).status == .requiresApproval
+    }
+
+    static func openSystemSettings() {
+        SMAppService.openSystemSettingsLoginItems()
     }
 }
 

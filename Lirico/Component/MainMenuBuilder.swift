@@ -311,6 +311,10 @@ enum MainMenuBuilder {
         stepper.increment = 100
         stepper.valueWraps = false
 
+        let offsetLabel = NSLocalizedString("Song offset in milliseconds", comment: "accessibility label of the menu's offset field and stepper")
+        textField.setAccessibilityLabel(offsetLabel)
+        stepper.setAccessibilityLabel(offsetLabel)
+
         let unit = NSTextField(labelWithString: NSLocalizedString("ms", comment: "milliseconds unit"))
         unit.translatesAutoresizingMaskIntoConstraints = false
         unit.lineBreakMode = .byClipping
