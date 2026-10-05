@@ -9,7 +9,6 @@ xcuserdata
 # Pin the app's dependency graph (several deps track branches).
 !**/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 .claude
-.derivedData/
 build/
 .pi/
 docs/tmp/
