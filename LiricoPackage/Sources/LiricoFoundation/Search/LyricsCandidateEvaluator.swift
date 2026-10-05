@@ -79,13 +79,19 @@ private let decorationKeywords: Set<String> = [
     "radio", "extended", "original", "soundtrack", "ost", "anniversary",
 ]
 
-private let trailingDecorationPatterns: [String] = [
+/// Words that make a segment name a different recording with its own lyrics, so it stays part
+/// of the title even next to decoration ("(Reprise / Remastered 2011)", "(Intro Version)").
+private let distinctRecordingKeywords: Set<String> = ["reprise", "interlude", "intro", "outro"]
+
+private let trailingDecorationPatterns: [NSRegularExpression] = [
     #"\s*[\(\[]([^\(\)\[\]]*)[\)\]]\s*$"#,
     #"\s+[-–—]\s+([^-–—]*)$"#,
-]
+].map { try! NSRegularExpression(pattern: $0) }
 
 private func isDecoration(_ segment: String) -> Bool {
-    normalizedTokens(segment).contains { token in
+    let tokens = normalizedTokens(segment)
+    guard !tokens.contains(where: distinctRecordingKeywords.contains) else { return false }
+    return tokens.contains { token in
         if decorationKeywords.contains(token) { return true }
         // A bare release year: "(2014 Remaster)", "- 2011".
         return token.count == 4 && (token.hasPrefix("19") || token.hasPrefix("20")) && token.allSatisfy(\.isNumber)
@@ -97,9 +103,8 @@ func strippedTrailingDecorations(_ title: String) -> String? {
     var current = title.trimmingCharacters(in: .whitespacesAndNewlines)
     var didStrip = false
     stripping: while true {
-        for pattern in trailingDecorationPatterns {
-            guard let regex = try? NSRegularExpression(pattern: pattern),
-                  let match = regex.firstMatch(in: current, range: NSRange(current.startIndex..., in: current)),
+        for regex in trailingDecorationPatterns {
+            guard let match = regex.firstMatch(in: current, range: NSRange(current.startIndex..., in: current)),
                   let segmentRange = Range(match.range(at: 1), in: current),
                   let fullRange = Range(match.range, in: current),
                   isDecoration(String(current[segmentRange])) else {
@@ -127,57 +132,13 @@ private func normalizedTitleVariants(_ title: String) -> [String] {
     return variants
 }
 
-// MARK: - Version-marker stripping
-
-/// Genuine version/variant markers to strip when computing a "core title" for
-/// strong-variant matching.  Stripping is additive — the full normalized title
-/// is still checked first for exact matches.
-///
-/// Only real format/variant descriptors belong here.  Artist collaboration
-/// separators (feat./ft./featuring/with/and) are NOT included because they
-/// appear in real song titles (e.g. "you and i", "you and me") and would make
-/// different songs produce the same core token set, causing false strong matches.
-/// Those separators are handled in the artist-relation logic instead.
-// Only single-token markers belong here. Multi-word markers such as
-// "radio edit", "original mix", "sped up", and "speed up" are unreachable
-// because coreTokens() matches one token at a time — they were stripped out
-// in SR-08. The remaining entries are all genuine single-word format/variant
-// descriptors.
-private let versionMarkers: [String] = [
-    "acoustic", "live", "remix", "remaster", "remastered",
-    "instrumental", "karaoke", "radio", "edit",
-    "extended", "original", "version", "ver",
-    "bonus", "demo", "reprise", "interlude", "intro", "outro",
-    "slowed", "reverb", "nightcore",
-    "stereo", "mono",
-]
-
-/// Returns the "core" token set by stripping separator-delimited suffixes that
-/// match a known version marker and all tokens following them.
-///
-/// Example: ["lacy", "acoustic"] → ["lacy"]
-func coreTokens(_ tokens: [String]) -> [String] {
-    // Version/variant info is normally appended after a separator such as "-",
-    // "(", "[".  Since separators are collapsed to spaces by normalisation,
-    // look for the *first* token that is a pure version marker and drop it and
-    // everything after it.  Short titles (≤1 token) are returned unchanged
-    // because there is nothing to strip.
-    guard tokens.count > 1 else { return tokens }
-    for (idx, token) in tokens.enumerated() where idx > 0 {
-        if versionMarkers.contains(token) {
-            return Array(tokens[..<idx])
-        }
-    }
-    return tokens
-}
-
 // MARK: - Title matching
 
 /// Result of a title comparison.
 enum TitleMatchLevel {
     /// Fully identical after normalization.
     case exact
-    /// Core tokens are identical (variant suffix stripped).
+    /// Identical once trailing collaboration or release decoration is removed.
     case strong
     /// One title's tokens all appear as whole tokens in the other (loose overlap).
     case loose
@@ -189,9 +150,10 @@ enum TitleMatchLevel {
 ///
 /// Matching rules:
 /// 1. Exact: normalized strings are identical.
-/// 2. Strong: titles differ only by a trailing collaboration suffix
-///    (e.g. "song" vs "song (feat. artist)") OR core tokens are identical
-///    (e.g. "lacy" matches "lacy acoustic").
+/// 2. Strong: titles differ only by trailing collaboration or release-decoration
+///    suffixes set off by brackets or a dash (e.g. "song" vs "song (feat. artist)",
+///    "lacy" vs "lacy - Acoustic"). The same words inside the title proper are part
+///    of the name: "Video Killed the Radio Star" is not "Video Killed the".
 /// 3. Loose: all tokens of one title appear as whole tokens in the other.
 ///    For single-token queries (short one-word titles) the query token must
 ///    appear verbatim in the candidate token set — no substring/fuzzy matching.
@@ -208,17 +170,10 @@ func titleMatchLevel(query: String, candidate: String) -> TitleMatchLevel {
     // 1. Exact
     if qNorm == cNorm { return .exact }
 
-    // 2a. Strong: differ only by trailing collaboration or release-decoration suffixes.
+    // 2. Strong: differ only by trailing collaboration or release-decoration suffixes.
     let qVariants = Set(normalizedTitleVariants(query))
     let cVariants = Set(normalizedTitleVariants(candidate))
     if !qVariants.isDisjoint(with: cVariants) { return .strong }
-
-    // 2b. Strong: core tokens identical
-    let qCore = coreTokens(qTokens)
-    let cCore = coreTokens(cTokens)
-    if !qCore.isEmpty, !cCore.isEmpty, qCore.joined(separator: " ") == cCore.joined(separator: " ") {
-        return .strong
-    }
 
     // 3. Loose: one title's tokens all appear as whole tokens in the other. Checked both
     // ways because the player's title is as likely to be the longer one as the provider's.
@@ -243,7 +198,7 @@ func titleScore(query: String, candidate: String, level: TitleMatchLevel) -> Dou
 
     case .strong:
         // Deduct for extra tokens in the candidate beyond the core query
-        let qCore = strippedTrailingDecorations(query).map(normalizedTokens) ?? coreTokens(qTokens)
+        let qCore = strippedTrailingDecorations(query).map(normalizedTokens) ?? qTokens
         let extraTokens = cTokens.count - qCore.count
         // Band: 88–99 (keeps strong well below exact's 100)
         let penalty = Double(max(0, extraTokens)) * 3.0
@@ -343,6 +298,12 @@ func splitArtistTokens(_ artist: String) -> (primary: String, all: [String]) {
 func artistRelation(query: String, candidate: String) -> ArtistRelation {
     let qKey = artistComparisonKey(query)
     if !qKey.isEmpty, qKey == artistComparisonKey(candidate) { return .exactPrimary }
+    // Punctuation inside a name ("AC/DC", "t.A.T.u.") is spelled differently, or dropped,
+    // from one provider to the next, and splitting on it would invent collaborators.
+    let qLetters = foldedForMatching(query).filter { $0.isLetter || $0.isNumber }
+    if !qLetters.isEmpty, qLetters == foldedForMatching(candidate).filter({ $0.isLetter || $0.isNumber }) {
+        return .exactPrimary
+    }
 
     let (qPrimary, qAll) = splitArtistTokens(query)
     let (cPrimary, cAll) = splitArtistTokens(candidate)

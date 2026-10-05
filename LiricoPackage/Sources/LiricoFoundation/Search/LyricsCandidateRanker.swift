@@ -3,22 +3,17 @@ import Foundation
 // MARK: - LyricsCandidateRankingConfiguration
 
 /// Tunable constants for the collection ranker.
-///
-/// These default values implement the plan's recommended thresholds.
-/// App-side code (`SearchSettings`) should expose a mapper that reads
-/// user preferences and produces a `LyricsCandidateRankingConfiguration`.
 public struct LyricsCandidateRankingConfiguration: Equatable, Sendable {
     /// Whether source priority ordering should be applied at all.
     public var sourcePriorityEnabled: Bool
     /// Ordered list of source names from most to least preferred.
     /// Sources not in the list are sorted after listed sources.
     public var sourcePriorityOrder: [String]
-    /// A karaoke candidate may beat the best line-synced result only when its
-    /// `overallScore` is within this many points of the line-synced result.
+    /// In title-based modes, karaoke ranks above the line-synced results in its tier unless its
+    /// `overallScore` trails the tier's best line-synced score by more than this many points.
     public var karaokePreferenceWindow: Double
-    /// Source priority is applied only when two candidates' `overallScore`
-    /// values differ by at most this many points and they share the same
-    /// tier/visibility/syncKind outcome.
+    /// Source priority only reorders equally-ranked candidates (same tier, same side of the
+    /// karaoke preference) that score within this many points of the best of them.
     public var nearEqualSourcePriorityWindow: Double
     /// Automatic search may select a loose-fallback candidate only when its
     /// `overallScore` is at least this value.
@@ -52,11 +47,10 @@ public struct LyricsCandidateRanker: Sendable {
 
     /// Returns the candidates in ranked order according to the mode and configuration.
     ///
-    /// - Rejected candidates are excluded.
-    /// - Loose-fallback candidates are excluded when any normal candidate exists
-    ///   (title-based modes); the caller controls showing them via the mode.
-    /// - Karaoke candidates are promoted when within `karaokePreferenceWindow` of the
-    ///   best line-synced score for the same tier.
+    /// - Rejected candidates are excluded, and unlikely ones follow all the others.
+    /// - In title-based modes, loose-fallback candidates are listed only when no normal
+    ///   candidate exists.
+    /// - Karaoke ranks above line-synced within a tier, subject to `karaokePreferenceWindow`.
     /// - Source priority is applied only among near-equal candidates.
     public func rankedCandidates(
         _ candidates: [EvaluatedLyricsCandidate],
@@ -96,10 +90,8 @@ public struct LyricsCandidateRanker: Sendable {
             })
 
         case .artistOnly:
-            // For artist-only, all non-rejected normal/catalog candidates are eligible.
-            return ranked.first(where: {
-                $0.evaluation.visibility == .normal || $0.evaluation.visibility == .looseFallback
-            })
+            // Every song in the artist's catalog is a valid pick; unlikely ones are by someone else.
+            return ranked.first { $0.evaluation.visibility == .normal }
         }
     }
 
@@ -133,20 +125,20 @@ public struct LyricsCandidateRanker: Sendable {
         _ candidates: [EvaluatedLyricsCandidate],
         configuration: LyricsCandidateRankingConfiguration
     ) -> [EvaluatedLyricsCandidate] {
-        // Karaoke promotion is measured against the best line-synced score of the
+        // Karaoke preference is measured against the best line-synced score of the
         // candidate's own tier; a stronger tier's score says nothing about this one.
         var bestLineSyncedScoreByTier: [Int: Double] = [:]
         for candidate in candidates where candidate.evaluation.syncKind == .lineSynced {
             let tier = candidate.evaluation.matchTier.titleBasedPriority
             bestLineSyncedScoreByTier[tier] = max(bestLineSyncedScoreByTier[tier] ?? 0, candidate.evaluation.overallScore)
         }
-        let effectiveScores = Dictionary(uniqueKeysWithValues: candidates.map { candidate in
-            (candidate.id, effectiveTitleScore(
-                candidate: candidate,
-                bestLineSyncedScore: bestLineSyncedScoreByTier[candidate.evaluation.matchTier.titleBasedPriority] ?? 0,
+        let preferredKaraoke = Set(candidates.filter { candidate in
+            isPreferredKaraoke(
+                candidate,
+                bestLineSyncedScore: bestLineSyncedScoreByTier[candidate.evaluation.matchTier.titleBasedPriority],
                 configuration: configuration
-            ))
-        })
+            )
+        }.map(\.id))
 
         let sorted = candidates.sorted { a, b in
             let ae = a.evaluation
@@ -158,11 +150,11 @@ public struct LyricsCandidateRanker: Sendable {
             if aPriority != bPriority { return aPriority > bPriority }
 
             // 2. Karaoke preference within the same tier.
-            let aEffectiveScore = effectiveScores[a.id] ?? ae.overallScore
-            let bEffectiveScore = effectiveScores[b.id] ?? be.overallScore
-            if aEffectiveScore != bEffectiveScore { return aEffectiveScore > bEffectiveScore }
+            let aPreferred = preferredKaraoke.contains(a.id)
+            let bPreferred = preferredKaraoke.contains(b.id)
+            if aPreferred != bPreferred { return aPreferred }
 
-            // 3. Overall score (tiebreaker beyond karaoke promotion)
+            // 3. Overall score
             if ae.overallScore != be.overallScore { return ae.overallScore > be.overallScore }
 
             // 4. Duration tiebreaker
@@ -176,46 +168,33 @@ public struct LyricsCandidateRanker: Sendable {
             return a.arrivalIndex < b.arrivalIndex
         }
 
-        // 6. Source priority among near-equal candidates of the same tier.
+        // 6. Source priority among near-equal candidates of the same tier. Word timing
+        //    matters more than which source supplied it, so priority never crosses the
+        //    karaoke preference.
         return applyingSourcePriority(
             to: sorted,
             configuration: configuration,
-            sameGroup: { $0.evaluation.matchTier.titleBasedPriority == $1.evaluation.matchTier.titleBasedPriority },
-            score: { effectiveScores[$0.id] ?? $0.evaluation.overallScore },
-            outranksSource: { candidate in
-                // A karaoke promotion is an explicit user preference; source priority must not undo it.
-                (effectiveScores[candidate.id] ?? 0) > candidate.evaluation.overallScore
+            sameGroup: { a, b in
+                a.evaluation.matchTier.titleBasedPriority == b.evaluation.matchTier.titleBasedPriority
+                    && preferredKaraoke.contains(a.id) == preferredKaraoke.contains(b.id)
             }
         )
     }
 
-    /// Computes an effective score that incorporates karaoke promotion.
+    /// Whether a karaoke candidate ranks above every line-synced candidate in its tier.
     ///
-    /// A karaoke result within `karaokePreferenceWindow` points of the best line-synced
-    /// score floats to just above that best score, so it sorts first within the tier.
-    /// When the gap exceeds the window the real score is used and the line-synced wins.
-    ///
-    /// The promotion only affects sort position within a tier: tier/visibility is the
-    /// dominant sort key (checked before this in `sortTitleBased`), so a karaoke
-    /// candidate in a lower tier cannot jump above a line-synced candidate in a higher
-    /// tier via this promotion.
-    private func effectiveTitleScore(
-        candidate: EvaluatedLyricsCandidate,
-        bestLineSyncedScore: Double,
+    /// Only a lower bound applies: a karaoke result scoring at or above the best
+    /// line-synced one must be preferred too, or a better karaoke result could rank
+    /// below a worse one. Tier stays the dominant sort key, so this never lifts a
+    /// karaoke candidate above a stronger tier.
+    private func isPreferredKaraoke(
+        _ candidate: EvaluatedLyricsCandidate,
+        bestLineSyncedScore: Double?,
         configuration: LyricsCandidateRankingConfiguration
-    ) -> Double {
-        let score = candidate.evaluation.overallScore
-        if candidate.evaluation.syncKind == .karaoke {
-            let gap = bestLineSyncedScore - score
-            // gap must be non-negative (candidate is at most equal to best line-synced)
-            // and within the configured window.
-            if gap >= 0, gap <= configuration.karaokePreferenceWindow {
-                // Promote to just above the best line-synced score so karaoke sorts first.
-                // The epsilon (0.001) is small enough to never cross a score band boundary.
-                return bestLineSyncedScore + 0.001
-            }
-        }
-        return score
+    ) -> Bool {
+        guard candidate.evaluation.syncKind == .karaoke else { return false }
+        guard let bestLineSyncedScore else { return true }
+        return bestLineSyncedScore - candidate.evaluation.overallScore <= configuration.karaokePreferenceWindow
     }
 
     // MARK: - Artist-only ranking
@@ -289,9 +268,7 @@ public struct LyricsCandidateRanker: Sendable {
                     && a.evaluation.visibility == b.evaluation.visibility
                     && a.evaluation.syncKind == b.evaluation.syncKind
                     && titleKey(a) == titleKey(b)
-            },
-            score: { $0.evaluation.overallScore },
-            outranksSource: { _ in false }
+            }
         )
     }
 
@@ -306,9 +283,7 @@ public struct LyricsCandidateRanker: Sendable {
     private func applyingSourcePriority(
         to sorted: [EvaluatedLyricsCandidate],
         configuration: LyricsCandidateRankingConfiguration,
-        sameGroup: (EvaluatedLyricsCandidate, EvaluatedLyricsCandidate) -> Bool,
-        score: (EvaluatedLyricsCandidate) -> Double,
-        outranksSource: (EvaluatedLyricsCandidate) -> Bool
+        sameGroup: (EvaluatedLyricsCandidate, EvaluatedLyricsCandidate) -> Bool
     ) -> [EvaluatedLyricsCandidate] {
         guard configuration.sourcePriorityEnabled, !sorted.isEmpty else { return sorted }
 
@@ -320,13 +295,11 @@ public struct LyricsCandidateRanker: Sendable {
             var clusterEnd = clusterStart + 1
             while clusterEnd < sorted.count,
                   sameGroup(leader, sorted[clusterEnd]),
-                  score(leader) - score(sorted[clusterEnd]) <= configuration.nearEqualSourcePriorityWindow {
+                  leader.evaluation.overallScore - sorted[clusterEnd].evaluation.overallScore
+                      <= configuration.nearEqualSourcePriorityWindow {
                 clusterEnd += 1
             }
             let cluster = sorted[clusterStart..<clusterEnd].enumerated().sorted { lhs, rhs in
-                let lhsOutranks = outranksSource(lhs.element)
-                let rhsOutranks = outranksSource(rhs.element)
-                if lhsOutranks != rhsOutranks { return lhsOutranks }
                 let lhsRank = sourceRank(for: lhs.element.lyrics.metadata.service, in: configuration.sourcePriorityOrder)
                 let rhsRank = sourceRank(for: rhs.element.lyrics.metadata.service, in: configuration.sourcePriorityOrder)
                 if lhsRank != rhsRank { return lhsRank < rhsRank }

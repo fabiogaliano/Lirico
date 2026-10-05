@@ -26,6 +26,50 @@ struct DecoratedQueryTitleTests {
         #expect(titleMatchLevel(query: "Song (Part II)", candidate: "Song") != .exact)
     }
 
+    @Test("Reprises, intros, outros and interludes are different recordings, not decorations", arguments: [
+        ("Lover (Reprise)", "Lover"),
+        ("Lover - Reprise", "Lover"),
+        ("Song (Reprise / Remastered 2011)", "Song"),
+        ("Song (Intro Version)", "Song"),
+        ("Love Intro", "Love Interlude"),
+        ("Song (Outro)", "Song"),
+    ])
+    func distinctRecordingsStayApart(query: String, candidate: String) {
+        for (q, c) in [(query, candidate), (candidate, query)] {
+            let level = titleMatchLevel(query: q, candidate: c)
+            #expect(level != .strong && level != .exact, "\(q) vs \(c) was \(level)")
+        }
+    }
+
+    @Test("Decoration around a reprise is still stripped")
+    func decoratedReprise() {
+        #expect(titleMatchLevel(query: "Lover (Reprise) [2019 Remaster]", candidate: "Lover (Reprise)") == .strong)
+        #expect(titleMatchLevel(query: "Lover (Reprise)", candidate: "Lover (Reprise) - Live") == .strong)
+    }
+
+    @Test("Decoration words inside the title proper are part of the name", arguments: [
+        ("Video Killed the Radio Star", "Video Killed the Radio"),
+        ("lacy", "lacy acoustic"),
+    ])
+    func unseparatedWordsAreNotDecoration(query: String, candidate: String) {
+        for (q, c) in [(query, candidate), (candidate, query)] {
+            let level = titleMatchLevel(query: q, candidate: c)
+            #expect(level != .strong && level != .exact, "\(q) vs \(c) was \(level)")
+        }
+    }
+
+    @Test("A reprise found on its own is only a loose fallback for the song it reprises")
+    func repriseIsLooseFallback() {
+        let lyrics = Lyrics("[ti:Lover (Reprise)]\n[ar:Taylor Swift]\n[00:01.000]line one\n[00:05.000]line two")!
+        let e = LyricsCandidateEvaluator().evaluate(
+            lyrics: lyrics,
+            mode: .titleAndArtist(title: "Lover", artist: "Taylor Swift"),
+            requestedDuration: nil, requestedAlbum: nil
+        )
+        #expect(e.matchTier == .looseTitleArtist)
+        #expect(e.visibility == .looseFallback)
+    }
+
     @Test("Loose matching works when the query is the longer title")
     func looseIsBidirectional() {
         #expect(titleMatchLevel(query: "lacy the redemption", candidate: "lacy") == .loose)
@@ -88,6 +132,14 @@ struct ArtistSeparatorTests {
     func wholeNameComparison() {
         #expect(artistRelation(query: "Florence + The Machine", candidate: "Florence and the Machine") == .exactPrimary)
         #expect(artistRelation(query: "Florence and the Machine", candidate: "Florence + The Machine") == .exactPrimary)
+    }
+
+    @Test("Names spelled with or without inner punctuation are the same artist", arguments: [
+        ("AC/DC", "AC-DC"), ("AC/DC", "ACDC"), ("AC/DC", "AC DC"), ("t.A.T.u.", "Tatu"),
+    ])
+    func innerPunctuation(query: String, candidate: String) {
+        #expect(artistRelation(query: query, candidate: candidate) == .exactPrimary)
+        #expect(artistRelation(query: candidate, candidate: query) == .exactPrimary)
     }
 
     @Test("Punctuation-only artist names still match themselves")

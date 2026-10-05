@@ -77,14 +77,6 @@ struct NearEqualSourcePriorityWindowTests {
         #expect(ranked.map(\.lyrics.metadata.service) == ["Kugou", "QQMusic"])
     }
 
-    @Test("Source priority does not undo a karaoke promotion")
-    func karaokePromotionSurvives() {
-        let lineSynced = candidate(score: 98, service: "QQMusic", arrivalIndex: 0)
-        let karaoke = candidate(score: 97, service: "Kugou", syncKind: .karaoke, arrivalIndex: 1)
-        let ranked = ranker.rankedCandidates([lineSynced, karaoke], mode: titleMode, configuration: priority)
-        #expect(ranked.first?.evaluation.syncKind == .karaoke)
-    }
-
     @Test("Artist-only duplicates: near-equal preferred source first, regardless of input order", arguments: [
         [0, 1, 2], [2, 1, 0], [1, 2, 0],
     ])
@@ -97,6 +89,51 @@ struct NearEqualSourcePriorityWindowTests {
         ]
         let ranked = ranker.rankedCandidates(order.map { all[$0] }, mode: mode, configuration: priority)
         #expect(ranked.map(\.lyrics.metadata.service) == ["NetEase", "Kugou", "QQMusic"])
+    }
+}
+
+@Suite("Karaoke Preference Under Source Priority")
+struct KaraokePreferenceUnderSourcePriorityTests {
+    @Test("Karaoke on a less preferred source ranks first whether it scores just below or above line-synced", arguments: [
+        (karaoke: 97.0, lineSynced: 98.0),
+        (karaoke: 98.0, lineSynced: 97.0),
+    ])
+    func karaokeFirstEitherWay(scores: (karaoke: Double, lineSynced: Double)) {
+        let lineSynced = candidate(score: scores.lineSynced, service: "QQMusic", arrivalIndex: 0)
+        let karaoke = candidate(score: scores.karaoke, service: "Kugou", syncKind: .karaoke, arrivalIndex: 1)
+        let ranked = ranker.rankedCandidates([lineSynced, karaoke], mode: titleMode, configuration: priority)
+        #expect(ranked.map(\.lyrics.metadata.service) == ["Kugou", "QQMusic"])
+    }
+
+    @Test("Raising a karaoke score never lowers its rank")
+    func karaokeRankIsMonotonic() {
+        let ranks = stride(from: 80.0, through: 100.0, by: 0.5).map { score in
+            let all = [
+                candidate(score: 95, service: "QQMusic", arrivalIndex: 0),
+                candidate(score: 93.5, service: "NetEase", arrivalIndex: 1),
+                candidate(score: score, service: "Kugou", syncKind: .karaoke, arrivalIndex: 2),
+            ]
+            let ranked = ranker.rankedCandidates(all, mode: titleMode, configuration: priority)
+            return ranked.firstIndex { $0.evaluation.syncKind == .karaoke } ?? -1
+        }
+        #expect(ranks == ranks.sorted(by: >))
+    }
+
+    @Test("Preferred source can't lift a karaoke result over a much better karaoke result")
+    func sourcePriorityAmongKaraokeKeepsTheWindow() {
+        let lineSynced = candidate(score: 98, service: "Kugou", arrivalIndex: 0)
+        let betterKaraoke = candidate(score: 97, service: "NetEase", syncKind: .karaoke, arrivalIndex: 1)
+        let worseKaraoke = candidate(score: 89, service: "QQMusic", syncKind: .karaoke, arrivalIndex: 2)
+        let ranked = ranker.rankedCandidates([lineSynced, worseKaraoke, betterKaraoke], mode: titleMode, configuration: priority)
+        #expect(ranked.map(\.lyrics.metadata.service) == ["NetEase", "QQMusic", "Kugou"])
+    }
+
+    @Test("Karaoke trailing by more than the window competes with line-synced on score")
+    func karaokeOutsideWindowIsOrdinary() {
+        let lineSynced = candidate(score: 98, service: "Kugou", arrivalIndex: 0)
+        let karaoke = candidate(score: 87, service: "QQMusic", syncKind: .karaoke, arrivalIndex: 1)
+        let ranked = ranker.rankedCandidates([karaoke, lineSynced], mode: titleMode, configuration: priority)
+        #expect(ranked.map(\.lyrics.metadata.service) == ["Kugou", "QQMusic"])
     }
 }
 

@@ -184,7 +184,7 @@ struct TitleAndArtistEvaluatorTests {
         #expect(e.visibility == .rejected)
     }
 
-    @Test("lacy - acoustic → strong variant (core token match)")
+    @Test("lacy - acoustic → strong variant (release decoration stripped)")
     func lacyAcoustic_isStrong() {
         let l = makeLyrics(title: "lacy - acoustic", artist: "Olivia Rodrigo")
         let e = evaluator.evaluate(
@@ -298,11 +298,11 @@ struct TitleAndArtistEvaluatorTests {
         #expect(e.matchTier == .strongTitleArtist)
     }
 
-    /// FIX 2: exactPrimary band (96–100) must be strictly above exactNonPrimary band (92–95),
+    /// exactPrimary band (96–100) must be strictly above exactNonPrimary band (92–95),
     /// so a primary artist always ranks above a non-primary/featured artist match for the same
     /// title, even when the non-primary has perfect duration+album tiebreakers.
-    @Test("FIX2: Exact primary artist always ranks above exact non-primary even with better tiebreakers")
-    func fix2_primaryAlwaysBeatsNonPrimary() {
+    @Test("Exact primary artist always ranks above exact non-primary even with better tiebreakers")
+    func primaryAlwaysBeatsNonPrimary() {
         let evaluator = LyricsCandidateEvaluator()
         let ranker = LyricsCandidateRanker()
         let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
@@ -379,13 +379,13 @@ struct TitleAndArtistEvaluatorTests {
         #expect(e.overallScore.isFinite)
     }
 
-    // MARK: - Case 14: Album match helps only as a tiebreaker
+    // MARK: - Album match helps only as a tiebreaker
 
-    /// Case 14: Album score is a positive tiebreaker — the evaluator records a
+    /// Album score is a positive tiebreaker — the evaluator records a
     /// higher albumScore when the album matches, which the ranker uses as a
     /// sort step after duration. This test verifies that albumScore is correctly
     /// set (not overall score, which can be clamped to the band floor).
-    @Test("Case 14: Album match gives a higher albumScore than album mismatch within same tier")
+    @Test("Album match gives a higher albumScore than album mismatch within same tier")
     func albumMatch_higherAlbumScore() {
         let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
         // Same title+artist → same tier; only album differs
@@ -404,8 +404,8 @@ struct TitleAndArtistEvaluatorTests {
                 "album match (albumScore=\(eWithAlbum.albumScore)) must exceed album mismatch (albumScore=\(eWrongAlbum.albumScore))")
     }
 
-    /// Case 14 (continued): Album is a tiebreaker only — it does not affect match tier.
-    @Test("Case 14: Album match does not change the match tier")
+    /// Album is a tiebreaker only — it does not affect match tier.
+    @Test("Album match does not change the match tier")
     func albumMatch_doesNotChangeTier() {
         let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
         let withAlbum    = makeLyrics(title: "lacy", artist: "Olivia Rodrigo", album: "GUTS")
@@ -418,10 +418,10 @@ struct TitleAndArtistEvaluatorTests {
         #expect(eWith.visibility == eWithout.visibility)
     }
 
-    // MARK: - Case 15: Album mismatch cannot make a wrong song valid
+    // MARK: - Album mismatch cannot make a wrong song valid
 
-    /// Case 15: A perfect album match does not rescue a wrong-title candidate from rejection.
-    @Test("Case 15: Perfect album match cannot make a wrong-title candidate valid")
+    /// A perfect album match does not rescue a wrong-title candidate from rejection.
+    @Test("Perfect album match cannot make a wrong-title candidate valid")
     func albumMatch_cannotRescueWrongTitle() {
         let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
         // Wrong title, matching album — album should not change the rejection outcome
@@ -437,8 +437,8 @@ struct TitleAndArtistEvaluatorTests {
         #expect(e.rejectionReason == .titleMismatch)
     }
 
-    /// Case 15 (continued): Album match cannot make a wrong-artist candidate valid.
-    @Test("Case 15: Perfect album match cannot make a wrong-artist candidate normal")
+    /// Album match cannot make a wrong-artist candidate valid.
+    @Test("Perfect album match cannot make a wrong-artist candidate normal")
     func albumMatch_cannotRescueWrongArtist() {
         let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
         // Correct title but completely wrong artist — album matches.
@@ -455,17 +455,16 @@ struct TitleAndArtistEvaluatorTests {
     }
 }
 
-// MARK: - Version marker / core-title stripping tests (FIX 4)
+// MARK: - Title variant matching
 
-@Suite("CoreTitle Stripping")
-struct CoreTitleStrippingTests {
+@Suite("Title Variants")
+struct TitleVariantTests {
     let evaluator = LyricsCandidateEvaluator()
 
-    /// FIX 4: "and" must no longer be in versionMarkers.
-    /// "you and i" vs "you and me" share only "you"; without "and" being stripped,
-    /// they produce different core tokens and must NOT be a strong/exact match.
-    @Test("FIX4: 'you and i' vs 'you and me' are NOT exact or strong — different songs")
-    func fix4_youAndI_vs_youAndMe_notExactOrStrong() {
+    /// "and" appears in real titles, so it is never stripped: "you and i" and
+    /// "you and me" are different songs.
+    @Test("'you and i' vs 'you and me' are NOT exact or strong — different songs")
+    func youAndI_vs_youAndMe_notExactOrStrong() {
         let mode = LyricsSearchMode.titleAndArtist(title: "you and i", artist: "Olivia Rodrigo")
         let candidate = makeLyrics(title: "you and me", artist: "Olivia Rodrigo")
         let e = evaluator.evaluate(lyrics: candidate, mode: mode, requestedDuration: nil, requestedAlbum: nil)
@@ -476,10 +475,9 @@ struct CoreTitleStrippingTests {
                 "'you and me' must not be a strong match for 'you and i' (different songs)")
     }
 
-    /// FIX 4: Genuine variant markers (acoustic) must still strip correctly.
-    /// "lacy" vs "lacy - acoustic" → strong (core tokens identical after stripping "acoustic").
-    @Test("FIX4: 'lacy' vs 'lacy - acoustic' is still STRONG (acoustic stripping preserved)")
-    func fix4_lacyAcoustic_stillStrong() {
+    /// A dash-separated release marker is decoration, so "lacy - acoustic" is a strong variant of "lacy".
+    @Test("'lacy' vs 'lacy - acoustic' is STRONG")
+    func lacyDashAcoustic_isStrong() {
         let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
         let candidate = makeLyrics(title: "lacy - acoustic", artist: "Olivia Rodrigo")
         let e = evaluator.evaluate(lyrics: candidate, mode: mode, requestedDuration: nil, requestedAlbum: nil)
@@ -488,17 +486,16 @@ struct CoreTitleStrippingTests {
         #expect(e.visibility == .normal)
     }
 
-    /// FIX 4: "feat" must no longer be in versionMarkers.
-    /// A title like "song feat collaborator" would incorrectly strip to "song" otherwise.
-    @Test("FIX4: title containing 'feat' is not stripped — no false core equivalence")
-    func fix4_featInTitle_notStripped() {
+    /// "feat" not set off by brackets or a dash is part of the title.
+    @Test("Title containing a bare 'feat' is not stripped — no false equivalence")
+    func featInTitle_notStripped() {
         let mode = LyricsSearchMode.titleAndArtist(title: "you feat me", artist: "Olivia Rodrigo")
         let exact = makeLyrics(title: "you feat me", artist: "Olivia Rodrigo")
         let other = makeLyrics(title: "you feat them", artist: "Olivia Rodrigo")
         let eExact = evaluator.evaluate(lyrics: exact, mode: mode, requestedDuration: nil, requestedAlbum: nil)
         let eOther = evaluator.evaluate(lyrics: other, mode: mode, requestedDuration: nil, requestedAlbum: nil)
         #expect(eExact.matchTier == .exactTitleArtist, "'you feat me' must exactly match itself")
-        // "you feat them" must not be strong (they produce different core tokens without stripping)
+        // "you feat them" must not be strong
         #expect(eOther.matchTier != .strongTitleArtist,
                 "'you feat them' must not be strong variant of 'you feat me'")
     }

@@ -3,20 +3,19 @@
 /// Decides whether a remote candidate may replace already-displayed local
 /// line-synced lyrics during automatic search.
 ///
-/// Karaoke-timed local lyrics never reach this function: the app keeps them
-/// without searching (`LocalLyrics.resolve`). It only governs the
-/// line-synced-local case.
+/// Karaoke-timed local lyrics never reach this function: `LocalSearchPlan` skips
+/// the remote search for them, since no source offers better than word timing.
 ///
-/// Rules (SR-07 / DEC-009):
+/// Rules:
 /// - The remote candidate must be `.normal` visibility AND `.exactTitleArtist`
 ///   or `.strongTitleArtist` tier; otherwise NO upgrade.
 /// - If the candidate is karaoke: upgrade is allowed when
-///   `localScore − candidateScore ≤ karaokePreferenceWindow`.
-///   A negative gap (candidate scores higher than local) always upgrades.
+///   `localScore − candidateScore ≤ karaokePreferenceWindow`, the same preference
+///   the ranker applies. A negative gap (candidate scores higher than local) always upgrades.
 /// - If the candidate is line-synced: upgrade is allowed only when
 ///   `candidateScore ≥ localScore + 5` (materially better).
 /// - Source priority cannot force a local replacement.
-public func shouldRemoteUpgradeLocal(
+func shouldRemoteUpgradeLocal(
     candidate: LyricsCandidateEvaluation,
     local: LyricsCandidateEvaluation,
     configuration: LyricsCandidateRankingConfiguration

@@ -62,16 +62,11 @@ private func evaluate(
     evaluator.evaluate(lyrics: lyrics, mode: mode, requestedDuration: duration, requestedAlbum: album)
 }
 
-// MARK: - Case 16: Local karaoke not replaced
+// MARK: - Loose and unlikely remotes
 
-@Suite("Local Upgrade Policy — Case 16: Local karaoke not replaced")
-struct LocalKaraokeNotReplacedTests {
-    // The upstream guard in LyricsSession.currentTrackChanged returns early when
-    // local lyrics are karaoke-timed, so shouldRemoteUpgradeLocal is never reached
-    // for a karaoke-local case. This test verifies that the policy function itself
-    // correctly handles weak/loose/unlikely remote candidates — confirming the function
-    // is not the wrong place to put the karaoke-local short-circuit.
-
+// Local karaoke never reaches this policy; `LocalSearchPlanTests` covers that it isn't searched.
+@Suite("Local Upgrade Policy — loose and unlikely remotes")
+struct LocalLooseOrUnlikelyRemoteTests {
     @Test("Loose/weak remote cannot replace local line-synced (policy rejects non-exact/strong tier)")
     func loose_remote_cannot_replace_local() {
         // local: a well-matched line-synced candidate
@@ -112,9 +107,9 @@ struct LocalKaraokeNotReplacedTests {
     }
 }
 
-// MARK: - Case 17: Local line-synced replaced by strong karaoke within threshold
+// MARK: - Local line-synced replaced by strong karaoke within threshold
 
-@Suite("Local Upgrade Policy — Case 17: Local line-synced replaced by strong karaoke")
+@Suite("Local Upgrade Policy — Local line-synced replaced by strong karaoke")
 struct LocalLineSyncedKaraokeUpgradeTests {
     @Test("Strong karaoke within 10-point window replaces local line-synced (gap=4)")
     func karaokeWithinWindow_replaces() {
@@ -193,7 +188,7 @@ struct LocalLineSyncedKaraokeUpgradeTests {
     }
 }
 
-// MARK: - Case 18: Local line-synced replaced by materially better line-synced
+// MARK: - Local line-synced replaced by materially better line-synced
 
 /// Builds a minimal `LyricsCandidateEvaluation` for use in upgrade-policy tests.
 ///
@@ -219,7 +214,7 @@ private func makeSyntheticEval(
     )
 }
 
-@Suite("Local Upgrade Policy — Case 18: Local line-synced replaced by materially better line-synced")
+@Suite("Local Upgrade Policy — Local line-synced replaced by materially better line-synced")
 struct LocalLineSyncedMateriallyBetterTests {
     @Test("Remote line-synced with score = local+5 replaces local (exact threshold)")
     func lineSynced_materiallyBetter_replaces() {
@@ -261,9 +256,9 @@ struct LocalLineSyncedMateriallyBetterTests {
     }
 }
 
-// MARK: - Case 19: Loose/weak/rejected/unlikely remote cannot replace local
+// MARK: - Loose/weak/rejected/unlikely remote cannot replace local
 
-@Suite("Local Upgrade Policy — Case 19: Weak/rejected/unlikely remote cannot replace local")
+@Suite("Local Upgrade Policy — Weak/rejected/unlikely remote cannot replace local")
 struct LocalUpgradeGuardTests {
     @Test("Rejected remote (visibility .rejected) cannot replace local")
     func rejected_cannotReplace() {

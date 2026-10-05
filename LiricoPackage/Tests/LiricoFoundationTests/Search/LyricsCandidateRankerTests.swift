@@ -136,11 +136,11 @@ struct LooseFallbackSuppressionTests {
     }
 }
 
-// MARK: - Loose fallback suppression (FIX 3)
+// MARK: - Loose fallback suppression in ranked output
 
 extension LooseFallbackSuppressionTests {
     @Test("Loose excluded from rankedCandidates when any normal candidate exists")
-    func fix3_loosePurgedWhenNormalExists() {
+    func loosePurgedWhenNormalExists() {
         let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
         // normal: exact title+artist match
         let normal = makeCandidate(
@@ -162,7 +162,7 @@ extension LooseFallbackSuppressionTests {
     }
 
     @Test("Loose appears in rankedCandidates when no normal candidate exists")
-    func fix3_looseShownWhenNoNormal() {
+    func looseShownWhenNoNormal() {
         let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
         let loose = makeCandidate(
             makeLyrics(title: "lacy the redemption", artist: "Olivia Rodrigo"),
@@ -174,7 +174,7 @@ extension LooseFallbackSuppressionTests {
     }
 
     @Test("unlikely and rejected never appear in rankedCandidates visible section")
-    func fix3_unlikelyAndRejectedNeverInRanked() {
+    func unlikelyAndRejectedNeverInRanked() {
         let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
         // rejected: completely different title
         let rejected = makeCandidate(
@@ -252,10 +252,10 @@ struct KaraokePreferenceWindowTests {
         #expect(best?.id == lineSynced.id)
     }
 
-    /// FIX 1: Realistic gap — karaoke overallScore ≈96, lineSynced ≈100, gap≈4, within 10pt window.
-    /// The old +0.5 bonus (96.5) cannot beat lineSynced (100), so the old code FAILS this test.
-    @Test("FIX1: Karaoke at realistic gap (≈4 pts) within window ranks above line-synced")
-    func fix1_karaokeWins_realisticGap() {
+    /// Realistic gap: karaoke ≈96, line-synced ≈100, inside the 10-point window. A token
+    /// karaoke bonus would not be enough to win here.
+    @Test("Karaoke at realistic gap (≈4 pts) within window ranks above line-synced")
+    func karaokeWins_realisticGap() {
         let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
 
         // Force a realistic gap: perfect duration match pushes lineSynced to 100;
@@ -276,8 +276,8 @@ struct KaraokePreferenceWindowTests {
         #expect(karaoke.evaluation.syncKind == .karaoke)
 
         let gap = lineSynced.evaluation.overallScore - karaoke.evaluation.overallScore
-        // Confirm the gap is realistic (> 0.5 so the old +0.5 bonus would fail, ≤ 10 so within window)
-        #expect(gap > 0.5, "gap must be large enough to expose the old +0.5 bug")
+        // More than a token amount, yet inside the window.
+        #expect(gap > 0.5, "gap must be more than a token amount")
         #expect(gap <= 10, "gap must be within the karaoke preference window")
 
         let config = LyricsCandidateRankingConfiguration(karaokePreferenceWindow: 10)
@@ -286,11 +286,11 @@ struct KaraokePreferenceWindowTests {
                 "karaoke within the window must rank above line-synced (gap=\(gap))")
     }
 
-    /// FIX 1: Gap > window → line-synced wins.
+    /// Gap > window → line-synced wins.
     /// Uses a narrow window (1 pt) so the real gap (≈1.75 pts from duration difference)
     /// exceeds it, verifying the no-promotion path.
-    @Test("FIX1: Karaoke outside narrow window (gap > window) does not beat line-synced")
-    func fix1_lineSyncedWins_gapBeyondWindow() {
+    @Test("Karaoke outside narrow window (gap > window) does not beat line-synced")
+    func lineSyncedWins_gapBeyondWindow() {
         let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
 
         // lineSynced: perfect duration match → higher overall within the same tier+band
@@ -311,7 +311,7 @@ struct KaraokePreferenceWindowTests {
         #expect(karaoke.evaluation.syncKind == .karaoke)
 
         let gap = lineSynced.evaluation.overallScore - karaoke.evaluation.overallScore
-        // Confirm gap exists and is non-trivial (> 0.5 pt so the old +0.5 bonus would also fail)
+        // Must exceed 0.5 so the window set below (gap − 0.5) is positive
         #expect(gap > 0.5, "gap must be large enough to exceed the narrow window")
 
         // Set window BELOW the actual gap so promotion does NOT apply
@@ -322,9 +322,9 @@ struct KaraokePreferenceWindowTests {
                 "line-synced must win when karaoke gap (\(gap)) exceeds the window (\(narrowWindow))")
     }
 
-    /// FIX 1: Tier still dominates — karaoke in a lower tier cannot jump above lineSynced in higher tier.
-    @Test("FIX1: Tier dominates — karaoke in lower tier cannot jump above higher-tier line-synced")
-    func fix1_tierDominatesKaraokePromotion() {
+    /// Tier dominates — karaoke in a lower tier cannot jump above lineSynced in higher tier.
+    @Test("Tier dominates — karaoke in lower tier cannot jump above higher-tier line-synced")
+    func tierDominatesKaraokePromotion() {
         let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
         // Higher tier: exact title + exact primary artist, lineSynced
         let exactLineSynced = makeCandidate(
@@ -337,10 +337,8 @@ struct KaraokePreferenceWindowTests {
             mode: mode, arrivalIndex: 1
         )
 
-        // The tiers are different: exactLineSynced is normal/exactTitleArtist,
-        // looseKaraoke is looseFallback/looseTitleArtist.
-        // With FIX 3, looseKaraoke is suppressed entirely when normalExists.
-        // This test verifies the tier mechanism is intact.
+        // exactLineSynced is normal/exactTitleArtist; looseKaraoke is looseFallback/looseTitleArtist,
+        // which is also suppressed because a normal candidate exists. Either way the higher tier wins.
         let config = LyricsCandidateRankingConfiguration(karaokePreferenceWindow: 10)
         let best = ranker.bestCandidate(from: [exactLineSynced, looseKaraoke], mode: mode, configuration: config)
         #expect(best?.evaluation.syncKind == .lineSynced, "higher-tier lineSynced must beat lower-tier karaoke")
@@ -438,13 +436,13 @@ struct SourcePriorityTests {
     }
 }
 
-// MARK: - Case 7: Source priority applies only for near-equal candidates
+// MARK: - Source priority applies only for near-equal candidates
 
 extension SourcePriorityTests {
-    /// Case 7: When two candidates differ by more than `nearEqualSourcePriorityWindow`,
+    /// When two candidates differ by more than `nearEqualSourcePriorityWindow`,
     /// source priority is irrelevant — the better-scoring candidate wins regardless of source.
-    @Test("Case 7: Source priority does NOT apply when score gap exceeds window")
-    func case7_sourcePriorityIgnored_whenGapExceedsWindow() {
+    @Test("Source priority does NOT apply when score gap exceeds window")
+    func sourcePriorityIgnored_whenGapExceedsWindow() {
         let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
         // highPriority source but worse score (no duration match)
         let poorMatch = makeCandidate(
@@ -478,13 +476,13 @@ extension SourcePriorityTests {
     }
 }
 
-// MARK: - Case 14 (ranker level): Album match helps as tiebreaker in ranker
+// MARK: - Album match helps as tiebreaker in ranker
 
 @Suite("Album Tiebreaker Ranking")
 struct AlbumTiebreakerRankingTests {
-    /// Case 14: When two candidates are in the same tier with the same overall score
+    /// When two candidates are in the same tier with the same overall score
     /// and the same duration score, album match must determine rank order.
-    @Test("Case 14: Album-matching candidate ranks above album-mismatching candidate in same tier")
+    @Test("Album-matching candidate ranks above album-mismatching candidate in same tier")
     func albumMatch_ranksFirst() {
         let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
         // Both: exact primary title+artist, no duration info → same overall score (band floor).
@@ -513,9 +511,9 @@ struct AlbumTiebreakerRankingTests {
                 "album-matching candidate must rank above album-mismatching candidate")
     }
 
-    /// Case 15 (ranker level): Even with perfect album match, wrong-title candidates
+    /// Even with perfect album match, wrong-title candidates
     /// never appear in the normal/likely ranked output.
-    @Test("Case 15: Wrong-title candidate excluded from rankedCandidates even with album match")
+    @Test("Wrong-title candidate excluded from rankedCandidates even with album match")
     func wrongTitle_excludedFromRanked_evenWithAlbum() {
         let mode = LyricsSearchMode.titleAndArtist(title: "lacy", artist: "Olivia Rodrigo")
         let wrongTitle = makeCandidate(
@@ -540,16 +538,16 @@ struct AlbumTiebreakerRankingTests {
     }
 }
 
-// MARK: - Case 20: App-level correctness does not depend on Lyrics.isMatched()
+// MARK: - App-level correctness does not depend on Lyrics.isMatched()
 
-@Suite("Case 20: Correctness does not depend on Lyrics.isMatched()")
+@Suite("Correctness does not depend on Lyrics.isMatched()")
 struct IsMatchedIndependenceTests {
-    /// Case 20: The evaluator/ranker must determine candidate correctness from
+    /// The evaluator/ranker must determine candidate correctness from
     /// its own title/artist comparison logic, not from LiricoKit's `Lyrics.isMatched()`.
     /// This test verifies that candidates the evaluator accepts are accepted, and
     /// candidates the evaluator rejects are rejected, independently of `isMatched`.
-    @Test("Case 20: Candidates accepted/rejected by evaluator do not require isMatched to agree")
-    func case20_evaluatorDoesNotUseIsMatched() {
+    @Test("Candidates accepted/rejected by evaluator do not require isMatched to agree")
+    func evaluatorDoesNotUseIsMatched() {
         // We cannot easily force isMatched to be false for a matching candidate, but we
         // can verify that the evaluator's correctness decisions are based purely on
         // title/artist comparison — not on any Lyrics.isMatched() call.
