@@ -1,13 +1,13 @@
 {
-  "originHash" : "c6325dd1e566d51fac0031ecd7233842576803e8afe6e019b50c810841191ca8",
+  "originHash" : "98f3ba306a7a0568a9ef0f52a387d5289060d9bf36fbc599cb8f14585c613c04",
   "pins" : [
     {
       "identity" : "liricokit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/fabiogaliano/LiricoKit",
       "state" : {
-        "revision" : "39fea5ab5ce8322327f56fcff8300ce8a2d78d91",
-        "version" : "3.0.0"
+        "revision" : "704d95e8526d8983f068249786ceae1905dbb23f",
+        "version" : "3.0.1"
       }
     },
     {
