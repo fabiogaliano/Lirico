@@ -1,10 +1,11 @@
 // swift-tools-version:6.2
 import PackageDescription
 
-// Standalone diagnostic that reuses the app's real evaluator + ranker
-// (LiricoFoundation) and the same pinned LiricoKit providers the app builds
-// against. Depending only on the local LiricoPackage keeps a single package
-// graph, so candidate fetching and ranking cannot drift from the shipping app.
+// Standalone diagnostic that reuses the app's real evaluator + ranker and
+// LiricoKit providers through the local LiricoPackage, so candidate fetching
+// and ranking logic cannot drift from the shipping app. Dependency versions
+// resolve separately here, which is why the tool prints its LiricoKit version
+// next to the app's pin.
 let package = Package(
     name: "lyrics-diag",
     platforms: [.macOS(.v15)],

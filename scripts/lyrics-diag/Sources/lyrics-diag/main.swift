@@ -4,7 +4,7 @@ import LiricoFoundation
 // MARK: - Argument & environment parsing
 //
 // Track metadata comes in as args (usually supplied by diag.sh from the
-// configured player). Real app settings come in as env vars so the wrapper can
+// player the app would follow). Real app settings come in as env vars so the wrapper can
 // pass them verbatim without shell-quoting an array.
 
 func arg(_ name: String) -> String? {
@@ -25,6 +25,7 @@ let album = arg("album").flatMap { $0.isEmpty ? nil : $0 }
 let duration = arg("duration").flatMap(TimeInterval.init)
 let showLines = arg("show-lines").flatMap(Int.init) ?? 12
 let playerName = arg("player") ?? "(manual args)"
+let settingsDomain = arg("domain") ?? "(env / built-in defaults)"
 let jsonMode = hasFlag("json")
 
 // Real app settings (with the app's registered-default fallbacks baked in, so
@@ -139,6 +140,9 @@ func runSearch(_ query: LyricsSearchQuery, timeout: Duration) async -> RunResult
 // The app's own queries and deadline, so both runs match what the app sends.
 let autoQuery = LyricsSearchQuery.automatic(title: title, artist: artist, album: album, duration: duration)
 let manualQuery = LyricsSearchQuery.manual(title: title, artist: artist, duration: duration) ?? autoQuery
+
+let autoLimit = autoQuery.request.limit
+let manualLimit = manualQuery.request.limit
 
 let autoRun = await runSearch(autoQuery, timeout: AutomaticLyricsSelection.deadline)
 let manualRun = await runSearch(manualQuery, timeout: .seconds(30))
@@ -330,8 +334,8 @@ if jsonMode {
             "filterKeyCount": "\(filterKeys.count)",
         ],
         referenceLastLineSec: refLast,
-        automatic: RunJSON(limit: 5, albumPassed: album != nil, completed: autoRun.completed, rawCount: autoRun.collected.count, candidates: autoInfos),
-        manual: RunJSON(limit: 8, albumPassed: false, completed: manualRun.completed, rawCount: manualRun.collected.count, candidates: manualInfos),
+        automatic: RunJSON(limit: autoLimit, albumPassed: album != nil, completed: autoRun.completed, rawCount: autoRun.collected.count, candidates: autoInfos),
+        manual: RunJSON(limit: manualLimit, albumPassed: false, completed: manualRun.completed, rawCount: manualRun.collected.count, candidates: manualInfos),
         timingGroups: timingGroups
     )
     let encoder = JSONEncoder()
@@ -384,6 +388,23 @@ func printRun(_ infos: [CandidateInfo]) {
                 droppedLabel: " Dropped (rejected / loose suppressed by a normal result):").forEach { print($0) }
 }
 
+// Read from the resolved graphs, not hard-coded: this package resolves its own
+// dependencies, so the LiricoKit it links can differ from the app's pin.
+func resolvedVersion(of identity: String, in relativePath: String) -> String? {
+    let packageRoot = URL(fileURLWithPath: #filePath)
+        .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+    guard let data = FileManager.default.contents(atPath: URL(fileURLWithPath: relativePath, relativeTo: packageRoot).path),
+          let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+          let pins = root["pins"] as? [[String: Any]],
+          let state = pins.first(where: { $0["identity"] as? String == identity })?["state"] as? [String: Any]
+    else { return nil }
+    return (state["version"] ?? state["branch"] ?? state["revision"]) as? String
+}
+let liricoKitVersion = resolvedVersion(of: "liricokit", in: "Package.resolved") ?? "unpinned"
+let appLiricoKitVersion = resolvedVersion(
+    of: "liricokit", in: "../../Lirico.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
+) ?? "unpinned"
+
 print("")
 print("════════════════════════════════════════════════════════════════════════════════════")
 print(" LYRICS CANDIDATE DIAGNOSTIC")
@@ -391,11 +412,12 @@ print("════════════════════════�
 print(" Player   : \(playerName)")
 print(" Query    : \"\(title)\" — \(artist)")
 print(" Album    : \(album ?? "—")    Duration: \(duration.map { String(format: "%.2fs (%@)", $0, mmss($0)) } ?? "—")")
+print(" Domain   : \(settingsDomain)")
 print(" Settings : sourcePriority=\(sourcePriorityEnabled ? "ON \(sourcePriorityOrder)" : "OFF (order ignored)")  musixmatch=\(musixmatchToken != nil ? "on" : "off")  filter=\(filterEnabled ? "ON (\(filterKeys.count) keys)" : "OFF")")
-print(" Ranker   : karaokeWindow=\(Int(configuration.karaokePreferenceWindow))  looseFloor=\(Int(configuration.automaticLooseFallbackMinimumScore))  LiricoKit=2.0.0 (same as app)")
+print(" Ranker   : karaokeWindow=\(Int(configuration.karaokePreferenceWindow))  looseFloor=\(Int(configuration.automaticLooseFallbackMinimumScore))  LiricoKit=\(liricoKitVersion) (\(liricoKitVersion == appLiricoKitVersion ? "same as app" : "app pins \(appLiricoKitVersion)"))")
 
 print("")
-print("══ AUTOMATIC SEARCH (what runs on track change: limit 5, album passed, auto-picks one) ══")
+print("══ AUTOMATIC SEARCH (what runs on track change: limit \(autoLimit), album passed, auto-picks one) ══")
 autoRun.log.forEach { print($0) }
 print("  completed=\(autoRun.completed)  raw candidates=\(autoRun.collected.count)")
 print("")
@@ -420,7 +442,7 @@ if let pick = autoInfos.first(where: { $0.picked }) {
 }
 
 print("")
-print("══ MANUAL SEARCH (search panel: limit 8, NO album → album score neutral 50; you pick) ══")
+print("══ MANUAL SEARCH (search panel: limit \(manualLimit), NO album → album score neutral 50; you pick) ══")
 manualRun.log.forEach { print($0) }
 print("  completed=\(manualRun.completed)  raw candidates=\(manualRun.collected.count)")
 print("")
@@ -434,7 +456,7 @@ let autoSigs = Set(autoRun.collected.map(sig))
 let manualOnly = manualRun.collected.filter { !autoSigs.contains(sig($0)) }.sorted { $0.arrivalIndex < $1.arrivalIndex }
 print("")
 print("──────────────────────────────────────────────────────────────────────────────────────")
-print(" RESULTS ONLY MANUAL SURFACED (extra slots from limit 8 vs 5, or album-narrowing diffs):")
+print(" RESULTS ONLY MANUAL SURFACED (extra slots from limit \(manualLimit) vs \(autoLimit), or album-narrowing diffs):")
 if manualOnly.isEmpty {
     print("   (none — automatic saw the same set)")
 } else {

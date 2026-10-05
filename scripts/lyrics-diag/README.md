@@ -1,14 +1,18 @@
 # lyrics-diag
 
-Diagnostic that shows **which lyrics candidates the app finds, how they rank, which one gets auto-picked, and how their timing/metadata differ** — for whatever is playing in the music player Lirico/Lirico is configured to use.
+Diagnostic that shows **which lyrics candidates the app finds, how they rank, which one gets auto-picked, and how their timing/metadata differ** — for whatever is playing in the player Lirico would follow.
 
-It reuses the app's real ranking brain (`LiricoFoundation`: `LyricsCandidateEvaluator` + `LyricsCandidateRanker`) and the same pinned `LiricoKit 2.0.0` providers, so results match the shipping app. It also reads your **real app settings** (`com.fabiogaliano.Lirico`): source-priority order/toggle, Musixmatch token, and the line filter.
+It reuses the app's real ranking brain (`LiricoFoundation`: `LyricsCandidateEvaluator` + `LyricsCandidateRanker`, `AutomaticLyricsSelection`, `LyricsSearchQuery`) and its LiricoKit providers. It also reads your **real app settings**: source-priority order/toggle, Musixmatch token, and the line filter — the saved value, else the default the app registers in `UserDefaults.plist`. See [What it doesn't model](#what-it-doesnt-model) before trusting a result.
 
 ## Usage
 
 ```bash
-# Auto: pull current track from the configured player + real settings
+# Auto: current track from the player Lirico would follow + Release app settings
 ./diag.sh
+
+# Read the Debug build's settings (dev.fabiogaliano.Lirico) instead
+./diag.sh --debug
+LIRICO_DEFAULTS_DOMAIN=some.other.domain ./diag.sh   # any defaults domain
 
 # Show more divergent lines / context
 ./diag.sh --show-lines 20
@@ -23,14 +27,18 @@ It reuses the app's real ranking brain (`LiricoFoundation`: `LyricsCandidateEval
 ./diag.sh --json
 ```
 
-First run builds the tool (`swift build`); later runs are instant.
+Every run starts with a quiet `swift build` (a no-op when nothing changed), so the binary never lags the sources. Build output goes to stderr, keeping `--json` stdout parseable. Requires only the bash 3.2 that ships with macOS.
+
+**Player detection** mirrors the app's auto mode (`ScriptablePlayers.autoChoice`): the first *playing* player in the order Music, Spotify, Vox, Audirvana, Swinsian, else the first *paused* one. Only Music and Spotify can be queried over AppleScript; if Vox/Audirvana/Swinsian is running and neither Music nor Spotify is playing, the script stops and asks for `--title/--artist`. Players are detected with `lsappinfo`, so the script never launches one.
 
 The `--json` form emits a single object: `automatic` / `manual` runs (each with `candidates[]` carrying `rank`, `picked`, `scores`, `lengthSec`, `durationDeltaSec`, `tier`, `visibility`, `enabledLines`/`totalLines`, …), plus `timingGroups[]` with per-group `verdict` (`same-file` / `same-timing` / `drift` / `different-content`), `medianDeltaSec`, `maxLocalDevSec`, and `divergentLines` / `relocatedLines`. Human text is suppressed in this mode.
 
 ## What it reports
 
-1. **AUTOMATIC search** (limit 5, album passed) — full ranked candidate table, the `➤` auto-pick, and *why* it beat #2.
-2. **MANUAL search** (limit 8, no album → album score neutral for all) — the larger candidate set the search panel would show.
+The header shows the player, the settings domain, the active settings, and the LiricoKit version this binary linked next to the app's pin.
+
+1. **AUTOMATIC search** (`LyricsSearchQuery.automatic`: limit 5, album passed) — full ranked candidate table, the `➤` auto-pick, and *why* it beat #2.
+2. **MANUAL search** (`LyricsSearchQuery.manual`: limit 8, no album → album score neutral for all) — the larger candidate set the search panel would show.
 3. **Manual-only results** — what the bigger manual search surfaces that automatic didn't.
 4. **Timing divergence** — candidates grouped by identical timing; for each distinct timing, a content-aware (nearest-in-time) line alignment vs the auto-pick: median offset, how many shared lines align within 0.30s, line-by-line drift, relocated (repeated-phrase) lines, and structural extra/missing-line counts.
 
@@ -83,11 +91,23 @@ To avoid re-implementing app logic that could silently diverge, the two pieces m
 
 - **`makeProviderDescriptors(musixmatchToken:)`** — the canonical lyrics-source list/order (the app's `LyricsSearchPipeline` and `SearchSettings`, and this tool, call it).
 - **`makeLyricsFilterPredicate(keys:enabled:)`** — the line-filter predicate (app's `LyricsFilter` and this tool call it).
+- **`LyricsSearchQuery.automatic` / `.manual`** — the request shapes and result limits.
+- **`AutomaticLyricsSelection`** — the auto-pick and its deadline.
 
-Add or change a provider, or the filter logic, in one place and both follow.
+Add or change a provider, the filter logic, a query or the pick rules in one place and both follow.
 
 ## Faithfulness notes
 
-- Ranker window constants use the app's SR-04 defaults (karaoke 10, loose floor 80) since they aren't user-exposed.
+- Ranker window constants are `LyricsCandidateRankingConfiguration`'s defaults, which the app uses too (they aren't user-exposed).
 - The line filter *disables* lines (affects `enabled` count + karaoke detection), it doesn't delete them — hence the `en/tot` column.
-- Remaining mirrors are intentional (small, tangled with app-only types): the ranking-config mapping (`SearchSettings`, read here from env) and the request shapes (auto: limit 5 + album; manual: limit 8, no album).
+- Remaining mirrors are intentional (small, tangled with app-only types): the ranking-config mapping (`SearchSettings`, read here from env), the language detection step of `LyricsPreparation`, and the manual search's 30 s timeout.
+- This package resolves its own dependency versions (`scripts/lyrics-diag/Package.resolved`, gitignored), so the LiricoKit it links can differ from the app's pin; the header flags that.
+
+## What it doesn't model
+
+- **Which player the app is already following.** The app sticks with its current player while it plays; with two players playing, diag takes the first in its order.
+- **System-wide Now Playing mode** (`UseSystemWideNowPlaying`) — diag warns and falls back to Music/Spotify.
+- **Track metadata source.** diag reads title/artist/album/duration over AppleScript; the app reads them through MusicPlayer, which can differ (e.g. a missing duration).
+- **Local lyrics.** Embedded, beside-track and saved `.lrcx` lyrics, and the local-upgrade policy that guards them, aren't consulted; the auto-pick assumes nothing local is showing.
+- **The search blocklist.** Blocked songs and albums are still searched here.
+- **Display-time transforms** — Chinese conversion and explicit-word restoration don't affect ranking and aren't applied.
