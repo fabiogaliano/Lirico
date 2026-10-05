@@ -112,9 +112,7 @@ struct LyricsPreferencesView: View {
         Section("Apple Music") {
             Toggle("Save lyrics to the song automatically", isOn: $writeAutomatically)
             Toggle("Keep timestamps (LRC)", isOn: $convertToPlainLRC)
-            // LRC export is single-line per timestamp, so translations are never written into it.
             Toggle("Include translation", isOn: $writeWithTranslation)
-                .disabled(convertToPlainLRC)
         }
     }
 

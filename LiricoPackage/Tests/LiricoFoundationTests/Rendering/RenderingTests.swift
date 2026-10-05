@@ -76,10 +76,17 @@ struct AppleMusicExportTests {
         #expect(AppleMusicExport.text(for: doc, plainLRC: false, includeTranslation: false, converter: nil) == "one\ntwo")
     }
 
-    @Test func plainLRCIsOneLinePerTimestampWhateverTheTranslationSetting() {
-        let text = AppleMusicExport.text(for: doc, plainLRC: true, includeTranslation: false, converter: nil)
+    @Test func plainLRCKeepsTranslationsInlineWhenAskedFor() {
+        let text = AppleMusicExport.text(for: doc, plainLRC: true, includeTranslation: true, converter: nil)
         #expect(text.hasSuffix("[00:01.000]one【uno】\n[00:05.000]two【dos】"))
-        #expect(text == AppleMusicExport.text(for: doc, plainLRC: true, includeTranslation: true, converter: nil))
+    }
+
+    @Test func plainLRCLeavesTranslationsOutWhenNotAskedFor() {
+        let without = AppleMusicExport.text(for: doc, plainLRC: true, includeTranslation: false, converter: nil)
+        let with = AppleMusicExport.text(for: doc, plainLRC: true, includeTranslation: true, converter: nil)
+        #expect(without.hasSuffix("[00:01.000]one\n[00:05.000]two"))
+        #expect(!without.contains("【"))
+        #expect(without == with.replacingOccurrences(of: "【uno】", with: "").replacingOccurrences(of: "【dos】", with: ""))
     }
 
     @Test func runsOfBlankLinesCollapseToOne() {
