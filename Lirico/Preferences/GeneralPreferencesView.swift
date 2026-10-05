@@ -138,7 +138,7 @@ struct GeneralPreferencesView: View {
     }
 
     private var languageSection: some View {
-        Section("Language") {
+        Section {
             Picker("Language", selection: $languagePickerIndex) {
                 Text("System").tag(0)
                 ForEach(Array(localizations.enumerated()), id: \.offset) { offset, lan in
@@ -147,6 +147,17 @@ struct GeneralPreferencesView: View {
             }
             .onChange(of: languagePickerIndex) { _, idx in
                 applyLanguageSelection(idx)
+            }
+            if languageSelectionPendingRelaunch {
+                LabeledContent("Lirico needs to restart to use this language.") {
+                    Button("Relaunch Now", action: AppRelauncher.relaunch)
+                }
+            }
+        } header: {
+            Text("Language")
+        } footer: {
+            if !languageSelectionPendingRelaunch {
+                SettingsFooter("Takes effect after Lirico restarts.")
             }
         }
     }
@@ -164,14 +175,21 @@ struct GeneralPreferencesView: View {
     }
 
     private func applyLanguageSelection(_ index: Int) {
-        if index == 0 {
-            defaults.remove(.selectedLanguage)
-            defaults.remove(.appleLanguages)
-        } else {
-            let lan = localizations[index - 2]
+        if let lan = language(at: index) {
             defaults[.selectedLanguage] = lan
             defaults[.appleLanguages] = [lan]
+        } else {
+            defaults.remove(.selectedLanguage)
+            defaults.remove(.appleLanguages)
         }
+    }
+
+    private func language(at index: Int) -> String? {
+        index == 0 ? nil : localizations[index - 2]
+    }
+
+    private var languageSelectionPendingRelaunch: Bool {
+        language(at: languagePickerIndex) != selectedLanguageAtLaunch
     }
 
     private func localizedLanguageName(for lan: String) -> String {
@@ -182,6 +200,10 @@ struct GeneralPreferencesView: View {
         return Locale(identifier: lan).localizedString(forLanguageCode: lan) ?? lan
     }
 }
+
+/// The language this run of Lirico is shown in. Read before this pane can change it: globals
+/// initialize on first use, and the pane is the only place the setting is written.
+private let selectedLanguageAtLaunch = defaults[.selectedLanguage]
 
 // Filtered, sorted list of available localizations.
 private let localizations = Bundle.main.localizations

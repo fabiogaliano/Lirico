@@ -23,6 +23,26 @@ enum MainAppLoginItem {
     }
 }
 
+/// Restarts Lirico, for settings it only reads at launch.
+@MainActor
+enum AppRelauncher {
+    static func relaunch() {
+        // The new copy waits for this one to exit; running side by side, both would add
+        // status items and follow the player until this one quit.
+        let script = #"while /bin/kill -0 "$0" 2>/dev/null; do /bin/sleep 0.1; done; /usr/bin/open "$1""#
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/sh")
+        process.arguments = ["-c", script, String(ProcessInfo.processInfo.processIdentifier), Bundle.main.bundlePath]
+        do {
+            try process.run()
+        } catch {
+            log("Failed to relaunch Lirico. reason: \(error.localizedDescription)")
+            return
+        }
+        NSApp.terminate(nil)
+    }
+}
+
 /// "Open and quit with music player": LiricoHelper, a login item, launches Lirico when a
 /// supported player starts, and Lirico quits once the last one closes. Settings only
 /// flips the preference; everything that follows from it happens here.

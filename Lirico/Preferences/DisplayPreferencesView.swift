@@ -217,11 +217,14 @@ struct DisplayPreferencesView: View {
                 .fixedSize()
             }
             if let fallback = vm.fontFallback {
-                LabeledContent("Fallback font") {
+                LabeledContent {
                     HStack {
-                        Text(fallback).foregroundStyle(.secondary)
+                        Text(NSFont(name: fallback, size: 0)?.displayName ?? fallback).foregroundStyle(.secondary)
                         Button("Remove") { vm.removeFontFallback() }
                     }
+                } label: {
+                    Text("Fallback font")
+                    Text("Characters the font above doesn't have are drawn with this one. Lirico keeps your previous font here when you change it.")
                 }
             }
             ColorPicker("Text", selection: colorBinding(\.desktopTextColor, save: { $0.saveDesktopTextColor }), supportsOpacity: true)

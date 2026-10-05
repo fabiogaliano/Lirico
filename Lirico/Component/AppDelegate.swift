@@ -21,6 +21,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     /// the registered values.
     private var container: AppContainer!
     private var cancelBag = Set<AnyCancellable>()
+    private let shortcutNotice = ShortcutNotice()
 
     /// Install the app's main menu before the run loop processes key events.
     /// Without this, Cocoa has no menu to dispatch key equivalents to and
@@ -138,14 +139,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         }
     }
 
-    @IBAction func increaseOffset(_ sender: Any?) {
-        container?.session.lyricsOffset += 100
-    }
-
-    @IBAction func decreaseOffset(_ sender: Any?) {
-        container?.session.lyricsOffset -= 100
-    }
-
     @IBAction func showCurrentLyricsInFinder(_ sender: Any?) {
         container?.session.revealCurrentLyricsInFinder()
     }
@@ -161,12 +154,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
 
     @IBAction func wrongLyrics(_ sender: Any?) {
         rejectCurrentLyricsAfterConfirming(blocking: .track)
-    }
-
-    /// The shortcut skips the confirmation: it is a key the user bound on purpose,
-    /// and a dialog would pull Lirico in front of whatever app they're using.
-    @objc func wrongLyricsFromShortcut(_ sender: Any?) {
-        container?.session.rejectCurrentLyrics(blocking: .track)
     }
 
     @IBAction func doNotSearchLyricsForThisAlbum(_ sender: Any?) {
@@ -212,6 +199,56 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         // The song can change while the dialog is open; blocking the new one isn't what was confirmed.
         guard container.player.currentTrack?.id == trackID else { return }
         container.session.rejectCurrentLyrics(blocking: scope)
+    }
+
+    // MARK: - Shortcut Actions
+
+    // Only global shortcuts call these, so each reports its result in a notice: the offset,
+    // Apple Music and the blocklist change nowhere the user is looking.
+
+    @objc func increaseOffset(_ sender: Any?) {
+        adjustOffset(by: 100)
+    }
+
+    @objc func decreaseOffset(_ sender: Any?) {
+        adjustOffset(by: -100)
+    }
+
+    private func adjustOffset(by delta: Int) {
+        guard let session = container?.session else { return }
+        guard session.currentLyrics != nil else {
+            shortcutNotice.show(NSLocalizedString("No lyrics to adjust", comment: "shortcut notice"))
+            return
+        }
+        session.lyricsOffset += delta
+        shortcutNotice.show(String(
+            format: NSLocalizedString("Song offset: %+d ms", comment: "shortcut notice; the song's lyrics offset in milliseconds"),
+            session.lyricsOffset
+        ))
+    }
+
+    @objc func writeToiTunesFromShortcut(_ sender: Any?) {
+        guard let session = container?.session else { return }
+        if session.currentLyrics == nil {
+            shortcutNotice.show(NSLocalizedString("No lyrics to save", comment: "shortcut notice"))
+        } else if session.canWriteToAppleMusic {
+            session.writeToiTunes()
+            shortcutNotice.show(NSLocalizedString("Lyrics saved to Apple Music", comment: "shortcut notice"))
+        } else {
+            shortcutNotice.show(NSLocalizedString("Apple Music isn't playing this song", comment: "shortcut notice"))
+        }
+    }
+
+    /// No confirmation: it is a key the user bound on purpose, and a dialog would pull Lirico
+    /// in front of whatever app they're using. The notice says what was blocked instead.
+    @objc func wrongLyricsFromShortcut(_ sender: Any?) {
+        guard let container else { return }
+        guard container.player.currentTrack != nil else {
+            shortcutNotice.show(NSLocalizedString("Nothing playing", comment: "shortcut notice"))
+            return
+        }
+        container.session.rejectCurrentLyrics(blocking: .track)
+        shortcutNotice.show(NSLocalizedString("Lyrics blocked for this song", comment: "menu header status"))
     }
 
     // MARK: - NSMenuDelegate
