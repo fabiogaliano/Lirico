@@ -1,8 +1,7 @@
 import Combine
 import Foundation
 import LiricoFoundation
-// `Lyrics` isn't Sendable; the clock only reads the lyrics it's handed, on its queue.
-@preconcurrency import LyricsCore
+import LyricsCore
 import MusicPlayer
 
 /// PlaybackClock centralises the single concept "given current lyrics + playback state,

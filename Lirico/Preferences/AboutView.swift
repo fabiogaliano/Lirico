@@ -334,9 +334,7 @@ private let components: [Acknowledgement] = [
 // verified against each repo's LICENSE (GitHub SPDX detection). Note: CombineX
 // and Then are vendored into Utility/ rather than resolved via SPM, so they no
 // longer appear in Package.resolved — but their source ships, so they're
-// credited here. Build-time-only macro/syntax packages are intentionally
-// omitted. CryptoSwift is *not* MIT: its license adds a mandatory attribution
-// clause, so it's flagged distinctly.
+// credited here.
 private let libraries: [Acknowledgement] = [
     Acknowledgement(name: "SwiftyOpenCC", license: "MIT", url: URL(string: "https://github.com/ddddxxx/SwiftyOpenCC")!),
     Acknowledgement(name: "GenericID", license: "MIT", url: URL(string: "https://github.com/MxIris-LyricsX-Project/GenericID")!),
@@ -344,17 +342,12 @@ private let libraries: [Acknowledgement] = [
     Acknowledgement(name: "Regex", license: "MIT", url: URL(string: "https://github.com/ddddxxx/Regex")!),
     Acknowledgement(name: "SnapKit", license: "MIT", url: URL(string: "https://github.com/SnapKit/SnapKit")!),
     Acknowledgement(name: "MarqueeLabel", license: "MIT", url: URL(string: "https://github.com/MxIris-LyricsX-Project/MarqueeLabel")!),
-    Acknowledgement(name: "BigInt", license: "MIT", url: URL(string: "https://github.com/attaswift/BigInt")!),
-    Acknowledgement(name: "FrameworkToolbox", license: "MIT", url: URL(string: "https://github.com/Mx-Iris/FrameworkToolbox")!),
     Acknowledgement(name: "CombineX", license: "MIT", url: URL(string: "https://github.com/cx-org/CombineX")!),
     Acknowledgement(name: "Then", license: "MIT", url: URL(string: "https://github.com/devxoul/Then")!),
-    Acknowledgement(name: "Swift Collections", license: "Apache-2.0", url: URL(string: "https://github.com/apple/swift-collections")!),
-    Acknowledgement(name: "Swift Async Algorithms", license: "Apache-2.0", url: URL(string: "https://github.com/apple/swift-async-algorithms")!),
     Acknowledgement(name: "MASShortcut", license: "BSD-2-Clause", url: URL(string: "https://github.com/shpakovski/MASShortcut")!),
     Acknowledgement(
         name: "mediaremote-adapter",
         license: "BSD-3-Clause",
         url: URL(string: "https://github.com/MxIris-LyricsX-Project/mediaremote-adapter")!
     ),
-    Acknowledgement(name: "CryptoSwift", license: "Custom · attribution", url: URL(string: "https://github.com/krzyzanowskim/CryptoSwift")!),
 ]

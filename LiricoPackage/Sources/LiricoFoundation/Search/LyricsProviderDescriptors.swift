@@ -1,4 +1,4 @@
-@preconcurrency import LiricoKit
+import LiricoKit
 
 /// The canonical lyrics-provider descriptor list, shared by the app's search
 /// pipeline and any out-of-app tooling.

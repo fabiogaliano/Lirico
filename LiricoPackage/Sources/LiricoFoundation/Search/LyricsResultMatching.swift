@@ -1,4 +1,4 @@
-@preconcurrency import LiricoKit
+import LiricoKit
 import Foundation
 
 extension Lyrics {

@@ -98,17 +98,11 @@ foundation Lirico is built on.
 - [Regex](https://github.com/ddddxxx/Regex) (MIT)
 - [SnapKit](https://github.com/SnapKit/SnapKit) (MIT)
 - [MarqueeLabel](https://github.com/MxIris-LyricsX-Project/MarqueeLabel) (MIT)
-- [BigInt](https://github.com/attaswift/BigInt) (MIT)
-- [FrameworkToolbox](https://github.com/Mx-Iris/FrameworkToolbox) (MIT)
 - [CombineX](https://github.com/cx-org/CombineX) (MIT, vendored)
 - [Then](https://github.com/devxoul/Then) (MIT, vendored)
-- [Swift Collections](https://github.com/apple/swift-collections) (Apache-2.0)
-- [Swift Async Algorithms](https://github.com/apple/swift-async-algorithms) (Apache-2.0)
 - [MASShortcut](https://github.com/shpakovski/MASShortcut) (BSD-2-Clause)
 - [mediaremote-adapter](https://github.com/MxIris-LyricsX-Project/mediaremote-adapter) (BSD-3-Clause)
-- [CryptoSwift](https://github.com/krzyzanowskim/CryptoSwift) (custom, attribution; see [NOTICE](NOTICE))
 
-This product includes software developed by Marcin Krzyżanowski (http://krzyzanowskim.com/).
 See [NOTICE](NOTICE) for the full third-party attributions and license notices.
 
 #### Special Thanks

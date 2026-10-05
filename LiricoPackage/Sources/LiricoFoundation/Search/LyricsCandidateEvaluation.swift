@@ -1,4 +1,4 @@
-@preconcurrency import LiricoKit
+import LiricoKit
 
 // MARK: - LyricsCandidateVisibility
 
@@ -86,7 +86,7 @@ public struct LyricsCandidateEvaluation: Equatable, Sendable {
 /// Identity and equality are by object reference (`ObjectIdentifier`) so that
 /// two evaluated wrappers for the same `Lyrics` instance are always the same
 /// candidate regardless of evaluation differences.
-public struct EvaluatedLyricsCandidate: Identifiable, Hashable {
+public struct EvaluatedLyricsCandidate: Identifiable, Hashable, Sendable {
     public let lyrics: Lyrics
     public let evaluation: LyricsCandidateEvaluation
     /// Zero-based position in the stream; used as the stable final tiebreaker.

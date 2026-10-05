@@ -1,7 +1,6 @@
 import Foundation
 import LiricoFoundation
-// `Lyrics` isn't Sendable; `LocalLyrics` hands freshly loaded lyrics from the lookup to the session.
-@preconcurrency import LyricsCore
+import LyricsCore
 import MusicPlayer
 
 /// Attempts to satisfy a lyrics request from local sources before any network search runs.

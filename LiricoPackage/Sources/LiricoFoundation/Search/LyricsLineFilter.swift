@@ -1,5 +1,5 @@
 import Foundation
-@preconcurrency import LiricoKit
+import LiricoKit
 
 /// Builds the line-keep predicate used to filter junk/metadata lines out of a
 /// `Lyrics` object: a line is kept only when it matches **none** of the filter

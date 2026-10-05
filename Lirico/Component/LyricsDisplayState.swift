@@ -1,7 +1,6 @@
 import Foundation
 import LiricoFoundation
-// `LyricsLine` isn't marked Sendable, though it's a value type the snapshot only copies.
-@preconcurrency import LyricsCore
+import LyricsCore
 
 /// Pre-rendered display data for the currently active lyric line.
 ///
