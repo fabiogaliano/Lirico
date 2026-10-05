@@ -10,24 +10,34 @@ Lirico automatically finds and displays synced lyrics for whatever's playing on 
 
 ## Installation
 
-There's no packaged release yet, so build Lirico from source:
+1. Download **`Lirico.dmg`** from [Releases](https://github.com/fabiogaliano/Lirico/releases/latest).
+2. Open the DMG and drag **Lirico** into your **Applications** folder.
 
-```bash
-git clone https://github.com/fabiogaliano/Lirico.git
-cd Lirico
-make install-release
-```
-
-This builds the Release app and copies `Lirico.app` to `/Applications`. You can also open `Lirico.xcodeproj` in Xcode and press Cmd+R.
+> [!NOTE]
+> **First launch on macOS 15+**:
+> Because Lirico is independently built and ad-hoc signed without an Apple Developer ID, macOS Gatekeeper blocks it on first launch.
+> To allow it, either:
+> - Open **System Settings → Privacy & Security**, scroll to **Security**, and click **Open Anyway**.
+> - Or run this command in Terminal:
+>   ```bash
+>   xattr -cr /Applications/Lirico.app
+>   ```
 
 To use **Musixmatch** as a lyrics source, get a **usertoken** by following [these steps](https://gist.github.com/TrueMyst/0461aea999e347182486934fd83a4cf9) or [these](https://spicetify.app/docs/faq#sometimes-popup-lyrics-andor-lyrics-plus-seem-to-not-work), then add it in Lirico's settings.
 
 ### Requirements
 
 - macOS 15+
-- Xcode 26+ (to build from source)
 
 ### Building from source
+
+If you prefer to compile Lirico yourself (requires Xcode 26+):
+
+```bash
+git clone https://github.com/fabiogaliano/Lirico.git
+cd Lirico
+make install-release
+```
 
 Builds default to **Debug**, which rebuilds a one-file change in about 20s instead of 85s. Debug installs as
 `Lirico-Debug.app` (bundle id `dev.fabiogaliano.Lirico`), so it runs side by side with `Lirico.app`.
@@ -38,6 +48,8 @@ Builds default to **Debug**, which rebuilds a one-file change in about 20s inste
 | `make install`         | Debug         | Build, copy `Lirico-Debug.app` to `/Applications`, relaunch |
 | `make release`         | Release       | Optimized build                                       |
 | `make install-release` | Release       | Build, copy `Lirico.app` to `/Applications`, relaunch |
+| `make dmg`             | Release       | Package Release into `build.noindex/Lirico.dmg`       |
+| `make package`         | Release       | Package both `.dmg` and `.zip` into `build.noindex/`  |
 
 Run `make help` for the full list. Override the configuration on any target with `CONFIG=Release`.
 

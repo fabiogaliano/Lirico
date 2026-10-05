@@ -17,6 +17,8 @@ Lirico is a macOS menu-bar application (`LSUIElement`) that automatically search
 make build            # Debug
 make release          # Release
 make install          # Debug build → /Applications, relaunch (install-release for Release)
+make dmg              # Package Release into .dmg
+make package          # Create both .dmg and .zip in ./build.noindex
 
 # Build (Debug)
 xcodebuild -project Lirico.xcodeproj -scheme Lirico -configuration Debug build 2>&1 | xcsift
@@ -31,13 +33,15 @@ The version is the project-level `MARKETING_VERSION`; both Info.plists read it a
 
 ## Releasing
 
-Versions are lightweight git tags `X.Y.Z` (no "v", no GitHub Releases), as in LiricoKit.
+Versions are lightweight git tags `X.Y.Z` (no "v").
 
 1. Bump `MARKETING_VERSION` in `Lirico.xcodeproj` (project-level Debug and Release).
 2. Add a `## X.Y.Z` entry to `CHANGELOG.md`: short, user-facing bullets.
 3. Commit, then `git tag X.Y.Z`.
 4. `git push && git push origin X.Y.Z`.
-5. `make install-release`.
+5. `make package` to produce `build.noindex/Lirico.dmg` and `build.noindex/Lirico.zip`.
+6. Publish to GitHub Releases:
+   `gh release create X.Y.Z build.noindex/Lirico.dmg build.noindex/Lirico.zip --title "X.Y.Z" --notes-file <(sed -n '/^## 'X.Y.Z'/,/^## /p' CHANGELOG.md | sed '1d;$d')`
 
 ## Tests
 

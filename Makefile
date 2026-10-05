@@ -29,8 +29,10 @@ BUILD_NUMBER := $(shell echo $$(( $$(git rev-list --count HEAD) + 1304 )))
 PRODUCT := $(if $(APP_NAME_$(CONFIG)),$(APP_NAME_$(CONFIG)),$(APP_NAME))
 APP     := $(DERIVED)/Build/Products/$(CONFIG)/$(PRODUCT).app
 DEST    := /Applications/$(PRODUCT).app
+DMG     := $(DERIVED)/$(PRODUCT).dmg
+ZIP     := $(DERIVED)/$(PRODUCT).zip
 
-.PHONY: help build release install install-release run clean
+.PHONY: help build release install install-release dmg zip package run clean
 
 help:
 	@echo "Targets:"
@@ -38,6 +40,9 @@ help:
 	@echo "  make release          Build (Release, optimized) — for distribution"
 	@echo "  make install          Build (Debug), copy to $(DEST), relaunch"
 	@echo "  make install-release  Build (Release), copy to $(DEST), relaunch"
+	@echo "  make dmg              Package Release into $(DMG)"
+	@echo "  make zip              Package Release into $(ZIP)"
+	@echo "  make package          Create both .dmg and .zip in $(DERIVED)/"
 	@echo "  make run              Open the installed app"
 	@echo "  make clean            Remove $(DERIVED)/"
 	@echo ""
@@ -65,6 +70,29 @@ install: build
 
 install-release:
 	$(MAKE) install CONFIG=Release
+
+dmg:
+	$(MAKE) build-dmg CONFIG=Release
+
+build-dmg: build
+	@rm -rf $(DERIVED)/dmg-staging $(DMG)
+	@mkdir -p $(DERIVED)/dmg-staging
+	cp -R $(APP) $(DERIVED)/dmg-staging/
+	ln -s /Applications $(DERIVED)/dmg-staging/Applications
+	hdiutil create -volname "$(PRODUCT)" -srcfolder $(DERIVED)/dmg-staging -ov -format UDZO $(DMG)
+	@rm -rf $(DERIVED)/dmg-staging
+
+zip:
+	$(MAKE) build-zip CONFIG=Release
+
+build-zip: build
+	@rm -f $(ZIP)
+	ditto -c -k --sequesterRsrc --keepParent $(APP) $(ZIP)
+
+package:
+	$(MAKE) build-package CONFIG=Release
+
+build-package: build-dmg build-zip
 
 run:
 	open $(DEST)
