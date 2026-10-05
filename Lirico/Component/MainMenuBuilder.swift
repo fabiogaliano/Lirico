@@ -140,7 +140,7 @@ enum MainMenuBuilder {
     }
 
     private static func menuBarLyricsToggleItem() -> NSMenuItem {
-        let item = NSMenuItem(title: NSLocalizedString("Enable Menu Bar Lyrics", comment: "menu"), action: nil, keyEquivalent: "")
+        let item = NSMenuItem(title: NSLocalizedString("Menu Bar Lyrics", comment: "menu"), action: nil, keyEquivalent: "")
         item.bind(
             .value,
             to: NSUserDefaultsController.shared,
@@ -151,7 +151,7 @@ enum MainMenuBuilder {
     }
 
     private static func karaokeLyricsToggleItem() -> NSMenuItem {
-        let item = NSMenuItem(title: NSLocalizedString("Enable Karaoke Lyrics", comment: "menu"), action: nil, keyEquivalent: "")
+        let item = NSMenuItem(title: NSLocalizedString("Desktop Lyrics", comment: "menu"), action: nil, keyEquivalent: "")
         item.bind(
             .value,
             to: NSUserDefaultsController.shared,
@@ -211,7 +211,7 @@ enum MainMenuBuilder {
         submenu.addItem(showInFinder)
 
         let wrong = NSMenuItem(
-            title: NSLocalizedString("Wrong Lyrics", comment: "menu"),
+            title: NSLocalizedString("Block Lyrics for This Song", comment: "menu"),
             action: #selector(AppDelegate.wrongLyrics(_:)),
             keyEquivalent: ""
         )
@@ -219,7 +219,7 @@ enum MainMenuBuilder {
         submenu.addItem(wrong)
 
         let disableAlbum = NSMenuItem(
-            title: NSLocalizedString("Disable Lyrics for Entire Album", comment: "menu"),
+            title: NSLocalizedString("Block Lyrics for This Album", comment: "menu"),
             action: #selector(AppDelegate.doNotSearchLyricsForThisAlbum(_:)),
             keyEquivalent: ""
         )
@@ -227,7 +227,7 @@ enum MainMenuBuilder {
         submenu.addItem(disableAlbum)
 
         let writeToiTunes = NSMenuItem(
-            title: NSLocalizedString("Write to iTunes", comment: "menu"),
+            title: NSLocalizedString("Save Lyrics to Apple Music", comment: "menu"),
             action: #selector(AppDelegate.writeToiTunes(_:)),
             keyEquivalent: ""
         )

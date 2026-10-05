@@ -29,7 +29,7 @@ final class LyricsSyncWindowController: NSWindowController {
             backing: .buffered,
             defer: true
         )
-        panel.title = NSLocalizedString("Sync Lyrics", comment: "sync panel title")
+        panel.title = NSLocalizedString("Sync by Ear", comment: "sync panel title")
         panel.titlebarAppearsTransparent = true
         panel.isReleasedWhenClosed = false
         panel.animationBehavior = .default

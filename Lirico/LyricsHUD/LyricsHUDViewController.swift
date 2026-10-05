@@ -155,9 +155,13 @@ final class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollL
              false)
         case .searching:
             (NSLocalizedString("Searching for Lyrics…", comment: "HUD empty state title"), dropHint, false)
-        case .blocked:
-            (NSLocalizedString("Lyrics Disabled", comment: "HUD empty state title"),
-             NSLocalizedString("Lyrics are turned off for this song or album. Pick some manually to turn them back on.", comment: "HUD empty state hint"),
+        case .blocked(.track):
+            (NSLocalizedString("Lyrics Blocked", comment: "HUD empty state title"),
+             NSLocalizedString("Pick lyrics manually to unblock this song.", comment: "HUD empty state hint"),
+             true)
+        case .blocked(.album):
+            (NSLocalizedString("Lyrics Blocked", comment: "HUD empty state title"),
+             NSLocalizedString("Pick lyrics manually to unblock this album.", comment: "HUD empty state hint"),
              true)
         case .notFound, .loaded:
             (NSLocalizedString("No Lyrics", comment: "HUD empty state title"), dropHint, true)

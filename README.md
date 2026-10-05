@@ -75,7 +75,7 @@ or any LRC editor, since LRCX is compatible with LRC.
 - **Better picks.** It checks that lyrics are for your song, even when the title says "Remastered" or "Live", and prefers versions where each word lights up as it's sung.
 - **It keeps looking.** If a better version turns up a few seconds later, it switches to it. Lyrics you saved yourself stay.
 - **Timing by ear.** Instead of guessing milliseconds, tap the line you hear and everything lines up.
-- **It tells you what's going on.** Searching, nothing found, lyrics turned off for this song, or missing permission to see your player.
+- **It tells you what's going on.** Searching, nothing found, lyrics blocked for this song or album, or missing permission to see your player.
 - **It follows the player you're using.** Start music in another app and the lyrics follow; it opens and quits with any supported player.
 - **Censored words filled in** (optional).
 

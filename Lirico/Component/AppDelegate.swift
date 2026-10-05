@@ -184,19 +184,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         let alert = NSAlert()
         switch scope {
         case .track:
-            alert.messageText = NSLocalizedString("Mark these lyrics as wrong?", comment: "confirm dialog title")
+            alert.messageText = NSLocalizedString("Block lyrics for this song?", comment: "confirm dialog title")
             alert.informativeText = NSLocalizedString(
                 "Lirico won't search lyrics for this song again until you pick some manually.",
                 comment: "confirm dialog body"
             )
-            alert.addButton(withTitle: NSLocalizedString("Mark as Wrong", comment: "confirm dialog button"))
+            alert.addButton(withTitle: NSLocalizedString("Block", comment: "confirm dialog button"))
         case .album:
-            alert.messageText = NSLocalizedString("Disable lyrics for this album?", comment: "confirm dialog title")
+            alert.messageText = NSLocalizedString("Block lyrics for this album?", comment: "confirm dialog title")
             alert.informativeText = NSLocalizedString(
                 "Lirico won't search lyrics for any song on this album until you pick lyrics for one of them manually.",
                 comment: "confirm dialog body"
             )
-            alert.addButton(withTitle: NSLocalizedString("Disable Lyrics", comment: "confirm dialog button"))
+            alert.addButton(withTitle: NSLocalizedString("Block", comment: "confirm dialog button"))
         }
         alert.buttons[0].hasDestructiveAction = true
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "confirm dialog button"))
@@ -251,7 +251,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         let statusText: String? = switch container.session.status {
         case .searching: NSLocalizedString("Searching for lyrics…", comment: "menu header status")
         case .notFound: NSLocalizedString("No lyrics found", comment: "menu header status")
-        case .blocked: NSLocalizedString("Lyrics disabled for this song", comment: "menu header status")
+        case .blocked(.track): NSLocalizedString("Lyrics blocked for this song", comment: "menu header status")
+        case .blocked(.album): NSLocalizedString("Lyrics blocked for this album", comment: "menu header status")
         case .loaded, .noTrack, .automationDenied: nil
         }
         let subtitle = [track.artist, statusText]

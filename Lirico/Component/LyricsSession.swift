@@ -15,7 +15,7 @@ enum LyricsStatus: Equatable {
     case searching
     case loaded
     case notFound
-    case blocked
+    case blocked(LyricsSession.RejectionScope)
 }
 
 // MARK: - LyricsSession
@@ -303,7 +303,7 @@ class LyricsSession: NSObject {
         }
         currentLyrics = nil
         supportingLyrics = []
-        status = .blocked
+        status = .blocked(scope)
         searchStoppedByBlock = true
     }
 
@@ -335,7 +335,7 @@ class LyricsSession: NSObject {
         let artist = track.artist ?? ""
 
         guard !blocklist.isBlocked(track: track) else {
-            status = .blocked
+            status = .blocked(.track)
             searchStoppedByBlock = true
             return
         }
@@ -374,7 +374,7 @@ class LyricsSession: NSObject {
             return
         }
         if let album = track.album, blocklist.isBlocked(album: album) {
-            status = currentLyrics == nil ? .blocked : .loaded
+            status = currentLyrics == nil ? .blocked(.album) : .loaded
             searchStoppedByBlock = true
             return
         }

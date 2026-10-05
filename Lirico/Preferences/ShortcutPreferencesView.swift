@@ -33,7 +33,7 @@ struct ShortcutPreferencesView: View {
             }
             Section("Lyrics") {
                 shortcutRow("Search lyrics", key: .shortcutSearchLyrics)
-                shortcutRow("Mark as wrong lyrics", key: .shortcutWrongLyrics)
+                shortcutRow("Block lyrics for this song", key: .shortcutWrongLyrics)
                 shortcutRow("Save lyrics to Apple Music", key: .shortcutWriteToiTunes)
             }
         }
