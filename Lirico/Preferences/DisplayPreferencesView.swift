@@ -8,6 +8,7 @@ final class DisplayPreferencesViewModel: ObservableObject {
     @Published var desktopProgressColor: Color = .accentColor
     @Published var desktopShadowColor: Color = Color(NSColor.black.withAlphaComponent(0.55))
     @Published var desktopBackgroundColor: Color = Color(NSColor.black.withAlphaComponent(0.85))
+    @Published var hudTextColor: Color = .white
     @Published var hudHighlightColor: Color = .accentColor
 
     @Published var desktopFont: NSFont = .systemFont(ofSize: NSFont.systemFontSize)
@@ -28,12 +29,14 @@ final class DisplayPreferencesViewModel: ObservableObject {
         let dpc: NSColor = defaults[.desktopLyricsProgressColor] ?? nsAccent
         let dsc: NSColor = defaults[.desktopLyricsShadowColor] ?? nsShadow
         let dbc: NSColor = defaults[.desktopLyricsBackgroundColor] ?? nsBg
+        let htc: NSColor = defaults[.lyricsWindowTextColor] ?? nsWhite
         let hhc: NSColor = defaults[.lyricsWindowHighlightColor] ?? nsAccent
 
         desktopTextColor = Color(dtc)
         desktopProgressColor = Color(dpc)
         desktopShadowColor = Color(dsc)
         desktopBackgroundColor = Color(dbc)
+        hudTextColor = Color(htc)
         hudHighlightColor = Color(hhc)
 
         desktopFont = defaults.desktopLyricsFont
@@ -60,6 +63,11 @@ final class DisplayPreferencesViewModel: ObservableObject {
     func saveDesktopBackgroundColor() {
         let c: NSColor = NSColor(desktopBackgroundColor)
         defaults[.desktopLyricsBackgroundColor] = c
+    }
+
+    func saveHudTextColor() {
+        let c: NSColor = NSColor(hudTextColor)
+        defaults[.lyricsWindowTextColor] = c
     }
 
     func saveHudHighlightColor() {
@@ -160,12 +168,15 @@ private struct FontPickerButton: NSViewRepresentable {
 // MARK: - Display Preferences View
 
 struct DisplayPreferencesView: View {
+    @AppStorage(.desktopLyricsEnabled) private var desktopLyricsEnabled = true
     @AppStorage(.desktopLyricsOneLineMode) private var oneLineMode = false
     @AppStorage(.desktopLyricsVerticalMode) private var verticalMode = false
     @AppStorage(.desktopLyricsDraggable) private var draggable = false
     @AppStorage(.hideLyricsWhenMousePassingBy) private var hideWhenMousePassingBy = false
     @AppStorage(.disableLyricsWhenPaused) private var disableWhenPaused = false
     @AppStorage(.disableLyricsWhenSreenShot) private var disableWhenScreenShot = false
+    @AppStorage(.desktopLyricsEnableFurigana) private var enableFurigana = false
+    @AppStorage(.desktopLyricsEnableRomajin) private var enableRomaji = false
 
     @StateObject private var vm = DisplayPreferencesViewModel()
 
@@ -198,6 +209,7 @@ struct DisplayPreferencesView: View {
 
     private var desktopLyricsSection: some View {
         Section("Desktop Lyrics") {
+            Toggle("Show desktop lyrics", isOn: $desktopLyricsEnabled)
             LabeledContent("Font") {
                 FontPickerButton(font: vm.desktopFont) { old, new in
                     vm.desktopFontChanged(from: old, to: new)
@@ -218,6 +230,8 @@ struct DisplayPreferencesView: View {
             ColorPicker("Background", selection: colorBinding(\.desktopBackgroundColor, save: { $0.saveDesktopBackgroundColor }), supportsOpacity: true)
             Toggle("One line", isOn: $oneLineMode)
             Toggle("Vertical", isOn: $verticalMode)
+            Toggle("Show furigana for Japanese", isOn: $enableFurigana)
+            Toggle("Show romaji for Japanese", isOn: $enableRomaji)
         }
     }
 
@@ -246,6 +260,7 @@ struct DisplayPreferencesView: View {
                 }
                 .fixedSize()
             }
+            ColorPicker("Text", selection: colorBinding(\.hudTextColor, save: { $0.saveHudTextColor }), supportsOpacity: true)
             ColorPicker("Highlight", selection: colorBinding(\.hudHighlightColor, save: { $0.saveHudHighlightColor }), supportsOpacity: true)
         }
     }

@@ -278,7 +278,7 @@ enum MainMenuBuilder {
         let view = NSView(frame: NSRect(x: 0, y: 0, width: 248, height: 23))
         view.autoresizingMask = .width
 
-        let label = NSTextField(labelWithString: NSLocalizedString("Lyrics Offset:", comment: "menu"))
+        let label = NSTextField(labelWithString: NSLocalizedString("Song Offset:", comment: "menu"))
         label.translatesAutoresizingMaskIntoConstraints = false
         label.lineBreakMode = .byClipping
         label.font = .systemFont(ofSize: NSFont.systemFontSize)

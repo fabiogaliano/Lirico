@@ -41,6 +41,8 @@ enum UserDefaultsRegistration {
             .desktopLyricsProgressColor: NSColor.controlAccentColor,
             .desktopLyricsShadowColor: #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.55),
             .desktopLyricsBackgroundColor: #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.85),
+            // The lyrics window and Sync by Ear are always dark panels.
+            .lyricsWindowTextColor: NSColor.white,
             .lyricsWindowHighlightColor: NSColor.controlAccentColor,
             .preferBilingualLyrics: isZh,
             .chineseConversionIndex: isHant ? 2 : 0,

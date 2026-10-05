@@ -54,6 +54,7 @@ private struct NowPlayingApplicationListRepresentable: NSViewControllerRepresent
 struct GeneralPreferencesView: View {
     @AppStorage(.launchAndQuitWithPlayer) private var launchAndQuitWithPlayer = false
     @AppStorage(.useSystemWideNowPlaying) private var useSystemWideNowPlaying = false
+    @AppStorage(.menuBarLyricsEnabled) private var menuBarLyricsEnabled = false
     @AppStorage(.combinedMenubarLyrics) private var combinedMenubarLyrics = false
     @AppStorage(.hideMenuBarItems) private var hideMenuBarItems = false
 
@@ -122,7 +123,9 @@ struct GeneralPreferencesView: View {
 
     private var menuBarSection: some View {
         Section {
+            Toggle("Show lyrics in the menu bar", isOn: $menuBarLyricsEnabled)
             Toggle("Show icon and lyrics as one item", isOn: $combinedMenubarLyrics)
+                .disabled(!menuBarLyricsEnabled)
             Toggle("Hide menu bar items", isOn: $hideMenuBarItems)
         } header: {
             Text("Menu Bar")

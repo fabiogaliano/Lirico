@@ -159,7 +159,7 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
 
         offsetLabel.alignment = .center
         offsetLabel.font = .monospacedDigitSystemFont(ofSize: 14, weight: .semibold)
-        offsetLabel.toolTip = NSLocalizedString("Current lyrics offset", comment: "sync readout")
+        offsetLabel.toolTip = NSLocalizedString("This song's offset", comment: "sync readout")
 
         configureImageButton(seekBackButton, symbol: "gobackward.5", label: NSLocalizedString("Back 5 Seconds", comment: "sync"), action: #selector(seekBackward))
         configureImageButton(seekForwardButton, symbol: "goforward.5", label: NSLocalizedString("Forward 5 Seconds", comment: "sync"), action: #selector(seekForward))

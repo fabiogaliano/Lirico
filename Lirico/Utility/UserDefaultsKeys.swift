@@ -61,6 +61,7 @@ extension UserDefaults.DefaultsKeys {
     static let lyricsWindowFontName = Key<String>("LyricsWindowFontName")
     static let lyricsWindowFontSize = Key<Int>("LyricsWindowFontSize")
 
+    static let lyricsWindowTextColor = Key<NSColor>("LyricsWindowTextColor", transformer: .keyedArchive)
     static let lyricsWindowHighlightColor = Key<NSColor>("LyricsWindowHighlightColor", transformer: .keyedArchive)
 
     // Shortcut

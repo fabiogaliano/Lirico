@@ -67,9 +67,7 @@ final class LyricsScrollback {
     func start() {
         scrollView.bind(\.fontName, withDefaultName: .lyricsWindowFontName)
         scrollView.bind(\.fontSize, withUnmatchedDefaultName: .lyricsWindowFontSize)
-        // Base lines read the desktop karaoke's color so these surfaces and the overlay share
-        // one palette; the synced line keeps the lyrics-window highlight color.
-        scrollView.bind(\.textColor, withDefaultName: .desktopLyricsColor)
+        scrollView.bind(\.textColor, withDefaultName: .lyricsWindowTextColor)
         scrollView.bind(\.highlightColor, withDefaultName: .lyricsWindowHighlightColor)
 
         refresh()

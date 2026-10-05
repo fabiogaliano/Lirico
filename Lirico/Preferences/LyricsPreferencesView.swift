@@ -6,8 +6,6 @@ struct LyricsPreferencesView: View {
     @AppStorage(.globalLyricsOffset) private var globalLyricsOffset = 0
     @AppStorage(.preferBilingualLyrics) private var preferBilingualLyrics = false
     @AppStorage(.chineseConversionIndex) private var chineseConversionIndex = 0
-    @AppStorage(.desktopLyricsEnableFurigana) private var enableFurigana = false
-    @AppStorage(.desktopLyricsEnableRomajin) private var enableRomaji = false
 
     // Lyrics saving path popup index — 0 = default, 1 = custom
     @AppStorage(.lyricsSavingPathPopUpIndex) private var savingPathPopUpIndex = 0
@@ -30,6 +28,7 @@ struct LyricsPreferencesView: View {
 
     var body: some View {
         SettingsForm {
+            timingSection
             displaySection
             filesSection
             appleMusicSection
@@ -46,20 +45,29 @@ struct LyricsPreferencesView: View {
 
     // MARK: - Sections
 
-    private var displaySection: some View {
-        Section("Display") {
-            LabeledContent("Offset") {
+    private var timingSection: some View {
+        Section {
+            LabeledContent("Offset for all songs") {
                 HStack(spacing: 4) {
-                    TextField("Offset", value: $globalLyricsOffset, formatter: NumberFormatter())
+                    TextField("Offset for all songs", value: $globalLyricsOffset, formatter: NumberFormatter())
                         .labelsHidden()
                         .textFieldStyle(.roundedBorder)
                         .multilineTextAlignment(.trailing)
                         .frame(width: 70)
                     Text("ms").foregroundStyle(.secondary)
-                    Stepper("Offset", value: $globalLyricsOffset, step: 100)
+                    Stepper("Offset for all songs", value: $globalLyricsOffset, step: 100)
                         .labelsHidden()
                 }
             }
+        } header: {
+            Text("Timing")
+        } footer: {
+            SettingsFooter("Positive values show lyrics earlier. Each song's own offset, set from the menu bar or Sync by Ear, is added to this.")
+        }
+    }
+
+    private var displaySection: some View {
+        Section("Display") {
             Toggle("Prefer bilingual lyrics", isOn: $preferBilingualLyrics)
             Picker("Chinese conversion", selection: $chineseConversionIndex) {
                 Text("None").tag(0)
@@ -68,8 +76,6 @@ struct LyricsPreferencesView: View {
                 Text("Traditional Chinese (Taiwan)").tag(3)
                 Text("Traditional Chinese (Hong Kong)").tag(4)
             }
-            Toggle("Show furigana for Japanese", isOn: $enableFurigana)
-            Toggle("Show romaji for Japanese", isOn: $enableRomaji)
         }
     }
 
