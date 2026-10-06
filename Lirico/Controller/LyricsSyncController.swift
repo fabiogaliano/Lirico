@@ -106,6 +106,11 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
     private var cancelBag = Set<AnyCancellable>()
     private var offsetObservation: NSKeyValueObservation?
 
+    /// Set when the panel's own Pause stopped the song, so committing a line or
+    /// leaving the panel picks it back up. Cleared once anything resumes playback,
+    /// so a pause made in the player itself is never undone from here.
+    private var pausedForSync = false
+
     private lazy var scrollback = LyricsScrollback(
         scrollView: scrollLyricsView,
         nowBand: nowBand,
@@ -260,9 +265,16 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
         scrollback.start()
 
         updatePlayPauseIcon(isPlaying: player.playbackState.isPlaying)
+        // Only real paused → playing transitions clear `pausedForSync`; a stale
+        // "playing" emitted just before our pause lands is deduplicated away.
         player.playbackStateWillChange
+            .map(\.isPlaying)
+            .removeDuplicates()
             .receive(on: DispatchQueue.main)
-            .sink { [unowned self] in self.updatePlayPauseIcon(isPlaying: $0.isPlaying) }
+            .sink { [unowned self] isPlaying in
+                self.updatePlayPauseIcon(isPlaying: isPlaying)
+                if isPlaying { self.pausedForSync = false }
+            }
             .store(in: &cancelBag)
 
         // Reflect the offset from any source (tap, buttons, menu stepper, shortcut).
@@ -303,7 +315,16 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
 
     // MARK: - Actions
 
-    @objc private func togglePlayPause() { player.playPause() }
+    @objc private func togglePlayPause() {
+        pausedForSync = player.playbackState.isPlaying
+        player.playPause()
+    }
+
+    private func resumeIfPausedForSync() {
+        guard pausedForSync else { return }
+        pausedForSync = false
+        if !player.playbackState.isPlaying { player.playPause() }
+    }
     // Re-hear the passage you're tuning: jump back 5s, clamped at the start.
     @objc private func seekBackward() { player.playbackTime = max(0, player.playbackState.time - 5) }
     // Symmetric forward jump, clamped at the track end when its duration is known.
@@ -341,6 +362,8 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
         // it re-centres on the synced line as before. `follow()` already scrolls
         // only while following, so this is exactly that.
         scrollback.follow()
+        // Picking the line is the confirm step of "pause, find it, tap it".
+        resumeIfPausedForSync()
     }
 
     // Tapping is the sync gesture here; route an accidental double-click to the
@@ -356,5 +379,10 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
 
     func windowDidResize(_ notification: Notification) {
         scrollback.viewDidResize()
+    }
+
+    // Done, the close button and ⌘W all end here.
+    func windowWillClose(_ notification: Notification) {
+        resumeIfPausedForSync()
     }
 }
