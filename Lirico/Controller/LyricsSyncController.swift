@@ -106,10 +106,22 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
     private var cancelBag = Set<AnyCancellable>()
     private var offsetObservation: NSKeyValueObservation?
 
-    /// Set when the panel's own Pause stopped the song, so committing a line or
-    /// leaving the panel picks it back up. Cleared once anything resumes playback,
-    /// so a pause made in the player itself is never undone from here.
-    private var pausedForSync = false
+    /// A pause made with the panel's own button, which committing a line or leaving
+    /// the panel undoes. `playPause()` only sends the command, and `playbackState`
+    /// follows once the player announces it, so the pause is tracked until it lands.
+    /// Anything resuming playback drops it, so a pause made in the player itself is
+    /// never undone from here.
+    private enum PanelPause {
+        case none
+        /// Sent, not yet announced by the player.
+        case pending
+        case paused
+        /// The panel was left while the pause was in flight; resume once it lands,
+        /// unless it takes so long that a later pause can't be told apart from it.
+        case resumeWhenPaused(deadline: Date)
+    }
+
+    private var panelPause = PanelPause.none
 
     private lazy var scrollback = LyricsScrollback(
         scrollView: scrollLyricsView,
@@ -265,15 +277,15 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
         scrollback.start()
 
         updatePlayPauseIcon(isPlaying: player.playbackState.isPlaying)
-        // Only real paused → playing transitions clear `pausedForSync`; a stale
-        // "playing" emitted just before our pause lands is deduplicated away.
+        // Deduplicated so a stale "playing" sent just before our pause lands can't
+        // read as a resume.
         player.playbackStateWillChange
             .map(\.isPlaying)
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] isPlaying in
                 self.updatePlayPauseIcon(isPlaying: isPlaying)
-                if isPlaying { self.pausedForSync = false }
+                self.playbackDidChange(isPlaying: isPlaying)
             }
             .store(in: &cancelBag)
 
@@ -316,15 +328,47 @@ final class LyricsSyncViewController: NSViewController, NSWindowDelegate, Scroll
     // MARK: - Actions
 
     @objc private func togglePlayPause() {
-        pausedForSync = player.playbackState.isPlaying
+        if case .pending = panelPause {
+            // A second press before the pause is announced takes it back.
+            panelPause = .none
+        } else {
+            panelPause = player.playbackState.isPlaying ? .pending : .none
+        }
         player.playPause()
     }
 
-    private func resumeIfPausedForSync() {
-        guard pausedForSync else { return }
-        pausedForSync = false
-        if !player.playbackState.isPlaying { player.playPause() }
+    private func playbackDidChange(isPlaying: Bool) {
+        if isPlaying {
+            panelPause = .none
+            return
+        }
+        switch panelPause {
+        case .pending:
+            panelPause = .paused
+        case let .resumeWhenPaused(deadline):
+            panelPause = .none
+            if Date() < deadline { player.playPause() }
+        case .none, .paused:
+            break
+        }
     }
+
+    private func resumeIfPausedForSync() {
+        switch panelPause {
+        case .paused:
+            panelPause = .none
+            if !player.playbackState.isPlaying { player.playPause() }
+        case .pending where !player.playbackState.isPlaying:
+            // The handle already holds the pause; only its delivery to main is behind.
+            panelPause = .none
+            player.playPause()
+        case .pending:
+            panelPause = .resumeWhenPaused(deadline: Date().addingTimeInterval(5))
+        case .none, .resumeWhenPaused:
+            break
+        }
+    }
+
     // Re-hear the passage you're tuning: jump back 5s, clamped at the start.
     @objc private func seekBackward() { player.playbackTime = max(0, player.playbackState.time - 5) }
     // Symmetric forward jump, clamped at the track end when its duration is known.
