@@ -117,4 +117,47 @@ public enum LineRenderer {
 
         return (content, translation)
     }
+
+    /// A line as a lyric surface shows it, with word timing moved to match the text.
+    public struct DisplayLine: Sendable {
+        public let content: String
+        public let translation: String?
+        public let timetag: LyricsLine.Attachments.InlineTimeTag?
+    }
+
+    /// `render`, plus the user's reading choices. Exports stay on `render` because
+    /// romanization is only for reading along and must never replace the saved lyrics.
+    public static func renderForDisplay(
+        line: LyricsLine,
+        lyricsLanguage: String?,
+        translationLanguageCode: String?,
+        convert: ConvertOptions = .all,
+        converter: ((String) -> String)?,
+        restoreExplicit: ExplicitRenderRestoration? = nil,
+        reading: LyricsReading
+    ) -> DisplayLine {
+        let (content, translation) = render(
+            line: line,
+            lyricsLanguage: lyricsLanguage,
+            translationLanguageCode: translationLanguageCode,
+            convert: convert,
+            converter: converter,
+            restoreExplicit: restoreExplicit
+        )
+        let timetag = line.attachments.timetag
+        guard let romanized = LyricsRomanizer.romanize(content, reading: reading, lyricsLanguage: lyricsLanguage) else {
+            return DisplayLine(content: content, translation: translation, timetag: timetag)
+        }
+        return DisplayLine(
+            content: romanized.text,
+            translation: translation,
+            timetag: timetag.map { tag in
+                var moved = tag
+                moved.tags = tag.tags.map {
+                    .init(index: romanized.outputOffset(forSourceOffset: $0.index), time: $0.time)
+                }
+                return moved
+            }
+        )
+    }
 }

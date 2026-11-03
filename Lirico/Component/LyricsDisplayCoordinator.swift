@@ -126,6 +126,13 @@ final class LyricsDisplayCoordinator: @unchecked Sendable {
             }
             .store(in: &cancelBag)
 
+        settings.lyricsReadingPublisher()
+            .receive(on: DispatchQueue.lyricsDisplay)
+            .sink { [weak self] in
+                self?.recompute()
+            }
+            .store(in: &cancelBag)
+
         chineseConverter.converterPublisher
             .receive(on: DispatchQueue.lyricsDisplay)
             .sink { [weak self] converter in
@@ -159,24 +166,42 @@ final class LyricsDisplayCoordinator: @unchecked Sendable {
         let restoreExplicit = explicitResolver.makeRenderRestoration(
             context: ExplicitRestorationContext(supportingCandidates: currentSupporting)
         )
-        let (primaryText, translationText) = LineRenderer.render(
-            line: currentLine,
-            lyricsLanguage: currentMetadata.language,
-            translationLanguageCode: languageCode,
-            convert: [.mainLine, .translation],
-            converter: converter,
-            restoreExplicit: restoreExplicit
-        )
-
-        let nextLineText: String? = nextEnabled.map {
-            LineRenderer.render(
-                line: $0,
-                lyricsLanguage: currentMetadata.language,
-                translationLanguageCode: nil,
-                convert: .mainLine,
+        let reading = settings.lyricsReading
+        let lyricsLanguage = currentMetadata.language
+        let renderMain = { (reading: LyricsReading) in
+            LineRenderer.renderForDisplay(
+                line: currentLine,
+                lyricsLanguage: lyricsLanguage,
+                translationLanguageCode: languageCode,
+                convert: [.mainLine, .translation],
                 converter: converter,
-                restoreExplicit: restoreExplicit
-            ).content
+                restoreExplicit: restoreExplicit,
+                reading: reading
+            )
+        }
+        let renderNext = { (reading: LyricsReading) in
+            nextEnabled.map {
+                LineRenderer.renderForDisplay(
+                    line: $0,
+                    lyricsLanguage: lyricsLanguage,
+                    translationLanguageCode: nil,
+                    convert: .mainLine,
+                    converter: converter,
+                    restoreExplicit: restoreExplicit,
+                    reading: reading
+                ).content
+            }
+        }
+        let main = renderMain(reading)
+
+        var verticalRomanization: LyricsDisplayLine.VerticalRomanization?
+        if reading.korean == .annotated {
+            let romanized = renderMain(reading.withoutAnnotations)
+            verticalRomanization = .init(
+                primaryText: romanized.content,
+                timetag: romanized.timetag,
+                nextLineText: renderNext(reading.withoutAnnotations)
+            )
         }
 
         let duration: TimeInterval
@@ -190,9 +215,11 @@ final class LyricsDisplayCoordinator: @unchecked Sendable {
 
         let line = LyricsDisplayLine(
             line: currentLine,
-            primaryText: primaryText,
-            translationText: translationText,
-            nextLineText: nextLineText,
+            primaryText: main.content,
+            timetag: main.timetag,
+            translationText: main.translation,
+            nextLineText: renderNext(reading),
+            verticalRomanization: verticalRomanization,
             duration: duration
         )
         return LyricsDisplaySnapshot(line: line, hasLyrics: true, isPausedAndHidden: isPausedAndHidden)

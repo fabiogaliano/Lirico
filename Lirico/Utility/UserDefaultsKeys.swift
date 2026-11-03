@@ -27,6 +27,8 @@ extension UserDefaults.DefaultsKeys {
 
     static let preferBilingualLyrics = Key<Bool>("PreferBilingualLyrics")
     static let chineseConversionIndex = Key<Int>("ChineseConversionIndex")
+    static let lyricsKoreanReading = Key<Int>("LyricsKoreanReading")
+    static let lyricsJapaneseReading = Key<Int>("LyricsJapaneseReading")
 
     static let combinedMenubarLyrics = Key<Bool>("CombinedMenubarLyrics")
 
@@ -45,9 +47,6 @@ extension UserDefaults.DefaultsKeys {
 
     static let desktopLyricsXPositionFactor = Key<CGFloat>("DesktopLyricsXPositionFactor")
     static let desktopLyricsYPositionFactor = Key<CGFloat>("DesktopLyricsYPositionFactor")
-
-    static let desktopLyricsEnableFurigana = Key<Bool>("DesktopLyricsEnableFurigana")
-    static let desktopLyricsEnableRomajin = Key<Bool>("DesktopLyricsEnableRomajin")
 
     static let desktopLyricsFontName = Key<String>("DesktopLyricsFontName")
     static let desktopLyricsFontSize = Key<Int>("DesktopLyricsFontSize")

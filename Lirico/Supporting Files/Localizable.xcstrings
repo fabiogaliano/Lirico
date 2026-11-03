@@ -1298,6 +1298,39 @@
         }
       }
     },
+    "Applies wherever Lirico shows lyrics. Romanized text is never saved to files or Apple Music. Furigana and Hangul with romanization appear on desktop lyrics only." : {
+
+    },
+    "Chinese" : {
+
+    },
+    "Furigana" : {
+
+    },
+    "Hangul with romanization" : {
+
+    },
+    "Japanese" : {
+
+    },
+    "Korean" : {
+
+    },
+    "Lyrics Language" : {
+
+    },
+    "Original" : {
+
+    },
+    "Pinyin (Mandarin)" : {
+
+    },
+    "Romanized" : {
+
+    },
+    "Show translation" : {
+
+    },
     "~/Music/Lirico" : {
 
     },

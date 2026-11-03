@@ -78,7 +78,8 @@ final class LyricsScrollback {
             session.$currentLyrics.signal().eraseToAnyPublisher(),
             session.$supportingLyrics.signal().eraseToAnyPublisher(),
             chineseConverter.converterPublisher.signal().eraseToAnyPublisher(),
-            explicitResolver.settingsDidChange.eraseToAnyPublisher()
+            explicitResolver.settingsDidChange.eraseToAnyPublisher(),
+            DisplaySettings().lyricsReadingPublisher()
         )
         .receive(on: DispatchQueue.main)
         .sink { [unowned self] in self.setNeedsRefresh() }
@@ -155,7 +156,7 @@ final class LyricsScrollback {
         guard let index,
               let lyrics = session.currentLyrics,
               lyrics.lines.indices.contains(index),
-              let timetag = lyrics.lines[index].attachments.timetag,
+              let timetag = scrollView.displayedTimetag(forLineIndex: index),
               !timetag.tags.isEmpty
         else {
             scrollView.highlight(lineIndex: index)

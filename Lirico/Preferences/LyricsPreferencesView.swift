@@ -6,6 +6,8 @@ struct LyricsPreferencesView: View {
     @AppStorage(.globalLyricsOffset) private var globalLyricsOffset = 0
     @AppStorage(.preferBilingualLyrics) private var preferBilingualLyrics = false
     @AppStorage(.chineseConversionIndex) private var chineseConversionIndex = 0
+    @AppStorage(.lyricsJapaneseReading) private var japaneseReading = 0
+    @AppStorage(.lyricsKoreanReading) private var koreanReading = 0
 
     // Lyrics saving path popup index — 0 = default, 1 = custom
     @AppStorage(.lyricsSavingPathPopUpIndex) private var savingPathPopUpIndex = 0
@@ -67,15 +69,30 @@ struct LyricsPreferencesView: View {
     }
 
     private var displaySection: some View {
-        Section("Display") {
-            Toggle("Prefer bilingual lyrics", isOn: $preferBilingualLyrics)
-            Picker("Chinese conversion", selection: $chineseConversionIndex) {
-                Text("None").tag(0)
-                Text("Simplified Chinese").tag(1)
-                Text("Traditional Chinese").tag(2)
-                Text("Traditional Chinese (Taiwan)").tag(3)
-                Text("Traditional Chinese (Hong Kong)").tag(4)
+        Section {
+            Toggle("Show translation", isOn: $preferBilingualLyrics)
+            Picker("Chinese", selection: $chineseConversionIndex) {
+                Text("Original").tag(ChineseConversion.none)
+                Text("Simplified Chinese").tag(ChineseConversion.simplified)
+                Text("Traditional Chinese").tag(ChineseConversion.traditional)
+                Text("Traditional Chinese (Taiwan)").tag(ChineseConversion.traditionalTaiwan)
+                Text("Traditional Chinese (Hong Kong)").tag(ChineseConversion.traditionalHongKong)
+                Text("Pinyin (Mandarin)").tag(ChineseConversion.pinyin)
             }
+            Picker("Japanese", selection: $japaneseReading) {
+                Text("Original").tag(LyricsReading.Japanese.original.rawValue)
+                Text("Furigana").tag(LyricsReading.Japanese.furigana.rawValue)
+                Text("Romanized").tag(LyricsReading.Japanese.romanized.rawValue)
+            }
+            Picker("Korean", selection: $koreanReading) {
+                Text("Original").tag(LyricsReading.Korean.original.rawValue)
+                Text("Romanized").tag(LyricsReading.Korean.romanized.rawValue)
+                Text("Hangul with romanization").tag(LyricsReading.Korean.annotated.rawValue)
+            }
+        } header: {
+            Text("Lyrics Language")
+        } footer: {
+            SettingsFooter("Applies wherever Lirico shows lyrics. Romanized text is never saved to files or Apple Music. Furigana and Hangul with romanization appear on desktop lyrics only.")
         }
     }
 

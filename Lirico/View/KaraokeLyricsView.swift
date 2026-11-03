@@ -15,7 +15,7 @@ class KaraokeLyricsView: NSView {
     }
 
     @objc dynamic var drawFurigana = false
-    @objc dynamic var drawRomajin = false
+    @objc dynamic var drawKoreanRomanization = false
 
     @objc dynamic var font = NSFont.systemFont(ofSize: 22, weight: .semibold) { didSet { updateFontSize() } }
     @objc dynamic var textColor: NSColor = .white
@@ -73,9 +73,17 @@ class KaraokeLyricsView: NSView {
         backgroundView.layer?.cornerRadius = font.pointSize * 0.55
     }
 
+    /// How long a line can be before it runs off the screen. The insets along the line are
+    /// `updateFontSize`'s, which always come to 0.7× the font size per side.
+    private var maximumLineLength: CGFloat {
+        guard let screenArea = superview?.bounds else { return .greatestFiniteMagnitude }
+        return (isVertical ? screenArea.height : screenArea.width) - font.pointSize * 1.4
+    }
+
     private func lyricsLabel(_ content: String) -> KaraokeLabel {
         if let view = stackView.subviews.lazy.compactMap({ $0 as? KaraokeLabel }).first(where: { !stackView.arrangedSubviews.contains($0) }) {
             view.alphaValue = 0
+            view.maximumLineLength = maximumLineLength
             view.stringValue = content
             view.removeProgressAnimation()
             view.removeFromSuperview()
@@ -88,12 +96,18 @@ class KaraokeLyricsView: NSView {
             $0.bind(\._shadowColor, to: self, withKeyPath: \.shadowColor)
             $0.bind(\.isVertical, to: self, withKeyPath: \.isVertical)
             $0.bind(\.drawFurigana, to: self, withKeyPath: \.drawFurigana)
-            $0.bind(\.drawRomajin, to: self, withKeyPath: \.drawRomajin)
+            $0.bind(\.drawKoreanRomanization, to: self, withKeyPath: \.drawKoreanRomanization)
+            $0.maximumLineLength = maximumLineLength
             $0.alphaValue = 0
         }
     }
 
     func displayLrc(_ firstLine: String, secondLine: String = "") {
+        // Visible lines need it too: the same line stays up across a change of display.
+        for case let label as KaraokeLabel in stackView.arrangedSubviews {
+            label.maximumLineLength = maximumLineLength
+        }
+
         var toBeHide = stackView.arrangedSubviews.compactMap { $0 as? KaraokeLabel }
         var toBeShow: [NSTextField] = []
         var shouldHideAll = false

@@ -1,5 +1,6 @@
 import AppKit
 import GenericID
+import LiricoFoundation
 
 enum UserDefaultsRegistration {
     /// Starter set of uncensored words for explicit-word restoration.
@@ -30,7 +31,8 @@ enum UserDefaultsRegistration {
         ArchivedColorBindingTransformer.register()
         let currentLang = NSLocale.preferredLanguages.first ?? "en"
         let isZh = currentLang.hasPrefix("zh") || currentLang.hasPrefix("yue")
-        let isHant = isZh && (currentLang.contains("-Hant") || currentLang.contains("-HK"))
+
+        migrateJapaneseReading(defaults: defaults)
 
         let defaultsUrl = Bundle.main.url(forResource: "UserDefaults", withExtension: "plist")!
         if let dict = NSDictionary(contentsOf: defaultsUrl) as? [String: Any] {
@@ -46,11 +48,26 @@ enum UserDefaultsRegistration {
             .lyricsWindowHighlightColor: NSColor.controlAccentColor,
             .lyricsWindowKeepsOnTop: true,
             .preferBilingualLyrics: isZh,
-            .chineseConversionIndex: isHant ? 2 : 0,
+            .chineseConversionIndex: ChineseConversion.defaultValue(forLanguage: currentLang),
+            .lyricsKoreanReading: LyricsReading.Korean.original.rawValue,
+            .lyricsJapaneseReading: LyricsReading.Japanese.original.rawValue,
             .desktopLyricsXPositionFactor: 0.5,
             .desktopLyricsYPositionFactor: 0.9,
             .lyricsExplicitRestorationEnabled: false,
             .lyricsExplicitLexiconEntries: explicitLexiconSeed,
         ])
+    }
+
+    /// Furigana and romaji were two switches before Japanese got a single choice.
+    private static func migrateJapaneseReading(defaults: UserDefaults) {
+        let oldFurigana = "DesktopLyricsEnableFurigana"
+        let oldRomaji = "DesktopLyricsEnableRomajin"
+        guard defaults.object(forKey: oldFurigana) != nil || defaults.object(forKey: oldRomaji) != nil else { return }
+        defaults[.lyricsJapaneseReading] = LyricsReading.Japanese.migrated(
+            furigana: defaults.bool(forKey: oldFurigana),
+            romaji: defaults.bool(forKey: oldRomaji)
+        ).rawValue
+        defaults.removeObject(forKey: oldFurigana)
+        defaults.removeObject(forKey: oldRomaji)
     }
 }

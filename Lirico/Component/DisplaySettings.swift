@@ -1,6 +1,7 @@
 import Combine
 import Foundation
 import GenericID
+import LiricoFoundation
 
 /// Typed view of the display-policy slice of `UserDefaults`.
 ///
@@ -34,6 +35,21 @@ struct DisplaySettings {
         defaults.publisher(for: [.disableLyricsWhenPaused]).eraseToAnyPublisher()
     }
 
+    // MARK: - Reading
+
+    /// How lyrics in each language should read on the lyric surfaces.
+    var lyricsReading: LyricsReading {
+        LyricsReading(
+            korean: LyricsReading.Korean(rawValue: defaults[.lyricsKoreanReading]) ?? .original,
+            japanese: LyricsReading.Japanese(rawValue: defaults[.lyricsJapaneseReading]) ?? .original,
+            chinesePinyin: defaults[.chineseConversionIndex] == ChineseConversion.pinyin
+        )
+    }
+
+    func lyricsReadingPublisher() -> AnyPublisher<Void, Never> {
+        defaults.publisher(for: [.lyricsKoreanReading, .lyricsJapaneseReading, .chineseConversionIndex]).eraseToAnyPublisher()
+    }
+
     // MARK: - Menu bar
 
     /// When true, the menu-bar icon and lyric item are both removed.
@@ -63,6 +79,11 @@ struct DisplaySettings {
     /// it shows a translation or upcoming-line preview in the secondary row.
     var desktopLyricsOneLineMode: Bool {
         defaults[.desktopLyricsOneLineMode]
+    }
+
+    /// When true, the karaoke window lays lines out top to bottom.
+    var desktopLyricsVerticalMode: Bool {
+        defaults[.desktopLyricsVerticalMode]
     }
 
     /// When true, the karaoke secondary row prefers a bilingual translation

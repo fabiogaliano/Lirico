@@ -175,8 +175,6 @@ struct DisplayPreferencesView: View {
     @AppStorage(.hideLyricsWhenMousePassingBy) private var hideWhenMousePassingBy = false
     @AppStorage(.disableLyricsWhenPaused) private var disableWhenPaused = false
     @AppStorage(.disableLyricsWhenSreenShot) private var disableWhenScreenShot = false
-    @AppStorage(.desktopLyricsEnableFurigana) private var enableFurigana = false
-    @AppStorage(.desktopLyricsEnableRomajin) private var enableRomaji = false
 
     @StateObject private var vm = DisplayPreferencesViewModel()
 
@@ -233,8 +231,6 @@ struct DisplayPreferencesView: View {
             ColorPicker("Background", selection: colorBinding(\.desktopBackgroundColor, save: { $0.saveDesktopBackgroundColor }), supportsOpacity: true)
             Toggle("One line", isOn: $oneLineMode)
             Toggle("Vertical", isOn: $verticalMode)
-            Toggle("Show furigana for Japanese", isOn: $enableFurigana)
-            Toggle("Show romaji for Japanese", isOn: $enableRomaji)
         }
     }
 

@@ -2,6 +2,7 @@ import Cocoa
 import SwiftCF
 import CoreGraphicsExt
 import CoreTextExt
+import LiricoFoundation
 
 class KaraokeLabel: NSTextField {
     @objc dynamic var isVertical = false {
@@ -18,8 +19,19 @@ class KaraokeLabel: NSTextField {
         }
     }
 
-    @objc dynamic var drawRomajin = false {
+    /// Small romanization under Hangul. Vertical lines never have it: they get fully
+    /// romanized text instead.
+    @objc dynamic var drawKoreanRomanization = false {
         didSet {
+            clearCache()
+            invalidateIntrinsicContentSize()
+        }
+    }
+
+    /// A longer line is shrunk to this length, so it stays on the one row highlighting follows.
+    var maximumLineLength = CGFloat.greatestFiniteMagnitude {
+        didSet {
+            guard maximumLineLength != oldValue else { return }
             clearCache()
             invalidateIntrinsicContentSize()
         }
@@ -74,7 +86,6 @@ class KaraokeLabel: NSTextField {
 
     private var _baseAttrString: NSAttributedString?
     private var _progressAttrString: NSAttributedString?
-    private var romajinAnnotations: [(String, NSRange)] = []
 
     private func attrString(_ variant: RenderVariant) -> NSAttributedString {
         switch variant {
@@ -99,9 +110,7 @@ class KaraokeLabel: NSTextField {
         let attrString = NSMutableAttributedString(attributedString: attributedStringValue)
         let string = attrString.string as NSString
         let shouldDrawFurigana = drawFurigana && string.dominantLanguage == "ja"
-        let shouldDrawRomajin = drawRomajin && string.dominantLanguage == "ja"
         let tokenizer = CFStringTokenizer.create(string: .from(string))
-        romajinAnnotations = []
         for tokenType in IteratorSequence(tokenizer) where tokenType.contains(.isCJWordMask) {
             if isVertical {
                 let tokenRange = tokenizer.currentTokenRange()
@@ -118,12 +127,53 @@ class KaraokeLabel: NSTextField {
                 let annotation = CTRubyAnnotation.create(furigana, attributes: attr)
                 attrString.addAttribute(.cf(.ctRubyAnnotation), value: annotation, range: range)
             }
-            if shouldDrawRomajin, let (romajin, range) = tokenizer.currentRomanjiAnnotation(in: string) {
-                romajinAnnotations.append((romajin as String, range))
+        }
+        if drawKoreanRomanization, !isVertical {
+            for run in KoreanRomanizer.runs(in: attrString.string) {
+                var attr: [CFAttributedString.Key: Any] = [.ctRubySizeFactor: 0.5]
+                attr[.ctForegroundColor] = foregroundColor
+                let annotation = CTRubyAnnotation.create(
+                    run.text as CFString, position: .after, alignment: .center, overhang: .none, attributes: attr
+                )
+                attrString.addAttribute(.cf(.ctRubyAnnotation), value: annotation, range: run.range)
             }
         }
         foregroundColor?.do { attrString.addAttributes([.foregroundColor: $0], range: attrString.fullRange) }
+        shrinkToMaximumLength(attrString)
         return attrString
+    }
+
+    private func shrinkToMaximumLength(_ attrString: NSMutableAttributedString) {
+        guard maximumLineLength > 0 else { return }
+        // Several passes because system fonts space their letters wider at smaller sizes,
+        // so one proportional step still leaves the line a little too long.
+        for _ in 0 ..< 4 {
+            let length = naturalLength(of: attrString)
+            guard length > maximumLineLength else { return }
+            scale(attrString, by: maximumLineLength / length)
+        }
+    }
+
+    private func naturalLength(of attrString: NSAttributedString) -> CGFloat {
+        let progression: CTFrameProgression = isVertical ? .rightToLeft : .topToBottom
+        let frameAttr: [CTFrame.AttributeKey: Any] = [.progression: progression.rawValue as NSNumber]
+        let size = CTFramesetter.create(attributedString: attrString).suggestFrameSize(
+            constraints: CGSize(width: CGFloat.infinity, height: .infinity),
+            frameAttributes: frameAttr
+        ).size
+        return isVertical ? size.height : size.width
+    }
+
+    private func scale(_ attrString: NSMutableAttributedString, by factor: CGFloat) {
+        attrString.enumerateAttribute(.font, in: attrString.fullRange) { value, range, _ in
+            guard let font = value as? NSFont,
+                  let scaled = NSFont(descriptor: font.fontDescriptor, size: font.pointSize * factor) else { return }
+            attrString.addAttribute(.font, value: scaled, range: range)
+        }
+        attrString.enumerateAttribute(.baselineOffset, in: attrString.fullRange) { value, range, _ in
+            guard let offset = value as? CGFloat else { return }
+            attrString.addAttribute(.baselineOffset, value: offset * factor, range: range)
+        }
     }
 
     private var _baseCTFrame: CTFrame?
@@ -163,7 +213,14 @@ class KaraokeLabel: NSTextField {
         let frameAttr: [CTFrame.AttributeKey: Any] = [.progression: progression.rawValue as NSNumber]
         let framesetter = CTFramesetter.create(attributedString: attrString(variant))
         let (suggestSize, fitRange) = framesetter.suggestFrameSize(constraints: (dirtyRect ?? bounds).size, frameAttributes: frameAttr)
-        let path = CGPath(rect: CGRect(origin: .zero, size: suggestSize), transform: nil)
+        // A frame exactly as long as its text can break the last word onto a second row.
+        var frameSize = suggestSize
+        if isVertical {
+            frameSize.height += 1
+        } else {
+            frameSize.width += 1
+        }
+        let path = CGPath(rect: CGRect(origin: .zero, size: frameSize), transform: nil)
         let ctFrame = framesetter.frame(stringRange: fitRange, path: path, frameAttributes: frameAttr)
         switch variant {
         case .base:
@@ -205,7 +262,6 @@ class KaraokeLabel: NSTextField {
         context.translateBy(x: 0, y: bounds.height)
         context.scaleBy(x: 1.0, y: -1.0)
         CTFrameDraw(frame, context)
-        drawRomajiAnnotations(in: context, frame: frame, textColor: color)
         context.restoreGState()
     }
 
@@ -347,98 +403,5 @@ class KaraokeLabel: NSTextField {
         progressLayer.frame = .zero
         CATransaction.commit()
         needsDisplay = true
-    }
-
-    private func drawRomajiAnnotations(in context: CGContext, frame: CTFrame, textColor: NSColor?) {
-        guard drawRomajin, !romajinAnnotations.isEmpty else { return }
-
-        let lines = frame.lines
-        let origins = frame.lineOrigins(range: CFRangeMake(0, lines.count))
-        var annotationIndex = 0
-        let baseFontSize = font?.pointSize ?? 24
-
-        for (line, origin) in zip(lines, origins) {
-            for run in line.glyphRuns {
-                let range = run.stringRange
-                var subIndex = 0
-
-                while annotationIndex + subIndex < romajinAnnotations.count {
-                    let (romajin, annotationRange) = romajinAnnotations[annotationIndex + subIndex]
-                    guard NSRange(location: range.location, length: range.length).contains(annotationRange.location) else {
-                        break
-                    }
-                    var ascent: CGFloat = 0
-                    var descent: CGFloat = 0
-                    var leading: CGFloat = 0
-                    let width = CTRunGetTypographicBounds(run, CFRangeMake(0, 0), &ascent, &descent, &leading)
-                    var position = CGPoint.zero
-                    CTRunGetPositions(run, CFRangeMake(0, 1), &position)
-                    let glyphX = origin.x + position.x
-
-                    let relativeOffset = CGFloat(annotationRange.location - range.location) / CGFloat(range.length) * width
-                    let glyphBounds = CGRect(
-                        x: glyphX + relativeOffset,
-                        y: origin.y - descent,
-                        width: width / CGFloat(range.length) * CGFloat(annotationRange.length),
-                        height: ascent + descent
-                    )
-                    drawRubyAnnotation(romajin, in: glyphBounds, baseFontSize: baseFontSize, context: context, textColor: textColor)
-                    subIndex += 1
-                }
-                annotationIndex += subIndex
-            }
-        }
-
-        while annotationIndex < romajinAnnotations.count {
-            let (romajin, _) = romajinAnnotations[annotationIndex]
-            if let lastLine = lines.last, let lastOrigin = origins.last, let lastRun = lastLine.glyphRuns.last {
-                var ascent: CGFloat = 0
-                var descent: CGFloat = 0
-                var leading: CGFloat = 0
-                let width = CTRunGetTypographicBounds(lastRun, CFRangeMake(0, 0), &ascent, &descent, &leading)
-                var position = CGPoint.zero
-                CTRunGetPositions(lastRun, CFRangeMake(0, 1), &position)
-                let glyphX = lastOrigin.x + position.x + width
-                let glyphBounds = CGRect(
-                    x: glyphX,
-                    y: lastOrigin.y - descent,
-                    width: width,
-                    height: ascent + descent
-                )
-                drawRubyAnnotation(romajin, in: glyphBounds, baseFontSize: baseFontSize, context: context, textColor: textColor)
-            }
-            annotationIndex += 1
-        }
-    }
-
-    private func drawRubyAnnotation(
-        _ romajin: String,
-        in glyphBounds: CGRect,
-        baseFontSize: CGFloat,
-        context: CGContext,
-        textColor: NSColor?
-    ) {
-        var rubyFontSize = baseFontSize * 0.3
-        var rubyAttr: [NSAttributedString.Key: Any] = [
-            .foregroundColor: textColor ?? .black,
-            .font: NSFont.systemFont(ofSize: rubyFontSize),
-        ]
-        var rubyString = NSAttributedString(string: romajin, attributes: rubyAttr)
-        var rubyWidth = rubyString.size().width
-        let maxWidth = glyphBounds.width
-
-        while rubyWidth > maxWidth * 0.8, rubyFontSize > 1 {
-            rubyFontSize *= 0.9
-            rubyAttr[.font] = NSFont.systemFont(ofSize: rubyFontSize)
-            rubyString = NSAttributedString(string: romajin, attributes: rubyAttr)
-            rubyWidth = rubyString.size().width
-        }
-
-        let xOffset = (glyphBounds.width - rubyWidth) / 2
-        context.textPosition = CGPoint(
-            x: glyphBounds.minX + xOffset,
-            y: glyphBounds.minY - baseFontSize * 0.2
-        )
-        CTLineDraw(CTLineCreateWithAttributedString(rubyString), context)
     }
 }

@@ -220,22 +220,25 @@ class ScrollLyricsView: NSScrollView {
 
         var lrcContent = ""
         var newRanges: [RenderedLineRange] = []
+        let reading = displaySettings.lyricsReading
         let displayed: [(Int, LyricsLine)] = lyrics.lines.enumerated().compactMap { index, line in
             (line.enabled && !line.content.isEmpty) ? (index, line) : nil
         }
         let languageCode = lyrics.metadata.translationLanguages.first
 
         for (i, (originalIndex, line)) in displayed.enumerated() {
-            let (mainContent, renderedTrans) = LineRenderer.render(
+            let rendered = LineRenderer.renderForDisplay(
                 line: line,
                 lyricsLanguage: lyrics.metadata.language,
                 translationLanguageCode: languageCode,
                 convert: .all,
                 converter: converter?.convert,
-                restoreExplicit: restoreExplicit
+                restoreExplicit: restoreExplicit,
+                reading: reading
             )
+            let mainContent = rendered.content
             var lineStr = mainContent
-            if let trans = renderedTrans, displaySettings.preferBilingualLyrics {
+            if let trans = rendered.translation, displaySettings.preferBilingualLyrics {
                 lineStr += "\n" + trans
             }
             let range = NSRange(location: lrcContent.utf16.count, length: lineStr.utf16.count)
@@ -244,7 +247,7 @@ class ScrollLyricsView: NSScrollView {
                 position: line.position,
                 range: range,
                 mainContentLength: mainContent.utf16.count,
-                timetag: line.attachments.timetag
+                timetag: rendered.timetag
             ))
             lrcContent += lineStr
             if i < displayed.count - 1 {
@@ -434,6 +437,11 @@ class ScrollLyricsView: NSScrollView {
     }
 
     /// Find the displayed range nearest to the active original lyrics-line index.
+    /// Word timing for the text on screen, which differs from the line's own once romanized.
+    func displayedTimetag(forLineIndex lineIndex: Int) -> LyricsLine.Attachments.InlineTimeTag? {
+        displayedRange(forLineIndex: lineIndex)?.timetag
+    }
+
     /// The clock can report indices for enabled lines we chose not to display
     /// (empty content); fall back to the closest displayed line so highlight/scroll
     /// stay anchored.

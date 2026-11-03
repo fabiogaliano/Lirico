@@ -10,13 +10,24 @@ import LyricsCore
 struct LyricsDisplayLine: Sendable {
     let line: LyricsLine
 
-    /// Main-line text after Chinese conversion.
+    /// Main-line text after Chinese conversion and romanization.
     let primaryText: String
+    /// Word timing that matches `primaryText`, which `line` doesn't once it's romanized.
+    let timetag: LyricsLine.Attachments.InlineTimeTag?
     /// Translation text after Chinese conversion, when the lyrics have a translation.
     let translationText: String?
     /// Next-enabled-line text after Chinese conversion — used by the
     /// desktop karaoke surface as the second visible row.
     let nextLineText: String?
+    /// Fully romanized text for vertical desktop lyrics, which can't draw small text under
+    /// Hangul. Nil unless the user chose that small text.
+    let verticalRomanization: VerticalRomanization?
+
+    struct VerticalRomanization: Sendable {
+        let primaryText: String
+        let timetag: LyricsLine.Attachments.InlineTimeTag?
+        let nextLineText: String?
+    }
 
     /// How long the active line is expected to remain on screen. Falls back
     /// to the gap to the next line, then to 2s. Used by the menu-bar marquee.

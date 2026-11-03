@@ -14,11 +14,7 @@ public enum AppleMusicExport {
     ) -> String {
         let content: String
         if plainLRC {
-            var legacy = includeTranslation ? lyrics.legacyDescription : untranslatedLegacyDescription(of: lyrics)
-            if let converter, lyrics.metadata.language?.hasPrefix("zh") == true {
-                legacy = converter(legacy)
-            }
-            content = legacy
+            content = legacyDescription(of: lyrics, includeTranslation: includeTranslation, converter: converter)
         } else {
             let translationCode = includeTranslation ? lyrics.metadata.translationLanguages.first : nil
             content = lyrics.lines.map { line -> String in
@@ -37,10 +33,24 @@ public enum AppleMusicExport {
         return content.replacingOccurrences(of: #"\n{3,}"#, with: "\n\n", options: .regularExpression)
     }
 
-    /// `Lyrics.legacyDescription` without the 【translation】 it always appends.
-    private static func untranslatedLegacyDescription(of lyrics: Lyrics) -> String {
-        let tags = lyrics.idTags.map { "[\($0.key.rawValue):\($0.value)]" }
-        let lines = lyrics.lines.map { "[\($0.timeTag)]\($0.content)" }
+    /// `Lyrics.legacyDescription`, with the choice of leaving out the 【translation】 it always
+    /// appends. Each part is converted on its own, because a Chinese translation can sit beside
+    /// Japanese lyrics whose kanji must stay as they are.
+    private static func legacyDescription(of lyrics: Lyrics, includeTranslation: Bool, converter: ((String) -> String)?) -> String {
+        let lyricsAreChinese = lyrics.metadata.language?.hasPrefix("zh") == true
+        let translationCode = lyrics.metadata.translationLanguages.first
+        let translationIsChinese = translationCode?.hasPrefix("zh") ?? lyricsAreChinese
+        let convertLyrics = lyricsAreChinese ? converter : nil
+        let convertTranslation = translationIsChinese ? converter : nil
+
+        let tags = lyrics.idTags.map { "[\($0.key.rawValue):\(convertLyrics?($0.value) ?? $0.value)]" }
+        let lines = lyrics.lines.map { line -> String in
+            let content = convertLyrics?(line.content) ?? line.content
+            guard includeTranslation, let translation = line.attachments.translation() else {
+                return "[\(line.timeTag)]\(content)"
+            }
+            return "[\(line.timeTag)]\(content)【\(convertTranslation?(translation) ?? translation)】"
+        }
         return (tags + lines).joined(separator: "\n")
     }
 }

@@ -57,7 +57,7 @@ class KaraokeLyricsWindowController: NSWindowController {
             .store(in: &cancelBag)
         // Turning the overlay back on must re-render: the disabled state rendered nothing, and
         // while paused no new snapshot arrives to replace it.
-        defaults.publisher(for: [.preferBilingualLyrics, .desktopLyricsOneLineMode, .desktopLyricsEnabled])
+        defaults.publisher(for: [.preferBilingualLyrics, .desktopLyricsOneLineMode, .desktopLyricsEnabled, .desktopLyricsVerticalMode])
             .prepend()
             .receive(on: DispatchQueue.main)
             .merge(with: clock.offsetChanges)
@@ -99,8 +99,12 @@ class KaraokeLyricsWindowController: NSWindowController {
         lyricsView.bind(\.shadowColor, withDefaultName: .desktopLyricsShadowColor)
         lyricsView.bind(\.backgroundColor, withDefaultName: .desktopLyricsBackgroundColor)
         lyricsView.bind(\.isVertical, withDefaultName: .desktopLyricsVerticalMode, options: [.nullPlaceholder: false])
-        lyricsView.bind(\.drawFurigana, withDefaultName: .desktopLyricsEnableFurigana, options: [.nullPlaceholder: false])
-        lyricsView.bind(\.drawRomajin, withDefaultName: .desktopLyricsEnableRomajin, options: [.nullPlaceholder: false])
+        observeDefaults(key: .lyricsJapaneseReading, options: [.new, .initial]) { [unowned self] _, change in
+            self.lyricsView.drawFurigana = change.newValue == LyricsReading.Japanese.furigana.rawValue
+        }
+        observeDefaults(key: .lyricsKoreanReading, options: [.new, .initial]) { [unowned self] _, change in
+            self.lyricsView.drawKoreanRomanization = change.newValue == LyricsReading.Korean.annotated.rawValue
+        }
 
         let negateOption = [NSBindingOption.valueTransformerName: NSValueTransformerName.negateBooleanTransformerName]
         window?.contentView?.bind(.hidden, withDefaultName: .desktopLyricsEnabled, options: negateOption)
@@ -182,7 +186,8 @@ class KaraokeLyricsWindowController: NSWindowController {
             snapshot: latestSnapshot,
             desktopLyricsEnabled: settings.desktopLyricsEnabled,
             oneLineMode: settings.desktopLyricsOneLineMode,
-            preferBilingual: settings.preferBilingualLyrics
+            preferBilingual: settings.preferBilingualLyrics,
+            isVertical: settings.desktopLyricsVerticalMode
         )
         lyricsView.displayLrc(presentation.primary, secondLine: presentation.secondary)
 
@@ -190,7 +195,7 @@ class KaraokeLyricsWindowController: NSWindowController {
               latestSnapshot.isLive,
               let line = latestSnapshot.line,
               let upperTextField = lyricsView.displayLine1,
-              let timetag = line.line.attachments.timetag else {
+              let timetag = presentation.timetag else {
             return
         }
         let adjustedPos = clock.adjustedPlaybackTime
@@ -297,28 +302,35 @@ extension ConstraintPriority {
 struct KaraokeLinePresentation {
     let primary: String
     let secondary: String
+    let timetag: LyricsLine.Attachments.InlineTimeTag?
 
-    static let empty = KaraokeLinePresentation(primary: "", secondary: "")
+    static let empty = KaraokeLinePresentation(primary: "", secondary: "", timetag: nil)
 
     static func resolve(
         snapshot: LyricsDisplaySnapshot,
         desktopLyricsEnabled: Bool,
         oneLineMode: Bool,
-        preferBilingual: Bool
+        preferBilingual: Bool,
+        isVertical: Bool
     ) -> KaraokeLinePresentation {
         guard desktopLyricsEnabled, snapshot.isLive, let line = snapshot.line else {
             return .empty
         }
+        let romanized = isVertical ? line.verticalRomanization : nil
         let secondary: String
         if oneLineMode {
             secondary = ""
         } else if preferBilingual, let translation = line.translationText {
             secondary = translation
-        } else if let next = line.nextLineText {
+        } else if let next = romanized?.nextLineText ?? line.nextLineText {
             secondary = next
         } else {
             secondary = ""
         }
-        return KaraokeLinePresentation(primary: line.primaryText, secondary: secondary)
+        return KaraokeLinePresentation(
+            primary: romanized?.primaryText ?? line.primaryText,
+            secondary: secondary,
+            timetag: romanized == nil ? line.timetag : romanized?.timetag
+        )
     }
 }
