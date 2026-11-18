@@ -46,9 +46,11 @@ final class NowPlayingMenuBarItem: NSObject {
         super.init()
         model.openMenu = { [weak self] in self?.openMenu() }
         model.openPlayer = { [weak self] in self?.openPlayer() }
-        player.currentTrackWillChange.map { _ in }
-            .merge(with: player.playbackStateWillChange.map { _ in })
-            .receive(on: DispatchQueue.main)
+        // Closures written here belong to the main actor, and Swift traps if one runs elsewhere,
+        // so each stream must leave the player's queue before its first closure.
+        let trackChanges = player.currentTrackWillChange.receive(on: DispatchQueue.main).map { _ in }
+        let stateChanges = player.playbackStateWillChange.receive(on: DispatchQueue.main).map { _ in }
+        trackChanges.merge(with: stateChanges)
             .sink { [weak self] in self?.refresh() }
             .store(in: &cancelBag)
     }
