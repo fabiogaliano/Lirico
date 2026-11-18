@@ -18,6 +18,7 @@
 		FA5117C000000000000A0002 /* LyricsSyncController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5117C000000000000A0001 /* LyricsSyncController.swift */; };
 		FA5117C000000000000A0004 /* LyricsScrollback.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5117C000000000000A0003 /* LyricsScrollback.swift */; };
 		FA5117C000000000000A0006 /* ShortcutNotice.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5117C000000000000A0005 /* ShortcutNotice.swift */; };
+		FA5117C000000000000A0008 /* NowPlayingMenuBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5117C000000000000A0007 /* NowPlayingMenuBarItem.swift */; };
 		BB4141AE1E458BA800A51775 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4141AD1E458BA800A51775 /* AppDelegate.swift */; };
 		F1C0A1C000000000000A0002 /* Lirico.icon in Resources */ = {isa = PBXBuildFile; fileRef = F1C0A1C000000000000A0001 /* Lirico.icon */; };
 		BB4141B21E458BA800A51775 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB4141B11E458BA800A51775 /* Assets.xcassets */; };
@@ -116,6 +117,7 @@
 		FA5117C000000000000A0001 /* LyricsSyncController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsSyncController.swift; sourceTree = "<group>"; };
 		FA5117C000000000000A0003 /* LyricsScrollback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsScrollback.swift; sourceTree = "<group>"; };
 		FA5117C000000000000A0005 /* ShortcutNotice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutNotice.swift; sourceTree = "<group>"; };
+		FA5117C000000000000A0007 /* NowPlayingMenuBarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingMenuBarItem.swift; sourceTree = "<group>"; };
 		BB4141AA1E458BA800A51775 /* Lirico-Debug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Lirico-Debug.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB4141AD1E458BA800A51775 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F1C0A1C000000000000A0001 /* Lirico.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = Lirico.icon; sourceTree = "<group>"; };
@@ -290,6 +292,7 @@
 				FA5117C000000000000A0001 /* LyricsSyncController.swift */,
 				FA5117C000000000000A0003 /* LyricsScrollback.swift */,
 				FA5117C000000000000A0005 /* ShortcutNotice.swift */,
+				FA5117C000000000000A0007 /* NowPlayingMenuBarItem.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -557,6 +560,7 @@
 				FA5117C000000000000A0002 /* LyricsSyncController.swift in Sources */,
 				FA5117C000000000000A0004 /* LyricsScrollback.swift in Sources */,
 				FA5117C000000000000A0006 /* ShortcutNotice.swift in Sources */,
+				FA5117C000000000000A0008 /* NowPlayingMenuBarItem.swift in Sources */,
 				F1D0000100000000000A0001 /* MainMenuBuilder.swift in Sources */,
 				F1D0000300000000000A0002 /* main.swift in Sources */,
 				F1A5EA0100000000000A0001 /* SearchLyricsView.swift in Sources */,

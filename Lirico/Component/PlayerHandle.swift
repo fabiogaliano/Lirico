@@ -20,12 +20,17 @@ protocol PlayerHandle: AnyObject {
 
     var currentTrackWillChange: AnyPublisher<MusicTrack?, Never> { get }
     var playbackStateWillChange: AnyPublisher<PlaybackState, Never> { get }
+    /// Emits after `designatedPlayerBundleID` and `name` start answering for a new player.
+    var designatedPlayerDidChange: AnyPublisher<Void, Never> { get }
 
     /// Bundle ID of the underlying scriptable player, if any. Used to match
     /// against the terminated-app notification for "quit with player".
     var designatedPlayerBundleID: String? { get }
+    var hasDesignatedPlayer: Bool { get }
 
     func playPause()
+    func skipToNext()
+    func skipToPrevious()
 }
 
 /// The player announces a change from `willSet` on its own queue, so its properties still
@@ -47,12 +52,16 @@ final class SelectedPlayerHandle: PlayerHandle {
     }
     private var _designated: MusicPlayerProtocol?
     private let designatedLock = NSLock()
+    private let designatedChange = PassthroughSubject<Void, Never>()
 
     init(player: MusicPlayers.Selected = .shared) {
         track = CurrentValueSubject(player.currentTrack)
         state = CurrentValueSubject(player.playbackState)
         player.$designatedPlayer
-            .sink { [weak self] in self?.designated = $0 }
+            .sink { [weak self] in
+                self?.designated = $0
+                self?.designatedChange.send()
+            }
             .store(in: &cancelBag)
         player.currentTrackWillChange
             .sink { [track] in track.send($0) }
@@ -73,12 +82,17 @@ final class SelectedPlayerHandle: PlayerHandle {
 
     var currentTrackWillChange: AnyPublisher<MusicTrack?, Never> { track.eraseToAnyPublisher() }
     var playbackStateWillChange: AnyPublisher<PlaybackState, Never> { state.eraseToAnyPublisher() }
+    var designatedPlayerDidChange: AnyPublisher<Void, Never> { designatedChange.eraseToAnyPublisher() }
 
     var designatedPlayerBundleID: String? {
         (designated as? MusicPlayers.Scriptable)?.playerBundleID
     }
 
+    var hasDesignatedPlayer: Bool { designated != nil }
+
     func playPause() { designated?.playPause() }
+    func skipToNext() { designated?.skipToNextItem() }
+    func skipToPrevious() { designated?.skipToPreviousItem() }
 }
 
 /// Detects the one failure that otherwise looks exactly like "nothing is playing":

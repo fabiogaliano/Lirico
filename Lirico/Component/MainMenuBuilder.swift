@@ -105,10 +105,13 @@ enum MainMenuBuilder {
 
         menu.addItem(nowPlayingItem())
         menu.addItem(.separator())
-        menu.addItem(menuBarLyricsToggleItem())
+        menu.addItem(.sectionHeader(title: NSLocalizedString("Show", comment: "menu section: where lyrics appear")))
         menu.addItem(karaokeLyricsToggleItem())
+        menu.addItem(karaokeAboveAllWindowsToggleItem())
+        menu.addItem(menuBarLyricsToggleItem())
+        menu.addItem(songMenuBarToggleItem())
         menu.addItem(showLyricsWindowItem(target: target))
-        menu.addItem(.separator())
+        menu.addItem(.sectionHeader(title: NSLocalizedString("This Song", comment: "menu section: actions for the current song")))
 
         let offset = makeLyricsOffsetView()
         menu.addItem(lyricsOffsetItem(view: offset.view))
@@ -117,9 +120,6 @@ enum MainMenuBuilder {
         menu.addItem(lyricsSubmenuItem(target: target))
         menu.addItem(.separator())
         menu.addItem(preferencesItem(target: target))
-        menu.addItem(.separator())
-        menu.addItem(aboutItem(target: target))
-        menu.addItem(.separator())
         menu.addItem(quitItem())
 
         return StatusBarMenu(
@@ -131,6 +131,14 @@ enum MainMenuBuilder {
     }
 
     static let nowPlayingIdentifier = NSUserInterfaceItemIdentifier("MainMenu.NowPlaying")
+    static let saveToAppleMusicIdentifier = NSUserInterfaceItemIdentifier("MainMenu.SaveToAppleMusic")
+
+    /// Hides the song header and the separator under it.
+    static func setNowPlayingHeaderHidden(_ hidden: Bool, in menu: NSMenu) {
+        guard let index = menu.items.firstIndex(where: { $0.identifier == nowPlayingIdentifier }) else { return }
+        menu.items[index].isHidden = hidden
+        menu.items[index + 1].isHidden = hidden
+    }
 
     /// Informational header, filled in by `AppDelegate.menuWillOpen`. No action, so the
     /// auto-enabling menu shows it disabled.
@@ -141,7 +149,7 @@ enum MainMenuBuilder {
     }
 
     private static func menuBarLyricsToggleItem() -> NSMenuItem {
-        let item = NSMenuItem(title: NSLocalizedString("Menu Bar Lyrics", comment: "menu"), action: nil, keyEquivalent: "")
+        let item = NSMenuItem(title: NSLocalizedString("Lyrics in Menu Bar", comment: "menu"), action: nil, keyEquivalent: "")
         item.bind(
             .value,
             to: NSUserDefaultsController.shared,
@@ -151,8 +159,19 @@ enum MainMenuBuilder {
         return item
     }
 
+    private static func songMenuBarToggleItem() -> NSMenuItem {
+        let item = NSMenuItem(title: NSLocalizedString("Now Playing in Menu Bar", comment: "menu"), action: nil, keyEquivalent: "")
+        item.bind(
+            .value,
+            to: NSUserDefaultsController.shared,
+            withKeyPath: "values.NowPlayingMenuBarItemEnabled",
+            options: [.validatesImmediately: true]
+        )
+        return item
+    }
+
     private static func karaokeLyricsToggleItem() -> NSMenuItem {
-        let item = NSMenuItem(title: NSLocalizedString("Desktop Lyrics", comment: "menu"), action: nil, keyEquivalent: "")
+        let item = NSMenuItem(title: NSLocalizedString("Floating Lyrics", comment: "menu"), action: nil, keyEquivalent: "")
         item.bind(
             .value,
             to: NSUserDefaultsController.shared,
@@ -162,9 +181,20 @@ enum MainMenuBuilder {
         return item
     }
 
+    private static func karaokeAboveAllWindowsToggleItem() -> NSMenuItem {
+        let item = NSMenuItem(title: NSLocalizedString("Keep Floating Lyrics on Top", comment: "menu; floating lyrics"), action: nil, keyEquivalent: "")
+        item.bind(
+            .value,
+            to: NSUserDefaultsController.shared,
+            withKeyPath: "values.DesktopLyricsAboveAllWindows",
+            options: [.validatesImmediately: true]
+        )
+        return item
+    }
+
     private static func showLyricsWindowItem(target: AppDelegate) -> NSMenuItem {
         let item = NSMenuItem(
-            title: NSLocalizedString("Lyrics Window", comment: "menu; checked while the window is open"),
+            title: NSLocalizedString("Full Lyrics Window", comment: "menu; checked while the window is open"),
             action: #selector(AppDelegate.showLyricsHUD(_:)),
             keyEquivalent: ""
         )
@@ -199,12 +229,12 @@ enum MainMenuBuilder {
     }
 
     private static func lyricsSubmenuItem(target: AppDelegate) -> NSMenuItem {
-        let parent = NSMenuItem(title: NSLocalizedString("Lyrics", comment: "menu"), action: nil, keyEquivalent: "")
+        let parent = NSMenuItem(title: NSLocalizedString("More", comment: "menu; actions for the current song"), action: nil, keyEquivalent: "")
 
-        let submenu = NSMenu(title: NSLocalizedString("Lyrics", comment: "menu"))
+        let submenu = NSMenu(title: NSLocalizedString("More", comment: "menu; actions for the current song"))
 
         let showInFinder = NSMenuItem(
-            title: NSLocalizedString("Show in Finder", comment: "menu"),
+            title: NSLocalizedString("Show Lyrics File in Finder", comment: "menu"),
             action: #selector(AppDelegate.showCurrentLyricsInFinder(_:)),
             keyEquivalent: ""
         )
@@ -233,6 +263,7 @@ enum MainMenuBuilder {
             keyEquivalent: ""
         )
         writeToiTunes.target = target
+        writeToiTunes.identifier = saveToAppleMusicIdentifier
         submenu.addItem(writeToiTunes)
 
         parent.submenu = submenu
@@ -244,16 +275,6 @@ enum MainMenuBuilder {
             title: NSLocalizedString("Settings…", comment: "menu"),
             action: #selector(AppDelegate.showPreferences(_:)),
             keyEquivalent: ","
-        )
-        item.target = target
-        return item
-    }
-
-    private static func aboutItem(target: AppDelegate) -> NSMenuItem {
-        let item = NSMenuItem(
-            title: NSLocalizedString("About Lirico", comment: "menu"),
-            action: #selector(AppDelegate.aboutLiricoAction(_:)),
-            keyEquivalent: ""
         )
         item.target = target
         return item
@@ -279,7 +300,7 @@ enum MainMenuBuilder {
         let view = NSView(frame: NSRect(x: 0, y: 0, width: 248, height: 23))
         view.autoresizingMask = .width
 
-        let label = NSTextField(labelWithString: NSLocalizedString("Song Offset:", comment: "menu"))
+        let label = NSTextField(labelWithString: NSLocalizedString("Lyrics Timing:", comment: "menu"))
         label.translatesAutoresizingMaskIntoConstraints = false
         label.lineBreakMode = .byClipping
         label.font = .systemFont(ofSize: NSFont.systemFontSize)
@@ -311,7 +332,7 @@ enum MainMenuBuilder {
         stepper.increment = 100
         stepper.valueWraps = false
 
-        let offsetLabel = NSLocalizedString("Song offset in milliseconds", comment: "accessibility label of the menu's offset field and stepper")
+        let offsetLabel = NSLocalizedString("Lyrics timing in milliseconds", comment: "accessibility label of the menu's offset field and stepper")
         textField.setAccessibilityLabel(offsetLabel)
         stepper.setAccessibilityLabel(offsetLabel)
 

@@ -28,6 +28,8 @@ CombineX           Copyright (c) 2019 Quentin Jin  (vendored in
                    Lirico/Utility/CXExtensions/)
 Then               Copyright (c) 2015 Suyeol Jeon  (vendored in
                    Lirico/Utility/Then.swift)
+SpotMenu           Copyright (c) 2016 kmikiy  (Spotify and Apple Music icons in
+                   Lirico/Assets.xcassets/)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in

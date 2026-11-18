@@ -29,7 +29,7 @@ final class LyricsHUDWindowController: NSWindowController {
             backing: .buffered,
             defer: true
         )
-        panel.title = NSLocalizedString("Lyrics Window", comment: "HUD title")
+        panel.title = NSLocalizedString("Full Lyrics Window", comment: "HUD title")
         panel.titlebarAppearsTransparent = true
         panel.titleVisibility = .hidden
         panel.isReleasedWhenClosed = false

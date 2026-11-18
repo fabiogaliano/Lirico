@@ -4,7 +4,7 @@ import GenericID
 import MusicPlayer
 
 @MainActor
-class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenuDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenuDelegate, NSTextFieldDelegate {
     static var shared: AppDelegate? {
         return NSApplication.shared.delegate as? AppDelegate
     }
@@ -41,6 +41,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         self.container = container
         container.start(statusBarMenu: built.menu)
         built.menu.delegate = self
+        built.lyricsOffsetTextField.delegate = self
 
         for control in [built.lyricsOffsetStepper, built.lyricsOffsetTextField] as [NSControl] {
             control.bind(
@@ -251,11 +252,26 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         shortcutNotice.show(NSLocalizedString("Lyrics blocked for this song", comment: "menu header status"))
     }
 
+    // MARK: - NSTextFieldDelegate
+
+    // The offset field takes focus when the menu opens, and a text field answers Esc with a
+    // word-completion popup, which would leave the menu open beneath it.
+    func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+        guard commandSelector == #selector(NSResponder.cancelOperation(_:)) else { return false }
+        statusBarMenu.cancelTracking()
+        return true
+    }
+
     // MARK: - NSMenuDelegate
 
     func menuWillOpen(_ menu: NSMenu) {
         container?.session.refreshNoTrackStatus()
         updateNowPlayingItem()
+        statusBarMenu.items
+            .compactMap(\.submenu)
+            .flatMap(\.items)
+            .first { $0.identifier == MainMenuBuilder.saveToAppleMusicIdentifier }?
+            .isHidden = container?.player.name != .appleMusic
         let menuHasOnState = statusBarMenu.items.contains(where: { $0.state == .on })
         let lyricsOffsetConstraint = lyricsOffsetView.constraints.first(where: { $0.identifier == "lyricsOffsetConstraint" })
         lyricsOffsetConstraint?.constant = menuHasOnState ? 24 : 14

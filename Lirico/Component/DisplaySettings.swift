@@ -68,6 +68,15 @@ struct DisplaySettings {
         defaults[.combinedMenubarLyrics]
     }
 
+    /// When true, one item shows the current song and opens the artwork panel.
+    var nowPlayingMenuBarItemEnabled: Bool {
+        defaults[.nowPlayingMenuBarItemEnabled]
+    }
+
+    var nowPlayingMenuBarSymbolPosition: MenuBarSymbolPosition {
+        MenuBarSymbolPosition(rawValue: defaults[.nowPlayingMenuBarSymbolPosition]) ?? .left
+    }
+
     // MARK: - Desktop karaoke
 
     /// When true, the floating karaoke window renders the active line.

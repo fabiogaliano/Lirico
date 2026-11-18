@@ -31,6 +31,8 @@ extension UserDefaults.DefaultsKeys {
     static let lyricsJapaneseReading = Key<Int>("LyricsJapaneseReading")
 
     static let combinedMenubarLyrics = Key<Bool>("CombinedMenubarLyrics")
+    static let nowPlayingMenuBarItemEnabled = Key<Bool>("NowPlayingMenuBarItemEnabled")
+    static let nowPlayingMenuBarSymbolPosition = Key<Int>("NowPlayingMenuBarSymbolPosition")
 
     static let hideLyricsWhenMousePassingBy = Key<Bool>("HideLyricsWhenMousePassingBy")
     static let disableLyricsWhenPaused = Key<Bool>("DisableLyricsWhenPaused")
@@ -42,6 +44,7 @@ extension UserDefaults.DefaultsKeys {
     static let desktopLyricsOneLineMode = Key<Bool>("DesktopLyricsOneLineMode")
     static let desktopLyricsVerticalMode = Key<Bool>("DesktopLyricsVerticalMode")
     static let desktopLyricsDraggable = Key<Bool>("DesktopLyricsDraggable")
+    static let desktopLyricsAboveAllWindows = Key<Bool>("DesktopLyricsAboveAllWindows")
     /// No UI: set with `defaults write` to lay the desktop lyrics over the whole screen, menu bar and Dock included.
     static let desktopLyricsIgnoreSafeArea = Key<Bool>("DesktopLyricsIgnoreSafeArea")
 

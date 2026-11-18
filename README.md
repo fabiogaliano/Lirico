@@ -64,7 +64,7 @@ To see why a lyric was chosen for the playing song (every candidate, its rank an
 - Searches and downloads synced lyrics from multiple sources. [Supported sources](https://github.com/fabiogaliano/LiricoKit#supported-sources)
 - Matches the song you're playing rather than favoring one source.
 - Prefers karaoke lyrics and upgrades plain lyrics when a good karaoke version appears.
-- Shows lyrics on your desktop and in the menu bar, with your choice of font, color and position.
+- Shows floating lyrics over your windows and in the menu bar, with your choice of font, color and position.
 - Fix the timing by ear: open **Sync by Ear** and tap the line you hear.
 - Adjust the timing offset from the status menu.
 - Double-click a line to jump to it.
@@ -82,7 +82,7 @@ or any LRC editor, since LRCX is compatible with LRC.
 
 ## Screenshot
 
-<img src="docs/img/sync-by-ear.png" width="900px" alt="Lirico's Sync by Ear panel beside the desktop karaoke overlay, tapping the line you hear aligns every lyric to the music in real time">
+<img src="docs/img/sync-by-ear.png" width="900px" alt="Lirico's Sync by Ear panel beside the floating lyrics, tapping the line you hear aligns every lyric to the music in real time">
 
 ## How it differs from LyricsX
 
@@ -122,6 +122,7 @@ See [NOTICE](NOTICE) for the full third-party attributions and license notices.
 #### Special Thanks
 
 - [Lyrics Project](https://github.com/MichaelRow/Lyrics)
+- [SpotMenu](https://github.com/kmikiy/SpotMenu) by kmikiy, which inspired the menu bar song item and artwork panel and provides its player icons
 
 ## ⚠️ Disclaimer
 

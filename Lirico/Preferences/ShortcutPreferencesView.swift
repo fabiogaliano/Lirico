@@ -23,7 +23,7 @@ struct ShortcutPreferencesView: View {
         SettingsForm {
             Section("Show / Hide") {
                 shortcutRow("Menu bar lyrics", key: .shortcutToggleMenuBarLyrics)
-                shortcutRow("Desktop lyrics", key: .shortcutToggleKaraokeLyrics)
+                shortcutRow("Floating lyrics", key: .shortcutToggleKaraokeLyrics)
                 shortcutRow("Lyrics window", key: .shortcutShowLyricsWindow)
                 shortcutRow("Settings", key: .shortcutTogglePreferences)
             }

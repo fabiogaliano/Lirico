@@ -172,6 +172,7 @@ struct DisplayPreferencesView: View {
     @AppStorage(.desktopLyricsOneLineMode) private var oneLineMode = false
     @AppStorage(.desktopLyricsVerticalMode) private var verticalMode = false
     @AppStorage(.desktopLyricsDraggable) private var draggable = false
+    @AppStorage(.desktopLyricsAboveAllWindows) private var aboveAllWindows = false
     @AppStorage(.hideLyricsWhenMousePassingBy) private var hideWhenMousePassingBy = false
     @AppStorage(.disableLyricsWhenPaused) private var disableWhenPaused = false
     @AppStorage(.disableLyricsWhenSreenShot) private var disableWhenScreenShot = false
@@ -206,8 +207,8 @@ struct DisplayPreferencesView: View {
     // MARK: - Sections
 
     private var desktopLyricsSection: some View {
-        Section("Desktop Lyrics") {
-            Toggle("Show desktop lyrics", isOn: $desktopLyricsEnabled)
+        Section("Floating Lyrics") {
+            Toggle("Show floating lyrics", isOn: $desktopLyricsEnabled)
             LabeledContent("Font") {
                 FontPickerButton(font: vm.desktopFont) { old, new in
                     vm.desktopFontChanged(from: old, to: new)
@@ -236,6 +237,7 @@ struct DisplayPreferencesView: View {
 
     private var desktopLyricsBehaviorSection: some View {
         Section {
+            Toggle("Keep floating lyrics on top", isOn: $aboveAllWindows)
             Toggle("Drag with ⌘", isOn: $draggable)
             // Dragging needs the lyrics to stay under the pointer, so the overlay ignores this while draggable.
             Toggle("Hide when the mouse passes over", isOn: $hideWhenMousePassingBy)
@@ -243,7 +245,7 @@ struct DisplayPreferencesView: View {
             Toggle("Hide when paused", isOn: $disableWhenPaused)
             Toggle("Hide in screenshots and recordings", isOn: $disableWhenScreenShot)
         } header: {
-            Text("Desktop Lyrics Behavior")
+            Text("Floating Lyrics Behavior")
         } footer: {
             if draggable {
                 SettingsFooter("Hold ⌘ and drag the lyrics to move them. Hiding on mouse-over is off while dragging is on.")
@@ -252,7 +254,7 @@ struct DisplayPreferencesView: View {
     }
 
     private var lyricsWindowSection: some View {
-        Section("Lyrics Window") {
+        Section("Full Lyrics Window") {
             LabeledContent("Font") {
                 FontPickerButton(font: vm.hudFont) { old, new in
                     vm.hudFontChanged(from: old, to: new)

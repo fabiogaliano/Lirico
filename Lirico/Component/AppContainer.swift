@@ -72,7 +72,7 @@ final class AppContainer {
             exportSettings: exportSettings,
             blocklist: SearchBlocklist()
         )
-        self.menuBarController = MenuBarLyricsController(display: display, settings: displaySettings)
+        self.menuBarController = MenuBarLyricsController(display: display, player: player, settings: displaySettings)
         self.karaokeWindowController = KaraokeLyricsWindowController(
             player: player, display: display, clock: clock, settings: displaySettings
         )

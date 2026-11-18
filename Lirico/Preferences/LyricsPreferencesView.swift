@@ -92,7 +92,7 @@ struct LyricsPreferencesView: View {
         } header: {
             Text("Lyrics Language")
         } footer: {
-            SettingsFooter("Applies wherever Lirico shows lyrics. Romanized text is never saved to files or Apple Music. Furigana and Hangul with romanization appear on desktop lyrics only.")
+            SettingsFooter("Applies wherever Lirico shows lyrics. Romanized text is never saved to files or Apple Music. Furigana and Hangul with romanization appear on floating lyrics only.")
         }
     }
 

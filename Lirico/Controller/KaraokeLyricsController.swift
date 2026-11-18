@@ -28,7 +28,6 @@ class KaraokeLyricsWindowController: NSWindowController {
         window.backgroundColor = .clear
         window.hasShadow = false
         window.isOpaque = false
-        window.level = .floating
         window.collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary]
         window.setFrameUsingName(KaraokeLyricsWindowController.windowFrame, force: true)
         // Without this, moves over the overlay while it accepts events never reach the local monitor.
@@ -111,6 +110,12 @@ class KaraokeLyricsWindowController: NSWindowController {
 
         observeDefaults(key: .disableLyricsWhenSreenShot, options: [.new, .initial]) { [unowned self] _, change in
             self.window?.sharingType = change.newValue ? .none : .readOnly
+        }
+        // Some games, League of Legends among them, put their window at the screen-saver level,
+        // so only a level past it keeps the lyrics visible; a tie would depend on ordering.
+        let aboveAllWindows = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.screenSaverWindow)) + 1)
+        observeDefaults(key: .desktopLyricsAboveAllWindows, options: [.new, .initial]) { [unowned self] _, change in
+            self.window?.level = change.newValue ? aboveAllWindows : .floating
         }
         observeDefaults(keys: [
             .hideLyricsWhenMousePassingBy,

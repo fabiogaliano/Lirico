@@ -11,15 +11,17 @@ class MenuBarLyricsController {
 
     var statusBarMenu: NSMenu? {
         didSet {
+            nowPlayingItem.menu = statusBarMenu
             setupStatusItemMenu()
         }
     }
 
+    private let nowPlayingItem: NowPlayingMenuBarItem
     private var iconStatusItem: NSStatusItem?
     private var lyricStatusItem: NSStatusItem?
     // The logo uses a beamed double note with an ascending slant; SF Symbols only offers
     // a single eighth note (`music.note`), so the symbol is drawn as a template path.
-    private var buttonImage: NSImage = {
+    static let noteImage: NSImage = {
         let size = NSSize(width: 18, height: 18)
         let image = NSImage(size: size, flipped: false) { bounds in
             let sx = bounds.width / 18.0
@@ -91,6 +93,7 @@ class MenuBarLyricsController {
     private enum DisplayMode {
         case separate
         case combine
+        case nowPlaying
     }
 
     private static let defaultLyric = "Lirico"
@@ -103,8 +106,9 @@ class MenuBarLyricsController {
 
     private var cancelBag = Set<AnyCancellable>()
 
-    init(display: LyricsDisplayCoordinator, settings: DisplaySettings = DisplaySettings()) {
+    init(display: LyricsDisplayCoordinator, player: PlayerHandle, settings: DisplaySettings = DisplaySettings()) {
         self.settings = settings
+        self.nowPlayingItem = NowPlayingMenuBarItem(player: player, settings: settings)
         if !settings.hideMenuBarItems {
             updateStatusItems()
         }
@@ -119,7 +123,17 @@ class MenuBarLyricsController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.updateStatusItems() }
             .store(in: &cancelBag)
-        defaults.publisher(for: [.menuBarLyricsEnabled, .combinedMenubarLyrics, .hideMenuBarItems])
+        player.designatedPlayerDidChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in self?.updateStatusItems() }
+            .store(in: &cancelBag)
+        defaults.publisher(for: [
+            .menuBarLyricsEnabled,
+            .combinedMenubarLyrics,
+            .hideMenuBarItems,
+            .nowPlayingMenuBarItemEnabled,
+            .nowPlayingMenuBarSymbolPosition,
+        ])
             .prepend()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in self?.updateStatusItems() }
@@ -142,12 +156,19 @@ class MenuBarLyricsController {
 
     private func updateStatusItems() {
         guard !settings.hideMenuBarItems else {
+            nowPlayingItem.setVisible(false)
             marqueeLabel.removeFromSuperview()
             iconStatusItem = nil
             lyricStatusItem = nil
             lastDisplayMode = nil
             return
         }
+
+        if nowPlayingItem.isAvailable {
+            updateNowPlayingStatusItems()
+            return
+        }
+        nowPlayingItem.setVisible(false)
 
         guard settings.menuBarLyricsEnabled else {
             marqueeLabel.removeFromSuperview()
@@ -168,8 +189,25 @@ class MenuBarLyricsController {
         }
     }
 
+    /// The song item already carries the symbol and the menu, so the icon item steps aside.
+    private func updateNowPlayingStatusItems() {
+        nowPlayingItem.setVisible(true)
+        iconStatusItem = nil
+        if settings.menuBarLyricsEnabled {
+            if lyricStatusItem == nil {
+                setupLyricStatusItem()
+            }
+            showInMarquee(screenLyrics)
+            updateLyricAccessibilityLabel()
+        } else {
+            marqueeLabel.removeFromSuperview()
+            lyricStatusItem = nil
+        }
+        lastDisplayMode = .nowPlaying
+    }
+
     private func updateSeparateStatusLyrics() {
-        if lastDisplayMode == nil || lastDisplayMode == .combine {
+        if lastDisplayMode != .separate {
             setupIconStatusItem()
             setupLyricStatusItem()
         }
@@ -179,7 +217,7 @@ class MenuBarLyricsController {
     }
 
     private func updateCombinedStatusLyrics() {
-        if lastDisplayMode == nil || lastDisplayMode == .separate {
+        if lastDisplayMode != .combine {
             iconStatusItem = nil
             setupLyricStatusItem()
         }
@@ -218,7 +256,7 @@ class MenuBarLyricsController {
     private func setupIconStatusItem() {
         iconStatusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         iconStatusItem?.button?.title = ""
-        iconStatusItem?.button?.image = buttonImage
+        iconStatusItem?.button?.image = Self.noteImage
         iconStatusItem?.length = buttonlength
         setupStatusItemMenu()
     }

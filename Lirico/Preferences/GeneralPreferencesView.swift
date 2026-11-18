@@ -57,6 +57,8 @@ struct GeneralPreferencesView: View {
     @AppStorage(.menuBarLyricsEnabled) private var menuBarLyricsEnabled = false
     @AppStorage(.combinedMenubarLyrics) private var combinedMenubarLyrics = false
     @AppStorage(.hideMenuBarItems) private var hideMenuBarItems = false
+    @AppStorage(.nowPlayingMenuBarItemEnabled) private var nowPlayingMenuBarItemEnabled = false
+    @AppStorage(.nowPlayingMenuBarSymbolPosition) private var nowPlayingMenuBarSymbolPosition = MenuBarSymbolPosition.left.rawValue
 
     // Read from the system each time the pane appears: the user can also change it in
     // System Settings › General › Login Items & Extensions.
@@ -75,6 +77,7 @@ struct GeneralPreferencesView: View {
             musicPlayerSection
             menuBarSection
             languageSection
+            aboutSection
         }
         .onAppear(perform: loadInitialState)
         // Approval happens in System Settings, so look again whenever the user comes back.
@@ -150,6 +153,13 @@ struct GeneralPreferencesView: View {
             Toggle("Show lyrics in the menu bar", isOn: $menuBarLyricsEnabled)
             Toggle("Show icon and lyrics as one item", isOn: $combinedMenubarLyrics)
                 .disabled(!menuBarLyricsEnabled)
+            Toggle("Show the current song with an artwork panel", isOn: $nowPlayingMenuBarItemEnabled)
+            Picker("Music symbol", selection: $nowPlayingMenuBarSymbolPosition) {
+                Text("Left").tag(MenuBarSymbolPosition.left.rawValue)
+                Text("Right").tag(MenuBarSymbolPosition.right.rawValue)
+                Text("Off").tag(MenuBarSymbolPosition.off.rawValue)
+            }
+            .disabled(!nowPlayingMenuBarItemEnabled)
             Toggle("Hide menu bar items", isOn: $hideMenuBarItems)
         } header: {
             Text("Menu Bar")
@@ -182,6 +192,16 @@ struct GeneralPreferencesView: View {
         } footer: {
             if !languageSelectionPendingRelaunch {
                 SettingsFooter("Takes effect after Lirico restarts.")
+            }
+        }
+    }
+
+    private var aboutSection: some View {
+        Section {
+            LabeledContent("Lirico") {
+                Button("About Lirico…") {
+                    NSApp.sendAction(#selector(AppDelegate.aboutLiricoAction(_:)), to: nil, from: nil)
+                }
             }
         }
     }
